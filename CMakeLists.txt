@@ -1,0 +1,40 @@
+cmake_minimum_required(VERSION 2.6)
+project(METACADE)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+set(BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
+
+if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU" OR ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -std=c++11")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -g")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O2")
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
+	if (CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	endif()
+endif()
+
+#INCLUDE(FindPkgConfig)
+#PKG_SEARCH_MODULE(SDL2 REQUIRED opengl)
+#PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+
+find_package(OpenGL REQUIRED)
+find_package(SDL2 REQUIRED)
+
+SET(LUA_INCLUDE_DIR "INCLUDE_DIR" CACHE PATH "Lua include directory")
+SET(LUA_LIBRARY "LIB_FILE" CACHE FILEPATH "Lua library")
+SET(GLEW_DIR "GLEW" CACHE PATH "GLEW directory")
+
+SET(IL_INCLUDE_DIR "INCLUDE_DIR" CACHE PATH "DevIL include directory")
+SET(IL_LIBRARY_DIR "LIB_FILE" CACHE PATH "DevIL library dir")
+
+add_subdirectory(src)
+
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+    ${PROJECT_SOURCE_DIR}/lib CACHE
+    PATH "Directory where all the .lib files are dumped." FORCE)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_SOURCE_DIR}/bin CACHE
+    PATH "Directory where .exe and .dll files are dumped." FORCE)
