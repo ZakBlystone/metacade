@@ -19,7 +19,6 @@ struct ThreadInfo
 {
 	std::thread *thread;
 	std::mutex mutex;
-	std::promise<bool> done;
 	std::condition_variable waitcond;
 	void *argument;
 	unsigned long (*function)(void*);
@@ -47,7 +46,6 @@ unsigned long threadEntry(void *thread)
 	Runtime::LogPrint(LOG_MESSAGE, "Thread Exit: %x", thread);
 
 	t->info->waitcond.notify_all();
-	t->info->done.set_value_at_thread_exit(true);
 	return ret;
 }
 
@@ -59,7 +57,6 @@ Thread::Thread(unsigned long (*function)(void*), void *arg)
 	info->function = function;
 	info->argument = arg;
 	info->thread = new std::thread(threadEntry, this);
-	info->thread->detach();
 
 	started = false;
 }
@@ -67,8 +64,7 @@ Thread::Thread(unsigned long (*function)(void*), void *arg)
 Thread::~Thread()
 {
 	Runtime::LogPrint(LOG_MESSAGE, "Thread Destruct: %x", this);
-	std::future<bool> done = info->done.get_future();
-	done.wait();
+	if ( info->thread->joinable() ) info->thread->join();
 
 	Runtime::LogPrint(LOG_MESSAGE, "Thread **Destroy**: %x", this);
 
@@ -82,17 +78,13 @@ bool Thread::Wait(unsigned long duration)
 	std::thread *t = info->thread;
 	if ( duration == INFINITE )
 	{
-		Runtime::LogPrint(LOG_MESSAGE, "Thread Wait-Join: %x", this);
-		std::unique_lock<std::mutex> tlock(info->mutex);
-		info->waitcond.wait(tlock);
+		if ( info->thread->joinable() ) info->thread->join();
 		return true;
 	}
 
-	
-	auto t0 = std::chrono::steady_clock::now();
-	auto t1 = t0 + std::chrono::milliseconds(duration);
-	std::unique_lock<std::mutex> tlock(info->mutex);
-	info->waitcond.wait_until(tlock, t1);
+	std::mutex mutex;
+	std::unique_lock<std::mutex> tlock(mutex);
+	info->waitcond.wait_for(tlock, std::chrono::milliseconds(duration));
 
 	Runtime::LogPrint(LOG_MESSAGE, "Thread Done Wait: %x [%lld]", this, duration);
 
