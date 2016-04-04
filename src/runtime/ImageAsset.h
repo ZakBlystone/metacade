@@ -35,8 +35,8 @@ namespace Arcade
 	private:
 
 		//Bitmap info
-		int Width;
-		int Height;
+		unsigned int Width;
+		unsigned int Height;
 
 		//Bitmap data
 		void *DataBuffer;

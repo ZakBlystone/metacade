@@ -94,6 +94,7 @@ int AssetModule::Image(lua_State *L)
 
 			if (!Builder->CompileImageAsset(img, Asset))
 			{
+				Pack->RemoveAsset(img);
 				lua_pushfstring(L, "Unable to compile image: %s", img);
 				lua_error(L);
 				return 1;

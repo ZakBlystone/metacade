@@ -40,6 +40,12 @@ bool ImageAsset::Save(IFileObject *Object)
 
 	Runtime::LogPrint(LOG_MESSAGE, "Write Image Bytes: %i", Width * Height * 4);
 
+	if ( Width > 4096 || Height > 4096 ) 
+	{
+		Runtime::LogPrint(LOG_ERROR, "Image Is Too Big: %ix%i, max is 4096x4096", Width, Height);
+		return false;
+	}
+
 	unsigned int Size = Width * Height * 4 * sizeof(char);
 
 	//Write bitmap to file
