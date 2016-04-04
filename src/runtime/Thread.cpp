@@ -1,3 +1,10 @@
+/*
+* <Thread.cpp>
+*
+* This file is a part of Metacade.
+* Copyright (C) 2016 Zachary Blystone. See LICENSE for more details
+*/
+
 #include <thread>
 #include <chrono>
 #include <mutex>
