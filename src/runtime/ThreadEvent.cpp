@@ -5,51 +5,64 @@
 * Copyright (C) 2016 Zachary Blystone. See LICENSE for more details
 */
 
-#include <Windows.h>
-#include "ThreadEvent.h"
 #include <string>
+#include <thread>
+#include <future>
+
+#include "ThreadEvent.h"
+#include "Runtime.h"
+
+using namespace Arcade;
 
 static int eventIndex = 0;
 
-ThreadEvent::ThreadEvent() :
-	eventHandle(nullptr)
+struct EventInfo
 {
-	std::string eventName("Event");
-	eventName += (eventIndex++);
+	bool signaled;
+	std::mutex mutex;
+	std::condition_variable eventflag;
+	EventInfo() : signaled(false) {}
+};
 
-	eventHandle = CreateEvent(
-		NULL,
-		TRUE,
-		FALSE,
-		eventName.c_str());
+ThreadEvent::ThreadEvent()
+{
+	info = new EventInfo;
 }
 
 ThreadEvent::~ThreadEvent()
 {
-	if (eventHandle)
-	{
-		CloseHandle((HANDLE)eventHandle);
-	}
+	if ( info ) delete info;
 }
 
 bool ThreadEvent::IsValid()
 {
-	return eventHandle != nullptr;
+	return true;
 }
 
 void ThreadEvent::Set()
 {
-	if (eventHandle) SetEvent((HANDLE)eventHandle);
+	info->eventflag.notify_all();
+
+	{
+		std::lock_guard<std::mutex> signallock(info->mutex);
+		info->signaled = true;
+	}
 }
 
 void ThreadEvent::Reset()
 {
-	if (eventHandle) ResetEvent((HANDLE)eventHandle);
+	std::lock_guard<std::mutex> signallock(info->mutex);
+	info->signaled = false;
 }
 
 bool ThreadEvent::Wait(unsigned long duration /*= INFINITE*/)
 {
-	if (eventHandle) return WaitForSingleObject((HANDLE)eventHandle, duration) != WAIT_TIMEOUT;
-	return false;
+	{
+		std::lock_guard<std::mutex> signallock(info->mutex);
+		if ( info->signaled ) return true;
+	}
+
+	std::unique_lock<std::mutex> tlock(info->mutex);
+	return info->eventflag.wait_for(tlock, std::chrono::milliseconds(duration)) == std::cv_status::no_timeout;
 }
 

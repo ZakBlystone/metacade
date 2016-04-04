@@ -392,8 +392,8 @@ void GamePackage::UploadNativeAssets(bool ReUpload)
 
 	if (NeedsLoading)
 	{
+		Runtime::LogPrint(LOG_MESSAGE, "Begin Upload Thread");
 		Thread UploadThread(AssetUploadGLPtr, this);
-		UploadThread.Resume();
 		UploadThread.Wait();
 	}
 	else
@@ -406,6 +406,5 @@ void GamePackage::UploadNativeAssets(bool ReUpload)
 void GamePackage::CloseNativeAssets()
 {
 	Thread CloseThread(AssetCloseGLPtr, this);
-	CloseThread.Resume();
 	CloseThread.Wait();
 }

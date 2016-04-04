@@ -90,19 +90,18 @@ bool GLRenderThread::Init(GLContextHost *HostContext)
 
 	//Create Thread and Interface
 	GLInterface *GLI = new GLInterface;
-	Thread *PTHREAD = new Thread(PBufferThread, GLI);
-
-	Runtime::LogPrint(LOG_MESSAGE, "Startup render thread[%X]...", (int)GLI);
 
 	//Keep a pointer to the interface
 	InterfaceHandle = GLI;
 
+	Runtime::LogPrint(LOG_MESSAGE, "Startup render thread[%X]...", (int)GLI);
+
 	//Setup interface and start the thread
 	GLI->Buffer = Buffer;
-	GLI->RenderThread = PTHREAD;
 	GLI->Running = true;
-	GLI->RenderThread->Resume();
 	GLI->Host = this;
+	GLI->RenderThread = new Thread(PBufferThread, GLI);
+
 
 	//Flag this RenderThread as initialized
 	Initialized = true;

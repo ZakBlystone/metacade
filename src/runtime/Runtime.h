@@ -16,6 +16,8 @@
 #else // outside DLL
 #   define RUNTIME_API   __declspec(dllimport)
 #endif
+#else //Linux
+	#define RUNTIME_API
 #endif
 
 namespace Arcade

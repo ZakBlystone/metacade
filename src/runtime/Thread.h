@@ -13,14 +13,18 @@
 
 class Thread {
 public:
-	Thread(unsigned long (*function)(void), void *arg = 0);
 	Thread(unsigned long (*function)(void*), void *arg = 0);
 	~Thread();
 
-	void Resume();
-	void Pause();
 	bool Wait(unsigned long duration = INFINITE);
+
+	static int GetNumThreads();
+
 private:
 	bool started;
-	void *thread;
+
+	struct ThreadInfo *info;
+
+	friend unsigned long threadEntry(void *thread);
+	static int num_threads;
 };

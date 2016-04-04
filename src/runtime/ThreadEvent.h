@@ -7,6 +7,10 @@
 
 #pragma once
 
+#ifndef INFINITE
+#define INFINITE 0xFFFFFFFF
+#endif
+
 class ThreadEvent {
 public:
 	ThreadEvent();
@@ -19,5 +23,5 @@ public:
 
 private:
 	bool started;
-	void *eventHandle;
+	struct EventInfo *info;
 };
