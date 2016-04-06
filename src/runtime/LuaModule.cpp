@@ -8,6 +8,8 @@
 #include "LuaModule.h"
 #include "Runtime.h"
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 using namespace Arcade;
 

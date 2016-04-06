@@ -12,8 +12,8 @@
 #include <Windows.h>
 #include "LuaVM.h"
 #include "SDL.h"
-#include "gl/glew.h"
-#include "gl/glew.c"
+#include "GL/glew.h"
+#include "GL/glew.c"
 #include "IL/il.h"
 #include "RenderStack.h"
 

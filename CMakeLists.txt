@@ -16,19 +16,21 @@ elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
 	endif()
 endif()
 
-#INCLUDE(FindPkgConfig)
-#PKG_SEARCH_MODULE(SDL2 REQUIRED opengl)
-#PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+if (WIN32)
+	find_package(OpenGL REQUIRED)
+	find_package(SDL2 REQUIRED)
+else()
+	INCLUDE(FindPkgConfig)
+	#PKG_SEARCH_MODULE(OpenGL REQUIRED opengl)
+	PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+endif()
 
-find_package(OpenGL REQUIRED)
-find_package(SDL2 REQUIRED)
+SET(LUA_INCLUDE_DIR "" CACHE PATH "Lua include directory")
+SET(LUA_LIBRARY "" CACHE FILEPATH "Lua library")
+SET(GLEW_DIR "" CACHE PATH "GLEW directory")
 
-SET(LUA_INCLUDE_DIR "INCLUDE_DIR" CACHE PATH "Lua include directory")
-SET(LUA_LIBRARY "LIB_FILE" CACHE FILEPATH "Lua library")
-SET(GLEW_DIR "GLEW" CACHE PATH "GLEW directory")
-
-SET(IL_INCLUDE_DIR "INCLUDE_DIR" CACHE PATH "DevIL include directory")
-SET(IL_LIBRARY_DIR "LIB_FILE" CACHE PATH "DevIL library dir")
+SET(IL_INCLUDE_DIR "" CACHE PATH "DevIL include directory")
+SET(IL_LIBRARY_DIR "" CACHE PATH "DevIL library dir")
 
 add_subdirectory(src)
 

@@ -9,7 +9,7 @@
 #include "Thread.h"
 #include "ThreadEvent.h"
 #include "Runtime.h"
-#include "gl/glew.h"
+#include "GL/glew.h"
 
 using namespace Arcade;
 
@@ -37,7 +37,7 @@ struct GLInterface
 		//Skip if last frame isn't ready yet.
 		if ( !FrameFinishedEvent.Wait(0) )
 		{
-			Runtime::LogPrint(LOG_WARN, "RenderThread[%X] skipping frame.", (int)this);
+			Runtime::LogPrint(LOG_WARN, "RenderThread[%X] skipping frame.", this);
 			return;
 		}
 
@@ -50,7 +50,10 @@ struct GLInterface
 };
 
 //Forward declaration for thread code
-unsigned long PBufferThread(void *renderInterface);
+namespace Arcade
+{
+	unsigned long PBufferThread(void *renderInterface);
+}
 
 //
 //GLRenderThread constructor:
@@ -94,7 +97,7 @@ bool GLRenderThread::Init(GLContextHost *HostContext)
 	//Keep a pointer to the interface
 	InterfaceHandle = GLI;
 
-	Runtime::LogPrint(LOG_MESSAGE, "Startup render thread[%X]...", (int)GLI);
+	Runtime::LogPrint(LOG_MESSAGE, "Startup render thread[%X]...", GLI);
 
 	//Setup interface and start the thread
 	GLI->Buffer = Buffer;
@@ -117,7 +120,7 @@ void GLRenderThread::Shutdown()
 		Initialized = false;
 		GLInterface *GLI = (GLInterface *)InterfaceHandle;
 
-		Runtime::LogPrint(LOG_MESSAGE, "Shutting down render thread[%X]...", (int)GLI);
+		Runtime::LogPrint(LOG_MESSAGE, "Shutting down render thread[%X]...", GLI);
 
 		if (GLI)
 		{
@@ -128,14 +131,14 @@ void GLRenderThread::Shutdown()
 			//Wait for a second, if the thread has stalled, there's a problem
 			if (!GLI->RenderThread->Wait(1000))
 			{
-				Runtime::LogPrint(LOG_ERROR, "Thread lockup on shutdown[%X] Forcing...", (int)GLI);
+				Runtime::LogPrint(LOG_ERROR, "Thread lockup on shutdown[%X] Forcing...", GLI);
 			}
 		}
 
 		//Shutdown the PBuffer
 		Buffer->Shutdown();
 
-		Runtime::LogPrint(LOG_MESSAGE, "Finished thread shutdown[%X]", (int)GLI);
+		Runtime::LogPrint(LOG_MESSAGE, "Finished thread shutdown[%X]", GLI);
 
 		//Delete interface
 		delete GLI;

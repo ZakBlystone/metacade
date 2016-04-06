@@ -7,6 +7,8 @@
 
 #include "LuaInput.h"
 #include "Runtime.h"
+#include <cmath>
+#include <cstring>
 
 using namespace Arcade;
 

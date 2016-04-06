@@ -6,7 +6,7 @@
 */
 
 #include "Game.h"
-#include "gl/glew.h"
+#include "GL/glew.h"
 #include "Package.h"
 #include "AssetTypes.h"
 #include "GLContextHost.h"
@@ -16,6 +16,7 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
 
 using namespace Arcade;
 
