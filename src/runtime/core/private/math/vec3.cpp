@@ -96,7 +96,7 @@ CVec3::CVec3(float s)
 
 CVec3::CVec3()
 {
-	set(0, 0, 0);
+	//set(0, 0, 0);
 }
 
 void CVec3::set(const CVec3 &other)

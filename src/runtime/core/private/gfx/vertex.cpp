@@ -58,7 +58,7 @@ CVertex3D CVertex3D::interpolateTo(const CVertex3D &other, float fraction) const
 		CFloatColor(_color).interpolateTo(other._color, fraction));
 }
 
-CVertex2D::CVertex2D() : _color(0xFFFFFFFF)
+CVertex2D::CVertex2D()
 {
 
 }

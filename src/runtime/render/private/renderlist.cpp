@@ -27,6 +27,7 @@ renderlist.cpp:
 
 CRenderList::CRenderList()
 {
+	_elements.reserve(8192);
 }
 
 void CRenderList::appendRenderElement(const CRenderElement& element)
@@ -47,12 +48,12 @@ void CRenderList::clear()
 
 CRenderElement& CRenderList::top()
 {
-	return _elements.front();
+	return _elements.back();
 }
 
 void CRenderList::pop()
 {
-	_elements.pop_front();
+	_elements.pop_back();
 }
 
 bool CRenderList::empty()
@@ -62,9 +63,9 @@ bool CRenderList::empty()
 
 void CRenderList::sort()
 {
-	_elements.sort([](const CRenderElement &a, const CRenderElement &b)
+	std::sort(_elements.begin(), _elements.end(), [](const CRenderElement &a, const CRenderElement &b)
 	{
-		if ( a.getLayer() != b.getLayer() ) return a.getLayer() < b.getLayer();
+		if ( a.getLayer() != b.getLayer() ) return a.getLayer() > b.getLayer();
 
 		return a.getRenderState().getHash() > b.getRenderState().getHash();
 	});

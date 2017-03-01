@@ -38,7 +38,6 @@ CHalfPlane::CHalfPlane(const CVec2& dir, const CVec2& origin)
 }
 
 CHalfPlane::CHalfPlane()
-	: CVec3(0.f, 0.f, 0.f)
 {
 
 }

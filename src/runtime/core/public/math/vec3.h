@@ -47,13 +47,13 @@ public:
 	CVec3(const CVec3 &other);
 
 	//Accessors and Mutators
-	void set(float vx, float vy, float vz);
-	void set(float xyz[3]);
-	void set(const CVec3 &other);
-	float getX() const;
-	float getY() const;
-	float getZ() const;
-	void get(float *ptr) const;
+	inline void set(float vx, float vy, float vz);
+	inline void set(float xyz[3]);
+	inline void set(const CVec3 &other);
+	inline float getX() const;
+	inline float getY() const;
+	inline float getZ() const;
+	inline void get(float *ptr) const;
 
 	//Utility Functions
 	bool equal(const CVec3 &other) const;

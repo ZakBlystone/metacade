@@ -29,6 +29,7 @@ metacade_private.h:
 #include <vector>
 #include <memory>
 #include <list>
+#include <algorithm>
 
 using std::ostream;
 using std::istream;
@@ -38,3 +39,4 @@ using std::shared_ptr;
 using std::weak_ptr;
 using std::list;
 using std::make_shared;
+using std::sort;

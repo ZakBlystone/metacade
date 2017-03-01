@@ -45,5 +45,5 @@ public:
 	void sort();
 
 private:
-	list<CRenderElement> _elements;
+	vector<CRenderElement> _elements;
 };

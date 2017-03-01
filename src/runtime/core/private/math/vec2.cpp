@@ -27,7 +27,7 @@ vec2.cpp:
 
 CVec2::CVec2()
 {
-	set(0, 0);
+	//set(0, 0);
 }
 
 CVec2::CVec2(float x, float y)
