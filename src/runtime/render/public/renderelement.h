@@ -22,3 +22,18 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderelement.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+#include "core/core_public.h"
+#include "render/public/renderstate.h"
+
+class CRenderElement
+{
+public:
+	ERenderElementType _type;
+	CMatrix3 _transform;
+	CRenderState _renderState;
+	int32 _layer;
+};

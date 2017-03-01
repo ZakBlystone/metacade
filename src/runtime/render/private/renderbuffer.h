@@ -25,27 +25,27 @@ renderbuffer.h: VBO / IBO storage on CPU
 
 #pragma once
 
-#include "metacade_private.h"
+#include "metacade_types.h"
 #include "core/core_public.h"
 
-class CRenderBuffer
+class CRenderBuffer : public IRenderBuffer
 {
 public:
 	CRenderBuffer();
 
 	CVertex2D& addVertex(const CVertex2D &vertex);
-	uint32& addIndex(const uint32 index = 0);
+	uint16& addIndex(const uint16 index = 0);
 
-	const RUNTIME_API CVertex2D* getVertices() const;
-	const RUNTIME_API uint32 getNumVertices() const;
+	virtual const CVertex2D* getVertices() const;
+	virtual const uint16 getNumVertices() const;
 
-	const RUNTIME_API uint32* getIndices() const;
-	const RUNTIME_API uint32 getNumIndices() const;
+	virtual const uint16* getIndices() const;
+	virtual const uint32 getNumIndices() const;
 
 	void clear();
 
 private:
 
 	vector<CVertex2D> _vertices;
-	vector<uint32> _indices;
+	vector<uint16> _indices;
 };

@@ -22,3 +22,28 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderlist.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_private.h"
+#include "render_private.h"
+
+class CRenderList
+{
+public:
+	CRenderList();
+
+	void appendRenderElement(const CRenderElement& element);
+	CRenderElement& emplaceRenderElement();
+
+	void clear();
+
+	CRenderElement& top();
+	void pop();
+	bool empty();
+
+	void sort();
+
+private:
+	list<CRenderElement> _elements;
+};

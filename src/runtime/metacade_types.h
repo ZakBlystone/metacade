@@ -35,6 +35,16 @@ metacade_types.h: Common types used throughout the runtime
 	#define RUNTIME_API
 #endif
 
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+typedef unsigned long long uint64;
+
+typedef char int8;
+typedef short int16;
+typedef int int32;
+typedef long long int64;
+
 enum EFileIOMode
 {
 	FILE_READ,
@@ -55,12 +65,38 @@ enum ELanguage
 	LANG_PYTHON,
 };
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
-typedef unsigned long long uint64;
+#define MAX_BLEND_BITS 3
+enum EBlendMode
+{
+	BLEND_NORMAL = 0,
+	BLEND_ADD = 1,
+	BLEND_ALPHA = 2,
+};
 
-typedef char int8;
-typedef short int16;
-typedef int int32;
-typedef long long int64;
+enum EPrimitive
+{
+	PRIM_TRIANGLES,
+	PRIM_LINES,
+};
+
+enum EImagePixelFormat
+{
+	PFM_ALPHA8,
+	PFM_RGB8,
+	PFM_RGBA8,
+	PFM_BGR8,
+	PFM_BGRA8,
+	PFM_LUMINANCE8,
+};
+
+enum ERenderElementType
+{
+	RET_QUAD,
+};
+
+enum ERenderStateChangeFlags
+{
+	RSTATECHANGE_NONE = 0x0,
+	RSTATECHANGE_BLENDMODE = 0x1,
+	RSTATECHANGE_BASETEXTURE = 0x2,
+};

@@ -27,8 +27,13 @@ metacade_private.h:
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <list>
 
 using std::ostream;
 using std::istream;
 using std::string;
 using std::vector;
+using std::shared_ptr;
+using std::weak_ptr;
+using std::list;

@@ -19,19 +19,28 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-render_public.h:
+drawbuffer.h:
 ===============================================================================
 */
 
-#define MAX_TEXTURE_BITS 10
-#define MAX_TEXTURES 1024
-#define MAX_VERTICES 65535
-#define MAX_INDICES 200000
+#pragma once
 
-#include "render/public/itexture.h"
-#include "render/public/irenderbuffer.h"
+#include "metacade_private.h"
 #include "render/public/idrawbuffer.h"
-#include "render/public/irenderer.h"
-#include "render/public/material.h"
-#include "render/public/renderelement.h"
-#include "render/public/renderbatch.h"
+
+class CDrawBuffer : public IDrawBuffer
+{
+public:
+
+	void queueRenderBatch(CRenderBatch batch);
+	void clearRenderBatches();
+
+	virtual const CRenderBatch* getRenderBatches() const override;
+	virtual uint32 getNumRenderBatches() const override;
+	virtual const IRenderBuffer* getRenderBuffer() const override;
+
+private:
+
+	shared_ptr<IRenderBuffer> _renderBuffer;
+	vector<CRenderBatch> _renderBatches;
+};

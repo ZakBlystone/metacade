@@ -22,3 +22,51 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderbatch.cpp:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+CRenderBatch::CRenderBatch()
+	: _firstIndex(0)
+	, _numIndices(0)
+{
+
+}
+
+CRenderBatch::CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive)
+	: _firstIndex(first)
+	, _numIndices(num)
+	, _renderState(renderState)
+	, _primitive(primitive)
+{
+
+}
+
+uint32 RUNTIME_API CRenderBatch::getFirstIndex() const
+{
+	return _firstIndex;
+}
+
+uint32 RUNTIME_API CRenderBatch::getNumIndices() const
+{
+	return _numIndices;
+}
+
+const RUNTIME_API class CRenderState CRenderBatch::getRenderState() const
+{
+	return _renderState;
+}
+
+const RUNTIME_API EPrimitive CRenderBatch::getPrimitive() const
+{
+	return _primitive;
+}
+
+const RUNTIME_API uint32 CRenderBatch::getStateChangeFlags() const
+{
+	return _stateChangeFlags;
+}
+
+void CRenderBatch::createStateChangeFlags(const CRenderState& previousState)
+{
+	_stateChangeFlags = previousState.getStateChangeFlags(_renderState);
+}

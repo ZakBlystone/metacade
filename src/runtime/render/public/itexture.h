@@ -29,5 +29,8 @@ itexture.h:
 
 class ITexture
 {
-
+public:
+	virtual int32 getWidth() const = 0;
+	virtual int32 getHeight() const = 0;
+	virtual uint32 getID() const = 0;
 };

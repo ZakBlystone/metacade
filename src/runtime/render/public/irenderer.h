@@ -29,5 +29,7 @@ irenderer.h:
 
 class IRenderer
 {
-
+	virtual void render(class CDrawBuffer* buffer) = 0;
+	virtual ITexture* loadTexture(class IImage* imagesource) = 0;
+	virtual void freeTexture(ITexture* texture) = 0;
 };

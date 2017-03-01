@@ -22,3 +22,16 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 material.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class CMaterial
+{
+public:
+	EBlendMode _blend;
+	uint16 _baseTexture;
+
+	uint64 getHash() const;
+};

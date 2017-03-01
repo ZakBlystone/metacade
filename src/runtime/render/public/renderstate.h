@@ -22,3 +22,18 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderstate.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+#include "core/core_public.h"
+#include "render/public/material.h"
+
+class CRenderState
+{
+public:
+	CMaterial _material;
+
+	uint64 getHash() const;
+	uint32 getStateChangeFlags(const CRenderState& other) const;
+};

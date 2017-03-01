@@ -19,6 +19,20 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-drawbuffer.h:
+iimage.h: Abstraction of an image resource
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class IImage
+{
+public:
+	virtual int32 getWidth() const = 0;
+	virtual int32 getHeight() const = 0;
+	virtual int32 getBytesPerPixel() const = 0;
+	virtual EImagePixelFormat getPixelFormat() const = 0;
+	virtual uint8* getPixels() const = 0;
+};

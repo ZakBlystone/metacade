@@ -22,3 +22,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderstate.cpp:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+uint64 CRenderState::getHash() const
+{
+	return _material.getHash();
+}
+
+uint32 CRenderState::getStateChangeFlags(const CRenderState& other) const
+{
+	uint32 stateChangeFlags = RSTATECHANGE_NONE;
+	if ( other._material._baseTexture != _material._baseTexture )
+		stateChangeFlags |= RSTATECHANGE_BASETEXTURE;
+
+	if ( other._material._blend != _material._blend )
+		stateChangeFlags |= RSTATECHANGE_BLENDMODE;
+
+	return stateChangeFlags;
+}

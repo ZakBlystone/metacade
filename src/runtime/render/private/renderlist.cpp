@@ -22,3 +22,50 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderlist.cpp:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+CRenderList::CRenderList()
+{
+}
+
+void CRenderList::appendRenderElement(const CRenderElement& element)
+{
+	_elements.push_back(element);
+}
+
+CRenderElement& CRenderList::emplaceRenderElement()
+{
+	_elements.emplace_back();
+	return _elements.back();
+}
+
+void CRenderList::clear()
+{
+	_elements.clear();
+}
+
+CRenderElement& CRenderList::top()
+{
+	return _elements.front();
+}
+
+void CRenderList::pop()
+{
+	_elements.pop_front();
+}
+
+bool CRenderList::empty()
+{
+	return _elements.empty();
+}
+
+void CRenderList::sort()
+{
+	_elements.sort([](const CRenderElement &a, const CRenderElement &b)
+	{
+		if ( a._layer != b._layer ) return a._layer > b._layer;
+
+		return a._renderState.getHash() > b._renderState.getHash();
+	});
+}

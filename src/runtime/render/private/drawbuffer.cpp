@@ -22,3 +22,30 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 drawbuffer.cpp:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+void CDrawBuffer::queueRenderBatch(CRenderBatch batch)
+{
+	_renderBatches.emplace_back(batch);
+}
+
+void CDrawBuffer::clearRenderBatches()
+{
+	_renderBatches.clear();
+}
+
+const CRenderBatch* CDrawBuffer::getRenderBatches() const
+{
+	return _renderBatches.data();
+}
+
+uint32 CDrawBuffer::getNumRenderBatches() const
+{
+	return _renderBatches.size();
+}
+
+const IRenderBuffer* CDrawBuffer::getRenderBuffer() const
+{
+	return _renderBuffer.get();
+}

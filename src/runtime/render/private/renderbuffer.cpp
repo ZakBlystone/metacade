@@ -36,7 +36,7 @@ CVertex2D& CRenderBuffer::addVertex(const CVertex2D &vertex)
 	_vertices.emplace_back(vertex); return _vertices.back();
 }
 
-uint32& CRenderBuffer::addIndex(const uint32 index /*= 0*/)
+uint16& CRenderBuffer::addIndex(const uint16 index /*= 0*/)
 {
 	_indices.emplace_back(index); return _indices.back();
 }
@@ -46,12 +46,12 @@ const CVertex2D* CRenderBuffer::getVertices() const
 	return _vertices.data();
 }
 
-const uint32 CRenderBuffer::getNumVertices() const
+const uint16 CRenderBuffer::getNumVertices() const
 {
-	return (uint32)_vertices.size();
+	return (uint16)_vertices.size();
 }
 
-const uint32* CRenderBuffer::getIndices() const
+const uint16* CRenderBuffer::getIndices() const
 {
 	return _indices.data();
 }

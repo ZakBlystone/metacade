@@ -19,19 +19,21 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-render_public.h:
+irenderbuffer.h: Abstraction of VBO / IBO storage on CPU
 ===============================================================================
 */
 
-#define MAX_TEXTURE_BITS 10
-#define MAX_TEXTURES 1024
-#define MAX_VERTICES 65535
-#define MAX_INDICES 200000
+#pragma once
 
-#include "render/public/itexture.h"
-#include "render/public/irenderbuffer.h"
-#include "render/public/idrawbuffer.h"
-#include "render/public/irenderer.h"
-#include "render/public/material.h"
-#include "render/public/renderelement.h"
-#include "render/public/renderbatch.h"
+#include "metacade_types.h"
+#include "core/core_public.h"
+
+class IRenderBuffer
+{
+public:
+	virtual const CVertex2D* getVertices() const = 0;
+	virtual const uint16 getNumVertices() const = 0;
+
+	virtual const uint16* getIndices() const = 0;
+	virtual const uint32 getNumIndices() const = 0;
+};

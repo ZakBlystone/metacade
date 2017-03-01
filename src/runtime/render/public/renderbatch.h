@@ -19,6 +19,35 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-renderbatch.h:
+renderbatch.h: Indices into render buffer, also has renderstate and primitive
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+#include "render/public/renderstate.h"
+//#include "core/core_public.h"
+
+class CRenderBatch
+{
+public:
+	CRenderBatch();
+	CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive);
+
+	uint32 RUNTIME_API getFirstIndex() const;
+	uint32 RUNTIME_API getNumIndices() const;
+
+	const RUNTIME_API class CRenderState getRenderState() const;
+	const RUNTIME_API EPrimitive getPrimitive() const;
+	const RUNTIME_API uint32 getStateChangeFlags() const;
+
+	void createStateChangeFlags(const CRenderState& previousState);
+
+private:
+	uint32 _firstIndex;
+	uint32 _numIndices;
+	CRenderState _renderState;
+	EPrimitive _primitive;
+	uint32 _stateChangeFlags;
+};

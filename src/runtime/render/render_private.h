@@ -23,12 +23,9 @@ render_private.h:
 ===============================================================================
 */
 
-#include "render/public/itexture.h"
-#include "render/public/irenderer.h"
-#include "render/public/material.h"
-#include "render/public/renderelement.h"
-#include "render/public/renderbatch.h"
-#include "render/public/renderbuffer.h"
+#include "render_public.h"
 
+#include "render/private/drawbuffer.h"
+#include "render/private/renderbuffer.h"
 #include "render/private/renderlist.h"
 #include "render/private/elementrenderer.h"

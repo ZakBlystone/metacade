@@ -22,3 +22,12 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 material.h:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+uint64 CMaterial::getHash() const
+{
+	uint32 blendBits = (uint32) (_blend) << MAX_TEXTURE_BITS;
+	uint32 textureBits = _baseTexture;
+	return (int64) ( blendBits | textureBits );
+}
