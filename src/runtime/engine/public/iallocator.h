@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ivmclass.h: Game archetype
+iallocator.h: Abstraction of memory allocation
 ===============================================================================
 */
 
@@ -27,11 +27,9 @@ ivmclass.h: Game archetype
 
 #include "metacade_types.h"
 
-class IVMClass
+class IAllocator
 {
 public:
-	virtual class CGameMetadata* getMetaData() = 0;
-	virtual class IVMHost* getHost() = 0;
-	virtual class IVMInstance* createVMInstance() = 0;
-	virtual void shutdownVMInstance(IVMInstance* instance) = 0;
+	virtual void* alloc(uint32 size) = 0;
+	virtual void free(void* mem) = 0;
 };

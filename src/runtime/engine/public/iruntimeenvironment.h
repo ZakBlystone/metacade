@@ -19,6 +19,15 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntimeenvironment.h:
+iruntimeenvironment.h: Interface for the environment the runtime runs in
 ===============================================================================
 */
+
+#pragma once
+
+class IRuntimeEnvironment
+{
+public:
+	virtual IAllocator* getAllocator() = 0;
+	virtual IFileSystem* getFileSystem() = 0;
+};

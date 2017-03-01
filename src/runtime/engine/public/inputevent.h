@@ -19,19 +19,13 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ivmclass.h: Game archetype
+inputevent.h:
 ===============================================================================
 */
 
 #pragma once
 
-#include "metacade_types.h"
-
-class IVMClass
+class CInputEvent
 {
-public:
-	virtual class CGameMetadata* getMetaData() = 0;
-	virtual class IVMHost* getHost() = 0;
-	virtual class IVMInstance* createVMInstance() = 0;
-	virtual void shutdownVMInstance(IVMInstance* instance) = 0;
+
 };

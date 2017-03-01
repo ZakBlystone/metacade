@@ -22,3 +22,12 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 itexture.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class ITexture
+{
+
+};

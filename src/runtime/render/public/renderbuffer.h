@@ -23,6 +23,8 @@ renderbuffer.h: VBO / IBO storage on CPU
 ===============================================================================
 */
 
+#pragma once
+
 #include "metacade_private.h"
 #include "core/core_public.h"
 

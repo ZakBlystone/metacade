@@ -23,4 +23,8 @@ engine_public.h:
 ===============================================================================
 */
 
+#include "public/iallocator.h"
+#include "public/ifilesystem.h"
+#include "public/imachineenvironment.h"
+#include "public/iruntimeenvironment.h"
 #include "public/runtime.h"

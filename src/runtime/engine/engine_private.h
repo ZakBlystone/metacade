@@ -23,4 +23,11 @@ engine_private.h:
 ===============================================================================
 */
 
+#include "public/iallocator.h"
+#include "public/ifilesystem.h"
+#include "public/imachineenvironment.h"
+#include "public/iruntimeenvironment.h"
+#include "public/ivminstance.h"
+#include "public/ivmclass.h"
+#include "public/ivmhost.h"
 #include "public/runtime.h"

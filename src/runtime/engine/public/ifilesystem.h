@@ -22,3 +22,25 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 ifilesystem.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class IFileObject
+{
+public:
+	virtual bool read(void* data, uint32 bytes) = 0;
+	virtual bool write(void* data, uint32 bytes) = 0;
+	virtual bool seek(uint32 offset) = 0;
+	virtual uint32 tell() = 0;
+	virtual uint32 getSize() = 0;
+};
+
+class IFileSystem
+{
+public:
+	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
+	virtual void closeFile(IFileObject* file) = 0;
+	virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
+};

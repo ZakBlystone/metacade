@@ -19,6 +19,18 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-imachineenvironment.h:
+imachineenvironment.h: Interface for the environment a single machine runs in
 ===============================================================================
 */
+
+#pragma once
+
+#include "render/render_public.h"
+#include "sound/sound_public.h"
+
+class IMachineEnvironment
+{
+public:
+	virtual IRenderer* getRenderer() = 0;
+	virtual IAudioSystem* getAudioSystem() = 0;
+};

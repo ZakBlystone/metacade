@@ -35,12 +35,24 @@ metacade_types.h: Common types used throughout the runtime
 	#define RUNTIME_API
 #endif
 
+enum EFileIOMode
+{
+	FILE_READ,
+	FILE_WRITE,
+};
+
 enum EPointClassify
 {
 	PLANE_BEHIND = -1,
 	PLANE_ON = 0,
 	PLANE_INTERSECT = 0,
 	PLANE_INFRONT = 1,
+};
+
+enum ELanguage
+{
+	LANG_DUMMY,
+	LANG_PYTHON,
 };
 
 typedef unsigned char uint8;

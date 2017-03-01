@@ -19,6 +19,27 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ivminstance.h:
+ivminstance.h: Runnable game code instance
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class IVMInstance
+{
+public:
+	virtual class IVMClass* getClass() = 0;
+
+	virtual void setMachineEnvironment(IMachineEnvironment *env) = 0;
+
+	virtual bool postCommand(const char** commandBuffer) = 0;
+	virtual void postInputEvent(const class CInputEvent& input) = 0;
+
+	virtual void precacheAssets() = 0;
+	virtual void think(float seconds, float deltaSeconds) = 0;
+	virtual void render(class CElementRenderer* renderer) = 0;
+
+	virtual void reset() = 0;
+};

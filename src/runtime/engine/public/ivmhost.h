@@ -19,6 +19,24 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ivmhost.h:
+ivmhost.h: Creates VMs
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_types.h"
+
+class IVMHost
+{
+public:
+	virtual ELanguage getLanguage() = 0;
+
+	virtual void init() = 0;
+	virtual void shutdown() = 0;
+
+	virtual IVMClass* loadGameVMClass() = 0;
+
+	virtual bool includeGameScript() = 0;
+	virtual bool validateGameScript() = 0;
+};

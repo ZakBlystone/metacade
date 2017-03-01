@@ -22,3 +22,5 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 sound_public.h:
 ===============================================================================
 */
+
+#include "sound/public/iaudio.h"
