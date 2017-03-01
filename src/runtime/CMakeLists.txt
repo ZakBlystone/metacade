@@ -1,17 +1,32 @@
 include_directories(${PROJECT_SOURCE_DIR}/src/runtime)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/core)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/render)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/engine)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/runtime)
 
-file (GLOB_RECURSE API_SOURCES 
-	"api/*.h"
-	"api/*.cpp")
+file (GLOB_RECURSE CORE_SOURCES 
+	"core/*.h"
+	"core/*.cpp")
 
-source_group("src" FILES ${API_SOURCES})
+source_group("src\\core" FILES ${CORE_SOURCES})
 
-add_subdirectory(core)
-add_subdirectory(engine)
-add_subdirectory(render)
-add_subdirectory(sound)
+file (GLOB_RECURSE RENDER_SOURCES 
+	"render/*.h"
+	"render/*.cpp")
+
+source_group("src\\render" FILES ${RENDER_SOURCES})
+
+file (GLOB_RECURSE ENGINE_SOURCES 
+	"engine/*.h"
+	"engine/*.cpp")
+
+source_group("src\\engine" FILES ${ENGINE_SOURCES})
+
+file (GLOB_RECURSE SOUND_SOURCES 
+	"sound/*.h"
+	"sound/*.cpp")
+
+source_group("src\\sound" FILES ${SOUND_SOURCES})
 
 add_definitions(-DRUNTIME_API_EXPORT)
-add_library(runtime SHARED ${API_SOURCES})
-
-target_link_libraries(runtime core engine render sound ${PYTHON_LIBRARY})
+add_library(runtime SHARED ${CORE_SOURCES} ${RENDER_SOURCES} ${ENGINE_SOURCES} ${SOUND_SOURCES})

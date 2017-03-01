@@ -19,50 +19,49 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-renderbuffer.cpp:
+halfplane.cpp: Vec3 with plane characteristics
 ===============================================================================
 */
 
-#include "render_private.h"
+#include "core_private.h"
 
-CRenderBuffer::CRenderBuffer()
+CHalfPlane::CHalfPlane(const CVec2& dir, float distance)
+	: CVec3(dir.x, dir.y, distance)
 {
-	_vertices.reserve(8192);
-	_indices.reserve(16384);
+
 }
 
-CVertex2D& CRenderBuffer::addVertex(const CVertex2D &vertex)
+float CHalfPlane::distance(const CVec2& point) const
 {
-	_vertices.emplace_back(vertex); return _vertices.back();
+	return (point.x * this->x + point.y * this->y) - this->z;
 }
 
-uint32& CRenderBuffer::addIndex(const uint32 index /*= 0*/)
+EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction)
 {
-	_indices.emplace_back(index); return _indices.back();
+	float d1 = distance(start);
+	float d2 = distance(end);
+	float dist = fabs(d1) + fabs(d2);
+
+	if ( d1 > EPSILON && d2 < -EPSILON )
+	{
+		fraction = (d1 / dist);
+		return PLANE_INTERSECT;
+	}
+
+	fraction = 0.f;
+
+	if ( d1 <= -EPSILON || d2 <= EPSILON )
+	{
+		return PLANE_BEHIND;
+	}
+
+	return PLANE_INFRONT;
 }
 
-const CVertex2D* CRenderBuffer::getVertices() const
+EPointClassify CHalfPlane::clasifyPoint(const CVec2& point) const
 {
-	return _vertices.data();
-}
-
-const uint32 CRenderBuffer::getNumVertices() const
-{
-	return (uint32)_vertices.size();
-}
-
-const uint32* CRenderBuffer::getIndices() const
-{
-	return _indices.data();
-}
-
-const uint32 CRenderBuffer::getNumIndices() const
-{
-	return (uint32)_indices.size();
-}
-
-void CRenderBuffer::clear()
-{
-	_vertices.clear();
-	_indices.clear();
+	float dist = distance(point);
+	if ( dist <= -EPSILON ) return PLANE_BEHIND;
+	if ( dist <= EPSILON ) return PLANE_ON;
+	return PLANE_INFRONT;
 }

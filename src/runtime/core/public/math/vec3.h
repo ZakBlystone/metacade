@@ -28,7 +28,7 @@ vec3.h:
 #include "metacade_private.h"
 
 class CMatrix4;
-class CVec3 
+class RUNTIME_API CVec3 
 {
 public:
 	union

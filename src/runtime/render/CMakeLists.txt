@@ -1,3 +1,6 @@
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/render)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/core)
+
 file (GLOB_RECURSE RENDER_SOURCES 
 	"*.h"
 	"*.cpp")

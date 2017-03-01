@@ -22,3 +22,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 metacade_public.h:
 ===============================================================================
 */
+
+#include "core/core_public.h"
+#include "render/render_public.h"
+#include "engine/engine_public.h"

@@ -19,6 +19,20 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-rendermaterial.h:
+halfplane.h: Vec3 with plane characteristics
 ===============================================================================
 */
+
+#pragma once
+
+#include "metacade_private.h"
+
+class RUNTIME_API CHalfPlane : public CVec3
+{
+	CHalfPlane(const CVec2& dir, float distance);
+
+	float distance(const CVec2& point) const;
+	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction);
+	EPointClassify clasifyPoint(const CVec2& point) const;
+};
+

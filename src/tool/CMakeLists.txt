@@ -5,8 +5,8 @@ file (GLOB TOOL_SOURCES
 	"*.h"
 	"*.cpp")
 
-source_group("runtime" FILES ${TOOL_SOURCES})
+source_group("src" FILES ${TOOL_SOURCES})
 
 add_executable(tool ${TOOL_SOURCES})
 
-target_link_libraries(tool runtime DevIL ILU opengl32 glu32 ${SDL2_LIBRARY})
+target_link_libraries(tool runtime DevIL ILU opengl32 glu32 ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY})

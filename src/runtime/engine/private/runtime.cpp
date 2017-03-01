@@ -22,3 +22,15 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 runtime.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+
+bool CRuntime::initialize()
+{
+	return false;
+}
+
+void CRuntime::shutdown()
+{
+
+}

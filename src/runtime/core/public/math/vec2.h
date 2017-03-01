@@ -28,7 +28,7 @@ vec2.h:
 #pragma once
 
 class CMatrix3;
-class CVec2 
+class RUNTIME_API CVec2 
 {
 public:
 	union

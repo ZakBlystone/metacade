@@ -23,10 +23,12 @@ matrix3.h: 3x3 matrix
 ===============================================================================
 */
 
+#pragma once
+
 #include "metacade_private.h"
 
 class CVec2;
-class CMatrix3 
+class RUNTIME_API CMatrix3 
 {
 public:
 	CMatrix3();

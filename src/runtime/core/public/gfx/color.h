@@ -28,7 +28,7 @@ color.h: 32-bit color representation and floating-point counterpart
 #pragma once
 
 struct CFloatColor;
-struct CColor
+struct RUNTIME_API CColor
 {
 	union
 	{
@@ -68,7 +68,7 @@ struct CColor
 	}
 };
 
-struct CFloatColor
+struct RUNTIME_API CFloatColor
 {
 	union
 	{

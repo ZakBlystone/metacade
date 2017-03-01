@@ -25,6 +25,16 @@ metacade_types.h: Common types used throughout the runtime
 
 #pragma once
 
+#ifdef WINDOWS
+#if defined(RUNTIME_API_EXPORT)
+#   define RUNTIME_API   __declspec(dllexport)
+#else // outside DLL
+#   define RUNTIME_API   __declspec(dllimport)
+#endif
+#else //Linux
+	#define RUNTIME_API
+#endif
+
 enum EPointClassify
 {
 	PLANE_BEHIND = -1,

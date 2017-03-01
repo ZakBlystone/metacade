@@ -26,7 +26,9 @@ metacade_private.h:
 #include "metacade_types.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 using std::ostream;
 using std::istream;
 using std::string;
+using std::vector;

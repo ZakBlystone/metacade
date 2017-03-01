@@ -22,3 +22,12 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 runtime.h:
 ===============================================================================
 */
+
+#include "metacade_types.h"
+
+class RUNTIME_API CRuntime
+{
+public:
+	static bool initialize();
+	static void shutdown();
+};

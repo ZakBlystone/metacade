@@ -7,4 +7,4 @@ add_definitions(-DLINUX)
 endif()
 
 add_subdirectory(runtime)
-#add_subdirectory(tool)
+add_subdirectory(tool)

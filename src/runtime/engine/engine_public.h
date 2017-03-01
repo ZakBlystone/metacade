@@ -22,3 +22,5 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 engine_public.h:
 ===============================================================================
 */
+
+#include "public/runtime.h"

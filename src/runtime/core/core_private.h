@@ -39,11 +39,12 @@ core_private.h: Headers and macros private to this module
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #endif
 
-#include "public/gfx/color.h"
-#include "public/gfx/image.h"
-#include "public/gfx/vertex.h"
-
 #include "public/math/matrix3.h"
 #include "public/math/matrix4.h"
 #include "public/math/vec2.h"
 #include "public/math/vec3.h"
+#include "public/math/halfplane.h"
+
+#include "public/gfx/color.h"
+#include "public/gfx/image.h"
+#include "public/gfx/vertex.h"

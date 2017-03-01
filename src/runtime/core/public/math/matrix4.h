@@ -23,11 +23,13 @@ matrix4.h: 4x4 matrix
 ===============================================================================
 */
 
+#pragma once
+
 #include "metacade_types.h"
 
 class CVec3;
 class CMatrix3;
-class CMatrix4 
+class RUNTIME_API CMatrix4 
 {
 public:
 	CMatrix4();
