@@ -64,7 +64,7 @@ void CRenderList::sort()
 {
 	_elements.sort([](const CRenderElement &a, const CRenderElement &b)
 	{
-		if ( a.getLayer() != b.getLayer() ) return a.getLayer() > b.getLayer();
+		if ( a.getLayer() != b.getLayer() ) return a.getLayer() < b.getLayer();
 
 		return a.getRenderState().getHash() > b.getRenderState().getHash();
 	});

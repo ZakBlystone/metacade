@@ -44,18 +44,27 @@ void CRuntime::testRendering(IRenderer *renderer, float time)
 {
 	erender->beginFrame();
 
+	CRenderQuad testQuad;
 	CClipShape testClip;
 	CRenderState state;
 
-	testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(400,0)));
+	testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(600,0)));
 	testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
 
+	testQuad.makeBox(CVec2(0,0), CVec2(800,600), CColor(0x220033FF));
+	erender->addRenderElement().makeQuad(testQuad, testClip, state, -1);
+
+	for ( int32 y=0; y<20; ++y)
 	for ( int32 i=0; i<100; ++i )
 	{
-		CRenderQuad testQuad;
-		CVec2 pos((float) (i)*10.f, 30.f + sinf(time * 3.f + (float) (i) / 10.f) * 30);
+		CVec2 pos((float) (i)*10.f, 30.f + sinf(time * 3.f + (float) (i + y * 6.f) / 10.f) * 30 + (y * 50.f));
 
-		testQuad.makeBox(pos + CVec2(0,0), pos + CVec2(30,30), CColor(0xFFCCAAFF));
+		if ( i % 10 > 5 )
+			state._material._blend = BLEND_ADD;
+		else
+			state._material._blend = BLEND_NORMAL;
+
+		testQuad.makeBox(pos + CVec2(0,0), pos + CVec2(12,30), CColor(0x22CC2222));
 		erender->addRenderElement().makeQuad(testQuad, testClip, state);
 	}
 

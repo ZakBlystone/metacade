@@ -178,7 +178,9 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 
 	glBindVertexArray(g_VAO);
 
+	//initialize a fresh render state
 	CRenderState state = CRenderState();
+	updateRenderState(0xFFFFFFFF, state);
 
 	for ( uint32 i=0; i<buffer->getNumRenderBatches(); ++i )
 	{
@@ -226,10 +228,12 @@ void CRendererGL::renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch)
 
 void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState& newState)
 {
+	std::cout << "State Change: " << stateChangeFlags << std::endl;
 	if ( stateChangeFlags & ERenderStateChangeFlags::RSTATECHANGE_BLENDMODE )
 	{
 		switch ( newState._material._blend )
 		{
+			case BLEND_NORMAL: glBlendFunc(GL_ONE, GL_ZERO); break;
 			case BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
 			case BLEND_ADD: glBlendFunc(GL_ONE, GL_ONE); break;
 		}		

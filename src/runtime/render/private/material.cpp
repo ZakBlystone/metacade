@@ -29,5 +29,5 @@ uint64 CMaterial::getHash() const
 {
 	uint32 blendBits = (uint32) (_blend) << MAX_TEXTURE_BITS;
 	uint32 textureBits = _baseTexture;
-	return (int64) ( blendBits | textureBits );
+	return (uint64) ( blendBits | textureBits );
 }

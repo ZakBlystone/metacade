@@ -52,6 +52,7 @@ void CElementRenderer::endFrame()
 {
 	if ( !_inFrame ) return;
 
+	_renderList->sort();
 	while ( !_renderList->empty() && makeListBatch() != 0 )
 	{
 	}
@@ -92,7 +93,7 @@ uint32 CElementRenderer::makeListBatch()
 	}
 
 	//#TODO Primitives need to come from render elements somehow
-	CRenderBatch newBatch(baseIndex, _renderBuffer->getNumIndices() - baseIndex, _currentRenderState, PRIM_TRIANGLES);
+	CRenderBatch newBatch(baseIndex, _renderBuffer->getNumIndices() - baseIndex, baseState, PRIM_TRIANGLES);
 	_drawBuffer->addRenderBatch(newBatch);
 
 	return inserted;
