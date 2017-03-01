@@ -27,7 +27,7 @@ material.h:
 
 #include "metacade_types.h"
 
-class RUNTIME_API CMaterial
+class ARCADE_API CMaterial
 {
 public:
 	CMaterial()

@@ -28,7 +28,7 @@ vec3.h:
 #include "metacade_private.h"
 
 class CMatrix4;
-class RUNTIME_API CVec3 
+class ARCADE_API CVec3 
 {
 public:
 	union
@@ -70,7 +70,7 @@ public:
 	CVec3 interpolateTo(const CVec3 &other, float fraction) const;
 
 	//Operator Overloads
-	friend ostream& operator << (ostream &os, const CVec3 &v)
+	/*friend ostream& operator << (ostream &os, const CVec3 &v)
 	{
 		os << "[";
 		os << v.x << ", ";
@@ -85,7 +85,7 @@ public:
 		is >> v.y;
 		is >> v.z;
 		return is;
-	}
+	}*/
 
 	float operator[](int i) const;
 	float& operator[](int i);

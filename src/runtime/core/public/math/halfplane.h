@@ -27,7 +27,7 @@ halfplane.h: Vec3 with plane characteristics
 
 #include "metacade_private.h"
 
-class RUNTIME_API CHalfPlane : public CVec3
+class ARCADE_API CHalfPlane : public CVec3
 {
 public:
 	CHalfPlane();

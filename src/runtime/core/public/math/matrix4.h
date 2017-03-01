@@ -29,7 +29,7 @@ matrix4.h: 4x4 matrix
 
 class CVec3;
 class CMatrix3;
-class RUNTIME_API CMatrix4 
+class ARCADE_API CMatrix4 
 {
 public:
 	CMatrix4();
@@ -60,7 +60,7 @@ public:
 	CMatrix4 &translate(const CVec3 &t);
 	CMatrix4 &rotate(const CVec3 &dir, float angle);
 
-	friend ostream& operator << (ostream &os, const CMatrix4 &m)
+	/*friend ostream& operator << (ostream &os, const CMatrix4 &m)
 	{
 		os << "[";
 		os << m.m_[0] << ", " << m.m_[1] << ", " << m.m_[2] << ", " << m.m_[3] << ", " << std::endl;
@@ -68,7 +68,7 @@ public:
 		os << " " << m.m_[8] << ", " << m.m_[9] << ", " << m.m_[10] << ", " << m.m_[11] << ", " << std::endl;
 		os << " " << m.m_[12] << ", " << m.m_[13] << ", " << m.m_[14] << ", " << m.m_[15] << "" << "]";
 		return os;
-	}
+	}*/
 
 	bool operator==(const CMatrix4 &other) const;
 	bool operator!=(const CMatrix4 &other) const;

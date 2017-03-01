@@ -40,7 +40,7 @@ void CRuntime::shutdown()
 	erender = nullptr;
 }
 
-void CRuntime::testRendering(IRenderer *renderer, float time)
+void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize)
 {
 	erender->beginFrame();
 
@@ -48,9 +48,15 @@ void CRuntime::testRendering(IRenderer *renderer, float time)
 	CClipShape testClip;
 	CRenderState state;
 
+	testClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
+	testClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
+	testClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
+	testClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
+
 	testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(600,0)));
 	testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
 
+	state._material._blend = BLEND_NORMAL;
 	testQuad.makeBox(CVec2(0,0), CVec2(800,600), CColor(0x220033FF));
 	erender->addRenderElement().makeQuad(testQuad, testClip, state, -1);
 

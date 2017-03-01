@@ -31,6 +31,6 @@ imachineenvironment.h: Interface for the environment a single machine runs in
 class IMachineEnvironment
 {
 public:
-	virtual IRenderer* getRenderer() = 0;
-	virtual IAudioSystem* getAudioSystem() = 0;
+	virtual class IRenderer* getRenderer() = 0;
+	virtual class IAudioSystem* getAudioSystem() = 0;
 };

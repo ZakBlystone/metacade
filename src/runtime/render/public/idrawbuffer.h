@@ -32,8 +32,8 @@ idrawbuffer.h:
 class IDrawBuffer
 {
 public:
-	virtual const CRenderBatch* getRenderBatches() const = 0;
+	virtual const class CRenderBatch* getRenderBatches() const = 0;
 	virtual uint32 getNumRenderBatches() const = 0;
 
-	virtual const IRenderBuffer* getRenderBuffer() const = 0;
+	virtual const class IRenderBuffer* getRenderBuffer() const = 0;
 };

@@ -28,7 +28,7 @@ vec2.h:
 #pragma once
 
 class CMatrix3;
-class RUNTIME_API CVec2 
+class ARCADE_API CVec2 
 {
 public:
 	union
@@ -70,7 +70,7 @@ public:
 	CVec2 &normalize();
 
 	//Operator Overloads
-	friend ostream& operator << (ostream &os, const CVec2 &v)
+	/*friend ostream& operator << (ostream &os, const CVec2 &v)
 	{
 		os << "[";
 		os << v._xy[0] << ", ";
@@ -83,7 +83,7 @@ public:
 		is >> v._xy[0];
 		is >> v._xy[1];
 		return is;
-	}
+	}*/
 
 	float operator[](int i) const;
 	float& operator[](int i);

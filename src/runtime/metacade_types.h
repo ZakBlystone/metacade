@@ -26,15 +26,16 @@ metacade_types.h: Common types used throughout the runtime
 #pragma once
 
 #ifdef WINDOWS
-#if defined(RUNTIME_API_EXPORT)
-#   define RUNTIME_API   __declspec(dllexport)
+#if defined(ARCADE_API_EXPORT)
+#   define ARCADE_API   __declspec(dllexport)
 #else // outside DLL
-#   define RUNTIME_API   __declspec(dllimport)
+#   define ARCADE_API   __declspec(dllimport)
 #endif
 #else //Linux
-	#define RUNTIME_API
+	#define ARCADE_API
 #endif
 
+#ifndef ARCADE_CTYPES_DEFINED
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;
@@ -44,6 +45,7 @@ typedef char int8;
 typedef short int16;
 typedef int int32;
 typedef long long int64;
+#endif
 
 enum EFileIOMode
 {

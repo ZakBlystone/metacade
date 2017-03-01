@@ -1,4 +1,13 @@
-#include "metacade_public.h"
+//#include "metacade_public.h"
+#include <iostream>
+#include <memory>
+
+using std::ostream;
+using std::istream;
+using std::shared_ptr;
+using std::make_shared;
+
+#include "metacade_amal.h"
 
 #include "SDL.h"
 #include "GL/glew.h"
@@ -92,7 +101,7 @@ int start(int argc, char *argv[])
 		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		CRuntime::testRendering(renderer.get(), time);
+		CRuntime::testRendering(renderer.get(), time, CVec2(400, 300));
 		
 		SDL_GL_SwapWindow(window);
 

@@ -28,6 +28,6 @@ iruntimeenvironment.h: Interface for the environment the runtime runs in
 class IRuntimeEnvironment
 {
 public:
-	virtual IAllocator* getAllocator() = 0;
-	virtual IFileSystem* getFileSystem() = 0;
+	virtual class IAllocator* getAllocator() = 0;
+	virtual class IFileSystem* getFileSystem() = 0;
 };

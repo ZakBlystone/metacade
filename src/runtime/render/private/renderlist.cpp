@@ -65,8 +65,14 @@ void CRenderList::sort()
 {
 	std::sort(_elements.begin(), _elements.end(), [](const CRenderElement &a, const CRenderElement &b)
 	{
-		if ( a.getLayer() != b.getLayer() ) return a.getLayer() > b.getLayer();
+		int32 layerA = a.getLayer();
+		int32 layerB = b.getLayer();
 
-		return a.getRenderState().getHash() > b.getRenderState().getHash();
+		if ( layerA != layerB ) return layerA > layerB;
+
+		uint64 hashA = a.getRenderState().getHash();
+		uint64 hashB = b.getRenderState().getHash();
+
+		return hashA > hashB;
 	});
 }

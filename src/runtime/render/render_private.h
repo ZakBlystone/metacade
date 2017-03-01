@@ -25,8 +25,8 @@ render_private.h:
 
 #include "render_public.h"
 
-#include "render/private/drawbuffer.h"
-#include "render/private/renderbuffer.h"
-#include "render/private/renderlist.h"
-#include "render/private/elementrenderer.h"
-#include "render/private/vertexclipper.h"
+#include "private/drawbuffer.h"
+#include "private/renderbuffer.h"
+#include "private/renderlist.h"
+#include "private/elementrenderer.h"
+#include "private/vertexclipper.h"

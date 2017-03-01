@@ -28,7 +28,7 @@ color.h: 32-bit color representation and floating-point counterpart
 #pragma once
 
 struct CFloatColor;
-struct RUNTIME_API CColor
+struct ARCADE_API CColor
 {
 	union
 	{
@@ -48,7 +48,7 @@ struct RUNTIME_API CColor
 
 	uint32 asInt() const;
 
-	friend ostream& operator << (ostream& os, const CColor& v)
+	/*friend ostream& operator << (ostream& os, const CColor& v)
 	{
 		os << "[";
 		os << (unsigned int)(v.r) << ", ";
@@ -65,10 +65,10 @@ struct RUNTIME_API CColor
 		is >> v.b;
 		is >> v.a;
 		return is;
-	}
+	}*/
 };
 
-struct RUNTIME_API CFloatColor
+struct ARCADE_API CFloatColor
 {
 	union
 	{

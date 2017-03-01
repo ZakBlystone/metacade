@@ -25,7 +25,8 @@ glrender.h:
 
 #pragma once
 
-#include "render/render_public.h"
+//#include "render/render_public.h"
+#include "metacade_amal.h"
 
 class CRendererGL : public IRenderer
 {

@@ -23,6 +23,7 @@ metacade_public.h:
 ===============================================================================
 */
 
+#include "metacade_types.h"
 #include "core/core_public.h"
 #include "render/render_public.h"
 #include "engine/engine_public.h"

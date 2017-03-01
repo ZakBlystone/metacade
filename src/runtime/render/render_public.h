@@ -28,10 +28,11 @@ render_public.h:
 #define MAX_VERTICES 65535
 #define MAX_INDICES 200000
 
-#include "render/public/itexture.h"
-#include "render/public/irenderbuffer.h"
-#include "render/public/idrawbuffer.h"
-#include "render/public/irenderer.h"
-#include "render/public/material.h"
-#include "render/public/renderelement.h"
-#include "render/public/renderbatch.h"
+#include "public/itexture.h"
+#include "public/irenderbuffer.h"
+#include "public/idrawbuffer.h"
+#include "public/irenderer.h"
+#include "public/material.h"
+#include "public/renderstate.h"
+#include "public/renderelement.h"
+#include "public/renderbatch.h"

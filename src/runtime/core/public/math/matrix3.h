@@ -28,7 +28,7 @@ matrix3.h: 3x3 matrix
 #include "metacade_private.h"
 
 class CVec2;
-class RUNTIME_API CMatrix3 
+class ARCADE_API CMatrix3 
 {
 public:
 	CMatrix3();
@@ -48,14 +48,14 @@ public:
 	void rotate(float r);
 	void scale(const CVec2 &t);
 
-	friend std::ostream& operator << (std::ostream &os, const CMatrix3 &m)
+	/*friend std::ostream& operator << (std::ostream &os, const CMatrix3 &m)
 	{
 		os << "[";
 		os << m.m_[0] << ", " << m.m_[1] << ", " << m.m_[2] << ", " << std::endl;
 		os << " " << m.m_[3] << ", " << m.m_[4] << ", " << m.m_[5] << ", " << std::endl;
 		os << " " << m.m_[6] << ", " << m.m_[7] << ", " << m.m_[8] << ", " << "]";
 		return os;
-	}
+	}*/
 
 	CMatrix3 operator!() const; //Gets inverse
 	CMatrix3 operator-(const CMatrix3 &other) const;

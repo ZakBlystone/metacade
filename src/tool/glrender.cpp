@@ -24,8 +24,11 @@ glrender.cpp:
 */
 
 #include "GL/glew.h"
-#include "core/core_public.h"
+//#include "core/core_public.h"
 #include "glrender.h"
+
+#include <iostream>
+#include <string>
 
 static const GLchar *g_DefaultVertexSource =
 	"#version 150 core\n"
