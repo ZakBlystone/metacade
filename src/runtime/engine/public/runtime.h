@@ -30,4 +30,5 @@ class RUNTIME_API CRuntime
 public:
 	static bool initialize();
 	static void shutdown();
+	static void testRendering(IRenderer *renderer, float time);
 };

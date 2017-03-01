@@ -29,3 +29,4 @@ render_private.h:
 #include "render/private/renderbuffer.h"
 #include "render/private/renderlist.h"
 #include "render/private/elementrenderer.h"
+#include "render/private/vertexclipper.h"

@@ -31,12 +31,24 @@ CHalfPlane::CHalfPlane(const CVec2& dir, float distance)
 
 }
 
+CHalfPlane::CHalfPlane(const CVec2& dir, const CVec2& origin)
+	: CVec3(dir.x, dir.y, origin.dot(dir))
+{
+
+}
+
+CHalfPlane::CHalfPlane()
+	: CVec3(0.f, 0.f, 0.f)
+{
+
+}
+
 float CHalfPlane::distance(const CVec2& point) const
 {
 	return (point.x * this->x + point.y * this->y) - this->z;
 }
 
-EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction)
+EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const
 {
 	float d1 = distance(start);
 	float d2 = distance(end);
@@ -58,10 +70,10 @@ EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, fl
 	return PLANE_INFRONT;
 }
 
-EPointClassify CHalfPlane::clasifyPoint(const CVec2& point) const
+EPointClassify CHalfPlane::clasifyPoint(const CVec2& point, bool checkOn /*= false*/) const
 {
 	float dist = distance(point);
 	if ( dist <= -EPSILON ) return PLANE_BEHIND;
-	if ( dist <= EPSILON ) return PLANE_ON;
+	if ( checkOn && dist <= EPSILON ) return PLANE_ON;
 	return PLANE_INFRONT;
 }

@@ -31,7 +31,7 @@ CDrawBuffer::CDrawBuffer(shared_ptr<CRenderBuffer> renderBuffer)
 
 }
 
-void CDrawBuffer::queueRenderBatch(CRenderBatch batch)
+void CDrawBuffer::addRenderBatch(CRenderBatch batch)
 {
 	_renderBatches.emplace_back(batch);
 }

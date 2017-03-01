@@ -22,3 +22,46 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 renderelement.cpp:
 ===============================================================================
 */
+
+#include "render_private.h"
+
+CRenderElement::CRenderElement()
+	: _type(RET_NONE)
+{
+	
+}
+
+CRenderElement& CRenderElement::makeQuad(const CRenderQuad& quad, const CClipShape& clip, const CRenderState& renderState, int32 layer /*= 0*/)
+{
+	_type = RET_QUAD;
+	_quad = quad;
+	_clip = clip;
+	_renderState = renderState;
+	_layer = layer;
+	return *this;
+}
+
+ERenderElementType CRenderElement::getType() const
+{
+	return _type;
+}
+
+const CRenderQuad& CRenderElement::getQuad() const
+{
+	return _quad;
+}
+
+const CRenderState& CRenderElement::getRenderState() const
+{
+	return _renderState;
+}
+
+const CClipShape& CRenderElement::getClipShape() const
+{
+	return _clip;
+}
+
+int32 CRenderElement::getLayer() const
+{
+	return _layer;
+}

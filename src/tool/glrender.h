@@ -19,24 +19,27 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-material.h:
+glrender.h:
 ===============================================================================
 */
 
 #pragma once
 
-#include "metacade_types.h"
+#include "render/render_public.h"
 
-class RUNTIME_API CMaterial
+class CRendererGL : public IRenderer
 {
 public:
-	CMaterial()
-		: _blend(BLEND_NORMAL)
-		, _baseTexture(0)
-	{}
+	CRendererGL();
+	~CRendererGL();
 
-	EBlendMode _blend;
-	uint16 _baseTexture;
+	void reshape(int32 width, int32 height);
 
-	uint64 getHash() const;
+	virtual void render(class IDrawBuffer* buffer) override;
+	virtual ITexture* loadTexture(class IImage* imagesource) override;
+	virtual void freeTexture(ITexture* texture) override;
+
+private:
+	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);
+	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
 };

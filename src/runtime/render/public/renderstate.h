@@ -29,7 +29,7 @@ renderstate.h:
 #include "core/core_public.h"
 #include "render/public/material.h"
 
-class CRenderState
+class RUNTIME_API CRenderState
 {
 public:
 	CMaterial _material;

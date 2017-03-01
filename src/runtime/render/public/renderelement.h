@@ -29,11 +29,79 @@ renderelement.h:
 #include "core/core_public.h"
 #include "render/public/renderstate.h"
 
+struct CRenderQuad
+{
+	CVertex2D _verts[4];
+
+	CRenderQuad& makeBox(const CVec2 &mins, const CVec2 &maxs, const CColor &color)
+	{
+		_verts[0]._position.set(mins);
+		_verts[1]._position.set(maxs.x, mins.y);
+		_verts[2]._position.set(maxs);
+		_verts[3]._position.set(mins.x, maxs.y);
+
+		_verts[0]._texcoord.set(0,0);
+		_verts[1]._texcoord.set(1,0);
+		_verts[2]._texcoord.set(1,1);
+		_verts[3]._texcoord.set(0,1);
+		
+		_verts[0]._color = color;
+		_verts[1]._color = color;
+		_verts[2]._color = color;
+		_verts[3]._color = color;
+
+		return (*this);
+	}
+
+	void transform(const CMatrix3 &matrix)
+	{
+		_verts[0]._position *= matrix;
+		_verts[1]._position *= matrix;
+		_verts[2]._position *= matrix;
+		_verts[3]._position *= matrix;
+	}
+};
+
+#define MAX_CLIPPING_PLANES 16
+struct CClipShape
+{
+public:
+	CClipShape() 
+		: _numPlanes(0)
+	{}
+	
+	bool add(const CHalfPlane& plane)
+	{
+		if ( _numPlanes >= MAX_CLIPPING_PLANES - 1 ) return false;
+		_planes[_numPlanes++] = plane;
+		return true;
+	}
+
+	const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
+	int32 getNumPlanes() const { return _numPlanes; }
+
+private:
+	CHalfPlane _planes[MAX_CLIPPING_PLANES];
+	int32 _numPlanes;
+};
+
 class CRenderElement
 {
 public:
+	CRenderElement();
+
+	CRenderElement& makeQuad(const CRenderQuad& quad, const CClipShape& clip, const CRenderState& renderState, int32 layer = 0);
+
+	ERenderElementType getType() const;
+	const CRenderQuad& getQuad() const;
+	const CRenderState& getRenderState() const;
+	const CClipShape& getClipShape() const;
+	int32 getLayer() const;
+
+private:
 	ERenderElementType _type;
-	CMatrix3 _transform;
 	CRenderState _renderState;
 	int32 _layer;
+	CRenderQuad _quad;
+	CClipShape _clip;
 };

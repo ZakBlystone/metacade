@@ -5,6 +5,8 @@
 #include "GL/glew.c"
 #include "IL/il.h"
 
+#include "glrender.h"
+
 int onError(const char *error)
 {
 	//When an error occurs, throw a message box up on the screen.
@@ -28,6 +30,7 @@ void checkError(int line)
 
 static SDL_Window *window = NULL;
 static SDL_GLContext glContext;
+static shared_ptr<CRendererGL> renderer;
 
 int initOpenGLAndWindow()
 {
@@ -56,6 +59,9 @@ int start(int argc, char *argv[])
 	if ( initOpenGLAndWindow() ) return 1;
 	if ( !CRuntime::initialize() ) return onError("Failed to init arcade runtime");
 
+	renderer = make_shared<CRendererGL>();
+	renderer->reshape(800, 600);
+
 	bool running = true;
 	float lastTime = 0;
 	float deltaSeconds = 0;
@@ -65,10 +71,16 @@ int start(int argc, char *argv[])
 		SDL_Event evt;
 		while (SDL_PollEvent(&evt))
 		{
-			if (evt.type == SDL_QUIT) 
+			if ( evt.type == SDL_QUIT ) 
 			{
 				running = false;
 				break;
+			}
+
+			if ( evt.type == SDL_WINDOWEVENT )
+			{
+				if ( evt.window.event == SDL_WINDOWEVENT_RESIZED )
+					renderer->reshape(evt.window.data1, evt.window.data2);
 			}
 		}
 
@@ -77,9 +89,10 @@ int start(int argc, char *argv[])
 		deltaSeconds = time - lastTime;
 		lastTime = time;
 
-		glClearColor(0.1f, 0.1f, 0.2f, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		CRuntime::testRendering(renderer.get(), time);
 		
 		SDL_GL_SwapWindow(window);
 

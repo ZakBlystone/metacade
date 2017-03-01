@@ -19,24 +19,17 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-material.h:
+vertexclipper.h:
 ===============================================================================
 */
 
 #pragma once
 
-#include "metacade_types.h"
+#include "metacade_private.h"
+#include "core/core_public.h"
 
-class RUNTIME_API CMaterial
+class CVertexClipper
 {
 public:
-	CMaterial()
-		: _blend(BLEND_NORMAL)
-		, _baseTexture(0)
-	{}
-
-	EBlendMode _blend;
-	uint16 _baseTexture;
-
-	uint64 getHash() const;
+	static EPointClassify clipPolygonAgainstPlane(vector<CVertex2D>& list, const CHalfPlane& plane);
 };

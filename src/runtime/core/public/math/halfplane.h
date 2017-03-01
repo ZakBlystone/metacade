@@ -29,10 +29,13 @@ halfplane.h: Vec3 with plane characteristics
 
 class RUNTIME_API CHalfPlane : public CVec3
 {
+public:
+	CHalfPlane();
 	CHalfPlane(const CVec2& dir, float distance);
+	CHalfPlane(const CVec2& dir, const CVec2& origin);
 
 	float distance(const CVec2& point) const;
-	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction);
-	EPointClassify clasifyPoint(const CVec2& point) const;
+	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
+	EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
 };
 

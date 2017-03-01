@@ -25,7 +25,34 @@ elementrenderer.h:
 
 #pragma once
 
+#include "metacade_private.h"
+#include "private/renderlist.h"
+
 class CElementRenderer
 {
+public:
+	CElementRenderer();
 
+	void beginFrame();
+
+	CRenderElement& addRenderElement();
+
+	void endFrame();
+
+	const shared_ptr<CDrawBuffer> getDrawBuffer() const;
+
+private:
+
+	uint32 makeListBatch();
+	void writeRenderElementToBuffer(const CRenderElement& element);
+	void writePolygonToBufferAsTris(const CVertex2D* verts, uint32 num);
+	void writeClippedPolygonToBufferAsTris(const CVertex2D* verts, uint32 num, const CClipShape& clip);
+
+	shared_ptr<CRenderList> _renderList;
+	shared_ptr<CRenderBuffer> _renderBuffer;
+	shared_ptr<CDrawBuffer> _drawBuffer;
+
+	CRenderState _currentRenderState;
+	uint32 _numVertsRendered;
+	bool _inFrame;
 };

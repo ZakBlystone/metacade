@@ -24,13 +24,42 @@ runtime.cpp:
 */
 
 #include "engine_private.h"
+#include "render/render_private.h"
+
+static CElementRenderer* erender = nullptr;
 
 bool CRuntime::initialize()
 {
-	return false;
+	erender = new CElementRenderer;
+	return true;
 }
 
 void CRuntime::shutdown()
 {
+	delete erender;
+	erender = nullptr;
+}
 
+void CRuntime::testRendering(IRenderer *renderer, float time)
+{
+	erender->beginFrame();
+
+	CClipShape testClip;
+	CRenderState state;
+
+	testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(400,0)));
+	testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
+
+	for ( int32 i=0; i<100; ++i )
+	{
+		CRenderQuad testQuad;
+		CVec2 pos((float) (i)*10.f, 30.f + sinf(time * 3.f + (float) (i) / 10.f) * 30);
+
+		testQuad.makeBox(pos + CVec2(0,0), pos + CVec2(30,30), CColor(0xFFCCAAFF));
+		erender->addRenderElement().makeQuad(testQuad, testClip, state);
+	}
+
+	erender->endFrame();
+
+	renderer->render(erender->getDrawBuffer().get());
 }

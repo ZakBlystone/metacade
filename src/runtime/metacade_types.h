@@ -91,6 +91,7 @@ enum EImagePixelFormat
 
 enum ERenderElementType
 {
+	RET_NONE,
 	RET_QUAD,
 };
 

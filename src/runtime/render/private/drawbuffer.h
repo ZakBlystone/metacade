@@ -33,7 +33,7 @@ class CDrawBuffer : public IDrawBuffer
 public:
 	CDrawBuffer(shared_ptr<CRenderBuffer> renderBuffer);
 
-	void queueRenderBatch(CRenderBatch batch);
+	void addRenderBatch(CRenderBatch batch);
 	void clearRenderBatches();
 
 	virtual const CRenderBatch* getRenderBatches() const override;

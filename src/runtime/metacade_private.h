@@ -37,3 +37,4 @@ using std::vector;
 using std::shared_ptr;
 using std::weak_ptr;
 using std::list;
+using std::make_shared;
