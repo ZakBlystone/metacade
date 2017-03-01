@@ -19,6 +19,26 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-metacade_types.h:
+metacade_types.h: Common types used throughout the runtime
 ===============================================================================
 */
+
+#pragma once
+
+enum EPointClassify
+{
+	PLANE_BEHIND = -1,
+	PLANE_ON = 0,
+	PLANE_INTERSECT = 0,
+	PLANE_INFRONT = 1,
+};
+
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+typedef unsigned long long uint64;
+
+typedef char int8;
+typedef short int16;
+typedef int int32;
+typedef long long int64;

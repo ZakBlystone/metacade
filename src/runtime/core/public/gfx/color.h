@@ -19,6 +19,81 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-color.h:
+color.h: 32-bit color representation and floating-point counterpart
 ===============================================================================
 */
+
+#include "metacade_private.h"
+
+#pragma once
+
+struct CFloatColor;
+struct CColor
+{
+	union
+	{
+		struct
+		{
+			uint8 r,g,b,a;
+		};
+		uint8 rgba[4];
+	};
+
+	CColor();
+	CColor(uint32 irgba);
+
+	CColor(uint8 color[4]);
+	CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
+	CColor(float fr, float fg, float fb, float fa = 1.0f);
+
+	uint32 asInt() const;
+
+	friend ostream& operator << (ostream& os, const CColor& v)
+	{
+		os << "[";
+		os << (unsigned int)(v.r) << ", ";
+		os << (unsigned int)(v.g) << ", ";
+		os << (unsigned int)(v.b) << ", ";
+		os << (unsigned int)(v.a)<< "]";
+		return os;
+	}
+
+	friend istream& operator >> (istream& is, CColor& v)
+	{
+		is >> v.r;
+		is >> v.g;
+		is >> v.b;
+		is >> v.a;
+		return is;
+	}
+};
+
+struct CFloatColor
+{
+	union
+	{
+		struct
+		{
+			float r,g,b,a;
+		};
+		float rgba[4];
+	};
+
+	CFloatColor(const CColor &color);
+	CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
+
+	CFloatColor operator+(const CFloatColor& other) const;
+	CFloatColor operator+(float brt) const;
+	CFloatColor operator-(const CFloatColor& other) const;
+	CFloatColor operator-(float brt) const;
+	CFloatColor operator*(float frac) const;
+
+	CFloatColor& operator+=(const CFloatColor& other);
+	CFloatColor& operator+=(float brt);
+	CFloatColor& operator-=(const CFloatColor& other);
+	CFloatColor& operator-=(float brt);
+
+	CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
+
+	operator CColor() const;
+};

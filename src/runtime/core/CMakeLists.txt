@@ -1,3 +1,5 @@
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/core)
+
 file (GLOB_RECURSE CORE_SOURCES 
 	"*.h"
 	"*.cpp")

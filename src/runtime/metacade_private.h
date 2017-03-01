@@ -22,3 +22,11 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 metacade_private.h:
 ===============================================================================
 */
+
+#include "metacade_types.h"
+#include <iostream>
+#include <string>
+
+using std::ostream;
+using std::istream;
+using std::string;

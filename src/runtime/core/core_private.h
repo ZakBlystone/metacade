@@ -19,6 +19,31 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-core_private.h:
+core_private.h: Headers and macros private to this module
 ===============================================================================
 */
+
+#define EPSILON 0.00001f
+
+#ifndef M_PI
+#define M_PI       3.14159265358979323846f
+#endif
+
+#define M_FPI	   3.1415926f
+
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
+#include "public/gfx/color.h"
+#include "public/gfx/image.h"
+#include "public/gfx/vertex.h"
+
+#include "public/math/matrix3.h"
+#include "public/math/matrix4.h"
+#include "public/math/vec2.h"
+#include "public/math/vec3.h"

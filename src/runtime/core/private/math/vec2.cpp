@@ -22,3 +22,266 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 vec2.cpp:
 ===============================================================================
 */
+
+#include "core_private.h"
+
+CVec2::CVec2()
+{
+	set(0, 0);
+}
+
+CVec2::CVec2(float x, float y)
+{
+	set(x, y);
+}
+
+CVec2::CVec2(const CVec2 &other)
+{
+	set(other.x, other.y);
+}
+
+void CVec2::set(const CVec2 &other)
+{
+	set(other.x, other.y);
+}
+
+void CVec2::set(float xy[2])
+{
+	set(xy[0], xy[1]);
+}
+
+void CVec2::set(float x, float y)
+{
+	_xy[0] = x; _xy[1] = y;
+}
+
+float CVec2::getX() const
+{
+	return _xy[0];
+}
+
+float CVec2::getY() const
+{
+	return _xy[1];
+}
+
+void CVec2::get(float *ptr) const
+{
+	ptr[0] = _xy[0]; ptr[1] = _xy[1];
+}
+
+float CVec2::lengthSquared() const
+{
+	return dot(*this);
+}
+
+float CVec2::length() const
+{
+	return sqrtf(lengthSquared());
+}
+
+float CVec2::distanceSquared(const CVec2 &other) const
+{
+	CVec2 d = other - *this;
+	return d.length();
+}
+
+float CVec2::distance(const CVec2 &other) const
+{
+	return sqrtf(distanceSquared(other));
+}
+
+float CVec2::dot(const CVec2 &other) const
+{
+	return (_xy[0] * other._xy[0]) + (_xy[1] * other._xy[1]);
+}
+
+float CVec2::cross(const CVec2 &other) const
+{
+	return (_xy[0] * other._xy[1]) - (_xy[1] * other._xy[0]);
+}
+
+float CVec2::getAngle() const
+{
+	return atan2(_xy[1], _xy[0]);
+}
+
+float CVec2::angleTo(const CVec2 &other) const
+{
+	CVec2 d = other - *this;
+	return d.getAngle();
+}
+
+bool CVec2::inRect(const CVec2 &pos, const CVec2 &size) const
+{
+	if(_xy[0] < pos.getX() || _xy[0] > pos.getX() + size.getX()) return false;
+	if(_xy[1] < pos.getY() || _xy[1] > pos.getY() + size.getY()) return false;
+	return true;
+}
+
+bool CVec2::inBox(const CVec2 &min, const CVec2 &max) const
+{
+	if(_xy[0] < min.getX() || _xy[0] > max.getX()) return false;
+	if(_xy[1] < min.getY() || _xy[1] > max.getY()) return false;
+	return true;
+}
+
+CVec2 CVec2::vmin(const CVec2 &b) const
+{
+	CVec2 out(*this);
+	out.x = min(out.x, b.x);
+	out.y = min(out.y, b.y);
+	return out;
+}
+
+CVec2 CVec2::vmax(const CVec2 &b) const
+{
+	CVec2 out(*this);
+	out.x = max(out.x, b.x);
+	out.y = max(out.y, b.y);
+	return out;
+}
+
+CVec2& CVec2::operator+=(const CVec2 &other)
+{
+	_xy[0] += other._xy[0];
+	_xy[1] += other._xy[1];
+	return *this;
+}
+
+CVec2& CVec2::operator-=(const CVec2 &other)
+{
+	_xy[0] -= other._xy[0];
+	_xy[1] -= other._xy[1];
+	return *this;
+}
+
+CVec2& CVec2::operator*=(const CMatrix3 &other)
+{
+	*this = *this * other;
+	return *this;
+}
+
+CVec2& CVec2::operator*=(const CVec2 &other)
+{
+	_xy[0] *= other._xy[0];
+	_xy[1] *= other._xy[1];
+	return *this;
+}
+
+CVec2& CVec2::operator*=(float scalar)
+{
+	_xy[0] *= scalar;
+	_xy[1] *= scalar;
+	return *this;
+}
+
+CVec2& CVec2::operator/=(const CVec2 &other)
+{
+	_xy[0] /= other._xy[0];
+	_xy[1] /= other._xy[1];
+	return *this;
+}
+
+CVec2& CVec2::operator/=(float scalar)
+{
+	_xy[0] /= scalar;
+	_xy[1] /= scalar;
+	return *this;
+}
+
+CVec2 CVec2::operator+(const CVec2 &other) const
+{
+	return CVec2(
+		_xy[0] + other._xy[0],
+		_xy[1] + other._xy[1]);
+}
+
+CVec2 CVec2::operator-(const CVec2 &other) const
+{
+	return CVec2(
+		_xy[0] - other._xy[0],
+		_xy[1] - other._xy[1]);
+}
+
+CVec2 CVec2::operator*(const CMatrix3 &other) const
+{
+	CVec2 out;
+	out.x = x * other(0,0) + y * other(0,1) + other(0,2);
+	out.y = x * other(1,0) + y * other(1,1) + other(1,2);
+	return out;
+}
+
+CVec2 CVec2::operator*(const CVec2 &other) const
+{
+	return CVec2(
+		_xy[0] * other._xy[0],
+		_xy[1] * other._xy[1]);
+}
+
+CVec2 CVec2::operator*(float scalar) const
+{
+	return CVec2(
+		_xy[0] * scalar,
+		_xy[1] * scalar);
+}
+
+CVec2 CVec2::operator/(const CVec2 &other) const
+{
+	return CVec2(
+		_xy[0] / other._xy[0],
+		_xy[1] / other._xy[1]);
+}
+
+CVec2 CVec2::operator/(float scalar) const
+{
+	return CVec2(
+		_xy[0] / scalar,
+		_xy[1] / scalar);
+}
+
+bool CVec2::operator==(const CVec2 &other) const
+{
+	return _xy[0] == other._xy[0] && _xy[1] == other._xy[1];
+}
+
+bool CVec2::operator!=(const CVec2 &other) const
+{
+	return _xy[0] != other._xy[0] || _xy[1] != other._xy[1];
+}
+
+CVec2 CVec2::interpolateTo(const CVec2 &other, float fraction) const
+{
+	static CVec2 dir;
+	dir.set(other);
+	dir -= *(this);
+	return (*this) + dir * fraction;
+}
+
+CVec2& CVec2::normalize()
+{
+	float len = length();
+	x = x / len;
+	y = y / len;
+	return (*this);
+}
+
+float& CVec2::operator[](int i)
+{
+	return _xy[i];
+}
+
+float CVec2::operator[](int i) const
+{
+	return _xy[i];
+}
+
+CVec2 CVec2::operator--()
+{
+	return CVec2(-_xy[0], -_xy[1]);
+}
+
+CVec2 operator/(float scalar, CVec2 vec)
+{
+	return CVec2(scalar / vec.x, scalar / vec.y);
+}
