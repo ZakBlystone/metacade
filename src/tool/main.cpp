@@ -46,6 +46,7 @@ int initOpenGLAndWindow()
 	SDL_GL_SetSwapInterval(1);
 
 	glewInit();
+	return 0;
 }
 
 int start(int argc, char *argv[])

@@ -26,11 +26,12 @@ drawbuffer.h:
 #pragma once
 
 #include "metacade_private.h"
-#include "render/public/idrawbuffer.h"
+#include "render/private/renderbuffer.h"
 
 class CDrawBuffer : public IDrawBuffer
 {
 public:
+	CDrawBuffer(shared_ptr<CRenderBuffer> renderBuffer);
 
 	void queueRenderBatch(CRenderBatch batch);
 	void clearRenderBatches();
@@ -41,6 +42,6 @@ public:
 
 private:
 
-	shared_ptr<IRenderBuffer> _renderBuffer;
+	shared_ptr<CRenderBuffer> _renderBuffer;
 	vector<CRenderBatch> _renderBatches;
 };

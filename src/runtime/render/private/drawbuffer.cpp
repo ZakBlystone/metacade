@@ -25,6 +25,12 @@ drawbuffer.cpp:
 
 #include "render_private.h"
 
+CDrawBuffer::CDrawBuffer(shared_ptr<CRenderBuffer> renderBuffer)
+	: _renderBuffer(renderBuffer)
+{
+
+}
+
 void CDrawBuffer::queueRenderBatch(CRenderBatch batch)
 {
 	_renderBatches.emplace_back(batch);
