@@ -38,12 +38,12 @@ public:
 	CRenderBatch();
 	CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive);
 
-	uint32 ARCADE_API getFirstIndex() const;
-	uint32 ARCADE_API getNumIndices() const;
+	uint32 METACADE_API getFirstIndex() const;
+	uint32 METACADE_API getNumIndices() const;
 
-	const ARCADE_API class CRenderState getRenderState() const;
-	const ARCADE_API EPrimitive getPrimitive() const;
-	const ARCADE_API uint32 getStateChangeFlags() const;
+	const METACADE_API class CRenderState getRenderState() const;
+	const METACADE_API EPrimitive getPrimitive() const;
+	const METACADE_API uint32 getStateChangeFlags() const;
 
 	void createStateChangeFlags(const CRenderState& previousState);
 

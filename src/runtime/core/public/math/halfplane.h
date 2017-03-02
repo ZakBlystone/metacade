@@ -30,7 +30,7 @@ halfplane.h: Vec3 with plane characteristics
 namespace Arcade
 {
 
-class ARCADE_API CHalfPlane : public CVec3
+class METACADE_API CHalfPlane : public CVec3
 {
 public:
 	CHalfPlane();

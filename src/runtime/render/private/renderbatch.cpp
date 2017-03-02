@@ -41,27 +41,27 @@ CRenderBatch::CRenderBatch(uint32 first, uint32 num, CRenderState renderState, E
 
 }
 
-uint32 ARCADE_API CRenderBatch::getFirstIndex() const
+uint32 METACADE_API CRenderBatch::getFirstIndex() const
 {
 	return _firstIndex;
 }
 
-uint32 ARCADE_API CRenderBatch::getNumIndices() const
+uint32 METACADE_API CRenderBatch::getNumIndices() const
 {
 	return _numIndices;
 }
 
-const ARCADE_API class CRenderState CRenderBatch::getRenderState() const
+const METACADE_API class CRenderState CRenderBatch::getRenderState() const
 {
 	return _renderState;
 }
 
-const ARCADE_API EPrimitive CRenderBatch::getPrimitive() const
+const METACADE_API EPrimitive CRenderBatch::getPrimitive() const
 {
 	return _primitive;
 }
 
-const ARCADE_API uint32 CRenderBatch::getStateChangeFlags() const
+const METACADE_API uint32 CRenderBatch::getStateChangeFlags() const
 {
 	return _stateChangeFlags;
 }

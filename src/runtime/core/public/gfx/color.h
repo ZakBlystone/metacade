@@ -31,7 +31,7 @@ namespace Arcade
 {
 
 struct CFloatColor;
-struct ARCADE_API CColor
+struct METACADE_API CColor
 {
 	union
 	{
@@ -71,7 +71,7 @@ struct ARCADE_API CColor
 	}*/
 };
 
-struct ARCADE_API CFloatColor
+struct METACADE_API CFloatColor
 {
 	union
 	{

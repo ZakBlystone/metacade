@@ -32,7 +32,7 @@ renderstate.h:
 namespace Arcade
 {
 
-class ARCADE_API CRenderState
+class METACADE_API CRenderState
 {
 public:
 	CMaterial _material;

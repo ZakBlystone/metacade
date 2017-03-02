@@ -31,7 +31,7 @@ namespace Arcade
 {
 
 class CMatrix4;
-class ARCADE_API CVec3 
+class METACADE_API CVec3 
 {
 public:
 	union

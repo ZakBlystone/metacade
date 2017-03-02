@@ -28,5 +28,5 @@ file (GLOB_RECURSE SOUND_SOURCES
 
 source_group("src\\sound" FILES ${SOUND_SOURCES})
 
-add_definitions(-DARCADE_API_EXPORT)
+add_definitions(-DMETACADE_API_EXPORT)
 add_library(runtime SHARED ${CORE_SOURCES} ${RENDER_SOURCES} ${ENGINE_SOURCES} ${SOUND_SOURCES})

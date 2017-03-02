@@ -26,13 +26,13 @@ metacade_amal.h: amalgamated header for metacade
 //src/runtime/metacade_public.h
 //src/runtime/metacade_types.h
 #ifdef WINDOWS
-#if defined(ARCADE_API_EXPORT)
-#   define ARCADE_API   __declspec(dllexport)
+#if defined(METACADE_API_EXPORT)
+#   define METACADE_API   __declspec(dllexport)
 #else // outside DLL
-#   define ARCADE_API   __declspec(dllimport)
+#   define METACADE_API   __declspec(dllimport)
 #endif
 #else //Linux
-	#define ARCADE_API
+	#define METACADE_API
 #endif
 #ifndef ARCADE_CTYPES_DEFINED
 typedef unsigned char uint8;
@@ -44,6 +44,8 @@ typedef short int16;
 typedef int int32;
 typedef long long int64;
 #endif
+namespace Arcade
+{
 enum EFileIOMode
 {
 	FILE_READ,
@@ -93,12 +95,13 @@ enum ERenderStateChangeFlags
 	RSTATECHANGE_BLENDMODE = 0x1,
 	RSTATECHANGE_BASETEXTURE = 0x2,
 };
+}
 //src/runtime/core/core_public.h
 //src/runtime/core/public/math/matrix3.h
 namespace Arcade
 {
 class CVec2;
-class ARCADE_API CMatrix3 
+class METACADE_API CMatrix3 
 {
 public:
 	CMatrix3();
@@ -131,7 +134,7 @@ namespace Arcade
 {
 class CVec3;
 class CMatrix3;
-class ARCADE_API CMatrix4 
+class METACADE_API CMatrix4 
 {
 public:
 	CMatrix4();
@@ -176,7 +179,7 @@ private:
 namespace Arcade
 {
 class CMatrix3;
-class ARCADE_API CVec2 
+class METACADE_API CVec2 
 {
 public:
 	union
@@ -242,7 +245,7 @@ static const CVec2 Vec2Zero(0,0);
 namespace Arcade
 {
 class CMatrix4;
-class ARCADE_API CVec3 
+class METACADE_API CVec3 
 {
 public:
 	union
@@ -304,7 +307,7 @@ static const CVec3 Vec3Zero(0,0,0);
 //src/runtime/core/public/math/halfplane.h
 namespace Arcade
 {
-class ARCADE_API CHalfPlane : public CVec3
+class METACADE_API CHalfPlane : public CVec3
 {
 public:
 	CHalfPlane();
@@ -319,7 +322,7 @@ public:
 namespace Arcade
 {
 struct CFloatColor;
-struct ARCADE_API CColor
+struct METACADE_API CColor
 {
 	union
 	{
@@ -337,7 +340,7 @@ struct ARCADE_API CColor
 	uint32 asInt() const;
 	 
 };
-struct ARCADE_API CFloatColor
+struct METACADE_API CFloatColor
 {
 	union
 	{
@@ -368,7 +371,7 @@ struct ARCADE_API CFloatColor
 namespace Arcade
 {
 struct CVertex2D;
-struct ARCADE_API CVertex3D
+struct METACADE_API CVertex3D
 {
 	CVertex3D();
 	CVertex3D(const CVec3 &pos, const CVec3 &norm, const CVec2 &tc, const CColor &col = CColor(0xFFFFFFFF));
@@ -382,7 +385,7 @@ struct ARCADE_API CVertex3D
 	CVec2 _texcoord;
 	CColor _color;
 };
-struct ARCADE_API CVertex2D
+struct METACADE_API CVertex2D
 {
 	CVertex2D();
 	CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));
@@ -450,7 +453,7 @@ public:
 //src/runtime/render/public/material.h
 namespace Arcade
 {
-class ARCADE_API CMaterial
+class METACADE_API CMaterial
 {
 public:
 	CMaterial()
@@ -465,7 +468,7 @@ public:
 //src/runtime/render/public/renderstate.h
 namespace Arcade
 {
-class ARCADE_API CRenderState
+class METACADE_API CRenderState
 {
 public:
 	CMaterial _material;
@@ -548,11 +551,11 @@ class CRenderBatch
 public:
 	CRenderBatch();
 	CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive);
-	uint32 ARCADE_API getFirstIndex() const;
-	uint32 ARCADE_API getNumIndices() const;
-	const ARCADE_API class CRenderState getRenderState() const;
-	const ARCADE_API EPrimitive getPrimitive() const;
-	const ARCADE_API uint32 getStateChangeFlags() const;
+	uint32 METACADE_API getFirstIndex() const;
+	uint32 METACADE_API getNumIndices() const;
+	const METACADE_API class CRenderState getRenderState() const;
+	const METACADE_API EPrimitive getPrimitive() const;
+	const METACADE_API uint32 getStateChangeFlags() const;
 	void createStateChangeFlags(const CRenderState& previousState);
 private:
 	uint32 _firstIndex;
@@ -616,7 +619,7 @@ public:
 //src/runtime/engine/public/runtime.h
 namespace Arcade
 {
-class ARCADE_API CRuntime
+class METACADE_API CRuntime
 {
 public:
 	static bool initialize();

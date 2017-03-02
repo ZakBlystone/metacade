@@ -30,7 +30,7 @@ material.h:
 namespace Arcade
 {
 
-class ARCADE_API CMaterial
+class METACADE_API CMaterial
 {
 public:
 	CMaterial()

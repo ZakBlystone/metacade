@@ -26,13 +26,13 @@ metacade_types.h: Common types used throughout the runtime
 #pragma once
 
 #ifdef WINDOWS
-#if defined(ARCADE_API_EXPORT)
-#   define ARCADE_API   __declspec(dllexport)
+#if defined(METACADE_API_EXPORT)
+#   define METACADE_API   __declspec(dllexport)
 #else // outside DLL
-#   define ARCADE_API   __declspec(dllimport)
+#   define METACADE_API   __declspec(dllimport)
 #endif
 #else //Linux
-	#define ARCADE_API
+	#define METACADE_API
 #endif
 
 #ifndef ARCADE_CTYPES_DEFINED
@@ -46,6 +46,9 @@ typedef short int16;
 typedef int int32;
 typedef long long int64;
 #endif
+
+namespace Arcade
+{
 
 enum EFileIOMode
 {
@@ -103,3 +106,5 @@ enum ERenderStateChangeFlags
 	RSTATECHANGE_BLENDMODE = 0x1,
 	RSTATECHANGE_BASETEXTURE = 0x2,
 };
+
+}

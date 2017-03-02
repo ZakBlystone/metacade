@@ -31,7 +31,7 @@ namespace Arcade
 {
 
 struct CVertex2D;
-struct ARCADE_API CVertex3D
+struct METACADE_API CVertex3D
 {
 	CVertex3D();
 	CVertex3D(const CVec3 &pos, const CVec3 &norm, const CVec2 &tc, const CColor &col = CColor(0xFFFFFFFF));
@@ -48,7 +48,7 @@ struct ARCADE_API CVertex3D
 	CColor _color;
 };
 
-struct ARCADE_API CVertex2D
+struct METACADE_API CVertex2D
 {
 	CVertex2D();
 	CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));

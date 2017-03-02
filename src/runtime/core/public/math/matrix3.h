@@ -31,7 +31,7 @@ namespace Arcade
 {
 
 class CVec2;
-class ARCADE_API CMatrix3 
+class METACADE_API CMatrix3 
 {
 public:
 	CMatrix3();

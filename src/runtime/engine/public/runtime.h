@@ -28,7 +28,7 @@ runtime.h:
 namespace Arcade
 {
 
-class ARCADE_API CRuntime
+class METACADE_API CRuntime
 {
 public:
 	static bool initialize();
