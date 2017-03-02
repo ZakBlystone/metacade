@@ -29,6 +29,9 @@ renderbatch.h: Indices into render buffer, also has renderstate and primitive
 #include "render/public/renderstate.h"
 //#include "core/core_public.h"
 
+namespace Arcade
+{
+
 class CRenderBatch
 {
 public:
@@ -51,3 +54,5 @@ private:
 	EPrimitive _primitive;
 	uint32 _stateChangeFlags;
 };
+
+}

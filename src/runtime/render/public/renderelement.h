@@ -29,6 +29,9 @@ renderelement.h:
 #include "core/core_public.h"
 #include "render/public/renderstate.h"
 
+namespace Arcade
+{
+
 struct CRenderQuad
 {
 	CVertex2D _verts[4];
@@ -105,3 +108,5 @@ private:
 	CRenderQuad _quad;
 	CClipShape _clip;
 };
+
+}

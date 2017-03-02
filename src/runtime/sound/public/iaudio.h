@@ -27,7 +27,12 @@ iaudio.h:
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IAudioSystem
 {
 
 };
+
+}

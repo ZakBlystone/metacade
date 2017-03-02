@@ -27,6 +27,9 @@ matrix3.h: 3x3 matrix
 
 #include "metacade_private.h"
 
+namespace Arcade
+{
+
 class CVec2;
 class ARCADE_API CMatrix3 
 {
@@ -67,3 +70,5 @@ public:
 private:
 	float m_[9];
 };
+
+}

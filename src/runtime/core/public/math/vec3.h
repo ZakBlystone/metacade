@@ -27,6 +27,9 @@ vec3.h:
 
 #include "metacade_private.h"
 
+namespace Arcade
+{
+
 class CMatrix4;
 class ARCADE_API CVec3 
 {
@@ -109,3 +112,5 @@ public:
 };
 
 static const CVec3 Vec3Zero(0,0,0);
+
+}

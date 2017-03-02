@@ -28,6 +28,9 @@ elementrenderer.h:
 #include "metacade_private.h"
 #include "private/renderlist.h"
 
+namespace Arcade
+{
+
 class CElementRenderer
 {
 public:
@@ -56,3 +59,5 @@ private:
 	uint32 _numVertsRendered;
 	bool _inFrame;
 };
+
+}

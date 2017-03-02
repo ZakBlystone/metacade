@@ -9,6 +9,8 @@ using std::make_shared;
 
 #include "metacade_amal.h"
 
+using namespace Arcade;
+
 #include "SDL.h"
 #include "GL/glew.h"
 #include "GL/glew.c"

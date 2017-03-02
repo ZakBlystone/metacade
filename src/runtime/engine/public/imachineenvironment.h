@@ -28,9 +28,14 @@ imachineenvironment.h: Interface for the environment a single machine runs in
 #include "render/render_public.h"
 #include "sound/sound_public.h"
 
+namespace Arcade
+{
+
 class IMachineEnvironment
 {
 public:
 	virtual class IRenderer* getRenderer() = 0;
 	virtual class IAudioSystem* getAudioSystem() = 0;
 };
+
+}

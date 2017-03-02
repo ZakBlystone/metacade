@@ -28,6 +28,9 @@ renderbuffer.h: VBO / IBO storage on CPU
 #include "metacade_types.h"
 #include "core/core_public.h"
 
+namespace Arcade
+{
+
 class CRenderBuffer : public IRenderBuffer
 {
 public:
@@ -49,3 +52,5 @@ private:
 	vector<CVertex2D> _vertices;
 	vector<uint16> _indices;
 };
+
+}

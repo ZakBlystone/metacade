@@ -27,6 +27,9 @@ vec2.h:
 
 #pragma once
 
+namespace Arcade
+{
+
 class CMatrix3;
 class ARCADE_API CVec2 
 {
@@ -110,3 +113,5 @@ public:
 CVec2 operator/(float scalar, CVec2 vec);
 
 static const CVec2 Vec2Zero(0,0);
+
+}

@@ -27,6 +27,9 @@ itexture.h:
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class ITexture
 {
 public:
@@ -34,3 +37,5 @@ public:
 	virtual int32 getHeight() const = 0;
 	virtual uint32 getID() const = 0;
 };
+
+}

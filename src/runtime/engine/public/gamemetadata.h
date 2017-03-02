@@ -25,7 +25,12 @@ gamemetadata.h:
 
 #pragma once
 
+namespace Arcade
+{
+
 class CGameMetadata
 {
 
 };
+
+}

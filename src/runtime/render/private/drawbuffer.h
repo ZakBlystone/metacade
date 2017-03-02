@@ -28,6 +28,9 @@ drawbuffer.h:
 #include "metacade_private.h"
 #include "render/private/renderbuffer.h"
 
+namespace Arcade
+{
+
 class CDrawBuffer : public IDrawBuffer
 {
 public:
@@ -45,3 +48,5 @@ private:
 	shared_ptr<CRenderBuffer> _renderBuffer;
 	vector<CRenderBatch> _renderBatches;
 };
+
+}

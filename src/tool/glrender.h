@@ -28,6 +28,8 @@ glrender.h:
 //#include "render/render_public.h"
 #include "metacade_amal.h"
 
+using namespace Arcade;
+
 class CRendererGL : public IRenderer
 {
 public:

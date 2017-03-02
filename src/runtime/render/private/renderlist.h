@@ -28,6 +28,9 @@ renderlist.h:
 #include "metacade_private.h"
 #include "public/renderelement.h"
 
+namespace Arcade
+{
+
 class CRenderList
 {
 public:
@@ -47,3 +50,5 @@ public:
 private:
 	vector<CRenderElement> _elements;
 };
+
+}

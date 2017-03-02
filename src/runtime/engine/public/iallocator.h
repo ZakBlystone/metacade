@@ -27,9 +27,14 @@ iallocator.h: Abstraction of memory allocation
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IAllocator
 {
 public:
 	virtual void* alloc(uint32 size) = 0;
 	virtual void free(void* mem) = 0;
 };
+
+}

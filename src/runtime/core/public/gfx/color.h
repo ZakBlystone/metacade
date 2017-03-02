@@ -27,6 +27,9 @@ color.h: 32-bit color representation and floating-point counterpart
 
 #pragma once
 
+namespace Arcade
+{
+
 struct CFloatColor;
 struct ARCADE_API CColor
 {
@@ -97,3 +100,5 @@ struct ARCADE_API CFloatColor
 
 	operator CColor() const;
 };
+
+}

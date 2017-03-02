@@ -27,6 +27,9 @@ ivminstance.h: Runnable game code instance
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IVMInstance
 {
 public:
@@ -43,3 +46,5 @@ public:
 
 	virtual void reset() = 0;
 };
+
+}

@@ -25,7 +25,12 @@ inputevent.h:
 
 #pragma once
 
+namespace Arcade
+{
+
 class CInputEvent
 {
 
 };
+
+}

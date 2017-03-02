@@ -95,6 +95,8 @@ enum ERenderStateChangeFlags
 };
 //src/runtime/core/core_public.h
 //src/runtime/core/public/math/matrix3.h
+namespace Arcade
+{
 class CVec2;
 class ARCADE_API CMatrix3 
 {
@@ -123,7 +125,10 @@ public:
 private:
 	float m_[9];
 };
+}
 //src/runtime/core/public/math/matrix4.h
+namespace Arcade
+{
 class CVec3;
 class CMatrix3;
 class ARCADE_API CMatrix4 
@@ -166,7 +171,10 @@ private:
 	static void matrix4Mult(const CMatrix4 &a, const CMatrix4 &b, CMatrix4 &c);
 	float m_[16];
 };
+}
 //src/runtime/core/public/math/vec2.h
+namespace Arcade
+{
 class CMatrix3;
 class ARCADE_API CVec2 
 {
@@ -229,7 +237,10 @@ public:
 };
 CVec2 operator/(float scalar, CVec2 vec);
 static const CVec2 Vec2Zero(0,0);
+}
 //src/runtime/core/public/math/vec3.h
+namespace Arcade
+{
 class CMatrix4;
 class ARCADE_API CVec3 
 {
@@ -289,7 +300,10 @@ public:
 	CVec3 operator/(float scalar) const;
 };
 static const CVec3 Vec3Zero(0,0,0);
+}
 //src/runtime/core/public/math/halfplane.h
+namespace Arcade
+{
 class ARCADE_API CHalfPlane : public CVec3
 {
 public:
@@ -300,7 +314,10 @@ public:
 	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
 	EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
 };
+}
 //src/runtime/core/public/gfx/color.h
+namespace Arcade
+{
 struct CFloatColor;
 struct ARCADE_API CColor
 {
@@ -344,9 +361,12 @@ struct ARCADE_API CFloatColor
 	CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
 	operator CColor() const;
 };
+}
 //src/runtime/core/public/gfx/image.h
 
 //src/runtime/core/public/gfx/vertex.h
+namespace Arcade
+{
 struct CVertex2D;
 struct ARCADE_API CVertex3D
 {
@@ -376,12 +396,15 @@ struct ARCADE_API CVertex2D
 	CVec2 _texcoord;
 	CColor _color;
 };
+}
 //src/runtime/render/render_public.h
 #define MAX_TEXTURE_BITS 10
 #define MAX_TEXTURES 1024
 #define MAX_VERTICES 65535
 #define MAX_INDICES 200000
 //src/runtime/render/public/itexture.h
+namespace Arcade
+{
 class ITexture
 {
 public:
@@ -389,7 +412,10 @@ public:
 	virtual int32 getHeight() const = 0;
 	virtual uint32 getID() const = 0;
 };
+}
 //src/runtime/render/public/irenderbuffer.h
+namespace Arcade
+{
 class IRenderBuffer
 {
 public:
@@ -398,7 +424,10 @@ public:
 	virtual const uint16* getIndices() const = 0;
 	virtual const uint32 getNumIndices() const = 0;
 };
+}
 //src/runtime/render/public/idrawbuffer.h
+namespace Arcade
+{
 class IDrawBuffer
 {
 public:
@@ -406,7 +435,10 @@ public:
 	virtual uint32 getNumRenderBatches() const = 0;
 	virtual const class IRenderBuffer* getRenderBuffer() const = 0;
 };
+}
 //src/runtime/render/public/irenderer.h
+namespace Arcade
+{
 class IRenderer
 {
 public:
@@ -414,7 +446,10 @@ public:
 	virtual ITexture* loadTexture(class IImage* imagesource) = 0;
 	virtual void freeTexture(ITexture* texture) = 0;
 };
+}
 //src/runtime/render/public/material.h
+namespace Arcade
+{
 class ARCADE_API CMaterial
 {
 public:
@@ -426,7 +461,10 @@ public:
 	uint16 _baseTexture;
 	uint64 getHash() const;
 };
+}
 //src/runtime/render/public/renderstate.h
+namespace Arcade
+{
 class ARCADE_API CRenderState
 {
 public:
@@ -434,7 +472,10 @@ public:
 	uint64 getHash() const;
 	uint32 getStateChangeFlags(const CRenderState& other) const;
 };
+}
 //src/runtime/render/public/renderelement.h
+namespace Arcade
+{
 struct CRenderQuad
 {
 	CVertex2D _verts[4];
@@ -498,7 +539,10 @@ private:
 	CRenderQuad _quad;
 	CClipShape _clip;
 };
+}
 //src/runtime/render/public/renderbatch.h
+namespace Arcade
+{
 class CRenderBatch
 {
 public:
@@ -517,15 +561,21 @@ private:
 	EPrimitive _primitive;
 	uint32 _stateChangeFlags;
 };
+}
 //src/runtime/engine/engine_public.h
 //src/runtime/engine/public/iallocator.h
+namespace Arcade
+{
 class IAllocator
 {
 public:
 	virtual void* alloc(uint32 size) = 0;
 	virtual void free(void* mem) = 0;
 };
+}
 //src/runtime/engine/public/ifilesystem.h
+namespace Arcade
+{
 class IFileObject
 {
 public:
@@ -542,21 +592,30 @@ public:
 	virtual void closeFile(IFileObject* file) = 0;
 	virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
 };
+}
 //src/runtime/engine/public/imachineenvironment.h
+namespace Arcade
+{
 class IMachineEnvironment
 {
 public:
 	virtual class IRenderer* getRenderer() = 0;
 	virtual class IAudioSystem* getAudioSystem() = 0;
 };
+}
 //src/runtime/engine/public/iruntimeenvironment.h
+namespace Arcade
+{
 class IRuntimeEnvironment
 {
 public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
 };
+}
 //src/runtime/engine/public/runtime.h
+namespace Arcade
+{
 class ARCADE_API CRuntime
 {
 public:
@@ -564,3 +623,4 @@ public:
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 };
+}

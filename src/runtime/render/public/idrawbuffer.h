@@ -29,6 +29,9 @@ idrawbuffer.h:
 #include "render/public/renderbatch.h"
 #include "render/public/irenderbuffer.h"
 
+namespace Arcade
+{
+
 class IDrawBuffer
 {
 public:
@@ -37,3 +40,5 @@ public:
 
 	virtual const class IRenderBuffer* getRenderBuffer() const = 0;
 };
+
+}

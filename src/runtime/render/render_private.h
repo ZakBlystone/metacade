@@ -30,3 +30,5 @@ render_private.h:
 #include "private/renderlist.h"
 #include "private/elementrenderer.h"
 #include "private/vertexclipper.h"
+
+using namespace Arcade;

@@ -27,6 +27,9 @@ irenderer.h:
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IRenderer
 {
 public:
@@ -34,3 +37,5 @@ public:
 	virtual ITexture* loadTexture(class IImage* imagesource) = 0;
 	virtual void freeTexture(ITexture* texture) = 0;
 };
+
+}

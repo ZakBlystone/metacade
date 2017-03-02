@@ -27,6 +27,9 @@ vertex.h: Vertex2D and Vertex3D
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 struct CVertex2D;
 struct ARCADE_API CVertex3D
 {
@@ -62,3 +65,5 @@ struct ARCADE_API CVertex2D
 	CVec2 _texcoord;
 	CColor _color;
 };
+
+}

@@ -24,3 +24,5 @@ sound_private.h:
 */
 
 #include "sound/public/iaudio.h"
+
+using namespace Arcade;

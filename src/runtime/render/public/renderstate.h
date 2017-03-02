@@ -29,6 +29,9 @@ renderstate.h:
 #include "core/core_public.h"
 #include "render/public/material.h"
 
+namespace Arcade
+{
+
 class ARCADE_API CRenderState
 {
 public:
@@ -37,3 +40,5 @@ public:
 	uint64 getHash() const;
 	uint32 getStateChangeFlags(const CRenderState& other) const;
 };
+
+}

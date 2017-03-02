@@ -27,6 +27,9 @@ material.h:
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class ARCADE_API CMaterial
 {
 public:
@@ -40,3 +43,5 @@ public:
 
 	uint64 getHash() const;
 };
+
+}

@@ -40,3 +40,5 @@ core_private.h: Headers and macros private to this module
 #endif
 
 #include "core_public.h"
+
+using namespace Arcade;

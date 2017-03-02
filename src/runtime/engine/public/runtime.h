@@ -25,6 +25,9 @@ runtime.h:
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class ARCADE_API CRuntime
 {
 public:
@@ -32,3 +35,5 @@ public:
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 };
+
+}

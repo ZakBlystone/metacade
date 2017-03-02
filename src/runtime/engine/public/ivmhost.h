@@ -27,6 +27,9 @@ ivmhost.h: Creates VMs
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IVMHost
 {
 public:
@@ -40,3 +43,5 @@ public:
 	virtual bool includeGameScript() = 0;
 	virtual bool validateGameScript() = 0;
 };
+
+}

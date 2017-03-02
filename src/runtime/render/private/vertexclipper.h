@@ -28,8 +28,13 @@ vertexclipper.h:
 #include "metacade_private.h"
 #include "core/core_public.h"
 
+namespace Arcade
+{
+
 class CVertexClipper
 {
 public:
 	static EPointClassify clipPolygonAgainstPlane(vector<CVertex2D>& list, const CHalfPlane& plane);
 };
+
+}

@@ -25,9 +25,14 @@ iruntimeenvironment.h: Interface for the environment the runtime runs in
 
 #pragma once
 
+namespace Arcade
+{
+
 class IRuntimeEnvironment
 {
 public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
 };
+
+}

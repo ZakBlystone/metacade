@@ -27,6 +27,9 @@ halfplane.h: Vec3 with plane characteristics
 
 #include "metacade_private.h"
 
+namespace Arcade
+{
+
 class ARCADE_API CHalfPlane : public CVec3
 {
 public:
@@ -39,3 +42,4 @@ public:
 	EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
 };
 
+}

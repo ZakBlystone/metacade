@@ -27,6 +27,9 @@ ivmclass.h: Game archetype
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IVMClass
 {
 public:
@@ -35,3 +38,5 @@ public:
 	virtual class IVMInstance* createVMInstance() = 0;
 	virtual void shutdownVMInstance(IVMInstance* instance) = 0;
 };
+
+}

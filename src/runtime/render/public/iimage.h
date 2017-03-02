@@ -27,6 +27,9 @@ iimage.h: Abstraction of an image resource
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class IImage
 {
 public:
@@ -36,3 +39,5 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
 };
+
+}

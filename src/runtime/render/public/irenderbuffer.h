@@ -28,6 +28,9 @@ irenderbuffer.h: Abstraction of VBO / IBO storage on CPU
 #include "metacade_types.h"
 #include "core/core_public.h"
 
+namespace Arcade
+{
+
 class IRenderBuffer
 {
 public:
@@ -37,3 +40,5 @@ public:
 	virtual const uint16* getIndices() const = 0;
 	virtual const uint32 getNumIndices() const = 0;
 };
+
+}

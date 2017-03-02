@@ -27,6 +27,9 @@ matrix4.h: 4x4 matrix
 
 #include "metacade_types.h"
 
+namespace Arcade
+{
+
 class CVec3;
 class CMatrix3;
 class ARCADE_API CMatrix4 
@@ -85,3 +88,5 @@ private:
 
 	float m_[16];
 };
+
+}
