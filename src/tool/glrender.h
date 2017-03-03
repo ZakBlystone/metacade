@@ -30,7 +30,7 @@ glrender.h:
 
 using namespace Arcade;
 
-class CRendererGL : public IRenderer
+class CRendererGL : public IRenderer, ITextureProvider
 {
 public:
 	CRendererGL();
@@ -39,8 +39,10 @@ public:
 	void reshape(int32 width, int32 height);
 
 	virtual void render(class IDrawBuffer* buffer) override;
-	virtual ITexture* loadTexture(class IImage* imagesource) override;
-	virtual void freeTexture(ITexture* texture) override;
+	virtual class ITextureProvider* getTextureProvider() override;
+
+	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) override;
+	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) override;
 
 private:
 	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);

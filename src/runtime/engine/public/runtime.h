@@ -34,6 +34,8 @@ public:
 	static bool initialize();
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
+	static void testRenderStart(IRenderer *renderer);
+	static void testRenderEnd(IRenderer *renderer);
 };
 
 }

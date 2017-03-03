@@ -32,6 +32,7 @@ render_public.h:
 #include "public/irenderbuffer.h"
 #include "public/idrawbuffer.h"
 #include "public/irenderer.h"
+#include "public/iimage.h"
 #include "public/material.h"
 #include "public/renderstate.h"
 #include "public/renderelement.h"

@@ -39,7 +39,7 @@ public:
 	{}
 
 	EBlendMode _blend;
-	uint16 _baseTexture;
+	uint32 _baseTexture;
 
 	uint64 getHash() const;
 };

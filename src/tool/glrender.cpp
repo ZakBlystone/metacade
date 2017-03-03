@@ -204,14 +204,49 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 	glBindVertexArray(0);
 }
 
-ITexture* CRendererGL::loadTexture(class IImage* imagesource)
+class ITextureProvider* CRendererGL::getTextureProvider()
 {
-	return nullptr;
+	return this;
 }
 
-void CRendererGL::freeTexture(ITexture* texture)
+class CTextureGL : public ITexture
 {
+public:
+	CTextureGL(IImage *imagesource)
+	{
+		_width = imagesource->getWidth();
+		_height = imagesource->getHeight();
 
+		glGenTextures(1, &_id);
+		glBindTexture(GL_TEXTURE_2D, _id);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width,_height,0, GL_RGBA, GL_UNSIGNED_BYTE, imagesource->getPixels());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	virtual ~CTextureGL()
+	{
+		glDeleteTextures(1, &_id);
+	}
+
+	virtual int32 getWidth() const override { return _width; }
+	virtual int32 getHeight() const override { return _height; }
+	virtual uint16 getID() const override { return _id; }
+
+private:
+	uint32 _id;
+	int32 _width;
+	int32 _height;
+};
+
+class ITexture* CRendererGL::loadTexture(class IRenderer* renderContext, class IImage* imagesource)
+{
+	return new CTextureGL(imagesource);
+}
+
+void CRendererGL::freeTexture(class IRenderer* renderContext, ITexture* texture)
+{
+	delete texture;
 }
 
 void CRendererGL::renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch)
@@ -244,6 +279,14 @@ void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState&
 
 	if ( stateChangeFlags & ERenderStateChangeFlags::RSTATECHANGE_BASETEXTURE )
 	{
-		//manage texture switch
+		uint32 textureID = newState._material._baseTexture;
+		if ( textureID != 0 )
+		{
+			glBindTexture(GL_TEXTURE_2D, textureID);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, g_WhiteTexture);
+		}
 	}
 }

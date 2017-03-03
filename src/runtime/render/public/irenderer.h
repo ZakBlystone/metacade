@@ -34,8 +34,7 @@ class IRenderer
 {
 public:
 	virtual void render(class IDrawBuffer* buffer) = 0;
-	virtual ITexture* loadTexture(class IImage* imagesource) = 0;
-	virtual void freeTexture(ITexture* texture) = 0;
+	virtual class ITextureProvider* getTextureProvider() = 0;
 };
 
 }

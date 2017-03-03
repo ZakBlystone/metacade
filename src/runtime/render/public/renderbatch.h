@@ -32,18 +32,18 @@ renderbatch.h: Indices into render buffer, also has renderstate and primitive
 namespace Arcade
 {
 
-class CRenderBatch
+class METACADE_API CRenderBatch
 {
 public:
 	CRenderBatch();
 	CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive);
 
-	uint32 METACADE_API getFirstIndex() const;
-	uint32 METACADE_API getNumIndices() const;
+	uint32 getFirstIndex() const;
+	uint32 getNumIndices() const;
 
-	const METACADE_API class CRenderState getRenderState() const;
-	const METACADE_API EPrimitive getPrimitive() const;
-	const METACADE_API uint32 getStateChangeFlags() const;
+	const class CRenderState getRenderState() const;
+	const EPrimitive getPrimitive() const;
+	const uint32 getStateChangeFlags() const;
 
 	void createStateChangeFlags(const CRenderState& previousState);
 

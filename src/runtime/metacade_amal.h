@@ -408,12 +408,18 @@ struct METACADE_API CVertex2D
 //src/runtime/render/public/itexture.h
 namespace Arcade
 {
+class ITextureProvider
+{
+public:
+	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) = 0;
+	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) = 0;
+};
 class ITexture
 {
 public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
-	virtual uint32 getID() const = 0;
+	virtual uint16 getID() const = 0;
 };
 }
 //src/runtime/render/public/irenderbuffer.h
@@ -446,8 +452,21 @@ class IRenderer
 {
 public:
 	virtual void render(class IDrawBuffer* buffer) = 0;
-	virtual ITexture* loadTexture(class IImage* imagesource) = 0;
-	virtual void freeTexture(ITexture* texture) = 0;
+	virtual class ITextureProvider* getTextureProvider() = 0;
+};
+}
+//src/runtime/render/public/iimage.h
+namespace Arcade
+{
+class IImage
+{
+public:
+	virtual int32 getWidth() const = 0;
+	virtual int32 getHeight() const = 0;
+	virtual int32 getBytesPerPixel() const = 0;
+	virtual EImagePixelFormat getPixelFormat() const = 0;
+	virtual uint8* getPixels() const = 0;
+	virtual uint32 getUniqueID() const = 0;
 };
 }
 //src/runtime/render/public/material.h
@@ -461,7 +480,7 @@ public:
 		, _baseTexture(0)
 	{}
 	EBlendMode _blend;
-	uint16 _baseTexture;
+	uint32 _baseTexture;
 	uint64 getHash() const;
 };
 }
@@ -546,16 +565,16 @@ private:
 //src/runtime/render/public/renderbatch.h
 namespace Arcade
 {
-class CRenderBatch
+class METACADE_API CRenderBatch
 {
 public:
 	CRenderBatch();
 	CRenderBatch(uint32 first, uint32 num, CRenderState renderState, EPrimitive primitive);
-	uint32 METACADE_API getFirstIndex() const;
-	uint32 METACADE_API getNumIndices() const;
-	const METACADE_API class CRenderState getRenderState() const;
-	const METACADE_API EPrimitive getPrimitive() const;
-	const METACADE_API uint32 getStateChangeFlags() const;
+	uint32 getFirstIndex() const;
+	uint32 getNumIndices() const;
+	const class CRenderState getRenderState() const;
+	const EPrimitive getPrimitive() const;
+	const uint32 getStateChangeFlags() const;
 	void createStateChangeFlags(const CRenderState& previousState);
 private:
 	uint32 _firstIndex;
@@ -625,5 +644,7 @@ public:
 	static bool initialize();
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
+	static void testRenderStart(IRenderer *renderer);
+	static void testRenderEnd(IRenderer *renderer);
 };
 }

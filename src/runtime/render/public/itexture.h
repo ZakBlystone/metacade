@@ -30,12 +30,19 @@ itexture.h:
 namespace Arcade
 {
 
+class ITextureProvider
+{
+public:
+	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) = 0;
+	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) = 0;
+};
+
 class ITexture
 {
 public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
-	virtual uint32 getID() const = 0;
+	virtual uint16 getID() const = 0;
 };
 
 }

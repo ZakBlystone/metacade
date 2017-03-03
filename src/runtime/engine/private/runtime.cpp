@@ -27,6 +27,52 @@ runtime.cpp:
 #include "render/render_private.h"
 
 static CElementRenderer* erender = nullptr;
+static ITexture* testTexture = nullptr;
+
+class TestImage : public IImage
+{
+
+public:
+	virtual int32 getWidth() const override { return 4; }
+	virtual int32 getHeight() const override { return 4; }
+	virtual int32 getBytesPerPixel() const override { return 4; }
+	virtual EImagePixelFormat getPixelFormat() const override
+	{
+		return EImagePixelFormat::PFM_RGBA8;
+	}
+
+	virtual uint8* getPixels() const override
+	{
+		static const CColor pixels[16] =
+		{
+			CColor(0xFF0000FF),
+			CColor(0xFF0000FF),
+			CColor(0xFF0000FF),
+			CColor(0xFF0000FF),
+			CColor(0x00FF00FF),
+			CColor(0x00FF00FF),
+			CColor(0x00FF00FF),
+			CColor(0x00FF00FF),
+			CColor(0x0000FFFF),
+			CColor(0x0000FFFF),
+			CColor(0x0000FFFF),
+			CColor(0x0000FFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+		};
+
+		return (uint8 *) pixels;
+	}
+
+	virtual uint32 getUniqueID() const override
+	{
+		return 0;
+	}
+};
+
+static TestImage loadImage;
 
 bool CRuntime::initialize()
 {
@@ -47,21 +93,27 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 	CRenderQuad testQuad;
 	CClipShape testClip;
 	CRenderState state;
+	CMatrix3 scratch;
 
 	testClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
 	testClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
 	testClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
 	testClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
 
-	testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(600,0)));
-	testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
+	//testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(600,0)));
+	//testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
 
 	state._material._blend = BLEND_NORMAL;
-	testQuad.makeBox(CVec2(0,0), CVec2(800,600), CColor(0x220033FF));
+	if ( testTexture != nullptr )
+	{
+		state._material._baseTexture = testTexture->getID();
+	}
+
+	testQuad.makeBox(CVec2(0,0), CVec2(viewportsize.x,viewportsize.y), CColor(0x220033FF));
 	erender->addRenderElement().makeQuad(testQuad, testClip, state, -1);
 
 	for ( int32 y=0; y<20; ++y)
-	for ( int32 i=0; i<100; ++i )
+	for ( int32 i=0; i<100; i += 3 )
 	{
 		CVec2 pos((float) (i)*10.f, 30.f + sinf(time * 3.f + (float) (i + y * 6.f) / 10.f) * 30 + (y * 50.f));
 
@@ -70,11 +122,33 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 		else
 			state._material._blend = BLEND_NORMAL;
 
-		testQuad.makeBox(pos + CVec2(0,0), pos + CVec2(12,30), CColor(0x22CC2222));
+		CMatrix3::identity(scratch);
+		scratch.rotate(time + y + sin((float)(i)/5.f + time * .2f) * 40.f);
+		scratch.translate(pos);
+
+		testQuad.makeBox(CVec2(-15,-15), CVec2(25,15), CColor(0xFFFFFFFF)); //CColor(0x22CC22FF)
+		testQuad.transform(scratch);
+
 		erender->addRenderElement().makeQuad(testQuad, testClip, state);
 	}
 
 	erender->endFrame();
 
 	renderer->render(erender->getDrawBuffer().get());
+}
+
+void Arcade::CRuntime::testRenderStart(IRenderer *renderer)
+{
+	ITextureProvider* provider = renderer->getTextureProvider();
+	if ( provider == nullptr ) return;
+
+	testTexture = provider->loadTexture(renderer, &loadImage);
+}
+
+void Arcade::CRuntime::testRenderEnd(IRenderer *renderer)
+{
+	ITextureProvider* provider = renderer->getTextureProvider();
+	if ( provider == nullptr ) return;
+
+	provider->freeTexture(renderer, testTexture);
 }

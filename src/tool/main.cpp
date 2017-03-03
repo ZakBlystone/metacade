@@ -73,6 +73,8 @@ int start(int argc, char *argv[])
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);
 
+	CRuntime::testRenderStart(renderer.get());
+
 	bool running = true;
 	float lastTime = 0;
 	float deltaSeconds = 0;
@@ -109,6 +111,8 @@ int start(int argc, char *argv[])
 
 		Sleep(5);
 	}
+
+	CRuntime::testRenderEnd(renderer.get());
 
 	ilShutDown();
 
