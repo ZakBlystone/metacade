@@ -45,14 +45,17 @@ def loadInclude(filename):
 
 	return "//" + filename + "\n" + block_comment_remover(code).strip() + "\n"
 
+def amalgamate():
+	amal = loadInclude("src/runtime/metacade_public.h")
+	#print ( amal )
 
-amal = loadInclude("src/runtime/metacade_public.h")
-print ( amal )
+	headFile = open("HEAD", "r")
+	head = headFile.read().replace("<FILENAME>", "metacade_amal.h").replace("<DESCRIPTION>", "amalgamated header for metacade")
 
-headFile = open("HEAD", "r")
-head = headFile.read().replace("<FILENAME>", "metacade_amal.h").replace("<DESCRIPTION>", "amalgamated header for metacade")
+	with open("src/runtime/metacade_amal.h", "w") as f:
+		f.write(head + "\n")
+		f.write("#pragma once\n")
+		f.write(amal)
 
-with open("src/runtime/metacade_amal.h", "w") as f:
-	f.write(head + "\n")
-	f.write("#pragma once\n")
-	f.write(amal)
+if __name__ == "__main__":
+	amalgamate()
