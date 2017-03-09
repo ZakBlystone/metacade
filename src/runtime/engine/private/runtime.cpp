@@ -26,15 +26,36 @@ runtime.cpp:
 #include "engine_private.h"
 #include "render/render_private.h"
 
+#include <fstream>
+
 static CElementRenderer* erender = nullptr;
 static ITexture* testTexture = nullptr;
+static ITexture* testTexture2 = nullptr;
 
 class TestImage : public IImage
 {
-
 public:
-	virtual int32 getWidth() const override { return 4; }
-	virtual int32 getHeight() const override { return 4; }
+
+	TestImage(const char *path, uint32 id)
+	{
+		_id = id;
+
+		std::fstream input(path, std::ios::in | std::ios::binary);
+		input.read((char*) &_width, 4);
+		input.read((char*) &_height, 4);
+
+		_bytes = new uint8[_width * _height * 4];
+		input.read((char *)_bytes, _width * _height * 4);
+		input.close();
+	}
+	
+	virtual ~TestImage()
+	{
+		delete [] _bytes;
+	}
+
+	virtual int32 getWidth() const override { return _width; }
+	virtual int32 getHeight() const override { return _height; }
 	virtual int32 getBytesPerPixel() const override { return 4; }
 	virtual EImagePixelFormat getPixelFormat() const override
 	{
@@ -63,25 +84,34 @@ public:
 			CColor(0xFFFFFFFF),
 		};
 
-		return (uint8 *) pixels;
+		return (uint8 *) _bytes;
 	}
 
 	virtual uint32 getUniqueID() const override
 	{
-		return 0;
+		return _id;
 	}
+
+private:
+	uint8 *_bytes;
+	int32 _width;
+	int32 _height;
+	uint32 _id;
 };
 
-static TestImage loadImage;
+static TestImage *loadImage, *loadImage2;
 
 bool CRuntime::initialize()
 {
 	erender = new CElementRenderer;
+	loadImage = new TestImage("E:/Temp/pic3.dat", 0);
+	loadImage2 = new TestImage("E:/Temp/pic2.dat", 1);
 	return true;
 }
 
 void CRuntime::shutdown()
 {
+	delete loadImage;
 	delete erender;
 	erender = nullptr;
 }
@@ -100,17 +130,27 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 	testClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
 	testClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
 
-	//testClip.add(CHalfPlane(CVec2(1.f, 1.f).normalize(), CVec2(600,0)));
-	//testClip.add(CHalfPlane(CVec2(-1.f, -1.f).normalize(), CVec2(200,0)));
-
 	state._material._blend = BLEND_NORMAL;
 	if ( testTexture != nullptr )
 	{
 		state._material._baseTexture = testTexture->getID();
 	}
 
-	testQuad.makeBox(CVec2(0,0), CVec2(viewportsize.x,viewportsize.y), CColor(0x220033FF));
+	CFloatColor Fader(1.f, 1.f, 1.f, 1.f);
+	float Fade = (sinf(time * 1.5f) + 1.f) / 2.f;
+	Fader.a = Fade * .7f + .3f;
+
+	CMatrix3::identity(scratch);
+	scratch.scale(CVec2(viewportsize.x / viewportsize.y, 1.f));
+	scratch.scale(CVec2(2.f, 2.f));
+	scratch.rotate(time * 1.f);
+	scratch.translate(CVec2(fmodf(time, 1.f), 0.f));
+
+	testQuad.makeBox(CVec2(0,0), CVec2(viewportsize.x,viewportsize.y), Fader);
+	testQuad.transformUV(scratch);
 	erender->addRenderElement().makeQuad(testQuad, testClip, state, -1);
+
+	state._material._baseTexture = testTexture2->getID();
 
 	for ( int32 y=0; y<20; ++y)
 	for ( int32 i=0; i<100; i += 3 )
@@ -123,10 +163,15 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 			state._material._blend = BLEND_NORMAL;
 
 		CMatrix3::identity(scratch);
-		scratch.rotate(time + y + sin((float)(i)/5.f + time * .2f) * 40.f);
+		scratch.rotate(time + y + sinf((float)(i)/5.f + time * .2f) * 40.f);
 		scratch.translate(pos);
 
-		testQuad.makeBox(CVec2(-15,-15), CVec2(25,15), CColor(0xFFFFFFFF)); //CColor(0x22CC22FF)
+		CFloatColor Col( 
+			sinf((float) i + time) / 2.f + .5f, 
+			sinf((float) i + time * 2.f) / 2.f + .5f,
+			cosf((float) (i+y) * 1.5f + time) / 2.f + .5f, 1.f );
+
+		testQuad.makeBox(CVec2(-15,-15), CVec2(15,15), Col); //CColor(0x22CC22FF)
 		testQuad.transform(scratch);
 
 		erender->addRenderElement().makeQuad(testQuad, testClip, state);
@@ -142,7 +187,8 @@ void Arcade::CRuntime::testRenderStart(IRenderer *renderer)
 	ITextureProvider* provider = renderer->getTextureProvider();
 	if ( provider == nullptr ) return;
 
-	testTexture = provider->loadTexture(renderer, &loadImage);
+	testTexture = provider->loadTexture(renderer, loadImage);
+	testTexture2 = provider->loadTexture(renderer, loadImage2);
 }
 
 void Arcade::CRuntime::testRenderEnd(IRenderer *renderer)
@@ -151,4 +197,5 @@ void Arcade::CRuntime::testRenderEnd(IRenderer *renderer)
 	if ( provider == nullptr ) return;
 
 	provider->freeTexture(renderer, testTexture);
+	provider->freeTexture(renderer, testTexture2);
 }

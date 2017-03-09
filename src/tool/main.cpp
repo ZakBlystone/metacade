@@ -17,6 +17,7 @@ using namespace Arcade;
 #include "IL/il.h"
 
 #include "glrender.h"
+#include <fstream>
 
 int onError(const char *error)
 {
@@ -66,6 +67,24 @@ int initOpenGLAndWindow()
 int start(int argc, char *argv[])
 {
 	ilInit();
+
+	/*ILuint test = ilGenImage();
+	ilBindImage(test);
+	ilLoadImage("E:/Temp/chair_icon0.png");
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+	int Width = (int) ilGetInteger(IL_IMAGE_WIDTH);
+	int Height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
+	
+	uint8* Data = (uint8*) ilGetData();
+
+	std::fstream output("E:/Temp/pic3.dat", std::ios::out | std::ios::binary);
+
+	output.write((const char *)& Width, 4);
+	output.write((const char *)& Height, 4);
+	output.write((const char *)Data, Width * Height * 4);
+
+	output.close();*/
 
 	if ( initOpenGLAndWindow() ) return 1;
 	if ( !CRuntime::initialize() ) return onError("Failed to init arcade runtime");

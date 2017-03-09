@@ -219,7 +219,7 @@ public:
 
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width,_height,0, GL_RGBA, GL_UNSIGNED_BYTE, imagesource->getPixels());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width,_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagesource->getPixels());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
@@ -271,9 +271,9 @@ void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState&
 	{
 		switch ( newState._material._blend )
 		{
-			case BLEND_NORMAL: glBlendFunc(GL_ONE, GL_ZERO); break;
+			case BLEND_NORMAL: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
 			case BLEND_ALPHA: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); break;
-			case BLEND_ADD: glBlendFunc(GL_ONE, GL_ONE); break;
+			case BLEND_ADD: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
 		}		
 	}
 

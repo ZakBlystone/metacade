@@ -524,6 +524,13 @@ struct CRenderQuad
 		_verts[2]._position *= matrix;
 		_verts[3]._position *= matrix;
 	}
+	void transformUV(const CMatrix3 &matrix)
+	{
+		_verts[0]._texcoord *= matrix;
+		_verts[1]._texcoord *= matrix;
+		_verts[2]._texcoord *= matrix;
+		_verts[3]._texcoord *= matrix;
+	}
 };
 #define MAX_CLIPPING_PLANES 16
 struct CClipShape
