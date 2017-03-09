@@ -29,10 +29,87 @@ lua_vm.h:
 
 #include "lua.hpp"
 
+//VM stuff is private, we can convert these interfaces to make more sense now
+
 namespace Arcade
 {
 
-class LuaVM : public IVMHost
+class LuaVMReference
+{
+public:
+	LuaVMReference(shared_ptr<class LuaVM> host, int idx);
+	~LuaVMReference();
+
+	void push();
+
+private:
+	int _ref;
+	shared_ptr<LuaVM> _host;
+};
+
+class LuaVMInstance : public IVMInstance
+{
+
+public:
+	LuaVMInstance(shared_ptr<class LuaVMClass> klass);
+	virtual ~LuaVMInstance();
+
+	virtual class IVMClass* getClass() override;
+	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
+	virtual bool postCommand(const char** commandBuffer) override;
+	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void precacheAssets() override;
+	virtual void think(float seconds, float deltaSeconds) override;
+	virtual void render(class CElementRenderer* renderer) override;
+	virtual void reset() override;
+
+	shared_ptr<LuaVM> getLuaHost() const;
+
+	shared_ptr<LuaVMClass> getLuaClass() const
+	{
+		return _klass;
+	}
+
+	shared_ptr<LuaVMReference> getLuaObject() const
+	{
+		return _object;
+	}
+
+	bool pcall(int nargs);
+
+private:
+	shared_ptr<LuaVMClass> _klass;
+	shared_ptr<LuaVMReference> _object;
+};
+
+class LuaVMClass : public IVMClass, public enable_shared_from_this<LuaVMClass>
+{
+public:
+	LuaVMClass(shared_ptr<class LuaVM> host);
+	virtual ~LuaVMClass();
+
+	virtual class CGameMetadata* getMetaData() override;
+	virtual class IVMHost* getHost() override;
+	virtual class IVMInstance* createVMInstance() override;
+	virtual void shutdownVMInstance(IVMInstance* instance) override;
+
+	bool pushLuaFunction(string functionName) const;
+
+	shared_ptr<LuaVM> getLuaHost() const
+	{
+		return _host;
+	}
+
+private:
+
+	friend class LuaVM;
+	friend class LuaVMInstance;
+
+	shared_ptr<LuaVM> _host;
+	map<string, shared_ptr<LuaVMReference>> _functions;
+};
+
+class LuaVM : public IVMHost, public enable_shared_from_this<LuaVM>
 {
 public:
 	LuaVM();
@@ -45,9 +122,18 @@ public:
 	virtual bool includeGameScript() override;
 	virtual bool validateGameScript() override;
 
+	bool pcall(int nargs);
+
 private:
+
+	static int testMetaSet(lua_State *L);
+
+	friend class LuaVMInstance;
+	friend class LuaVMReference;
+
 	lua_State *_L;
 	unsigned int _memUsage;
+	map<string, shared_ptr<LuaVMClass>> _loadedClasses;
 };
 
 extern shared_ptr<IVMHost> getLuaVM();

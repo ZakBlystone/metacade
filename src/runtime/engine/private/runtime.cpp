@@ -102,6 +102,8 @@ private:
 
 static TestImage *loadImage, *loadImage2;
 static shared_ptr<IVMHost> vm;
+static IVMClass *klass;
+static IVMInstance *instance;
 
 bool CRuntime::initialize()
 {
@@ -113,7 +115,8 @@ bool CRuntime::initialize()
 	if ( vm->init() )
 	{
 		std::cout << "Initialized VM" << std::endl;
-		vm->loadGameVMClass();
+		klass = vm->loadGameVMClass();
+		instance = klass->createVMInstance();
 	}
 	else
 	{
@@ -132,6 +135,8 @@ void CRuntime::shutdown()
 
 void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize)
 {
+	instance->think(time, 0.1f);
+
 	erender->beginFrame();
 
 	CRenderQuad testQuad;

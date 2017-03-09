@@ -465,7 +465,7 @@ void Arcade::lua_pushVec2(lua_State *L, const CVec2& vec)
 	}
 }
 
-const CMatrix3& lua_toMatrix3x3(lua_State *L, int idx)
+CMatrix3 lua_toMatrix3x3(lua_State *L, int idx)
 {
 	LuaMatrix3x3Module *M = GET_OBJECT(LuaMatrix3x3Module, L, idx);
 	if (M)

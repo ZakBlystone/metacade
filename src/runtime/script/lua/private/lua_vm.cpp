@@ -51,7 +51,6 @@ static int l_print(lua_State *S)
 	return 0;
 }
 
-
 LuaVM::LuaVM()
 	: _L(nullptr)
 	, _memUsage(0)
@@ -77,6 +76,7 @@ bool LuaVM::init()
 	_L = lua_newstate(l_alloc, &_memUsage);
 
 	luaJIT_setmode(_L, -1, LUAJIT_MODE_DEBUG | LUAJIT_MODE_ON);
+	luaJIT_setmode(_L, -1, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
 
 	luaopen_base(_L);
 	luaopen_bit(_L);
@@ -104,9 +104,62 @@ bool Arcade::LuaVM::isRunning()
 	return _L != nullptr;
 }
 
+bool Arcade::LuaVM::pcall(int nargs)
+{
+	if (lua_pcall(_L, nargs, 0, 0)) 
+	{
+		std::cout << "Lua: " << lua_tostring(_L, -1) << std::endl;
+		lua_pop(_L, 1);
+		return false;
+	}
+	return true;
+}
+
+static int testMetaGet(lua_State *L)
+{
+	std::cout << "META GET" << std::endl;
+	return 0;
+}
+
+int LuaVM::testMetaSet(lua_State *L)
+{
+	lua_getfield(L, 1, "__klass");
+
+	//std::cout << (lua_type(L, -1) == LUA_TLIGHTUSERDATA ? "YES" : "NO") << std::endl;
+
+	LuaVMClass *klass = (LuaVMClass *) lua_touserdata(L, -1);
+
+	const char *key = lua_tostring(L, 2);
+	//std::cout << key << std::endl;
+
+	if ( klass != nullptr )
+	{
+		int type = lua_type(L, 3);
+
+		if ( type == LUA_TFUNCTION )
+		{
+			lua_getglobal(L, "_G");
+			lua_setfenv(L, 3);
+
+			auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
+			klass->_functions.insert(entry);
+		}
+		else
+		{
+			luaL_error(L, "functions only");
+		}
+	}
+
+	//lua_pushvalue(L, 3);
+	//lua_rawset(L, 1);
+
+	return 0;
+}
+
 Arcade::IVMClass* LuaVM::loadGameVMClass()
 {
-	std::fstream input("test.lua", std::ios::binary | std::ios::in | std::ios::ate);
+	string filename("test.lua");
+	std::fstream input(filename, std::ios::binary | std::ios::in | std::ios::ate);
 
 	if ( input.is_open() )
 	{
@@ -118,11 +171,52 @@ Arcade::IVMClass* LuaVM::loadGameVMClass()
 		char *buffer = new char[size];
 		input.read(buffer, size);
 
-		if (luaL_loadbuffer(_L, buffer, size, "main") || lua_pcall(_L, 0, 0, 0)) {
+		//std::cout << " [ " << lua_gettop(_L) << std::endl;
+
+		if (luaL_loadbuffer(_L, buffer, size, "main"))
+		{
+			std::cout << "Lua: main: " << lua_tostring(_L, -1);
+			lua_pop(_L, 1);
+			return nullptr;	
+		}
+
+		shared_ptr<LuaVMClass> newClass = make_shared<LuaVMClass>(shared_from_this());
+
+		lua_newtable(_L);
+
+		lua_pushlightuserdata(_L, newClass.get());
+		lua_setfield(_L, -2, "__klass");
+
+		lua_newtable(_L);
+
+		lua_pushvalue(_L, -1);
+		int meta = luaL_ref(_L, LUA_REGISTRYINDEX);
+
+		lua_newtable(_L); //321
+		lua_setfield(_L, -2, "sounds"); //21
+
+		lua_pushvalue(_L, -1);
+		lua_setfield(_L, -2, "__index");
+
+		lua_pushcclosure(_L, LuaVM::testMetaSet, 0);
+		lua_setfield(_L, -2, "__newindex");
+
+		lua_setmetatable(_L, -2);
+		lua_setfenv(_L, -2);
+
+		if (lua_pcall(_L, 0, 0, 0)) {
 			std::cout << "Lua: main: " << lua_tostring(_L, -1);
 			lua_pop(_L, 1);
 			return nullptr;
 		}
+
+		//std::cout << " [ " << lua_gettop(_L) << std::endl;
+
+		_loadedClasses.insert(make_pair(filename, newClass));
+
+		return newClass.get();
+		//shared_ptr<LuaVMInstance> instance1 = make_shared<LuaVMInstance>(newClass);
+		//instance1->render(nullptr);
 	}
 
 	return nullptr;
@@ -141,4 +235,157 @@ bool LuaVM::validateGameScript()
 extern shared_ptr<IVMHost> Arcade::getLuaVM()
 {
 	return make_shared<LuaVM>();
+}
+
+Arcade::LuaVMClass::LuaVMClass(shared_ptr<LuaVM> host)
+	: _host(host)
+{
+
+}
+
+Arcade::LuaVMClass::~LuaVMClass()
+{
+
+}
+
+class CGameMetadata* Arcade::LuaVMClass::getMetaData()
+{
+	return nullptr;
+}
+
+class IVMHost* Arcade::LuaVMClass::getHost()
+{
+	return _host.get();
+}
+
+class IVMInstance* Arcade::LuaVMClass::createVMInstance()
+{
+	return new LuaVMInstance(shared_from_this());
+}
+
+void Arcade::LuaVMClass::shutdownVMInstance(IVMInstance* instance)
+{
+	delete instance;
+}
+
+bool Arcade::LuaVMClass::pushLuaFunction(string functionName) const
+{
+	auto found = _functions.find(functionName);
+	if ( found != _functions.end() )
+	{
+		(*found).second->push();
+		return true;
+	}
+	return false;
+}
+
+//VM INSTANCE
+Arcade::LuaVMInstance::LuaVMInstance(shared_ptr<LuaVMClass> klass)
+	: _klass(klass)
+{
+	lua_State *L = _klass->_host->_L;
+
+	lua_newtable(L);
+	_object = make_shared<LuaVMReference>(_klass->_host, -1);
+
+	for ( auto funcdef : klass->_functions )
+	{
+		funcdef.second->push();
+		lua_setfield(L, -2, funcdef.first.c_str());
+	}
+
+	lua_pop(L, 1);
+
+	if ( getLuaClass()->pushLuaFunction("init") ) pcall(0);
+}
+
+Arcade::LuaVMInstance::~LuaVMInstance()
+{
+
+}
+
+class IVMClass* Arcade::LuaVMInstance::getClass()
+{
+	return _klass.get();
+}
+
+void Arcade::LuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
+{
+
+}
+
+bool Arcade::LuaVMInstance::postCommand(const char** commandBuffer)
+{
+	return false;
+}
+
+void Arcade::LuaVMInstance::postInputEvent(const class CInputEvent& input)
+{
+
+}
+
+void Arcade::LuaVMInstance::precacheAssets()
+{
+
+}
+
+void Arcade::LuaVMInstance::think(float seconds, float deltaSeconds)
+{
+	if ( getLuaClass()->pushLuaFunction("think") )
+	{
+		lua_State *L = getLuaHost()->_L;
+
+		lua_pushnumber(L, seconds);
+		lua_pushnumber(L, deltaSeconds);
+		pcall(2);
+	}
+}
+
+void Arcade::LuaVMInstance::render(class CElementRenderer* renderer)
+{
+	if ( getLuaClass()->pushLuaFunction("draw") ) pcall(0);
+}
+
+void Arcade::LuaVMInstance::reset()
+{
+	if ( getLuaClass()->pushLuaFunction("reset") ) pcall(0);
+}
+
+shared_ptr<Arcade::LuaVM> Arcade::LuaVMInstance::getLuaHost() const
+{
+	return _klass->getLuaHost();
+}
+
+bool Arcade::LuaVMInstance::pcall(int nargs)
+{
+	getLuaObject()->push();
+	lua_setglobal(getLuaHost()->_L, "game");
+	return getLuaHost()->pcall(nargs);
+}
+
+Arcade::LuaVMReference::LuaVMReference(shared_ptr<class LuaVM> host, int idx)
+	: _host(host)
+{
+	lua_State *L = host->_L;
+	
+	lua_pushvalue(L, idx);
+	_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+}
+
+Arcade::LuaVMReference::~LuaVMReference()
+{
+	lua_State *L = _host->_L;
+
+	if ( L == nullptr ) return;
+
+	luaL_unref(L, LUA_REGISTRYINDEX, _ref);
+}
+
+void Arcade::LuaVMReference::push()
+{
+	lua_State *L = _host->_L;
+
+	if ( L == nullptr ) return;
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, _ref);
 }

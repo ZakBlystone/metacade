@@ -40,5 +40,6 @@ using std::shared_ptr;
 using std::weak_ptr;
 using std::list;
 using std::make_shared;
+using std::enable_shared_from_this;
 using std::sort;
 using std::map;

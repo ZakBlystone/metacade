@@ -125,7 +125,7 @@ CRendererGL::CRendererGL()
     glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, sizeof(CVertex2D), (void*) offsetof(CVertex2D, _texcoord));
 	glBindVertexArray(0);
 
-	std::cout << posAttrib << colAttrib << texAttrib << std::endl;
+	//std::cout << posAttrib << colAttrib << texAttrib << std::endl;
 
 	//create default white texture
 	uint32 whitePixels[16];
@@ -165,8 +165,8 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 {
 	const IRenderBuffer *renderBuffer = buffer->getRenderBuffer();
 
-	std::cout << "Render: " << renderBuffer->getNumVertices() << " vertices, " << renderBuffer->getNumIndices() << " indices, "
-		<< buffer->getNumRenderBatches() << " batches" << std::endl;
+	/*std::cout << "Render: " << renderBuffer->getNumVertices() << " vertices, " << renderBuffer->getNumIndices() << " indices, "
+		<< buffer->getNumRenderBatches() << " batches" << std::endl;*/
 	
 
 	const CVertex2D* vertices = renderBuffer->getVertices();
@@ -266,7 +266,7 @@ void CRendererGL::renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch)
 
 void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState& newState)
 {
-	std::cout << "State Change: " << stateChangeFlags << std::endl;
+	//std::cout << "State Change: " << stateChangeFlags << std::endl;
 	if ( stateChangeFlags & ERenderStateChangeFlags::RSTATECHANGE_BLENDMODE )
 	{
 		switch ( newState._material._blend )
