@@ -94,7 +94,7 @@ int start(int argc, char *argv[])
 
 	CRuntime::testRenderStart(renderer.get());
 
-	bool running = true;
+	bool running = false;
 	float lastTime = 0;
 	float deltaSeconds = 0;
 	while (running)

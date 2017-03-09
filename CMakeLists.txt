@@ -18,7 +18,7 @@ endif()
 
 if (WIN32)
 	find_package(OpenGL REQUIRED)
-	find_package(SDL2 REQUIRED)
+	#find_package(SDL2 REQUIRED)
 else()
 	INCLUDE(FindPkgConfig)
 	#PKG_SEARCH_MODULE(OpenGL REQUIRED opengl)
@@ -31,6 +31,10 @@ SET(GLEW_DIR "" CACHE PATH "GLEW directory")
 
 SET(IL_INCLUDE_DIR "" CACHE PATH "DevIL include directory")
 SET(IL_LIBRARY_DIR "" CACHE PATH "DevIL library dir")
+
+SET(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include directory")
+SET(PYTHON_CONFIG_DIR "" CACHE PATH "Python config directory")
+SET(PYTHON_LIBRARY_DIR "" CACHE PATH "Python library directory")
 
 add_subdirectory(src)
 

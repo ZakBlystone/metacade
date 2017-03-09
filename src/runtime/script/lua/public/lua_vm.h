@@ -19,25 +19,6 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-runtime.h:
+lua_vm.h:
 ===============================================================================
 */
-
-#pragma once
-
-#include "metacade_types.h"
-
-namespace Arcade
-{
-
-class METACADE_API CRuntime
-{
-public:
-	static bool initialize();
-	static void shutdown();
-	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
-	static void testRenderStart(IRenderer *renderer);
-	static void testRenderEnd(IRenderer *renderer);
-};
-
-}

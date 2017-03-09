@@ -19,6 +19,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-pyvmclass.h:
+lua_math.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "core/core_public.h"
+
+namespace Arcade
+{
+
+extern bool lua_toVec2(lua_State *L, int idx, CVec2& vec);
+extern void lua_pushVec2(lua_State *L, const CVec2& vec);
+extern const CMatrix3& lua_toMatrix3x3(lua_State *L, int idx);
+extern void lua_pushMatrix3x3(lua_State *L, const CMatrix3& matrix);
+
+extern void OpenLuaMathModule(lua_State *L);
+
+}

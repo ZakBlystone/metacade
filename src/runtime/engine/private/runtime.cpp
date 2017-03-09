@@ -25,6 +25,7 @@ runtime.cpp:
 
 #include "engine_private.h"
 #include "render/render_private.h"
+#include "script/lua/lua_private.h"
 
 #include <fstream>
 
@@ -100,12 +101,25 @@ private:
 };
 
 static TestImage *loadImage, *loadImage2;
+static shared_ptr<IVMHost> vm;
 
 bool CRuntime::initialize()
 {
 	erender = new CElementRenderer;
 	loadImage = new TestImage("E:/Temp/pic3.dat", 0);
 	loadImage2 = new TestImage("E:/Temp/pic2.dat", 1);
+
+	vm = getLuaVM();
+	if ( vm->init() )
+	{
+		std::cout << "Initialized VM" << std::endl;
+		vm->loadGameVMClass();
+	}
+	else
+	{
+		std::cout << "Failed to initialize VM" << std::endl;
+	}
+
 	return true;
 }
 

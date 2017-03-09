@@ -35,8 +35,9 @@ class IVMHost
 public:
 	virtual ELanguage getLanguage() = 0;
 
-	virtual void init() = 0;
+	virtual bool init() = 0;
 	virtual void shutdown() = 0;
+	virtual bool isRunning() = 0;
 
 	virtual IVMClass* loadGameVMClass() = 0;
 

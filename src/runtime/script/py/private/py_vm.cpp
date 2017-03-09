@@ -19,25 +19,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-runtime.h:
+py_vm.cpp:
 ===============================================================================
 */
 
-#pragma once
+#include "py_private.h"
 
-#include "metacade_types.h"
+/*
+#include "Python.h"
 
-namespace Arcade
+void testPython()
 {
+	Py_SetPythonHome(L"./HOME");
+	Py_Initialize();
 
-class METACADE_API CRuntime
-{
-public:
-	static bool initialize();
-	static void shutdown();
-	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
-	static void testRenderStart(IRenderer *renderer);
-	static void testRenderEnd(IRenderer *renderer);
-};
+	PyRun_SimpleString("f = open(\"fear.x\", 'w')\nprint(\"hello\")");
 
+	Py_Finalize();
 }
+*/

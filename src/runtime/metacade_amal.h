@@ -61,7 +61,8 @@ enum EPointClassify
 enum ELanguage
 {
 	LANG_DUMMY,
-	LANG_PYTHON,
+	LANG_LUA,
+	//LANG_PYTHON,
 };
 #define MAX_BLEND_BITS 3
 enum EBlendMode
