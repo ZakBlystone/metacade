@@ -32,3 +32,5 @@ core_public.h: Inter-modular headers
 #include "public/gfx/color.h"
 #include "public/gfx/image.h"
 #include "public/gfx/vertex.h"
+
+#include "public/util/variant.h"
