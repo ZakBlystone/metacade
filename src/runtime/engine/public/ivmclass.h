@@ -33,6 +33,7 @@ namespace Arcade
 class IVMClass
 {
 public:
+	virtual bool reload() = 0;
 	virtual class CGameMetadata* getMetaData() = 0;
 	virtual class IVMHost* getHost() = 0;
 	virtual class IVMInstance* createVMInstance() = 0;

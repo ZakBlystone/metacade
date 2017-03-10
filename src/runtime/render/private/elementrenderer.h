@@ -39,6 +39,8 @@ public:
 	void beginFrame();
 
 	CRenderElement& addRenderElement();
+	void setViewportClip(const CClipShape& clip);
+	CClipShape getViewportClip() const;
 
 	void endFrame();
 
@@ -55,6 +57,7 @@ private:
 	shared_ptr<CRenderBuffer> _renderBuffer;
 	shared_ptr<CDrawBuffer> _drawBuffer;
 
+	CClipShape _viewClip;
 	CRenderState _currentRenderState;
 	uint32 _numVertsRendered;
 	bool _inFrame;

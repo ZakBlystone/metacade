@@ -28,5 +28,6 @@ lua_private.h:
 #include "private/lua_vm.h"
 #include "private/lua_module.h"
 #include "private/lua_math.h"
+#include "private/lua_draw.h"
 
 using namespace Arcade;

@@ -38,6 +38,7 @@ public:
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 	static void testRenderStart(IRenderer *renderer);
 	static void testRenderEnd(IRenderer *renderer);
+	static void reloadVM();
 };
 
 }

@@ -67,6 +67,11 @@ uint32 CColor::asInt() const
 }
 
 //CFloatColor
+CFloatColor::CFloatColor() : r(0.f), g(0.f), b(0.f), a(1.f)
+{
+
+}
+
 CFloatColor::CFloatColor(const CColor& color)
 {
 	r = (float)(color.r) / 255.0f;

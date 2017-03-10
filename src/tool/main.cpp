@@ -114,6 +114,15 @@ int start(int argc, char *argv[])
 				if ( evt.window.event == SDL_WINDOWEVENT_RESIZED )
 					renderer->reshape(evt.window.data1, evt.window.data2);
 			}
+
+			if ( evt.type == SDL_KEYDOWN )
+			{
+				bool pressed = evt.key.state == SDL_PRESSED;
+				if ( pressed && evt.key.keysym.scancode == SDL_SCANCODE_R )
+				{
+					CRuntime::reloadVM();
+				}
+			}
 		}
 
 		float time = (float)(SDL_GetTicks()) / 1000.f;

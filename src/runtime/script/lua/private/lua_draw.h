@@ -22,3 +22,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 lua_draw.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "core/core_public.h"
+
+namespace Arcade
+{
+
+class LuaDrawModulePublic : public LuaModule
+{
+public:
+	shared_ptr<CElementRenderer> _renderer;
+};
+
+void pushRenderer(lua_State *L, shared_ptr<CElementRenderer> renderer);
+
+extern void OpenLuaDrawModule(lua_State *L);
+
+}

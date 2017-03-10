@@ -60,7 +60,7 @@ public:
 	virtual void postInputEvent(const class CInputEvent& input) override;
 	virtual void precacheAssets() override;
 	virtual void think(float seconds, float deltaSeconds) override;
-	virtual void render(class CElementRenderer* renderer) override;
+	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
 	virtual void reset() override;
 
 	shared_ptr<LuaVM> getLuaHost() const;
@@ -88,12 +88,14 @@ public:
 	LuaVMClass(shared_ptr<class LuaVM> host);
 	virtual ~LuaVMClass();
 
+	virtual bool reload() override;
 	virtual class CGameMetadata* getMetaData() override;
 	virtual class IVMHost* getHost() override;
 	virtual class IVMInstance* createVMInstance() override;
 	virtual void shutdownVMInstance(IVMInstance* instance) override;
 
 	bool pushLuaFunction(string functionName) const;
+	bool loadFromFile(string filename);
 
 	shared_ptr<LuaVM> getLuaHost() const
 	{
@@ -102,9 +104,12 @@ public:
 
 private:
 
+	static int testMetaSet(lua_State *L);
+
 	friend class LuaVM;
 	friend class LuaVMInstance;
 
+	string _lastLoadFile;
 	shared_ptr<LuaVM> _host;
 	map<string, shared_ptr<LuaVMReference>> _functions;
 };
@@ -123,10 +128,9 @@ public:
 	virtual bool validateGameScript() override;
 
 	bool pcall(int nargs);
+	lua_State *getState();
 
 private:
-
-	static int testMetaSet(lua_State *L);
 
 	friend class LuaVMInstance;
 	friend class LuaVMReference;

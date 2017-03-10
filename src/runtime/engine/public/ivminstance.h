@@ -42,7 +42,7 @@ public:
 
 	virtual void precacheAssets() = 0;
 	virtual void think(float seconds, float deltaSeconds) = 0;
-	virtual void render(class CElementRenderer* renderer) = 0;
+	virtual void render(shared_ptr<class CElementRenderer> renderer) = 0;
 
 	virtual void reset() = 0;
 };

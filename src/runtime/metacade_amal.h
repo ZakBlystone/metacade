@@ -351,6 +351,7 @@ struct METACADE_API CFloatColor
 		};
 		float rgba[4];
 	};
+	CFloatColor();
 	CFloatColor(const CColor &color);
 	CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
 	CFloatColor operator+(const CFloatColor& other) const;
@@ -654,5 +655,6 @@ public:
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 	static void testRenderStart(IRenderer *renderer);
 	static void testRenderEnd(IRenderer *renderer);
+	static void reloadVM();
 };
 }

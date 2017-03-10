@@ -177,7 +177,7 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 	glBufferData(GL_ARRAY_BUFFER, renderBuffer->getNumVertices() * sizeof(CVertex2D), vertices, GL_STREAM_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderBuffer->getNumIndices() * sizeof(uint32), indices, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderBuffer->getNumIndices() * sizeof(uint16), indices, GL_STREAM_DRAW);
 
 	glBindVertexArray(g_VAO);
 

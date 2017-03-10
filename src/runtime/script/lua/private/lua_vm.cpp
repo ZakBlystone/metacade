@@ -84,6 +84,7 @@ bool LuaVM::init()
 	luaopen_table(_L);
 
 	OpenLuaMathModule(_L);
+	OpenLuaDrawModule(_L);
 
 	//check errors
 
@@ -115,13 +116,18 @@ bool Arcade::LuaVM::pcall(int nargs)
 	return true;
 }
 
+lua_State* Arcade::LuaVM::getState()
+{
+	return _L;
+}
+
 static int testMetaGet(lua_State *L)
 {
 	std::cout << "META GET" << std::endl;
 	return 0;
 }
 
-int LuaVM::testMetaSet(lua_State *L)
+int LuaVMClass::testMetaSet(lua_State *L)
 {
 	lua_getfield(L, 1, "__klass");
 
@@ -158,10 +164,31 @@ int LuaVM::testMetaSet(lua_State *L)
 
 Arcade::IVMClass* LuaVM::loadGameVMClass()
 {
-	string filename("test.lua");
-	std::fstream input(filename, std::ios::binary | std::ios::in | std::ios::ate);
+	//string filename("test.lua");
+	string filename("E:/Projects/metacade/bin/Release/test.lua");
 
-	if ( input.is_open() )
+	shared_ptr<LuaVMClass> newClass;
+
+	auto found = _loadedClasses.find(filename);
+	if ( found != _loadedClasses.end() )
+	{
+		return ((*found).second).get();
+	}
+	else
+	{
+		newClass = make_shared<LuaVMClass>(shared_from_this());
+		_loadedClasses.insert(make_pair(filename, newClass));
+
+		if ( newClass->loadFromFile(filename) )
+		{
+			return newClass.get();
+		}
+	}
+
+	return nullptr;
+
+	//std::fstream input(filename, std::ios::binary | std::ios::in | std::ios::ate);
+	/*if ( input.is_open() )
 	{
 		uint32 size = input.tellg();
 		input.seekg(0);
@@ -219,7 +246,7 @@ Arcade::IVMClass* LuaVM::loadGameVMClass()
 		//instance1->render(nullptr);
 	}
 
-	return nullptr;
+	return nullptr;*/
 }
 
 bool LuaVM::includeGameScript()
@@ -246,6 +273,15 @@ Arcade::LuaVMClass::LuaVMClass(shared_ptr<LuaVM> host)
 Arcade::LuaVMClass::~LuaVMClass()
 {
 
+}
+
+bool Arcade::LuaVMClass::reload()
+{
+	if ( _lastLoadFile != "" )
+	{
+		return loadFromFile(_lastLoadFile);
+	}
+	return false;
 }
 
 class CGameMetadata* Arcade::LuaVMClass::getMetaData()
@@ -276,6 +312,62 @@ bool Arcade::LuaVMClass::pushLuaFunction(string functionName) const
 		(*found).second->push();
 		return true;
 	}
+	return false;
+}
+
+bool Arcade::LuaVMClass::loadFromFile(string filename)
+{
+	_lastLoadFile = filename;
+	_functions.clear();
+
+	std::fstream input(filename, std::ios::binary | std::ios::in | std::ios::ate);
+
+	lua_State *L = _host->getState();
+
+	if ( input.is_open() )
+	{
+		uint32 size = input.tellg();
+		input.seekg(0);
+
+		if ( size == 0 ) return false;
+		
+		char *buffer = new char[size];
+		input.read(buffer, size);
+
+		if (luaL_loadbuffer(L, buffer, size, "main"))
+		{
+			std::cout << "Lua: main: " << lua_tostring(L, -1);
+			lua_pop(L, 1);
+			return nullptr;	
+		}
+
+		lua_newtable(L);
+
+		lua_pushlightuserdata(L, this);
+		lua_setfield(L, -2, "__klass");
+
+		lua_newtable(L);
+		lua_newtable(L);
+		lua_setfield(L, -2, "sounds");
+
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_pushcclosure(L, LuaVMClass::testMetaSet, 0);
+		lua_setfield(L, -2, "__newindex");
+
+		lua_setmetatable(L, -2);
+		lua_setfenv(L, -2);
+
+		if (lua_pcall(L, 0, 0, 0)) {
+			std::cout << "Lua: main: " << lua_tostring(L, -1);
+			lua_pop(L, 1);
+			return false;
+		}
+
+		return true;
+	}
+
 	return false;
 }
 
@@ -341,9 +433,20 @@ void Arcade::LuaVMInstance::think(float seconds, float deltaSeconds)
 	}
 }
 
-void Arcade::LuaVMInstance::render(class CElementRenderer* renderer)
+void Arcade::LuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 {
-	if ( getLuaClass()->pushLuaFunction("draw") ) pcall(0);
+	if ( getLuaClass()->pushLuaFunction("draw") ) 
+	{
+		lua_State *L = getLuaHost()->_L;
+
+		pushRenderer(L, renderer);
+		lua_setglobal(L, "_r");
+
+		pcall(0);
+
+		lua_pushnil(L);
+		lua_setglobal(L, "_r");
+	}
 }
 
 void Arcade::LuaVMInstance::reset()

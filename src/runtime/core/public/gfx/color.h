@@ -82,6 +82,7 @@ struct METACADE_API CFloatColor
 		float rgba[4];
 	};
 
+	CFloatColor();
 	CFloatColor(const CColor &color);
 	CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
 

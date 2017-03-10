@@ -29,9 +29,37 @@ runtime.cpp:
 
 #include <fstream>
 
-static CElementRenderer* erender = nullptr;
+static shared_ptr<CElementRenderer> erender = nullptr;
 static ITexture* testTexture = nullptr;
 static ITexture* testTexture2 = nullptr;
+static ITexture* whiteTexture = nullptr;
+
+class WhiteImage : public IImage
+{
+	virtual int32 getWidth() const override { return 2; }
+	virtual int32 getHeight() const override { return 2; }
+	virtual int32 getBytesPerPixel() const override { return 4; }
+	virtual EImagePixelFormat getPixelFormat() const override
+	{
+		return EImagePixelFormat::PFM_RGBA8;
+	}
+
+	virtual uint8* getPixels() const override
+	{
+		static const CColor pixels[4] = {
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+		};
+		return (uint8 *) pixels;
+	}
+
+	virtual uint32 getUniqueID() const override
+	{
+		return 0;
+	}
+};
 
 class TestImage : public IImage
 {
@@ -65,26 +93,6 @@ public:
 
 	virtual uint8* getPixels() const override
 	{
-		static const CColor pixels[16] =
-		{
-			CColor(0xFF0000FF),
-			CColor(0xFF0000FF),
-			CColor(0xFF0000FF),
-			CColor(0xFF0000FF),
-			CColor(0x00FF00FF),
-			CColor(0x00FF00FF),
-			CColor(0x00FF00FF),
-			CColor(0x00FF00FF),
-			CColor(0x0000FFFF),
-			CColor(0x0000FFFF),
-			CColor(0x0000FFFF),
-			CColor(0x0000FFFF),
-			CColor(0xFFFFFFFF),
-			CColor(0xFFFFFFFF),
-			CColor(0xFFFFFFFF),
-			CColor(0xFFFFFFFF),
-		};
-
 		return (uint8 *) _bytes;
 	}
 
@@ -101,15 +109,17 @@ private:
 };
 
 static TestImage *loadImage, *loadImage2;
+static WhiteImage *whiteImage;
 static shared_ptr<IVMHost> vm;
 static IVMClass *klass;
 static IVMInstance *instance;
 
 bool CRuntime::initialize()
 {
-	erender = new CElementRenderer;
-	loadImage = new TestImage("E:/Temp/pic3.dat", 0);
-	loadImage2 = new TestImage("E:/Temp/pic2.dat", 1);
+	erender = make_shared<CElementRenderer>();
+	whiteImage = new WhiteImage;
+	loadImage = new TestImage("E:/Temp/pic3.dat", 1);
+	loadImage2 = new TestImage("E:/Temp/pic2.dat", 2);
 
 	vm = getLuaVM();
 	if ( vm->init() )
@@ -128,14 +138,20 @@ bool CRuntime::initialize()
 
 void CRuntime::shutdown()
 {
+	delete whiteImage;
 	delete loadImage;
-	delete erender;
-	erender = nullptr;
+	delete loadImage2;
+	erender.reset();
 }
 
+static float lastTime = 0.f;
 void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize)
 {
-	instance->think(time, 0.1f);
+	float DT = time - lastTime;
+	if ( DT > 1.f ) DT = 1.f;
+	lastTime = time;
+
+	instance->think(time, DT);
 
 	erender->beginFrame();
 
@@ -149,7 +165,11 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 	testClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
 	testClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
 
-	state._material._blend = BLEND_NORMAL;
+	erender->setViewportClip(testClip);
+
+	instance->render(erender);
+
+	/*state._material._blend = BLEND_NORMAL;
 	if ( testTexture != nullptr )
 	{
 		state._material._baseTexture = testTexture->getID();
@@ -194,7 +214,7 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 		testQuad.transform(scratch);
 
 		erender->addRenderElement().makeQuad(testQuad, testClip, state);
-	}
+	}*/
 
 	erender->endFrame();
 
@@ -208,6 +228,7 @@ void Arcade::CRuntime::testRenderStart(IRenderer *renderer)
 
 	testTexture = provider->loadTexture(renderer, loadImage);
 	testTexture2 = provider->loadTexture(renderer, loadImage2);
+	whiteTexture = provider->loadTexture(renderer, whiteImage);
 }
 
 void Arcade::CRuntime::testRenderEnd(IRenderer *renderer)
@@ -217,4 +238,15 @@ void Arcade::CRuntime::testRenderEnd(IRenderer *renderer)
 
 	provider->freeTexture(renderer, testTexture);
 	provider->freeTexture(renderer, testTexture2);
+	provider->freeTexture(renderer, whiteTexture);
+}
+
+void Arcade::CRuntime::reloadVM()
+{
+	if ( klass != nullptr && instance != nullptr )
+	{
+		klass->shutdownVMInstance(instance);
+		klass->reload();
+		instance = klass->createVMInstance();
+	}
 }

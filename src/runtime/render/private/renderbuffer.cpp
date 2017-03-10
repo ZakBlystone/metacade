@@ -33,11 +33,17 @@ CRenderBuffer::CRenderBuffer()
 
 CVertex2D& CRenderBuffer::addVertex(const CVertex2D &vertex)
 {
+	static CVertex2D novertex;
+	if ( _vertices.size() >= MAX_VERTICES ) return novertex;
+
 	_vertices.emplace_back(vertex); return _vertices.back();
 }
 
 uint16& CRenderBuffer::addIndex(const uint16 index /*= 0*/)
 {
+	static uint16 noindex = 0;
+	if ( _indices.size() >= MAX_INDICES ) return noindex;
+
 	_indices.emplace_back(index); return _indices.back();
 }
 
