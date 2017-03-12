@@ -114,8 +114,35 @@ static shared_ptr<IVMHost> vm;
 static IVMClass *klass;
 static IVMInstance *instance;
 
+static void variantTest(const CVariant &v)
+{
+	std::cout << v.getTypeName() << std::endl;
+
+	if ( v.type() == VT_STRING )
+	{
+		int32 len;
+		const char *buff;
+		if ( v.get(buff, len) )
+		{
+			std::cout << buff << std::endl;
+		}
+	}
+	else if ( v.type() == VT_DOUBLE )
+	{
+		double value;
+		if ( v.get(value) )
+		{
+			std::cout << value << std::endl;
+		}
+	}
+}
+
 bool CRuntime::initialize()
 {
+	variantTest("Hello Variant");	
+	variantTest(5.0);
+	variantTest(10.2);
+
 	erender = make_shared<CElementRenderer>();
 	whiteImage = new WhiteImage;
 	loadImage = new TestImage("E:/Temp/pic3.dat", 1);
@@ -155,66 +182,15 @@ void CRuntime::testRendering(IRenderer *renderer, float time, CVec2 viewportsize
 
 	erender->beginFrame();
 
-	CRenderQuad testQuad;
-	CClipShape testClip;
-	CRenderState state;
-	CMatrix3 scratch;
+	CClipShape viewClip;
+	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
+	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
+	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
+	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
 
-	testClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
-	testClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
-	testClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
-	testClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
-
-	erender->setViewportClip(testClip);
+	erender->setViewportClip(viewClip);
 
 	instance->render(erender);
-
-	/*state._material._blend = BLEND_NORMAL;
-	if ( testTexture != nullptr )
-	{
-		state._material._baseTexture = testTexture->getID();
-	}
-
-	CFloatColor Fader(1.f, 1.f, 1.f, 1.f);
-	float Fade = (sinf(time * 1.5f) + 1.f) / 2.f;
-	Fader.a = Fade * .7f + .3f;
-
-	CMatrix3::identity(scratch);
-	scratch.scale(CVec2(viewportsize.x / viewportsize.y, 1.f));
-	scratch.scale(CVec2(2.f, 2.f));
-	scratch.rotate(time * 1.f);
-	scratch.translate(CVec2(fmodf(time, 1.f), 0.f));
-
-	testQuad.makeBox(CVec2(0,0), CVec2(viewportsize.x,viewportsize.y), Fader);
-	testQuad.transformUV(scratch);
-	erender->addRenderElement().makeQuad(testQuad, testClip, state, -1);
-
-	state._material._baseTexture = testTexture2->getID();
-
-	for ( int32 y=0; y<20; ++y)
-	for ( int32 i=0; i<100; i += 3 )
-	{
-		CVec2 pos((float) (i)*10.f, 30.f + sinf(time * 3.f + (float) (i + y * 6.f) / 10.f) * 30 + (y * 50.f));
-
-		if ( i % 10 > 5 )
-			state._material._blend = BLEND_ADD;
-		else
-			state._material._blend = BLEND_NORMAL;
-
-		CMatrix3::identity(scratch);
-		scratch.rotate(time + y + sinf((float)(i)/5.f + time * .2f) * 40.f);
-		scratch.translate(pos);
-
-		CFloatColor Col( 
-			sinf((float) i + time) / 2.f + .5f, 
-			sinf((float) i + time * 2.f) / 2.f + .5f,
-			cosf((float) (i+y) * 1.5f + time) / 2.f + .5f, 1.f );
-
-		testQuad.makeBox(CVec2(-15,-15), CVec2(15,15), Col); //CColor(0x22CC22FF)
-		testQuad.transform(scratch);
-
-		erender->addRenderElement().makeQuad(testQuad, testClip, state);
-	}*/
 
 	erender->endFrame();
 

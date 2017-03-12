@@ -1,6 +1,9 @@
 //#include "metacade_public.h"
 #include <iostream>
 #include <memory>
+#include <vector>
+#include <map>
+#include <algorithm>
 
 using std::ostream;
 using std::istream;
@@ -85,6 +88,26 @@ int start(int argc, char *argv[])
 	output.write((const char *)Data, Width * Height * 4);
 
 	output.close();*/
+
+	/*std::map<CGUID, uint32> mapped;
+
+	while(1)
+	{
+		CGUID x = CGUID::generate();
+
+		if ( mapped.find(x) != mapped.end() )
+		{
+			std::cout << "COLLISION: " << mapped.size() << std::endl;
+			return 1;
+		}
+		
+		if ( mapped.size() % 10000 == 0)
+		{
+			std::cout << mapped.size() << ": " << x.tostring() << std::endl;
+		}
+
+		mapped.insert(std::make_pair(x, (uint32)mapped.size()));
+	}*/
 
 	if ( initOpenGLAndWindow() ) return 1;
 	if ( !CRuntime::initialize() ) return onError("Failed to init arcade runtime");

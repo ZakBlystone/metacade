@@ -19,19 +19,42 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-core_public.h: Inter-modular headers
+guid.h:
 ===============================================================================
 */
 
-#include "public/math/matrix3.h"
-#include "public/math/matrix4.h"
-#include "public/math/vec2.h"
-#include "public/math/vec3.h"
-#include "public/math/halfplane.h"
+#pragma once
 
-#include "public/gfx/color.h"
-#include "public/gfx/image.h"
-#include "public/gfx/vertex.h"
+namespace Arcade
+{
 
-#include "public/util/variant.h"
-#include "public/util/guid.h"
+class METACADE_API CGUID
+{
+public:
+	CGUID();
+
+	bool operator == (const CGUID& other) const;
+	bool operator != (const CGUID& other) const;
+	bool operator < (const CGUID& other) const;
+
+	static CGUID generate();
+
+	void reset();
+
+	const char* tostring() const;
+
+private:
+	union
+	{
+		struct
+		{
+			uint32 A,B,C,D;
+		};
+		struct
+		{
+			uint64 X, Y;
+		};
+	};
+};
+
+}

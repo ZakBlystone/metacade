@@ -402,6 +402,99 @@ struct METACADE_API CVertex2D
 	CColor _color;
 };
 }
+//src/runtime/core/public/util/variant.h
+namespace Arcade
+{
+enum EVariantType
+{
+	VT_NONE,
+	VT_BOOLEAN,
+	VT_UINT,
+	VT_INT,
+	VT_DOUBLE,
+	VT_STRING,
+	VT_MAX,
+};
+class CVariant
+{
+public:
+	template<typename T>
+	CVariant(const T& value)
+		: _type(VT_NONE) 
+		, _strdata(nullptr)
+		, _strrefs(nullptr)
+	{
+		set(value);
+	}
+	CVariant();
+	CVariant(const CVariant& other);
+	~CVariant();
+	void set(bool value);
+	void set(uint64 value);
+	void set(int64 value);
+	void set(uint32 value) { set((uint64) value); }
+	void set(int32 value) { set((int64) value); }
+	void set(uint16 value) { set((uint64) value); }
+	void set(int16 value) { set((int64) value); }
+	void set(uint8 value) { set((uint64) value); }
+	void set(int8 value) { set((int64) value); }
+	void set(double value);
+	void set(float value);
+	void set(const char *value);
+	EVariantType type() const;
+	const char *getTypeName() const;
+	bool get(bool& value) const;
+	bool get(uint64& value) const;
+	bool get(int64& value) const;
+	bool get(uint32& value) const { uint64 v; bool s = get(v); if(s) value = (uint32) v; return s; }
+	bool get(int32& value) const { int64 v; bool s = get(v); if(s) value = (int32) v; return s; }
+	bool get(uint16& value) const { uint64 v; bool s = get(v); if(s) value = (uint16) v; return s; }
+	bool get(int16& value) const { int64 v; bool s = get(v); if(s) value = (int16) v; return s; }
+	bool get(uint8& value) const { uint64 v; bool s = get(v); if(s) value = (uint8) v; return s; }
+	bool get(int8& value) const { int64 v; bool s = get(v); if(s) value = (int8) v; return s; }
+	bool get(double& value) const;
+	bool get(const char*& buffer, int32& length) const;
+	CVariant& operator = (const CVariant& other);
+	template<typename T>
+	CVariant& operator = (const T& value)
+	{
+		set(value);
+	}
+private:
+	void reset();
+	EVariantType _type;
+	uint8 _pod[8];
+	uint8 *_strdata;
+	uint32 *_strrefs;
+};
+}
+//src/runtime/core/public/util/guid.h
+namespace Arcade
+{
+class METACADE_API CGUID
+{
+public:
+	CGUID();
+	bool operator == (const CGUID& other) const;
+	bool operator != (const CGUID& other) const;
+	bool operator < (const CGUID& other) const;
+	static CGUID generate();
+	void reset();
+	const char* tostring() const;
+private:
+	union
+	{
+		struct
+		{
+			uint32 A,B,C,D;
+		};
+		struct
+		{
+			uint64 High, Low;
+		};
+	};
+};
+}
 //src/runtime/render/render_public.h
 #define MAX_TEXTURE_BITS 10
 #define MAX_TEXTURES 1024
