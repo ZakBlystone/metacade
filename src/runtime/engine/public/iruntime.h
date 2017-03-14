@@ -19,64 +19,31 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-package.cpp:
+iruntime.h: minimal API-facing runtime object
 ===============================================================================
 */
 
-#include "engine_private.h"
+#pragma once
 
-CPackage::CPackage(IFileObject* file)
-	: _file(file)
+namespace Arcade
 {
 
-}
-
-Arcade::CPackage::~CPackage()
+class IRenderer;
+class IRenderTest
 {
+public:
+	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
+	virtual void start(IRenderer *renderer) = 0;
+	virtual void end(IRenderer *renderer) = 0;
+	virtual void reloadVM() = 0;
+};
 
-}
-
-int32 CPackage::getNumAssets()
+class IRuntime
 {
-	return 0;
-}
+public:
+	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
+	virtual class IPackageManager* getPackageManager() = 0;
+	virtual IRenderTest* getRenderTest() = 0;
+};
 
-IAsset* CPackage::getAsset(int32 index)
-{
-	return nullptr;
-}
-
-bool CPackage::save()
-{
-	return false;
-}
-
-bool CPackage::load()
-{
-	return false;
-}
-
-const char* CPackage::getPackageName()
-{
-	return "";
-}
-
-bool CPackage::hasPackageFlag(EPackageFlags flag)
-{
-	return false;
-}
-
-int32 CPackage::getPackageFlags()
-{
-	return 0;
-}
-
-void Arcade::CPackage::removeAsset(IAsset* asset)
-{
-
-}
-
-bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)
-{
-	return false;
 }

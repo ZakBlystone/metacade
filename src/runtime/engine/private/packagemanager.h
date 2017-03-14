@@ -31,6 +31,8 @@ namespace Arcade
 class CPackageManager : public IPackageManager
 {
 public:
+	CPackageManager(IFileSystem* fileSystem);
+
 	virtual CPackage* createPackage() override;
 	virtual void deletePackage(CPackage* package) override;
 
@@ -42,10 +44,6 @@ public:
 	virtual CPackage* getPackage(int32 index) const override;
 
 private:
-	friend class CRuntime;
-
-	CPackageManager(IFileSystem* fileSystem);
-
 	IFileSystem* _fileSystem;
 	string _rootPath;
 	vector<shared_ptr<CPackage>> _references;

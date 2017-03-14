@@ -31,6 +31,8 @@ engine_private.h:
 
 #include "public/asset.h"
 
+#include "private/rendertest.h"
+#include "private/runtime.h"
 #include "private/packagemanager.h"
 
 using namespace Arcade;

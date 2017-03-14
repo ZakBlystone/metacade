@@ -19,64 +19,44 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-package.cpp:
+rendertest.h: Temporary class for testing rendering
 ===============================================================================
 */
 
-#include "engine_private.h"
+#pragma once
 
-CPackage::CPackage(IFileObject* file)
-	: _file(file)
+namespace Arcade
 {
 
-}
-
-Arcade::CPackage::~CPackage()
+class CRenderTest : public IRenderTest
 {
+public:
+	CRenderTest();
+	~CRenderTest();
 
-}
+	bool init();
 
-int32 CPackage::getNumAssets()
-{
-	return 0;
-}
+	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize);
+	virtual void start(IRenderer *renderer);
+	virtual void end(IRenderer *renderer);
+	virtual void reloadVM();
 
-IAsset* CPackage::getAsset(int32 index)
-{
-	return nullptr;
-}
+private:
+	ITexture* _testTexture;
+	ITexture* _testTexture2;
+	ITexture* _whiteTexture;
 
-bool CPackage::save()
-{
-	return false;
-}
+	IImage* _loadImage;
+	IImage* _loadImage2;
+	IImage* _whiteImage;
 
-bool CPackage::load()
-{
-	return false;
-}
+	shared_ptr<CElementRenderer> _renderer;
+	shared_ptr<IVMHost> _vmHost;
 
-const char* CPackage::getPackageName()
-{
-	return "";
-}
+	IVMClass* _vmKlass;
+	IVMInstance* _vmInstance;
 
-bool CPackage::hasPackageFlag(EPackageFlags flag)
-{
-	return false;
-}
+	float _lastTime;
+};
 
-int32 CPackage::getPackageFlags()
-{
-	return 0;
-}
-
-void Arcade::CPackage::removeAsset(IAsset* asset)
-{
-
-}
-
-bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)
-{
-	return false;
 }

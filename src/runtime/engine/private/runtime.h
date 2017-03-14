@@ -30,17 +30,22 @@ runtime.h:
 namespace Arcade
 {
 
-class METACADE_API CRuntime
+class CRuntime : public IRuntime
 {
 public:
-	static bool initialize(IRuntimeEnvironment* env);
-	static void shutdown();
-	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
-	static void testRenderStart(IRenderer *renderer);
-	static void testRenderEnd(IRenderer *renderer);
-	static void reloadVM();
+	CRuntime();
+	virtual ~CRuntime();
 
-	static IPackageManager* getPackageManager();
+	virtual bool initialize(IRuntimeEnvironment* env);
+	virtual IPackageManager* getPackageManager();
+	virtual IRenderTest* getRenderTest();
+
+	IRuntimeEnvironment* getEnv() const;
+
+private:
+	shared_ptr<CPackageManager> _packageManager;
+	shared_ptr<CRenderTest> _renderTest;
+	IRuntimeEnvironment* _runtimeEnvironment;
 };
 
 }

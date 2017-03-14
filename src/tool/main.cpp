@@ -9,6 +9,8 @@ using std::ostream;
 using std::istream;
 using std::shared_ptr;
 using std::make_shared;
+using std::cout;
+using std::endl;
 
 #include "metacade_amal.h"
 
@@ -72,6 +74,18 @@ int start(int argc, char *argv[])
 {
 	ilInit();
 
+	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
+	IRuntime *system;
+
+	if ( Arcade::create(&system) && system->initialize(native.get()) )
+	{
+		cout << "Initialized" << endl;
+	}
+	else
+	{
+		return onError("Failed to init arcade runtime");;
+	}
+
 	/*ILuint test = ilGenImage();
 	ilBindImage(test);
 	ilLoadImage("E:/Temp/chair_icon0.png");
@@ -110,15 +124,12 @@ int start(int argc, char *argv[])
 		mapped.insert(std::make_pair(x, (uint32)mapped.size()));
 	}*/
 
-	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
-
 	if ( initOpenGLAndWindow() ) return 1;
-	if ( !CRuntime::initialize(native.get()) ) return onError("Failed to init arcade runtime");
 
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);
 
-	CRuntime::testRenderStart(renderer.get());
+	system->getRenderTest()->start(renderer.get());
 
 	bool running = true;
 	float lastTime = 0;
@@ -146,7 +157,7 @@ int start(int argc, char *argv[])
 				bool pressed = evt.key.state == SDL_PRESSED;
 				if ( pressed && evt.key.keysym.scancode == SDL_SCANCODE_R )
 				{
-					CRuntime::reloadVM();
+					system->getRenderTest()->reloadVM();
 				}
 			}
 		}
@@ -159,18 +170,18 @@ int start(int argc, char *argv[])
 		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		CRuntime::testRendering(renderer.get(), time, CVec2(400, 300));
-		
+		system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
+
 		SDL_GL_SwapWindow(window);
 
 		Sleep(5);
 	}
 
-	CRuntime::testRenderEnd(renderer.get());
+	system->getRenderTest()->end(renderer.get());
 
 	ilShutDown();
 
-	CRuntime::shutdown();
+	Arcade::destroy(system);
 
 	return 0;
 }

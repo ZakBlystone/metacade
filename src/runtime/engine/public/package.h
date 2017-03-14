@@ -34,6 +34,21 @@ class METACADE_API CPackage
 {
 public:
 	CPackage(IFileObject* file = nullptr);
+	~CPackage();
+
+	template<typename T>
+	T* addAsset()
+	{
+		T* newAsset = new T;
+		if ( !addAssetImplementation(newAsset) )
+		{
+			delete newAsset;
+			return nullptr;
+		}
+		return newAsset;
+	}
+
+	void removeAsset(class IAsset* asset);
 
 	int32 getNumAssets();
 	class IAsset* getAsset(int32 index);
@@ -46,6 +61,9 @@ public:
 	int32 getPackageFlags();
 
 private:
+
+	bool addAssetImplementation(class IAsset* asset);
+
 	IFileObject* _file;
 };
 

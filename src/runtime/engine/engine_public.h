@@ -23,10 +23,13 @@ engine_public.h:
 ===============================================================================
 */
 
+#include "core/core_public.h"
+
+#include "public/api.h"
+#include "public/iruntime.h"
 #include "public/iallocator.h"
 #include "public/ifilesystem.h"
 #include "public/imachineenvironment.h"
 #include "public/iruntimeenvironment.h"
 #include "public/ipackagemanager.h"
 #include "public/package.h"
-#include "public/runtime.h"

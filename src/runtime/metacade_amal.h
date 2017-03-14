@@ -687,6 +687,32 @@ private:
 };
 }
 //src/runtime/engine/engine_public.h
+//src/runtime/engine/public/api.h
+namespace Arcade
+{
+METACADE_API bool create(class IRuntime** runtime);
+METACADE_API void destroy(class IRuntime* runtime);
+}
+//src/runtime/engine/public/iruntime.h
+namespace Arcade
+{
+class IRenderer;
+class IRenderTest
+{
+public:
+	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
+	virtual void start(IRenderer *renderer) = 0;
+	virtual void end(IRenderer *renderer) = 0;
+	virtual void reloadVM() = 0;
+};
+class IRuntime
+{
+public:
+	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
+	virtual class IPackageManager* getPackageManager() = 0;
+	virtual IRenderTest* getRenderTest() = 0;
+};
+}
 //src/runtime/engine/public/iallocator.h
 namespace Arcade
 {
@@ -765,6 +791,19 @@ class METACADE_API CPackage
 {
 public:
 	CPackage(IFileObject* file = nullptr);
+	~CPackage();
+	template<typename T>
+	T* addAsset()
+	{
+		T* newAsset = new T;
+		if ( !addAssetImplementation(newAsset) )
+		{
+			delete newAsset;
+			return nullptr;
+		}
+		return newAsset;
+	}
+	void removeAsset(class IAsset* asset);
 	int32 getNumAssets();
 	class IAsset* getAsset(int32 index);
 	bool save();
@@ -773,21 +812,7 @@ public:
 	bool hasPackageFlag(EPackageFlags flag);
 	int32 getPackageFlags();
 private:
+	bool addAssetImplementation(class IAsset* asset);
 	IFileObject* _file;
-};
-}
-//src/runtime/engine/public/runtime.h
-namespace Arcade
-{
-class METACADE_API CRuntime
-{
-public:
-	static bool initialize(IRuntimeEnvironment* env);
-	static void shutdown();
-	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
-	static void testRenderStart(IRenderer *renderer);
-	static void testRenderEnd(IRenderer *renderer);
-	static void reloadVM();
-	static IPackageManager* getPackageManager();
 };
 }

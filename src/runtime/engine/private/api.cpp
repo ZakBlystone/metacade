@@ -19,64 +19,23 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-package.cpp:
+api.cpp: API creation and deletion
 ===============================================================================
 */
 
 #include "engine_private.h"
 
-CPackage::CPackage(IFileObject* file)
-	: _file(file)
+bool Arcade::create(IRuntime** runtime)
 {
-
+	if ( runtime == nullptr ) return false;
+	*runtime = new CRuntime;
+	return true;
 }
 
-Arcade::CPackage::~CPackage()
+void Arcade::destroy(IRuntime* runtime)
 {
-
-}
-
-int32 CPackage::getNumAssets()
-{
-	return 0;
-}
-
-IAsset* CPackage::getAsset(int32 index)
-{
-	return nullptr;
-}
-
-bool CPackage::save()
-{
-	return false;
-}
-
-bool CPackage::load()
-{
-	return false;
-}
-
-const char* CPackage::getPackageName()
-{
-	return "";
-}
-
-bool CPackage::hasPackageFlag(EPackageFlags flag)
-{
-	return false;
-}
-
-int32 CPackage::getPackageFlags()
-{
-	return 0;
-}
-
-void Arcade::CPackage::removeAsset(IAsset* asset)
-{
-
-}
-
-bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)
-{
-	return false;
+	if ( runtime != nullptr )
+	{
+		delete runtime;
+	}
 }
