@@ -31,16 +31,16 @@ CPackageManager::CPackageManager(IFileSystem* fileSystem)
 {
 }
 
-IPackage* CPackageManager::createPackage()
+CPackage* CPackageManager::createPackage()
 {
-	shared_ptr<CPackage> newPackage = make_shared<CPackage>(shared_from_this());
+	shared_ptr<CPackage> newPackage = make_shared<CPackage>();
 
 	_references.push_back(newPackage);
 
 	return newPackage.get();
 }
 
-void CPackageManager::deletePackage(IPackage* package)
+void CPackageManager::deletePackage(CPackage* package)
 {
 	delete package;
 }
@@ -65,7 +65,7 @@ int32 CPackageManager::getNumPackages() const
 	return 0;
 }
 
-IPackage* CPackageManager::getPackage(int32 index) const
+CPackage* CPackageManager::getPackage(int32 index) const
 {
 	return nullptr;
 }

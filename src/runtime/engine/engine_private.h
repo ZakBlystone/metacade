@@ -31,7 +31,6 @@ engine_private.h:
 
 #include "public/asset.h"
 
-#include "private/package.h"
 #include "private/packagemanager.h"
 
 using namespace Arcade;

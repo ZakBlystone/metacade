@@ -25,9 +25,8 @@ package.cpp:
 
 #include "engine_private.h"
 
-CPackage::CPackage(shared_ptr<CPackageManager> packageManager, IFileObject* file)
-	: _manager(packageManager)
-	, _file(file)
+CPackage::CPackage(IFileObject* file)
+	: _file(file)
 {
 
 }

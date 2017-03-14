@@ -30,23 +30,22 @@ package.h:
 namespace Arcade
 {
 
-class CPackage : public IPackage
+class METACADE_API CPackage
 {
 public:
-	CPackage(shared_ptr<CPackageManager> packageManager, IFileObject* file = nullptr);
+	CPackage(IFileObject* file = nullptr);
 
-	virtual int32 getNumAssets() override;
-	virtual IAsset* getAsset(int32 index) override;
+	int32 getNumAssets();
+	class IAsset* getAsset(int32 index);
 
-	virtual bool save() override;
-	virtual bool load() override;
+	bool save();
+	bool load();
 
-	virtual const char* getPackageName() override;
-	virtual bool hasPackageFlag(EPackageFlags flag) override;
-	virtual int32 getPackageFlags() override;
+	const char* getPackageName();
+	bool hasPackageFlag(EPackageFlags flag);
+	int32 getPackageFlags();
 
 private:
-	weak_ptr<CPackageManager> _manager;
 	IFileObject* _file;
 };
 

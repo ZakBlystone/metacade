@@ -28,18 +28,18 @@ packagemanager.h:
 namespace Arcade
 {
 
-class CPackageManager : public IPackageManager, public enable_shared_from_this<CPackageManager>
+class CPackageManager : public IPackageManager
 {
 public:
-	virtual IPackage* createPackage() override;
-	virtual void deletePackage(IPackage* package) override;
+	virtual CPackage* createPackage() override;
+	virtual void deletePackage(CPackage* package) override;
 
 	virtual void setRootDirectory(const char* path) override;
 	virtual const char* getRootDirectory() const override;
 
 	virtual bool findAndPreloadPackages() override;
 	virtual int32 getNumPackages() const override;
-	virtual IPackage* getPackage(int32 index) const override;
+	virtual CPackage* getPackage(int32 index) const override;
 
 private:
 	friend class CRuntime;
