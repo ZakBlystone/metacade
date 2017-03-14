@@ -25,7 +25,8 @@ elementrenderer.cpp:
 
 #include "render_private.h"
 
-CElementRenderer::CElementRenderer()
+CElementRenderer::CElementRenderer(CRuntimeObject* outer)
+	: CRuntimeObject(outer)
 {
 	_renderList = make_shared<CRenderList>();
 	_renderBuffer = make_shared<CRenderBuffer>();

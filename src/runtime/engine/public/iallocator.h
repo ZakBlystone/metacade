@@ -33,8 +33,8 @@ namespace Arcade
 class IAllocator
 {
 public:
-	virtual void* alloc(uint32 size) = 0;
-	virtual void free(void* mem) = 0;
+	virtual void* memrealloc(void* pointer, uint32 size) = 0;
+	virtual void memfree(void* pointer) = 0;
 };
 
 }

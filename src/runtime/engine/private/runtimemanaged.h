@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntimeenvironment.h: Interface for the environment the runtime runs in
+runtimemanaged.h: Localizes runtime functionality to object
 ===============================================================================
 */
 
@@ -28,12 +28,19 @@ iruntimeenvironment.h: Interface for the environment the runtime runs in
 namespace Arcade
 {
 
-class IRuntimeEnvironment
+class CRuntimeObject
 {
 public:
-	virtual class IAllocator* getAllocator() = 0;
-	virtual class IFileSystem* getFileSystem() = 0;
-	virtual class ILogger* getLogger() = 0;
+	CRuntimeObject(class CRuntime* runtime);
+	CRuntimeObject(CRuntimeObject* outer);
+
+	void log(EMessageType type, const char* message, ...);
+	void* alloc(unsigned int size);
+	void* realloc(void* pointer, unsigned int size);
+	void free(void* pointer);
+
+private:
+	class CRuntime *_runtime;
 };
 
 }

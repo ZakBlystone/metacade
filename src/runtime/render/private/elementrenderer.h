@@ -31,10 +31,10 @@ elementrenderer.h:
 namespace Arcade
 {
 
-class CElementRenderer
+class CElementRenderer : public CRuntimeObject
 {
 public:
-	CElementRenderer();
+	CElementRenderer(CRuntimeObject* outer);
 
 	void beginFrame();
 

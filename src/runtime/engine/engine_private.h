@@ -31,7 +31,9 @@ engine_private.h:
 
 #include "public/asset.h"
 
+#include "private/runtimemanaged.h"
 #include "private/rendertest.h"
+#include "private/runtimemanaged.h"
 #include "private/runtime.h"
 #include "private/packagemanager.h"
 

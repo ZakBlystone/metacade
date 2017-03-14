@@ -25,10 +25,27 @@ runtime.cpp:
 
 #include "engine_private.h"
 
+class CDefaultAllocator : public IAllocator
+{
+public:
+	virtual void* memrealloc(void* pointer, uint32 size) override
+	{
+		return realloc(pointer, size);
+	}
+
+	virtual void memfree(void* pointer) override
+	{
+		free(pointer);
+	}
+};
+
+static CDefaultAllocator gDefaultAllocator;
+
 CRuntime::CRuntime()
-	: _packageManager(nullptr)
+	: CRuntimeObject(this)
+	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
-	, _renderTest(make_shared<CRenderTest>())
+	, _renderTest(make_shared<CRenderTest>(this))
 {
 
 }
@@ -44,9 +61,11 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	if ( _runtimeEnvironment == nullptr ) return false;
 
 	_packageManager = make_shared<CPackageManager>(_runtimeEnvironment->getFileSystem());
-	_renderTest = make_shared<CRenderTest>();
+	_renderTest = make_shared<CRenderTest>(this);
 
 	if ( !_renderTest->init() ) return false;
+
+	filesystemTest();
 
 	return true;
 }
@@ -61,7 +80,88 @@ IRenderTest* CRuntime::getRenderTest()
 	return _renderTest.get();
 }
 
-IRuntimeEnvironment* CRuntime::getEnv() const
+IAllocator* CRuntime::getAllocator()
 {
-	return _runtimeEnvironment;
+	IAllocator *impl = _runtimeEnvironment->getAllocator();
+	if ( impl == nullptr ) impl = &gDefaultAllocator;
+
+	return impl;
+}
+
+IFileSystem* CRuntime::getFilesystem()
+{
+	return _runtimeEnvironment->getFileSystem();
+}
+
+ILogger* CRuntime::getLogger()
+{
+	return _runtimeEnvironment->getLogger();
+}
+
+bool CRuntime::filesystemTest()
+{
+	IFileSystem* fs = _runtimeEnvironment->getFileSystem();
+	if ( fs == nullptr )
+	{
+		log(LOG_WARN, "No Filesystem Provided");
+		return false;
+	}
+
+	string writeTestString("Hello World");
+
+	{
+		IFileObject* obj = fs->openFile("TestFile.txt", FILE_WRITE);
+		if ( obj == nullptr )
+		{
+			log(LOG_ERROR, "Failed to create test file");
+			return false;
+		}
+
+		
+		if ( !obj->write((void*)writeTestString.c_str(), writeTestString.length()) )
+		{
+			log(LOG_ERROR, "Error while writing test data");
+			return false;
+		}
+
+		fs->closeFile(obj);
+	}
+
+	{
+		IFileObject* obj = fs->openFile("TestFile.txt", FILE_READ);
+		if ( obj == nullptr )
+		{
+			log(LOG_ERROR, "Failed to re-open test file");
+			return false;
+		}
+
+		uint32 size = obj->getSize();
+		if ( size == 0 )
+		{
+			log(LOG_ERROR, "Test file was empty");
+			return false;
+		}
+
+		char* buffer = new char[size+1];
+		if ( !obj->read(buffer, size) )
+		{
+			log(LOG_ERROR, "Failed to read file contents");
+			delete [] buffer;
+			return false;	
+		}
+		buffer[size] = 0;
+
+		string str(buffer);
+		if ( str != writeTestString )
+		{
+			log(LOG_ERROR, "Parity failed: %s != %s", str.c_str(), writeTestString.c_str());
+			delete [] buffer;
+			return false;
+		}
+
+		delete [] buffer;
+	}
+
+	log(LOG_MESSAGE, "All tests passed");
+	return true;
 }

@@ -108,4 +108,12 @@ enum ERenderStateChangeFlags
 	RSTATECHANGE_BASETEXTURE = 0x2,
 };
 
+enum EMessageType
+{
+	LOG_MESSAGE,
+	LOG_WARN,
+	LOG_ERROR,
+	LOG_MAX,
+};
+
 }

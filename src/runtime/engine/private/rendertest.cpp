@@ -104,13 +104,15 @@ private:
 	uint32 _id;
 };
 
-CRenderTest::CRenderTest()
+CRenderTest::CRenderTest(CRuntimeObject* outer)
+	: CRuntimeObject(outer)
 {
+
 	_whiteImage = new WhiteImage;
 	_loadImage = new TestImage("E:/Temp/pic3.dat", 1);
 	_loadImage2 = new TestImage("E:/Temp/pic2.dat", 2);
 
-	_renderer = make_shared<CElementRenderer>();
+	_renderer = make_shared<CElementRenderer>(this);
 	_lastTime = 0.f;
 }
 
@@ -126,13 +128,13 @@ bool Arcade::CRenderTest::init()
 	_vmHost = getLuaVM();
 	if ( _vmHost->init() )
 	{
-		std::cout << "Initialized VM" << std::endl;
+		log(LOG_MESSAGE, "Initialized VM");
 		_vmKlass = _vmHost->loadGameVMClass();
 		_vmInstance = _vmKlass->createVMInstance();
 	}
 	else
 	{
-		std::cout << "Failed to initialize VM" << std::endl;
+		log(LOG_ERROR, "Failed to initialize VM");
 		return false;
 	}
 

@@ -27,10 +27,12 @@ runtime.h:
 
 #include "metacade_types.h"
 
+#include "rendertest.h"
+
 namespace Arcade
 {
 
-class CRuntime : public IRuntime
+class CRuntime : public IRuntime, public CRuntimeObject
 {
 public:
 	CRuntime();
@@ -40,7 +42,11 @@ public:
 	virtual IPackageManager* getPackageManager();
 	virtual IRenderTest* getRenderTest();
 
-	IRuntimeEnvironment* getEnv() const;
+	IAllocator* getAllocator();
+	IFileSystem* getFilesystem();
+	ILogger* getLogger();
+
+	bool filesystemTest();
 
 private:
 	shared_ptr<CPackageManager> _packageManager;

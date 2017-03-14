@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <iostream>
 
 using std::string;
 using std::make_shared;
@@ -101,7 +102,9 @@ bool FileSystem::listFilesInDirectory(void(*callback) (const char*), const char*
 	return true;
 }
 
-NativeEnv::NativeEnv() : _fs(make_shared<FileSystem>())
+NativeEnv::NativeEnv() 
+	: _fs(make_shared<FileSystem>())
+	, _logger(make_shared<Logger>())
 {
 
 }
@@ -114,4 +117,20 @@ class IAllocator* NativeEnv::getAllocator()
 class IFileSystem* NativeEnv::getFileSystem()
 {
 	return _fs.get();
+}
+
+class ILogger* NativeEnv::getLogger()
+{
+	return _logger.get();
+}
+
+void Logger::log(const char* text, EMessageType type)
+{
+	static const char* logTypes[EMessageType::LOG_MAX] = {
+		"MESSAGE",
+		"WARNING",
+		"ERROR",
+	};
+
+	std::cout << "[" << logTypes[type] << "]: " << text << std::endl;
 }

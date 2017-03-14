@@ -27,6 +27,7 @@ engine_public.h:
 
 #include "public/api.h"
 #include "public/iruntime.h"
+#include "public/ilogger.h"
 #include "public/iallocator.h"
 #include "public/ifilesystem.h"
 #include "public/imachineenvironment.h"

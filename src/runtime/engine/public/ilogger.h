@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntimeenvironment.h: Interface for the environment the runtime runs in
+ifilesystem.h: Log interface
 ===============================================================================
 */
 
@@ -28,12 +28,10 @@ iruntimeenvironment.h: Interface for the environment the runtime runs in
 namespace Arcade
 {
 
-class IRuntimeEnvironment
+class ILogger
 {
 public:
-	virtual class IAllocator* getAllocator() = 0;
-	virtual class IFileSystem* getFileSystem() = 0;
-	virtual class ILogger* getLogger() = 0;
+	virtual void log(const char* text, EMessageType type) = 0;
 };
 
 }

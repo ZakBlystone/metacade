@@ -96,6 +96,13 @@ enum ERenderStateChangeFlags
 	RSTATECHANGE_BLENDMODE = 0x1,
 	RSTATECHANGE_BASETEXTURE = 0x2,
 };
+enum EMessageType
+{
+	LOG_MESSAGE,
+	LOG_WARN,
+	LOG_ERROR,
+	LOG_MAX,
+};
 }
 //src/runtime/core/core_public.h
 //src/runtime/core/public/math/matrix3.h
@@ -713,14 +720,23 @@ public:
 	virtual IRenderTest* getRenderTest() = 0;
 };
 }
+//src/runtime/engine/public/ilogger.h
+namespace Arcade
+{
+class ILogger
+{
+public:
+	virtual void log(const char* text, EMessageType type) = 0;
+};
+}
 //src/runtime/engine/public/iallocator.h
 namespace Arcade
 {
 class IAllocator
 {
 public:
-	virtual void* alloc(uint32 size) = 0;
-	virtual void free(void* mem) = 0;
+	virtual void* memrealloc(void* pointer, uint32 size) = 0;
+	virtual void memfree(void* pointer) = 0;
 };
 }
 //src/runtime/engine/public/ifilesystem.h
@@ -762,6 +778,7 @@ class IRuntimeEnvironment
 public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
+	virtual class ILogger* getLogger() = 0;
 };
 }
 //src/runtime/engine/public/ipackagemanager.h

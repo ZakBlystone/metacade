@@ -25,6 +25,8 @@ render_private.h:
 
 #include "render_public.h"
 
+#include "engine/private/runtimemanaged.h"
+
 #include "private/drawbuffer.h"
 #include "private/renderbuffer.h"
 #include "private/renderlist.h"

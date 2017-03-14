@@ -28,10 +28,10 @@ rendertest.h: Temporary class for testing rendering
 namespace Arcade
 {
 
-class CRenderTest : public IRenderTest
+class CRenderTest : public IRenderTest, public CRuntimeObject
 {
 public:
-	CRenderTest();
+	CRenderTest(CRuntimeObject* outer);
 	~CRenderTest();
 
 	bool init();
