@@ -27,4 +27,5 @@ engine_public.h:
 #include "public/ifilesystem.h"
 #include "public/imachineenvironment.h"
 #include "public/iruntimeenvironment.h"
+#include "public/ipackagemanager.h"
 #include "public/runtime.h"

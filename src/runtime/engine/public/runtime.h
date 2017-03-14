@@ -33,12 +33,14 @@ namespace Arcade
 class METACADE_API CRuntime
 {
 public:
-	static bool initialize();
+	static bool initialize(IRuntimeEnvironment* env);
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 	static void testRenderStart(IRenderer *renderer);
 	static void testRenderEnd(IRenderer *renderer);
 	static void reloadVM();
+
+	static IPackageManager* getPackageManager();
 };
 
 }

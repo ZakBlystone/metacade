@@ -19,19 +19,50 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_private.h:
+asset.h:
 ===============================================================================
 */
 
-#include "engine_public.h"
+#pragma once
 
-#include "public/ivminstance.h"
-#include "public/ivmclass.h"
-#include "public/ivmhost.h"
+namespace Arcade
+{
 
-#include "public/asset.h"
+enum EAssetType
+{
+	ASSET_NOTLOADED,
 
-#include "private/package.h"
-#include "private/packagemanager.h"
+	ASSET_CODE,
+	ASSET_TEXTURE,
+	ASSET_SOUND,
+};
 
-using namespace Arcade;
+class IAsset
+{
+public:
+	virtual bool load(IFileObject* file) = 0;
+	virtual bool save(IFileObject* file) = 0;
+	virtual bool validate() const = 0;
+	virtual EAssetType getType() const = 0;
+};
+
+template<EAssetType Type>
+class CAsset : public IAsset
+{
+public:
+
+	bool checkType() const { return _type == Type; }
+	virtual EAssetType getType() const { return _type; }
+
+private:
+	friend class CPackage;
+
+	CAsset() : _type(Type) {}
+
+	EAssetType _type;
+};
+
+template<typename T>
+T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+
+}

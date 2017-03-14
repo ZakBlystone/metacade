@@ -19,19 +19,50 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_private.h:
+package.cpp:
 ===============================================================================
 */
 
-#include "engine_public.h"
+#include "engine_private.h"
 
-#include "public/ivminstance.h"
-#include "public/ivmclass.h"
-#include "public/ivmhost.h"
+CPackage::CPackage(shared_ptr<CPackageManager> packageManager, IFileObject* file)
+	: _manager(packageManager)
+	, _file(file)
+{
 
-#include "public/asset.h"
+}
 
-#include "private/package.h"
-#include "private/packagemanager.h"
+int32 CPackage::getNumAssets()
+{
+	return 0;
+}
 
-using namespace Arcade;
+IAsset* CPackage::getAsset(int32 index)
+{
+	return nullptr;
+}
+
+bool CPackage::save()
+{
+	return false;
+}
+
+bool CPackage::load()
+{
+	return false;
+}
+
+const char* CPackage::getPackageName()
+{
+	return "";
+}
+
+bool CPackage::hasPackageFlag(EPackageFlags flag)
+{
+	return false;
+}
+
+int32 CPackage::getPackageFlags()
+{
+	return 0;
+}

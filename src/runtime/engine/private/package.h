@@ -19,6 +19,35 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gamepackage.h:
+package.h:
 ===============================================================================
 */
+
+#pragma once
+
+#include "private/packagemanager.h"
+
+namespace Arcade
+{
+
+class CPackage : public IPackage
+{
+public:
+	CPackage(shared_ptr<CPackageManager> packageManager, IFileObject* file = nullptr);
+
+	virtual int32 getNumAssets() override;
+	virtual IAsset* getAsset(int32 index) override;
+
+	virtual bool save() override;
+	virtual bool load() override;
+
+	virtual const char* getPackageName() override;
+	virtual bool hasPackageFlag(EPackageFlags flag) override;
+	virtual int32 getPackageFlags() override;
+
+private:
+	weak_ptr<CPackageManager> _manager;
+	IFileObject* _file;
+};
+
+}

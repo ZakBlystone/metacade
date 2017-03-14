@@ -19,6 +19,53 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gamepackage.cpp:
+packagemanager.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+
+CPackageManager::CPackageManager(IFileSystem* fileSystem) 
+	: _fileSystem(fileSystem)
+	, _rootPath(".")
+{
+}
+
+IPackage* CPackageManager::createPackage()
+{
+	shared_ptr<CPackage> newPackage = make_shared<CPackage>(shared_from_this());
+
+	_references.push_back(newPackage);
+
+	return newPackage.get();
+}
+
+void CPackageManager::deletePackage(IPackage* package)
+{
+	delete package;
+}
+
+void CPackageManager::setRootDirectory(const char* path)
+{
+	_rootPath = std::string(path);
+}
+
+const char*CPackageManager::getRootDirectory() const
+{
+	return _rootPath.c_str();
+}
+
+bool CPackageManager::findAndPreloadPackages()
+{
+	return false;
+}
+
+int32 CPackageManager::getNumPackages() const
+{
+	return 0;
+}
+
+IPackage* CPackageManager::getPackage(int32 index) const
+{
+	return nullptr;
+}

@@ -19,6 +19,37 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gameasset.h:
+packagemanager.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class CPackageManager : public IPackageManager, public enable_shared_from_this<CPackageManager>
+{
+public:
+	virtual IPackage* createPackage() override;
+	virtual void deletePackage(IPackage* package) override;
+
+	virtual void setRootDirectory(const char* path) override;
+	virtual const char* getRootDirectory() const override;
+
+	virtual bool findAndPreloadPackages() override;
+	virtual int32 getNumPackages() const override;
+	virtual IPackage* getPackage(int32 index) const override;
+
+private:
+	friend class CRuntime;
+
+	CPackageManager(IFileSystem* fileSystem);
+
+	IFileSystem* _fileSystem;
+	string _rootPath;
+	vector<shared_ptr<CPackage>> _references;
+	
+};
+
+}

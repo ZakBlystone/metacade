@@ -45,7 +45,8 @@ class IFileSystem
 public:
 	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
 	virtual void closeFile(IFileObject* file) = 0;
-	virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
+	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
+	virtual bool listFilesInDirectory(void (*callback)(const char*), const char* dir, const char* extFilter = nullptr) = 0;
 };
 
 }

@@ -33,6 +33,8 @@ static shared_ptr<CElementRenderer> erender = nullptr;
 static ITexture* testTexture = nullptr;
 static ITexture* testTexture2 = nullptr;
 static ITexture* whiteTexture = nullptr;
+static CPackageManager* packageManager = nullptr;
+static IRuntimeEnvironment* environment = nullptr;
 
 class WhiteImage : public IImage
 {
@@ -137,8 +139,13 @@ static void variantTest(const CVariant &v)
 	}
 }
 
-bool CRuntime::initialize()
+bool CRuntime::initialize(IRuntimeEnvironment* env)
 {
+	environment = env;
+	if ( environment == nullptr ) return false;
+
+	packageManager = new CPackageManager(environment->getFileSystem());
+
 	variantTest("Hello Variant");	
 	variantTest(5.0);
 	variantTest(10.2);
@@ -169,6 +176,8 @@ void CRuntime::shutdown()
 	delete loadImage;
 	delete loadImage2;
 	erender.reset();
+
+	delete packageManager;
 }
 
 static float lastTime = 0.f;
@@ -225,4 +234,9 @@ void Arcade::CRuntime::reloadVM()
 		klass->reload();
 		instance = klass->createVMInstance();
 	}
+}
+
+IPackageManager* CRuntime::getPackageManager()
+{
+	return packageManager;
 }

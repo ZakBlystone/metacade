@@ -490,7 +490,7 @@ private:
 		};
 		struct
 		{
-			uint64 High, Low;
+			uint64 X, Y;
 		};
 	};
 };
@@ -714,7 +714,8 @@ class IFileSystem
 public:
 	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
 	virtual void closeFile(IFileObject* file) = 0;
-	virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
+	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
+	virtual bool listFilesInDirectory(void (*callback)(const char*), const char* dir, const char* extFilter = nullptr) = 0;
 };
 }
 //src/runtime/engine/public/imachineenvironment.h
@@ -737,17 +738,49 @@ public:
 	virtual class IFileSystem* getFileSystem() = 0;
 };
 }
+//src/runtime/engine/public/ipackagemanager.h
+namespace Arcade
+{
+enum EPackageFlags
+{
+	PACKAGE_LOADED = 0x1,
+	PACKAGE_READONLY = 0x2,
+};
+class IPackage
+{
+public:
+	virtual int32 getNumAssets() = 0;
+	virtual class IAsset* getAsset(int32 index) = 0;
+	virtual bool save() = 0;
+	virtual bool load() = 0;
+	virtual const char* getPackageName() = 0;
+	virtual bool hasPackageFlag(EPackageFlags flag) = 0;
+	virtual int32 getPackageFlags() = 0;
+};
+class IPackageManager
+{
+public:
+	virtual class IPackage* createPackage() = 0;
+	virtual void deletePackage(class IPackage* package) = 0;
+	virtual void setRootDirectory(const char* path) = 0;
+	virtual const char* getRootDirectory() const = 0;
+	virtual bool findAndPreloadPackages() = 0;
+	virtual int32 getNumPackages() const = 0;
+	virtual IPackage* getPackage(int32 index) const = 0;
+};
+}
 //src/runtime/engine/public/runtime.h
 namespace Arcade
 {
 class METACADE_API CRuntime
 {
 public:
-	static bool initialize();
+	static bool initialize(IRuntimeEnvironment* env);
 	static void shutdown();
 	static void testRendering(IRenderer *renderer, float time, CVec2 viewportsize);
 	static void testRenderStart(IRenderer *renderer);
 	static void testRenderEnd(IRenderer *renderer);
 	static void reloadVM();
+	static IPackageManager* getPackageManager();
 };
 }

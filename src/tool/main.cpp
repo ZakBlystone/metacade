@@ -20,6 +20,7 @@ using namespace Arcade;
 #include "IL/il.h"
 
 #include "glrender.h"
+#include "native.h"
 #include <fstream>
 
 int onError(const char *error)
@@ -109,8 +110,10 @@ int start(int argc, char *argv[])
 		mapped.insert(std::make_pair(x, (uint32)mapped.size()));
 	}*/
 
+	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
+
 	if ( initOpenGLAndWindow() ) return 1;
-	if ( !CRuntime::initialize() ) return onError("Failed to init arcade runtime");
+	if ( !CRuntime::initialize(native.get()) ) return onError("Failed to init arcade runtime");
 
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);

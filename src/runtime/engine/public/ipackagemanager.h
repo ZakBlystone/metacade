@@ -19,19 +19,48 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_private.h:
+ipackagemanager.h:
 ===============================================================================
 */
 
-#include "engine_public.h"
+#pragma once
 
-#include "public/ivminstance.h"
-#include "public/ivmclass.h"
-#include "public/ivmhost.h"
+namespace Arcade
+{
 
-#include "public/asset.h"
+enum EPackageFlags
+{
+	PACKAGE_LOADED = 0x1,
+	PACKAGE_READONLY = 0x2,
+};
 
-#include "private/package.h"
-#include "private/packagemanager.h"
+class IPackage
+{
+public:
+	virtual int32 getNumAssets() = 0;
+	virtual class IAsset* getAsset(int32 index) = 0;
 
-using namespace Arcade;
+	virtual bool save() = 0;
+	virtual bool load() = 0;
+
+	virtual const char* getPackageName() = 0;
+
+	virtual bool hasPackageFlag(EPackageFlags flag) = 0;
+	virtual int32 getPackageFlags() = 0;
+};
+
+class IPackageManager
+{
+public:
+	virtual class IPackage* createPackage() = 0;
+	virtual void deletePackage(class IPackage* package) = 0;
+
+	virtual void setRootDirectory(const char* path) = 0;
+	virtual const char* getRootDirectory() const = 0;
+
+	virtual bool findAndPreloadPackages() = 0;
+	virtual int32 getNumPackages() const = 0;
+	virtual IPackage* getPackage(int32 index) const = 0;
+};
+
+}
