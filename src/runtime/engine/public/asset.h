@@ -46,6 +46,8 @@ public:
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
 	virtual bool isLoaded() const = 0;
+	virtual bool isNamedAsset() const = 0;
+	virtual CString getName() const = 0;
 
 protected:
 	friend class CPackageBuilder;
@@ -53,6 +55,7 @@ protected:
 
 	virtual void setUniqueID(const CGUID &id) = 0;
 	virtual void setLoaded(bool loaded) = 0;
+	virtual void setName(const CString& name) = 0;
 };
 
 template<EAssetType Type>
@@ -64,6 +67,8 @@ public:
 	virtual EAssetType getType() const { return _type; }
 	virtual CGUID getUniqueID() const { return _uniqueID; }
 	virtual bool isLoaded() const { return _loaded; }
+	virtual bool isNamedAsset() const { return !_name.empty(); }
+	virtual CString getName() const { return _name; }
 
 protected:
 	friend class CPackageBuilder;
@@ -84,11 +89,18 @@ protected:
 		_loaded = loaded;
 	}
 
+	void setName(const CString& name)
+	{
+		_name = name;
+	}
+
 private:
 	EAssetType _type;
 	CGUID _uniqueID;
+	CString _name;
 	bool _loaded;
 };
+
 
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }

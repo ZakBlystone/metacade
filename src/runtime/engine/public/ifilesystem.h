@@ -40,7 +40,7 @@ class IFileObject
 {
 public:
 	virtual bool read(void* data, uint32 bytes) = 0;
-	virtual bool write(void* data, uint32 bytes) = 0;
+	virtual bool write(const void* data, uint32 bytes) = 0;
 	virtual bool seek(uint32 offset) = 0;
 	virtual uint32 tell() = 0;
 	virtual uint32 getSize() = 0;

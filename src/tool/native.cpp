@@ -14,7 +14,7 @@ public:
 	virtual ~FileObject();
 	virtual bool seek(uint32 Offset);
 	virtual bool read(void *Data, uint32 Bytes);
-	virtual bool write(void *Data, uint32 Bytes);
+	virtual bool write(const void *Data, uint32 Bytes);
 	virtual uint32 tell();
 	virtual uint32 getSize();
 
@@ -37,7 +37,7 @@ bool FileObject::read(void *Data, uint32 Bytes)
 	return fread(Data, 1, Bytes, FP) == Bytes;
 }
 
-bool FileObject::write(void *Data, uint32 Bytes)
+bool FileObject::write(const void *Data, uint32 Bytes)
 {
 	return fwrite(Data, 1, Bytes, FP) == Bytes;
 }

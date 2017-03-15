@@ -86,6 +86,8 @@ int start(int argc, char *argv[])
 		return onError("Failed to init arcade runtime");;
 	}
 
+	std::cout << "Loading Packages..." << std::endl;
+
 	IPackageManager* packmanager = system->getPackageManager();
 	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
 	if ( !packmanager->findAndPreloadPackages() )
@@ -118,10 +120,11 @@ int start(int argc, char *argv[])
 
 	//if ( true ) return 0;
 
+	if(false)
 	{
 		CPackageBuilder* builder = packmanager->createPackageBuilder();
 
-		CCodeAsset* code = builder->addAsset<CCodeAsset>();
+		CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("main.lua");
 		code->setCodeBuffer("This is some code contained within a package");
 
 		packmanager->unloadAllPackages();

@@ -74,6 +74,8 @@ bool CPackageManager::findAndPreloadPackages()
 	for ( uint32 i=0; i<files.numFiles(); ++i )
 	{
 		string filename = files.getFile(i);
+		log(LOG_MESSAGE, "Try load package %s", filename.c_str());
+
 		IFileObject* file = openFile(filename.c_str(), FILE_READ);
 
 		if ( file == nullptr )

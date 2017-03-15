@@ -36,6 +36,11 @@ void CAssetMap::add(shared_ptr<IAsset> asset)
 {
 	_map.insert(make_pair(asset->getUniqueID(), asset));
 	_assets.push_back(asset);
+
+	if ( asset->isNamedAsset() )
+	{
+		_nameMap.insert(make_pair(asset->getName(), asset));
+	}
 }
 
 uint32 CAssetMap::getNumAssets() const
@@ -52,6 +57,14 @@ shared_ptr<IAsset> CAssetMap::findAssetByID(const CGUID& id) const
 {
 	auto found = _map.find(id);
 	if ( found != _map.end() ) return (*found).second;
+
+	return nullptr;
+}
+
+shared_ptr<IAsset> CAssetMap::findAssetByName(const CString& name) const
+{
+	auto found = _nameMap.find(name);
+	if ( found != _nameMap.end() ) return (*found).second;
 
 	return nullptr;
 }
@@ -84,6 +97,12 @@ bool CAssetMap::save(IFileObject* file)
 		CAssetLocator locator(file, asset.get());
 		tempLocators.push_back(locator);
 		if ( !file->write(&locator, sizeof(CAssetLocator)) ) return false;
+		if ( locator._isNamed )
+		{
+			CString name = asset->getName();
+			uint32 len = name.length();
+			if ( !file->write(&len, sizeof(uint32)) || !file->write(*name, len) ) return false;
+		}
 	}
 
 	for ( uint32 i=0; i<_assets.size(); ++i )
@@ -111,6 +130,7 @@ bool CAssetMap::save(IFileObject* file)
 bool CAssetMap::load(IFileObject* file)
 {
 	_map.clear();
+	_nameMap.clear();
 	_assets.clear();
 	_locators.clear();
 
@@ -155,9 +175,25 @@ bool CAssetMap::load(IFileObject* file)
 			log(LOG_ERROR, "Failed to create asset on package");
 			return false;
 		}
+
+		if ( locator._isNamed )
+		{
+			uint32 len;
+			if ( !file->read(&len, sizeof(uint32)) ) return false;
+
+			char* buffer = new char[len+1];
+			if ( !file->read(buffer, len) )
+			{
+				delete [] buffer;
+				return false;
+			}
+			buffer[len] = 0;
+			asset->setName(buffer);
+			delete [] buffer;
+		}
+
 		asset->setUniqueID(locator._id);
-		_map.insert(make_pair(locator._id, asset));
-		_assets.push_back(asset);
+		add(asset);
 	}
 
 	return true;

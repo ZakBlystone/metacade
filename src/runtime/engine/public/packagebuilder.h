@@ -43,6 +43,16 @@ public:
 		return newAsset;
 	}
 
+	template<typename T>
+	T* addNamedAsset(const CString& name)
+	{
+		T* newAsset = new T(this);
+		addAsset(newAsset);
+		newAsset->setName(name);
+		newAsset->setUniqueID(CGUID::generate());
+		return newAsset;
+	}
+
 	void removeAsset(class IAsset* asset);
 	bool save(const char* packageName);
 

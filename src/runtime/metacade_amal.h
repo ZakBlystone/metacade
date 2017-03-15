@@ -502,6 +502,37 @@ private:
 	};
 };
 }
+//src/runtime/core/public/util/string.h
+namespace Arcade
+{
+class METACADE_API CString
+{
+public:
+	CString();
+	CString(const CString& other);
+	CString(const char* str);
+	~CString();
+	uint32 length() const;
+	bool empty() const;
+	CString chopLeft(uint32 len) const;
+	CString chopRight(uint32 len) const;
+	CString sub(uint32 offset, uint32 len) const;
+	CString operator+(const CString& other) const;
+	CString operator+(const char* other) const;
+	CString &operator=(const CString& other);
+	bool operator==(const CString& other) const;
+	bool operator!=(const CString& other) const;
+	bool operator<(const CString& other) const;
+	const char* operator*() const;
+	const char* get() const;
+private:
+	CString(uint32 length);
+	void reset();
+	char* _string;
+	uint32 _length;
+	uint32* _refs;
+};
+}
 //src/runtime/render/render_public.h
 #define MAX_TEXTURE_BITS 10
 #define MAX_TEXTURES 1024
@@ -745,7 +776,7 @@ class IFileObject
 {
 public:
 	virtual bool read(void* data, uint32 bytes) = 0;
-	virtual bool write(void* data, uint32 bytes) = 0;
+	virtual bool write(const void* data, uint32 bytes) = 0;
 	virtual bool seek(uint32 offset) = 0;
 	virtual uint32 tell() = 0;
 	virtual uint32 getSize() = 0;
@@ -823,6 +854,7 @@ protected:
 	void* alloc(unsigned int size);
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
+	void free(const void* pointer);
 	class IFileObject* openFile(const char* name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
@@ -850,11 +882,14 @@ public:
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
 	virtual bool isLoaded() const = 0;
+	virtual bool isNamedAsset() const = 0;
+	virtual CString getName() const = 0;
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
 	virtual void setUniqueID(const CGUID &id) = 0;
 	virtual void setLoaded(bool loaded) = 0;
+	virtual void setName(const CString& name) = 0;
 };
 template<EAssetType Type>
 class CAsset : public IAsset, public CRuntimeObject
@@ -864,6 +899,8 @@ public:
 	virtual EAssetType getType() const { return _type; }
 	virtual CGUID getUniqueID() const { return _uniqueID; }
 	virtual bool isLoaded() const { return _loaded; }
+	virtual bool isNamedAsset() const { return !_name.empty(); }
+	virtual CString getName() const { return _name; }
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
@@ -879,9 +916,14 @@ protected:
 	{
 		_loaded = loaded;
 	}
+	void setName(const CString& name)
+	{
+		_name = name;
+	}
 private:
 	EAssetType _type;
 	CGUID _uniqueID;
+	CString _name;
 	bool _loaded;
 };
 template<typename T>
@@ -899,6 +941,15 @@ public:
 	{
 		T* newAsset = new T(this);
 		addAsset(newAsset);
+		newAsset->setUniqueID(CGUID::generate());
+		return newAsset;
+	}
+	template<typename T>
+	T* addNamedAsset(const CString& name)
+	{
+		T* newAsset = new T(this);
+		addAsset(newAsset);
+		newAsset->setName(name);
 		newAsset->setUniqueID(CGUID::generate());
 		return newAsset;
 	}

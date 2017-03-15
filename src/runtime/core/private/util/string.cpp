@@ -49,6 +49,7 @@ CString::CString(const CString& other)
 }
 
 CString::CString(const char* str)
+	: _refs(new uint32(1))
 {
 	_length = (uint32) strlen(str)+1;
 	_string = new char[_length];
@@ -63,6 +64,11 @@ CString::~CString()
 uint32 CString::length() const
 {
 	return _length;
+}
+
+bool CString::empty() const
+{
+	return _length == 0;
 }
 
 CString CString::chopLeft(uint32 len) const
@@ -122,7 +128,30 @@ CString &CString::operator=(const CString &rhs)
 	return *this;
 }
 
+bool CString::operator==(const CString& other) const
+{
+	if ( other._length != _length ) return false;
+
+	return strcmp(get(), other.get()) == 0;
+}
+
+
+bool CString::operator!=(const CString& other) const
+{
+	return strcmp(get(), other.get()) != 0;
+}
+
+bool CString::operator<(const CString& other) const
+{
+	return strcmp(get(), other.get()) < 0;
+}
+
 const char *CString::operator*() const
+{
+	return get();
+}
+
+const char* CString::get() const
 {
 	if ( _string == nullptr ) return "";
 	return _string;
@@ -130,9 +159,12 @@ const char *CString::operator*() const
 
 void CString::reset()
 {
-	if ( _string && --(*_refs) == 0 )
+	if ( _string != nullptr && --(*_refs) == 0 )
 	{
 		delete [] _string;
 		delete _refs;
+
+		_string = nullptr;
+		_refs = nullptr;
 	}
 }

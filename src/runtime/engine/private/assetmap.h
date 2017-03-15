@@ -62,12 +62,14 @@ public:
 			, _offset(obj ? obj->tell() : 0)
 			, _size(0)
 			, _id(asset ? asset->getUniqueID() : CGUID())
+			, _isNamed(asset ? asset->isNamedAsset() : false)
 		{}
 
 		EAssetType _type;
 		uint32 _offset;
 		uint32 _size;
 		CGUID _id;
+		bool _isNamed;
 	};
 
 	#pragma pack(pop)
@@ -80,6 +82,7 @@ public:
 	shared_ptr<IAsset> getAsset(uint32 index) const;
 
 	shared_ptr<IAsset> findAssetByID(const CGUID& id) const;
+	shared_ptr<IAsset> findAssetByName(const CString& name) const;
 
 	bool save(IFileObject* file);
 	bool load(IFileObject* file);
@@ -98,6 +101,7 @@ private:
 	vector<CAssetLocator> _locators;
 	map<CGUID, shared_ptr<IAsset>> _map;
 	map<CGUID, shared_ptr<CAssetMap>> _dependencies;
+	map<CString, shared_ptr<IAsset>> _nameMap;
 
 	bool _assetsLoaded;
 };

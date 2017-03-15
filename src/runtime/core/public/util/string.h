@@ -37,6 +37,7 @@ public:
 	~CString();
 
 	uint32 length() const;
+	bool empty() const;
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;
@@ -44,12 +45,18 @@ public:
 	CString operator+(const CString& other) const;
 	CString operator+(const char* other) const;
 	CString &operator=(const CString& other);
+	bool operator==(const CString& other) const;
+	bool operator!=(const CString& other) const;
+	bool operator<(const CString& other) const;
 	const char* operator*() const;
+
+	const char* get() const;
 
 private:
 	CString(uint32 length);
 
 	void reset();
+	
 
 	char* _string;
 	uint32 _length;

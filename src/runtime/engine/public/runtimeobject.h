@@ -39,6 +39,7 @@ protected:
 	void* alloc(unsigned int size);
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
+	void free(const void* pointer);
 
 	class IFileObject* openFile(const char* name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
