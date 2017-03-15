@@ -19,20 +19,41 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-core_public.h: Inter-modular headers
+string.h: Replaces STL string, can be exported out of API
 ===============================================================================
 */
 
-#include "public/math/matrix3.h"
-#include "public/math/matrix4.h"
-#include "public/math/vec2.h"
-#include "public/math/vec3.h"
-#include "public/math/halfplane.h"
+#pragma once
 
-#include "public/gfx/color.h"
-#include "public/gfx/image.h"
-#include "public/gfx/vertex.h"
+namespace Arcade
+{
 
-#include "public/util/variant.h"
-#include "public/util/guid.h"
-#include "public/util/string.h"
+class METACADE_API CString
+{
+public:
+	CString();
+	CString(const CString& other);
+	CString(const char* str);
+	~CString();
+
+	uint32 length() const;
+	CString chopLeft(uint32 len) const;
+	CString chopRight(uint32 len) const;
+	CString sub(uint32 offset, uint32 len) const;
+
+	CString operator+(const CString& other) const;
+	CString operator+(const char* other) const;
+	CString &operator=(const CString& other);
+	const char* operator*() const;
+
+private:
+	CString(uint32 length);
+
+	void reset();
+
+	char* _string;
+	uint32 _length;
+	uint32* _refs;
+};
+
+}
