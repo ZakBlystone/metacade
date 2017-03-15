@@ -48,7 +48,7 @@ const CRenderBatch* CDrawBuffer::getRenderBatches() const
 
 uint32 CDrawBuffer::getNumRenderBatches() const
 {
-	return _renderBatches.size();
+	return (uint32) _renderBatches.size();
 }
 
 const IRenderBuffer* CDrawBuffer::getRenderBuffer() const

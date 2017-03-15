@@ -25,13 +25,14 @@ package.cpp:
 
 #include "engine_private.h"
 
-CPackage::CPackage(IFileObject* file)
-	: _file(file)
+CPackage::CPackage(CRuntimeObject* outer, IFileObject* file)
+	: CRuntimeObject(outer)
+	, _file(file)
 {
 
 }
 
-Arcade::CPackage::~CPackage()
+CPackage::~CPackage()
 {
 
 }

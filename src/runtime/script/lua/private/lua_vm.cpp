@@ -326,7 +326,7 @@ bool Arcade::LuaVMClass::loadFromFile(string filename)
 
 	if ( input.is_open() )
 	{
-		uint32 size = input.tellg();
+		uint32 size = (uint32) input.tellg();
 		input.seekg(0);
 
 		if ( size == 0 ) return false;

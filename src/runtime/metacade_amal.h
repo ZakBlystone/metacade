@@ -694,12 +694,6 @@ private:
 };
 }
 //src/runtime/engine/engine_public.h
-//src/runtime/engine/public/api.h
-namespace Arcade
-{
-METACADE_API bool create(class IRuntime** runtime);
-METACADE_API void destroy(class IRuntime* runtime);
-}
 //src/runtime/engine/public/iruntime.h
 namespace Arcade
 {
@@ -801,18 +795,35 @@ public:
 	virtual CPackage* getPackage(int32 index) const = 0;
 };
 }
+//src/runtime/engine/public/runtimeobject.h
+namespace Arcade
+{
+class METACADE_API CRuntimeObject
+{
+public:
+	CRuntimeObject(class IRuntime* runtime);
+	CRuntimeObject(CRuntimeObject* outer);
+protected:
+	void log(EMessageType type, const char* message, ...);
+	void* alloc(unsigned int size);
+	void* realloc(void* pointer, unsigned int size);
+	void free(void* pointer);
+private:
+	class IRuntime* _runtime;
+};
+}
 //src/runtime/engine/public/package.h
 namespace Arcade
 {
-class METACADE_API CPackage
+class METACADE_API CPackage : public CRuntimeObject
 {
 public:
-	CPackage(IFileObject* file = nullptr);
+	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
 	~CPackage();
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = new T;
+		T* newAsset = new T(this);
 		if ( !addAssetImplementation(newAsset) )
 		{
 			delete newAsset;
@@ -831,5 +842,65 @@ public:
 private:
 	bool addAssetImplementation(class IAsset* asset);
 	IFileObject* _file;
+};
+}
+//src/runtime/engine/public/asset.h
+namespace Arcade
+{
+enum EAssetType
+{
+	ASSET_NOTLOADED,
+	ASSET_CODE,
+	ASSET_TEXTURE,
+	ASSET_SOUND,
+};
+class IAsset
+{
+public:
+	virtual bool load(IFileObject* file) = 0;
+	virtual bool save(IFileObject* file) = 0;
+	virtual bool validate() const = 0;
+	virtual void release() = 0;
+	virtual EAssetType getType() const = 0;
+};
+template<EAssetType Type>
+class CAsset : public IAsset, public CRuntimeObject
+{
+public:
+	bool checkType() const { return _type == Type; }
+	virtual EAssetType getType() const { return _type; }
+protected:
+	friend class CPackage;
+	CAsset(CRuntimeObject* object) 
+		: CRuntimeObject(object)
+		, _type(Type) {}
+private:
+	EAssetType _type;
+};
+template<typename T>
+T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+}
+//src/runtime/engine/public/api.h
+namespace Arcade
+{
+METACADE_API bool create(class IRuntime** runtime);
+METACADE_API void destroy(class IRuntime* runtime);
+}
+//src/runtime/engine/public/assets/scriptresource.h
+namespace Arcade
+{
+class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
+{
+public:
+	CCodeAsset(CRuntimeObject* outer);
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+	const char* getCodeBuffer() const;
+	uint32 getCodeLength() const;
+	void setCodeBuffer(const char* buffer, uint32 size);
+	char* _code;
+	uint32 _codeLength;
 };
 }

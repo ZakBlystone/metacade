@@ -25,7 +25,6 @@ engine_public.h:
 
 #include "core/core_public.h"
 
-#include "public/api.h"
 #include "public/iruntime.h"
 #include "public/ilogger.h"
 #include "public/iallocator.h"
@@ -33,4 +32,9 @@ engine_public.h:
 #include "public/imachineenvironment.h"
 #include "public/iruntimeenvironment.h"
 #include "public/ipackagemanager.h"
+#include "public/runtimeobject.h"
 #include "public/package.h"
+#include "public/asset.h"
+#include "public/api.h"
+
+#include "public/assets/scriptresource.h"

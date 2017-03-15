@@ -25,15 +25,15 @@ packagemanager.cpp:
 
 #include "engine_private.h"
 
-CPackageManager::CPackageManager(IFileSystem* fileSystem) 
-	: _fileSystem(fileSystem)
+CPackageManager::CPackageManager(CRuntimeObject* outer) 
+	: CRuntimeObject(outer)
 	, _rootPath(".")
 {
 }
 
 CPackage* CPackageManager::createPackage()
 {
-	shared_ptr<CPackage> newPackage = make_shared<CPackage>();
+	shared_ptr<CPackage> newPackage = make_shared<CPackage>(this);
 
 	_references.push_back(newPackage);
 
@@ -42,7 +42,7 @@ CPackage* CPackageManager::createPackage()
 
 void CPackageManager::deletePackage(CPackage* package)
 {
-	delete package;
+	//delete package;
 }
 
 void CPackageManager::setRootDirectory(const char* path)

@@ -22,3 +22,66 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 scriptresource.cpp:
 ===============================================================================
 */
+
+#include "engine/engine_private.h"
+
+Arcade::CCodeAsset::CCodeAsset(CRuntimeObject* outer) 
+	: CAsset(outer)
+	, _code(nullptr)
+	, _codeLength(0)
+{
+
+}
+
+bool CCodeAsset::load(IFileObject* file)
+{
+	if ( !file->read(&_codeLength, sizeof(uint32)) ) return false;
+	
+	_code = (char*) realloc(_code, _codeLength + 1);
+	if ( _code == nullptr ) return false;
+
+	_code[_codeLength] = 0;
+	
+	return file->read(_code, sizeof(uint32));
+}
+
+bool CCodeAsset::save(IFileObject* file)
+{
+	if ( !file->write(&_codeLength, sizeof(uint32)) ) return false;
+	if ( !file->write(_code, _codeLength) ) return false;
+	return true;
+}
+
+bool CCodeAsset::validate() const
+{
+	if ( _code == nullptr ) return false;
+	for ( uint32 i=0; i<_codeLength; ++i )
+	{
+		if ( (uint32)(_code[i]) > 127 ) return false;
+	}
+	return true;
+}
+
+const char* CCodeAsset::getCodeBuffer() const
+{
+	return _code;
+}
+
+uint32 CCodeAsset::getCodeLength() const
+{
+	return _codeLength;
+}
+
+void CCodeAsset::setCodeBuffer(const char* buffer, uint32 size)
+{
+	_code = (char*) realloc(_code, size);
+	_codeLength = size;
+
+	memcpy(_code, buffer, size);
+}
+
+void CCodeAsset::release()
+{
+	if ( _code ) free(_code);
+	_code = nullptr;
+}

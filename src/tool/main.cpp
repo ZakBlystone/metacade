@@ -86,6 +86,13 @@ int start(int argc, char *argv[])
 		return onError("Failed to init arcade runtime");;
 	}
 
+	IPackageManager* packmanager = system->getPackageManager();
+	CPackage* package = packmanager->createPackage();
+	CCodeAsset* code = package->addAsset<CCodeAsset>();
+
+	packmanager->deletePackage(package);
+
+
 	/*ILuint test = ilGenImage();
 	ilBindImage(test);
 	ilLoadImage("E:/Temp/chair_icon0.png");

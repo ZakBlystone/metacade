@@ -25,21 +25,19 @@ package.h:
 
 #pragma once
 
-#include "private/packagemanager.h"
-
 namespace Arcade
 {
 
-class METACADE_API CPackage
+class METACADE_API CPackage : public CRuntimeObject
 {
 public:
-	CPackage(IFileObject* file = nullptr);
+	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
 	~CPackage();
 
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = new T;
+		T* newAsset = new T(this);
 		if ( !addAssetImplementation(newAsset) )
 		{
 			delete newAsset;

@@ -28,19 +28,20 @@ runtimemanaged.h: Localizes runtime functionality to object
 namespace Arcade
 {
 
-class CRuntimeObject
+class METACADE_API CRuntimeObject
 {
 public:
-	CRuntimeObject(class CRuntime* runtime);
+	CRuntimeObject(class IRuntime* runtime);
 	CRuntimeObject(CRuntimeObject* outer);
 
+protected:
 	void log(EMessageType type, const char* message, ...);
 	void* alloc(unsigned int size);
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
 
 private:
-	class CRuntime *_runtime;
+	class IRuntime* _runtime;
 };
 
 }

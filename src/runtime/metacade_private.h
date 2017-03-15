@@ -31,6 +31,7 @@ metacade_private.h:
 #include <list>
 #include <map>
 #include <algorithm>
+#include <type_traits>
 
 using std::ostream;
 using std::istream;
@@ -43,3 +44,4 @@ using std::make_shared;
 using std::enable_shared_from_this;
 using std::sort;
 using std::map;
+using std::forward;

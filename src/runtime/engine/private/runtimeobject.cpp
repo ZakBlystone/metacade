@@ -26,7 +26,7 @@ runtimemanaged.cpp: Localizes runtime functionality to object
 #include "engine_private.h"
 #include <stdarg.h>
 
-CRuntimeObject::CRuntimeObject(CRuntime* runtime)
+CRuntimeObject::CRuntimeObject(IRuntime* runtime)
 	: _runtime(runtime)
 {
 }
@@ -39,6 +39,7 @@ CRuntimeObject::CRuntimeObject(CRuntimeObject* outer)
 
 void CRuntimeObject::log(EMessageType type, const char* message, ...)
 {
+	CRuntime *runtime = (CRuntime* ) _runtime;
 	va_list args;
 
 	va_start(args, message);
@@ -47,7 +48,7 @@ void CRuntimeObject::log(EMessageType type, const char* message, ...)
 	char* buffer = new char[len];
 	vsprintf_s(buffer, len, message, args);
 
-	ILogger* logger = _runtime->getLogger();
+	ILogger* logger = runtime->getLogger();
 	logger->log(buffer, type);
 
 	delete [] buffer;
@@ -56,18 +57,21 @@ void CRuntimeObject::log(EMessageType type, const char* message, ...)
 
 void* CRuntimeObject::alloc(unsigned int size)
 {
-	IAllocator* allocator = _runtime->getAllocator();
+	CRuntime *runtime = (CRuntime* ) _runtime;
+	IAllocator* allocator = runtime->getAllocator();
 	return allocator->memrealloc(nullptr, size);
 }
 
 void* CRuntimeObject::realloc(void* pointer, unsigned int size)
 {
-	IAllocator* allocator = _runtime->getAllocator();
+	CRuntime *runtime = (CRuntime* ) _runtime;
+	IAllocator* allocator = runtime->getAllocator();
 	return allocator->memrealloc(pointer, size);
 }
 
 void CRuntimeObject::free(void* pointer)
 {
-	IAllocator* allocator = _runtime->getAllocator();
+	CRuntime *runtime = (CRuntime* ) _runtime;
+	IAllocator* allocator = runtime->getAllocator();
 	allocator->memfree(pointer);
 }

@@ -43,22 +43,26 @@ public:
 	virtual bool load(IFileObject* file) = 0;
 	virtual bool save(IFileObject* file) = 0;
 	virtual bool validate() const = 0;
+	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
 };
 
 template<EAssetType Type>
-class CAsset : public IAsset
+class CAsset : public IAsset, public CRuntimeObject
 {
 public:
 
 	bool checkType() const { return _type == Type; }
 	virtual EAssetType getType() const { return _type; }
 
-private:
+protected:
 	friend class CPackage;
 
-	CAsset() : _type(Type) {}
+	CAsset(CRuntimeObject* object) 
+		: CRuntimeObject(object)
+		, _type(Type) {}
 
+private:
 	EAssetType _type;
 };
 

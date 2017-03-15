@@ -42,7 +42,7 @@ public:
 static CDefaultAllocator gDefaultAllocator;
 
 CRuntime::CRuntime()
-	: CRuntimeObject(this)
+	: CRuntimeObject((IRuntime*) this)
 	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
 	, _renderTest(make_shared<CRenderTest>(this))
@@ -60,7 +60,7 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
 
-	_packageManager = make_shared<CPackageManager>(_runtimeEnvironment->getFileSystem());
+	_packageManager = make_shared<CPackageManager>(this);
 	_renderTest = make_shared<CRenderTest>(this);
 
 	if ( !_renderTest->init() ) return false;
@@ -118,7 +118,7 @@ bool CRuntime::filesystemTest()
 		}
 
 		
-		if ( !obj->write((void*)writeTestString.c_str(), writeTestString.length()) )
+		if ( !obj->write((void*)writeTestString.c_str(), (uint32)writeTestString.length()) )
 		{
 			log(LOG_ERROR, "Error while writing test data");
 			return false;

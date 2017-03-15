@@ -22,3 +22,29 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 scriptresource.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
+{
+public:
+	CCodeAsset(CRuntimeObject* outer);
+
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+
+	const char* getCodeBuffer() const;
+	uint32 getCodeLength() const;
+
+	void setCodeBuffer(const char* buffer, uint32 size);
+
+	char* _code;
+	uint32 _codeLength;
+};
+
+}

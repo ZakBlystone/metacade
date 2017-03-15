@@ -157,7 +157,7 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 
 	if ( !visible ) return;
 
-	writePolygonToBufferAsTris(vlist.data(), vlist.size());
+	writePolygonToBufferAsTris(vlist.data(), (uint32) vlist.size());
 }
 
 void Arcade::CElementRenderer::setViewportClip(const CClipShape& clip)

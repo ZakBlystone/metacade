@@ -28,10 +28,10 @@ packagemanager.h:
 namespace Arcade
 {
 
-class CPackageManager : public IPackageManager
+class CPackageManager : public IPackageManager, public CRuntimeObject
 {
 public:
-	CPackageManager(IFileSystem* fileSystem);
+	CPackageManager(CRuntimeObject* outer);
 
 	virtual CPackage* createPackage() override;
 	virtual void deletePackage(CPackage* package) override;
@@ -44,7 +44,6 @@ public:
 	virtual CPackage* getPackage(int32 index) const override;
 
 private:
-	IFileSystem* _fileSystem;
 	string _rootPath;
 	vector<shared_ptr<CPackage>> _references;
 	
