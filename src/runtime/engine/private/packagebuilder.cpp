@@ -19,22 +19,42 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_public.h:
+packagebuilder.cpp:
 ===============================================================================
 */
 
-#include "core/core_public.h"
+#include "engine_private.h"
 
-#include "public/iruntime.h"
-#include "public/ilogger.h"
-#include "public/iallocator.h"
-#include "public/ifilesystem.h"
-#include "public/imachineenvironment.h"
-#include "public/iruntimeenvironment.h"
-#include "public/ipackagemanager.h"
-#include "public/runtimeobject.h"
-#include "public/asset.h"
-#include "public/packagebuilder.h"
-#include "public/api.h"
+CPackageBuilder::CPackageBuilder(class CPackage* package)
+	: CRuntimeObject(package)
+	, _package(package)
+{
+}
 
-#include "public/assets/scriptresource.h"
+Arcade::CPackageBuilder::~CPackageBuilder()
+{
+	delete _package;
+}
+
+bool CPackageBuilder::save(const char* packageName)
+{
+	string filename(packageName);
+
+	IFileObject* file = openFile((filename + ".mpkg").c_str(), FILE_WRITE);
+	if ( file == nullptr ) return nullptr;
+
+	bool saved = _package->save(file);
+
+	closeFIle(file);
+	return saved;
+}
+
+void CPackageBuilder::removeAsset(class IAsset* asset)
+{
+	_package->removeAsset(asset);
+}
+
+void CPackageBuilder::addAsset(IAsset* asset)
+{
+	_package->addAsset(shared_ptr<IAsset>(asset));
+}

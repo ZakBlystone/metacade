@@ -31,18 +31,23 @@ CPackageManager::CPackageManager(CRuntimeObject* outer)
 {
 }
 
-CPackage* CPackageManager::createPackage()
+CPackageBuilder* CPackageManager::createPackageBuilder()
 {
-	shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this));
-
-	_references.push_back(newPackage);
-
-	return newPackage.get();
+	shared_ptr<CPackageBuilder> builder = shared_ptr<CPackageBuilder>( new CPackageBuilder(new CPackage(this, nullptr)) );
+	_builders.push_back(builder);
+	return builder.get();
 }
 
-void CPackageManager::deletePackage(CPackage* package)
+void CPackageManager::deletePackageBuilder(CPackageBuilder* builder)
 {
-	//delete package;
+	for ( auto it = _builders.begin(); it != _builders.end(); ++it )
+	{
+		if ((*it).get() == builder)
+		{
+			_builders.erase(it);
+			return;
+		}
+	}
 }
 
 void CPackageManager::setRootDirectory(const char* path)
@@ -98,7 +103,12 @@ uint32 CPackageManager::getNumPackages() const
 	return (uint32) _references.size();
 }
 
-CPackage* CPackageManager::getPackage(uint32 index) const
+IPackage* CPackageManager::getPackage(uint32 index) const
 {
 	return _references[index].get();
+}
+
+void CPackageManager::unloadAllPackages()
+{
+	_references.clear();
 }

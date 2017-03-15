@@ -28,7 +28,7 @@ package.cpp:
 CPackage::CPackage(CRuntimeObject* outer, IFileObject* file)
 	: CRuntimeObject(outer)
 	, _file(file)
-	, _map(new CAssetMap(this))
+	, _map(make_shared<CAssetMap>(this))
 {
 
 }
@@ -40,15 +40,14 @@ CPackage::~CPackage()
 		closeFIle(_file);
 		_file = nullptr;
 	}
-	delete _map;
 }
 
-int32 CPackage::getNumAssets() const
+uint32 CPackage::getNumAssets() const
 {
 	return _map->getNumAssets();
 }
 
-IAsset* CPackage::getAsset(int32 index) const
+IAsset* CPackage::getAsset(uint32 index) const
 {
 	return _map->getAsset(index).get();
 }
@@ -63,38 +62,44 @@ bool CPackage::load()
 	return _map->load(_file);
 }
 
-const char* CPackage::getPackageName()
+const char* CPackage::getPackageName() const
 {
 	return "";
 }
 
 bool CPackage::hasPackageFlag(EPackageFlags flag)
 {
-	return false;
+	return (getPackageFlags() & flag) != 0;
 }
 
 int32 CPackage::getPackageFlags()
 {
-	return 0;
+	int32 flags = 0;
+	if ( _map->hasLoadedAssets() ) flags |= EPackageFlags::PACKAGE_LOADED;
+
+	return flags;
+}
+
+void CPackage::loadAssets()
+{
+	if ( !_map->hasLoadedAssets() )
+	{
+		_loadHandles.push_back(_map->loadAssets(_file));
+	}
+}
+
+void CPackage::releaseAssets()
+{
+	_loadHandles.clear();
+}
+
+bool CPackage::addAsset(shared_ptr<IAsset> asset)
+{
+	_map->add(asset);
+	return true;
 }
 
 void CPackage::removeAsset(IAsset* asset)
 {
 	_map->remove(asset);
-}
-
-void CPackage::loadAssets()
-{
-
-}
-
-void CPackage::releaseAssets()
-{
-
-}
-
-bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)
-{
-	_map->add(shared_ptr<IAsset>(asset));
-	return true;
 }

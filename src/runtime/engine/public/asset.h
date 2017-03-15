@@ -48,7 +48,7 @@ public:
 	virtual bool isLoaded() const = 0;
 
 protected:
-	friend class CPackage;
+	friend class CPackageBuilder;
 	friend class CAssetMap;
 
 	virtual void setUniqueID(const CGUID &id) = 0;
@@ -66,7 +66,7 @@ public:
 	virtual bool isLoaded() const { return _loaded; }
 
 protected:
-	friend class CPackage;
+	friend class CPackageBuilder;
 	friend class CAssetMap;
 
 	CAsset(CRuntimeObject* object) 

@@ -788,16 +788,26 @@ enum EPackageFlags
 	PACKAGE_LOADED = 0x1,
 	PACKAGE_READONLY = 0x2,
 };
+class IPackage
+{
+public:
+	virtual const char* getPackageName() const = 0;
+	virtual uint32 getNumAssets() const = 0;
+	virtual class IAsset* getAsset(uint32 index) const = 0;
+	virtual void loadAssets() = 0;
+	virtual void releaseAssets() = 0;
+};
 class IPackageManager
 {
 public:
-	virtual class CPackage* createPackage() = 0;
-	virtual void deletePackage(class CPackage* package) = 0;
+	virtual class CPackageBuilder* createPackageBuilder() = 0;
+	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
 	virtual void setRootDirectory(const char* path) = 0;
 	virtual const char* getRootDirectory() const = 0;
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;
-	virtual CPackage* getPackage(uint32 index) const = 0;
+	virtual IPackage* getPackage(uint32 index) const = 0;
+	virtual void unloadAllPackages() = 0;
 };
 }
 //src/runtime/engine/public/runtimeobject.h
@@ -818,43 +828,6 @@ protected:
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 private:
 	class IRuntime* _runtime;
-};
-}
-//src/runtime/engine/public/package.h
-namespace Arcade
-{
-class METACADE_API CPackage : public CRuntimeObject
-{
-public:
-	~CPackage();
-	template<typename T>
-	T* addAsset()
-	{
-		T* newAsset = new T(this);
-		if ( !addAssetImplementation(newAsset) )
-		{
-			delete newAsset;
-			return nullptr;
-		}
-		newAsset->setUniqueID(CGUID::generate());
-		return newAsset;
-	}
-	void removeAsset(class IAsset* asset);
-	int32 getNumAssets() const;
-	class IAsset* getAsset(int32 index) const;
-	bool save(IFileObject* file);
-	bool load();
-	const char* getPackageName();
-	bool hasPackageFlag(EPackageFlags flag);
-	int32 getPackageFlags();
-	void loadAssets();
-	void releaseAssets();
-private:
-	friend class CPackageManager;
-	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
-	bool addAssetImplementation(class IAsset* asset);
-	IFileObject* _file;
-	class CAssetMap *_map;
 };
 }
 //src/runtime/engine/public/asset.h
@@ -878,7 +851,7 @@ public:
 	virtual CGUID getUniqueID() const = 0;
 	virtual bool isLoaded() const = 0;
 protected:
-	friend class CPackage;
+	friend class CPackageBuilder;
 	friend class CAssetMap;
 	virtual void setUniqueID(const CGUID &id) = 0;
 	virtual void setLoaded(bool loaded) = 0;
@@ -892,7 +865,7 @@ public:
 	virtual CGUID getUniqueID() const { return _uniqueID; }
 	virtual bool isLoaded() const { return _loaded; }
 protected:
-	friend class CPackage;
+	friend class CPackageBuilder;
 	friend class CAssetMap;
 	CAsset(CRuntimeObject* object) 
 		: CRuntimeObject(object)
@@ -913,6 +886,30 @@ private:
 };
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+}
+//src/runtime/engine/public/packagebuilder.h
+namespace Arcade
+{
+class METACADE_API CPackageBuilder : public CRuntimeObject
+{
+public:
+	~CPackageBuilder();
+	template<typename T>
+	T* addAsset()
+	{
+		T* newAsset = new T(this);
+		addAsset(newAsset);
+		newAsset->setUniqueID(CGUID::generate());
+		return newAsset;
+	}
+	void removeAsset(class IAsset* asset);
+	bool save(const char* packageName);
+private:
+	friend class CPackageManager;
+	void addAsset(class IAsset* asset);
+	CPackageBuilder(class CPackage* package);
+	class CPackage* _package;
+};
 }
 //src/runtime/engine/public/api.h
 namespace Arcade

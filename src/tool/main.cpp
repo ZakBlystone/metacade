@@ -93,7 +93,50 @@ int start(int argc, char *argv[])
 		std::cout << "Failed to load packages" << std::endl;
 	}
 
+	for ( uint32 i=0; i<packmanager->getNumPackages(); ++i )
+	{
+		IPackage* pkg = packmanager->getPackage(i);
+		std::cout << "Num Assets: " << pkg->getNumAssets() << std::endl;
+
+		pkg->loadAssets();
+		std::cout << "Loaded" << std::endl;
+
+		for ( uint32 j=0; j < pkg->getNumAssets(); ++j )
+		{
+			IAsset* asset = pkg->getAsset(j);
+
+			if ( asset->getType() == ASSET_CODE )
+			{
+				CCodeAsset* code = (CCodeAsset* ) asset;
+				std::cout << asset->getUniqueID().tostring() << ": [" << code->getCodeLength() << "]: " << 
+					(code->getCodeLength() ? code->getCodeBuffer() : "<no code>") << std::endl;
+			}
+		}
+
+		pkg->releaseAssets();
+	}
+
 	//if ( true ) return 0;
+
+	{
+		CPackageBuilder* builder = packmanager->createPackageBuilder();
+
+		CCodeAsset* code = builder->addAsset<CCodeAsset>();
+		code->setCodeBuffer("This is some code contained within a package");
+
+		packmanager->unloadAllPackages();
+		if ( builder->save("MyPackage") )
+		{
+			std::cout << "Saved OK" << std::endl;
+		}
+
+		if ( !packmanager->findAndPreloadPackages() )
+		{
+			std::cout << "Failed to load packages" << std::endl;
+		}
+
+		packmanager->deletePackageBuilder(builder);
+	}
 
 	/*CPackage* package = packmanager->createPackage();
 

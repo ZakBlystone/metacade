@@ -32,7 +32,7 @@ void CFileCollection::add(const char* filename)
 
 uint32 CFileCollection::numFiles() const
 {
-	return _files.size();
+	return (uint32) _files.size();
 }
 
 string CFileCollection::getFile(uint32 index) const

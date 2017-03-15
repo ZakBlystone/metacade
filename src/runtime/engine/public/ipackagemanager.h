@@ -34,18 +34,31 @@ enum EPackageFlags
 	PACKAGE_READONLY = 0x2,
 };
 
+class IPackage
+{
+public:
+	virtual const char* getPackageName() const = 0;
+	virtual uint32 getNumAssets() const = 0;
+	virtual class IAsset* getAsset(uint32 index) const = 0;
+
+	virtual void loadAssets() = 0;
+	virtual void releaseAssets() = 0;
+};
+
 class IPackageManager
 {
 public:
-	virtual class CPackage* createPackage() = 0;
-	virtual void deletePackage(class CPackage* package) = 0;
+	virtual class CPackageBuilder* createPackageBuilder() = 0;
+	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
 
 	virtual void setRootDirectory(const char* path) = 0;
 	virtual const char* getRootDirectory() const = 0;
 
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;
-	virtual CPackage* getPackage(uint32 index) const = 0;
+	virtual IPackage* getPackage(uint32 index) const = 0;
+
+	virtual void unloadAllPackages() = 0;
 };
 
 }

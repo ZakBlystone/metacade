@@ -19,22 +19,46 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_public.h:
+package.h:
 ===============================================================================
 */
 
-#include "core/core_public.h"
+#pragma once
 
-#include "public/iruntime.h"
-#include "public/ilogger.h"
-#include "public/iallocator.h"
-#include "public/ifilesystem.h"
-#include "public/imachineenvironment.h"
-#include "public/iruntimeenvironment.h"
-#include "public/ipackagemanager.h"
-#include "public/runtimeobject.h"
-#include "public/asset.h"
-#include "public/packagebuilder.h"
-#include "public/api.h"
+namespace Arcade
+{
 
-#include "public/assets/scriptresource.h"
+class CPackage : public CRuntimeObject, public IPackage
+{
+public:
+	~CPackage();
+
+	virtual const char* getPackageName() const;
+	virtual uint32 getNumAssets() const;
+	virtual class IAsset* getAsset(uint32 index) const;
+
+	virtual void loadAssets();
+	virtual void releaseAssets();
+
+	bool addAsset(shared_ptr<IAsset> asset);
+	void removeAsset(IAsset* asset);
+
+	bool save(IFileObject* file);
+	bool load();
+
+	bool hasPackageFlag(EPackageFlags flag);
+	int32 getPackageFlags();
+
+private:
+
+	friend class CPackageManager;
+
+	CPackage(CRuntimeObject* outer, IFileObject* file);
+
+	IFileObject* _file;
+	shared_ptr<CAssetMap> _map;
+
+	vector<shared_ptr<CAssetMap::CAssetLoadHandle>> _loadHandles;
+};
+
+}
