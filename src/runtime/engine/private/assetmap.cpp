@@ -27,6 +27,7 @@ assetmap.cpp:
 
 CAssetMap::CAssetMap(CRuntimeObject* outer)
 	: CRuntimeObject(outer)
+	, _assetsLoaded(false)
 {
 
 }
@@ -113,20 +114,30 @@ bool CAssetMap::load(IFileObject* file)
 	_assets.clear();
 	_locators.clear();
 
+	if ( !file->seek(0) ) return false;
+
 	uint32 numAssets;
-	if ( !file->read(&numAssets, sizeof(uint32)) ) return false;
+	if ( !file->read(&numAssets, sizeof(uint32)) ) 
+	{
+		log(LOG_ERROR, "Failed to read asset count on package");
+		return false;
+	}
 
 	for ( uint32 i=0; i<numAssets; ++i )
 	{
 		CAssetLocator locator;
-		if ( !file->read(&locator, sizeof(CAssetLocator)) ) return false;
+		if ( !file->read(&locator, sizeof(CAssetLocator)) ) 
+		{
+			log(LOG_ERROR, "Failed to read asset locator on package");
+			return false;
+		}
 
 		_locators.push_back(locator);
 
 		shared_ptr<IAsset> asset = nullptr;
 		switch(locator._type)
 		{
-		case Arcade::ASSET_NOTLOADED:
+		case Arcade::ASSET_NONE:
 		break;
 		case Arcade::ASSET_CODE:
 			asset = make_shared<CCodeAsset>(this);
@@ -139,29 +150,57 @@ bool CAssetMap::load(IFileObject* file)
 		break;
 		}
 
-		if ( asset == nullptr ) return false;
+		if ( asset == nullptr ) 
+		{
+			log(LOG_ERROR, "Failed to create asset on package");
+			return false;
+		}
 		asset->setUniqueID(locator._id);
 		_map.insert(make_pair(locator._id, asset));
 		_assets.push_back(asset);
 	}
 
-	for ( uint32 i=0; i<_locators.size(); ++i )
-	{
-		CAssetLocator &locator = _locators[i];
-
-		if ( !file->seek(locator._offset) ) return false;
-
-		auto found = _map.find(locator._id);
-		if ( found == _map.end() ) return false;
-
-		shared_ptr<IAsset> asset = (*found).second;
-		if ( !asset->load(file) ) return false;
-	}
-
-	return false;
+	return true;
 }
 
 shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 {
-	return nullptr;
+	if ( _assetsLoaded ) return nullptr;
+
+	for ( uint32 i=0; i<_locators.size(); ++i )
+	{
+		CAssetLocator &locator = _locators[i];
+
+		if ( !file->seek(locator._offset) ) return nullptr;
+
+		auto found = _map.find(locator._id);
+		if ( found == _map.end() ) return nullptr;
+
+		shared_ptr<IAsset> asset = (*found).second;
+		if ( !asset->load(file) ) return nullptr;
+
+		asset->setLoaded(true);
+	}
+
+	_assetsLoaded = true;
+
+	return shared_ptr<CAssetLoadHandle>(new CAssetLoadHandle( shared_from_this() ) );
+}
+
+bool CAssetMap::hasLoadedAssets() const
+{
+	return _assetsLoaded;
+}
+
+void CAssetMap::releaseAssets()
+{
+	if ( !_assetsLoaded ) return;
+
+	for ( shared_ptr<IAsset> asset : _assets )
+	{
+		asset->release();
+		asset->setLoaded(false);
+	}
+
+	_assetsLoaded = false;
 }

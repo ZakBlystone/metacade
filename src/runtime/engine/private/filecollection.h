@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-package.h:
+filecollection.h:
 ===============================================================================
 */
 
@@ -28,49 +28,16 @@ package.h:
 namespace Arcade
 {
 
-class METACADE_API CPackage : public CRuntimeObject
+class CFileCollection : public IFileCollection
 {
 public:
-	~CPackage();
+	virtual void add(const char* filename) override;
 
-	template<typename T>
-	T* addAsset()
-	{
-		T* newAsset = new T(this);
-		if ( !addAssetImplementation(newAsset) )
-		{
-			delete newAsset;
-			return nullptr;
-		}
-		newAsset->setUniqueID(CGUID::generate());
-		return newAsset;
-	}
-
-	void removeAsset(class IAsset* asset);
-
-	int32 getNumAssets() const;
-	class IAsset* getAsset(int32 index) const;
-
-	bool save(IFileObject* file);
-	bool load();
-
-	const char* getPackageName();
-	bool hasPackageFlag(EPackageFlags flag);
-	int32 getPackageFlags();
-
-	void loadAssets();
-	void releaseAssets();
+	uint32 numFiles() const;
+	string getFile(uint32 index) const;
 
 private:
-
-	friend class CPackageManager;
-
-	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
-
-	bool addAssetImplementation(class IAsset* asset);
-
-	IFileObject* _file;
-	class CAssetMap *_map;
+	vector<string> _files;
 };
 
 }

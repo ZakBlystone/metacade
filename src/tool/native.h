@@ -14,7 +14,7 @@ class FileSystem : public IFileSystem
 public:
 	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) override;
 	virtual void closeFile(IFileObject* file) override;
-	virtual bool listFilesInDirectory(void(*callback) (const char*), const char* dir, const char* extFilter = nullptr) override;
+	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) override;
 };
 
 class Logger : public ILogger

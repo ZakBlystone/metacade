@@ -28,19 +28,37 @@ assetmap.h:
 namespace Arcade
 {
 
-class CAssetMap : public CRuntimeObject
+class CAssetMap : public CRuntimeObject, public enable_shared_from_this<CAssetMap>
 {
 public:
 	CAssetMap(CRuntimeObject* outer);
 
 	class CAssetLoadHandle
 	{
+	public:
+		~CAssetLoadHandle()
+		{
+			shared_ptr<CAssetMap> map = _map.lock();
+			if ( map != nullptr )
+				map->releaseAssets();
+		}
+
+	private:
+		friend class CAssetMap;
+
+		CAssetLoadHandle(shared_ptr<CAssetMap> map)
+			: _map(map)
+		{}
+
+		weak_ptr<CAssetMap> _map;
 	};
+
+	#pragma pack(push, 1)
 
 	struct CAssetLocator
 	{
 		CAssetLocator(IFileObject* obj = nullptr, IAsset* asset = nullptr)
-			: _type(asset ? asset->getType() : EAssetType::ASSET_NOTLOADED)
+			: _type(asset ? asset->getType() : EAssetType::ASSET_NONE)
 			, _offset(obj ? obj->tell() : 0)
 			, _size(0)
 			, _id(asset ? asset->getUniqueID() : CGUID())
@@ -51,6 +69,8 @@ public:
 		uint32 _size;
 		CGUID _id;
 	};
+
+	#pragma pack(pop)
 
 	void addDependency(shared_ptr<CAssetMap> other);
 	void add(shared_ptr<IAsset> asset);
@@ -64,6 +84,8 @@ public:
 	bool save(IFileObject* file);
 	bool load(IFileObject* file);
 
+	bool hasLoadedAssets() const;
+
 	shared_ptr<CAssetLoadHandle> loadAssets(IFileObject* file);
 
 private:
@@ -76,6 +98,8 @@ private:
 	vector<CAssetLocator> _locators;
 	map<CGUID, shared_ptr<IAsset>> _map;
 	map<CGUID, shared_ptr<CAssetMap>> _dependencies;
+
+	bool _assetsLoaded;
 };
 
 }

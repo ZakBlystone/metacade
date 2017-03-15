@@ -87,7 +87,15 @@ int start(int argc, char *argv[])
 	}
 
 	IPackageManager* packmanager = system->getPackageManager();
-	CPackage* package = packmanager->createPackage();
+	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
+	if ( !packmanager->findAndPreloadPackages() )
+	{
+		std::cout << "Failed to load packages" << std::endl;
+	}
+
+	//if ( true ) return 0;
+
+	/*CPackage* package = packmanager->createPackage();
 
 	{
 		CCodeAsset* code = package->addAsset<CCodeAsset>();
@@ -100,17 +108,17 @@ int start(int argc, char *argv[])
 		std::cout << code->getUniqueID().tostring() << std::endl;
 	}
 
+	
 	{
-		IFileObject* packTest = native->getFileSystem()->openFile("pack", FILE_WRITE);
-		package->save(packTest);
-		native->getFileSystem()->closeFile(packTest);
-	}
+		IFileObject* packTest = native->getFileSystem()->openFile("pack2.mpkg", FILE_WRITE);
+		if ( packTest != nullptr )
+		{
+			package->save(packTest);
+			native->getFileSystem()->closeFile(packTest);
+		}
+	}*/
 
-	{
-		IFileObject* packTest = native->getFileSystem()->openFile("pack", FILE_READ);
-		package->load(packTest);
-		native->getFileSystem()->closeFile(packTest);
-
+	/*{
 		std::cout << "Num Assets: " << package->getNumAssets() << std::endl;
 
 		for ( uint32 i=0; i<package->getNumAssets(); ++i )
@@ -122,9 +130,9 @@ int start(int argc, char *argv[])
 				std::cout << code->getCodeLength() << ": " << code->getCodeBuffer() << std::endl;
 			}
 		}
-	}
+	}*/
 
-	packmanager->deletePackage(package);
+	//packmanager->deletePackage(package);
 
 
 	/*ILuint test = ilGenImage();

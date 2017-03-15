@@ -77,7 +77,7 @@ void FileSystem::closeFile(IFileObject* file)
 	delete F;
 }
 
-bool FileSystem::listFilesInDirectory(void(*callback) (const char*), const char* dir, const char* extFilter /*= nullptr*/)
+bool FileSystem::listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter /*= nullptr*/)
 {
 	string path(dir);
 	path += "*";
@@ -90,8 +90,18 @@ bool FileSystem::listFilesInDirectory(void(*callback) (const char*), const char*
 		{
 			if (!(f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				string fn = path + string(f.cFileName);
-				callback(fn.c_str());
+				string fn = string(dir) + string(f.cFileName);
+				if ( extFilter != nullptr )
+				{
+					string ext(extFilter);
+					if ( fn.substr(fn.size()-ext.size(), ext.size()) != ext )
+					{
+						continue;
+					}
+				}
+
+				
+				collection->add(fn.c_str());
 			}
 		} while (FindNextFile(h, &f));
 	}

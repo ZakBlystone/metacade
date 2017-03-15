@@ -40,6 +40,11 @@ protected:
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
 
+	class IFileObject* openFile(const char* name, EFileIOMode mode);
+	void closeFIle(class IFileObject* file);
+
+	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
+
 private:
 	class IRuntime* _runtime;
 };

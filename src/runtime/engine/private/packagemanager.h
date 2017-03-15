@@ -28,6 +28,19 @@ packagemanager.h:
 namespace Arcade
 {
 
+/*
+class IPackage
+{
+public:
+	virtual const char* getPackageName() const = 0;
+	virtual uint32 getNumAssets() const = 0;
+	virtual IAsset* getAsset(uint32 index) const = 0;
+
+	virtual void loadAssets() = 0;
+	virtual void releaseAssets() = 0;
+};
+*/
+
 class CPackageManager : public IPackageManager, public CRuntimeObject
 {
 public:
@@ -40,8 +53,8 @@ public:
 	virtual const char* getRootDirectory() const override;
 
 	virtual bool findAndPreloadPackages() override;
-	virtual int32 getNumPackages() const override;
-	virtual CPackage* getPackage(int32 index) const override;
+	virtual uint32 getNumPackages() const override;
+	virtual CPackage* getPackage(uint32 index) const override;
 
 private:
 	string _rootPath;

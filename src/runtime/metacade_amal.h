@@ -736,6 +736,11 @@ public:
 //src/runtime/engine/public/ifilesystem.h
 namespace Arcade
 {
+class IFileCollection
+{
+public:
+	virtual void add(const char* filename) = 0;
+};
 class IFileObject
 {
 public:
@@ -751,7 +756,7 @@ public:
 	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
 	virtual void closeFile(IFileObject* file) = 0;
 	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
-	virtual bool listFilesInDirectory(void (*callback)(const char*), const char* dir, const char* extFilter = nullptr) = 0;
+	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;
 };
 }
 //src/runtime/engine/public/imachineenvironment.h
@@ -791,8 +796,8 @@ public:
 	virtual void setRootDirectory(const char* path) = 0;
 	virtual const char* getRootDirectory() const = 0;
 	virtual bool findAndPreloadPackages() = 0;
-	virtual int32 getNumPackages() const = 0;
-	virtual CPackage* getPackage(int32 index) const = 0;
+	virtual uint32 getNumPackages() const = 0;
+	virtual CPackage* getPackage(uint32 index) const = 0;
 };
 }
 //src/runtime/engine/public/runtimeobject.h
@@ -808,6 +813,9 @@ protected:
 	void* alloc(unsigned int size);
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
+	class IFileObject* openFile(const char* name, EFileIOMode mode);
+	void closeFIle(class IFileObject* file);
+	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 private:
 	class IRuntime* _runtime;
 };
@@ -835,10 +843,12 @@ public:
 	int32 getNumAssets() const;
 	class IAsset* getAsset(int32 index) const;
 	bool save(IFileObject* file);
-	bool load(IFileObject* file);
+	bool load();
 	const char* getPackageName();
 	bool hasPackageFlag(EPackageFlags flag);
 	int32 getPackageFlags();
+	void loadAssets();
+	void releaseAssets();
 private:
 	friend class CPackageManager;
 	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
@@ -852,7 +862,7 @@ namespace Arcade
 {
 enum EAssetType
 {
-	ASSET_NOTLOADED,
+	ASSET_NONE,
 	ASSET_CODE,
 	ASSET_TEXTURE,
 	ASSET_SOUND,
@@ -866,10 +876,12 @@ public:
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
+	virtual bool isLoaded() const = 0;
 protected:
 	friend class CPackage;
 	friend class CAssetMap;
 	virtual void setUniqueID(const CGUID &id) = 0;
+	virtual void setLoaded(bool loaded) = 0;
 };
 template<EAssetType Type>
 class CAsset : public IAsset, public CRuntimeObject
@@ -878,6 +890,7 @@ public:
 	bool checkType() const { return _type == Type; }
 	virtual EAssetType getType() const { return _type; }
 	virtual CGUID getUniqueID() const { return _uniqueID; }
+	virtual bool isLoaded() const { return _loaded; }
 protected:
 	friend class CPackage;
 	friend class CAssetMap;
@@ -889,9 +902,14 @@ protected:
 	{
 		_uniqueID = id;
 	}
+	void setLoaded(bool loaded)
+	{
+		_loaded = loaded;
+	}
 private:
 	EAssetType _type;
 	CGUID _uniqueID;
+	bool _loaded;
 };
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }

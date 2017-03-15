@@ -57,15 +57,48 @@ const char*CPackageManager::getRootDirectory() const
 
 bool CPackageManager::findAndPreloadPackages()
 {
-	return false;
+	_references.clear();
+
+	CFileCollection files;
+	string dir(getRootDirectory());
+	if (!listFilesInDirectory(&files, (dir+"/").c_str(), "mpkg"))
+	{
+		return false;
+	}
+
+	for ( uint32 i=0; i<files.numFiles(); ++i )
+	{
+		string filename = files.getFile(i);
+		IFileObject* file = openFile(filename.c_str(), FILE_READ);
+
+		if ( file == nullptr )
+		{
+			log(LOG_WARN, "Failed to open %s", filename.c_str());
+			continue;
+		}
+
+		shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this, file));
+		_references.push_back(newPackage);
+
+		if ( !newPackage->load() )
+		{
+			log(LOG_WARN, "Failed to load package %s", filename.c_str());
+		}
+		else
+		{
+			log(LOG_MESSAGE, "Loaded package: %s", filename.c_str());
+		}
+	}
+
+	return true;
 }
 
-int32 CPackageManager::getNumPackages() const
+uint32 CPackageManager::getNumPackages() const
 {
-	return 0;
+	return (uint32) _references.size();
 }
 
-CPackage* CPackageManager::getPackage(int32 index) const
+CPackage* CPackageManager::getPackage(uint32 index) const
 {
-	return nullptr;
+	return _references[index].get();
 }

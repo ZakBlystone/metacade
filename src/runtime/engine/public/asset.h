@@ -30,8 +30,7 @@ namespace Arcade
 
 enum EAssetType
 {
-	ASSET_NOTLOADED,
-
+	ASSET_NONE,
 	ASSET_CODE,
 	ASSET_TEXTURE,
 	ASSET_SOUND,
@@ -46,12 +45,14 @@ public:
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
+	virtual bool isLoaded() const = 0;
 
 protected:
 	friend class CPackage;
 	friend class CAssetMap;
 
 	virtual void setUniqueID(const CGUID &id) = 0;
+	virtual void setLoaded(bool loaded) = 0;
 };
 
 template<EAssetType Type>
@@ -62,6 +63,7 @@ public:
 	bool checkType() const { return _type == Type; }
 	virtual EAssetType getType() const { return _type; }
 	virtual CGUID getUniqueID() const { return _uniqueID; }
+	virtual bool isLoaded() const { return _loaded; }
 
 protected:
 	friend class CPackage;
@@ -77,9 +79,15 @@ protected:
 		_uniqueID = id;
 	}
 
+	void setLoaded(bool loaded)
+	{
+		_loaded = loaded;
+	}
+
 private:
 	EAssetType _type;
 	CGUID _uniqueID;
+	bool _loaded;
 };
 
 template<typename T>

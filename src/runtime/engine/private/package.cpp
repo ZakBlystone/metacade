@@ -35,6 +35,11 @@ CPackage::CPackage(CRuntimeObject* outer, IFileObject* file)
 
 CPackage::~CPackage()
 {
+	if ( _file )
+	{
+		closeFIle(_file);
+		_file = nullptr;
+	}
 	delete _map;
 }
 
@@ -53,9 +58,9 @@ bool CPackage::save(IFileObject* file)
 	return _map->save(file);
 }
 
-bool CPackage::load(IFileObject* file)
+bool CPackage::load()
 {
-	return _map->load(file);
+	return _map->load(_file);
 }
 
 const char* CPackage::getPackageName()
@@ -73,9 +78,19 @@ int32 CPackage::getPackageFlags()
 	return 0;
 }
 
-void Arcade::CPackage::removeAsset(IAsset* asset)
+void CPackage::removeAsset(IAsset* asset)
 {
 	_map->remove(asset);
+}
+
+void CPackage::loadAssets()
+{
+
+}
+
+void CPackage::releaseAssets()
+{
+
 }
 
 bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)

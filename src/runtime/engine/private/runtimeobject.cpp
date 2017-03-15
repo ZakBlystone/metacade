@@ -75,3 +75,30 @@ void CRuntimeObject::free(void* pointer)
 	IAllocator* allocator = runtime->getAllocator();
 	allocator->memfree(pointer);
 }
+
+IFileObject* CRuntimeObject::openFile(const char* name, EFileIOMode mode)
+{
+	CRuntime* runtime = (CRuntime* ) _runtime;
+	IFileSystem* fs = runtime->getFilesystem();
+
+	if ( fs == nullptr ) return nullptr;
+	return fs->openFile(name, mode);
+}
+
+void CRuntimeObject::closeFIle(IFileObject* file)
+{
+	CRuntime* runtime = (CRuntime* ) _runtime;
+	IFileSystem* fs = runtime->getFilesystem();
+
+	if ( fs == nullptr ) return;
+	fs->closeFile(file);
+}
+
+bool CRuntimeObject::listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter)
+{
+	CRuntime* runtime = (CRuntime* ) _runtime;
+	IFileSystem* fs = runtime->getFilesystem();
+
+	if ( fs == nullptr ) return false;
+	return fs->listFilesInDirectory(collection, dir, extFilter);
+}

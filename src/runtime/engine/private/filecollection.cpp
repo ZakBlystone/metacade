@@ -19,33 +19,23 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ipackagemanager.h:
+filecollection.cpp:
 ===============================================================================
 */
 
-#pragma once
+#include "engine_private.h"
 
-namespace Arcade
+void CFileCollection::add(const char* filename)
 {
+	_files.push_back(filename);
+}
 
-enum EPackageFlags
+uint32 CFileCollection::numFiles() const
 {
-	PACKAGE_LOADED = 0x1,
-	PACKAGE_READONLY = 0x2,
-};
+	return _files.size();
+}
 
-class IPackageManager
+string CFileCollection::getFile(uint32 index) const
 {
-public:
-	virtual class CPackage* createPackage() = 0;
-	virtual void deletePackage(class CPackage* package) = 0;
-
-	virtual void setRootDirectory(const char* path) = 0;
-	virtual const char* getRootDirectory() const = 0;
-
-	virtual bool findAndPreloadPackages() = 0;
-	virtual uint32 getNumPackages() const = 0;
-	virtual CPackage* getPackage(uint32 index) const = 0;
-};
-
+	return _files[index];
 }
