@@ -55,7 +55,7 @@ uint32 FileObject::getSize()
 Arcade::IFileObject* FileSystem::openFile(const char* filename, EFileIOMode mode)
 {
 	FileObject *F = new FileObject;
-	F->FP = fopen(filename, mode == FILE_READ ? "rb" : "wb");
+	fopen_s(&F->FP, filename, mode == FILE_READ ? "rb" : "wb");
 
 	if (!F->FP) { delete F; return nullptr; }
 	F->Size = 0;

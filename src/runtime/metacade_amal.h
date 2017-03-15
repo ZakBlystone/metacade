@@ -818,7 +818,6 @@ namespace Arcade
 class METACADE_API CPackage : public CRuntimeObject
 {
 public:
-	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
 	~CPackage();
 	template<typename T>
 	T* addAsset()
@@ -829,19 +828,23 @@ public:
 			delete newAsset;
 			return nullptr;
 		}
+		newAsset->setUniqueID(CGUID::generate());
 		return newAsset;
 	}
 	void removeAsset(class IAsset* asset);
-	int32 getNumAssets();
-	class IAsset* getAsset(int32 index);
-	bool save();
-	bool load();
+	int32 getNumAssets() const;
+	class IAsset* getAsset(int32 index) const;
+	bool save(IFileObject* file);
+	bool load(IFileObject* file);
 	const char* getPackageName();
 	bool hasPackageFlag(EPackageFlags flag);
 	int32 getPackageFlags();
 private:
+	friend class CPackageManager;
+	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
 	bool addAssetImplementation(class IAsset* asset);
 	IFileObject* _file;
+	class CAssetMap *_map;
 };
 }
 //src/runtime/engine/public/asset.h
@@ -862,6 +865,11 @@ public:
 	virtual bool validate() const = 0;
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
+	virtual CGUID getUniqueID() const = 0;
+protected:
+	friend class CPackage;
+	friend class CAssetMap;
+	virtual void setUniqueID(const CGUID &id) = 0;
 };
 template<EAssetType Type>
 class CAsset : public IAsset, public CRuntimeObject
@@ -869,13 +877,21 @@ class CAsset : public IAsset, public CRuntimeObject
 public:
 	bool checkType() const { return _type == Type; }
 	virtual EAssetType getType() const { return _type; }
+	virtual CGUID getUniqueID() const { return _uniqueID; }
 protected:
 	friend class CPackage;
+	friend class CAssetMap;
 	CAsset(CRuntimeObject* object) 
 		: CRuntimeObject(object)
-		, _type(Type) {}
+		, _type(Type)
+	{}
+	void setUniqueID(const CGUID &id)
+	{
+		_uniqueID = id;
+	}
 private:
 	EAssetType _type;
+	CGUID _uniqueID;
 };
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
@@ -900,6 +916,7 @@ public:
 	const char* getCodeBuffer() const;
 	uint32 getCodeLength() const;
 	void setCodeBuffer(const char* buffer, uint32 size);
+	void setCodeBuffer(const char* buffer);
 	char* _code;
 	uint32 _codeLength;
 };

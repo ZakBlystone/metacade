@@ -28,33 +28,34 @@ package.cpp:
 CPackage::CPackage(CRuntimeObject* outer, IFileObject* file)
 	: CRuntimeObject(outer)
 	, _file(file)
+	, _map(new CAssetMap(this))
 {
 
 }
 
 CPackage::~CPackage()
 {
-
+	delete _map;
 }
 
-int32 CPackage::getNumAssets()
+int32 CPackage::getNumAssets() const
 {
-	return 0;
+	return _map->getNumAssets();
 }
 
-IAsset* CPackage::getAsset(int32 index)
+IAsset* CPackage::getAsset(int32 index) const
 {
-	return nullptr;
+	return _map->getAsset(index).get();
 }
 
-bool CPackage::save()
+bool CPackage::save(IFileObject* file)
 {
-	return false;
+	return _map->save(file);
 }
 
-bool CPackage::load()
+bool CPackage::load(IFileObject* file)
 {
-	return false;
+	return _map->load(file);
 }
 
 const char* CPackage::getPackageName()
@@ -74,10 +75,11 @@ int32 CPackage::getPackageFlags()
 
 void Arcade::CPackage::removeAsset(IAsset* asset)
 {
-
+	_map->remove(asset);
 }
 
 bool Arcade::CPackage::addAssetImplementation(class IAsset* asset)
 {
-	return false;
+	_map->add(shared_ptr<IAsset>(asset));
+	return true;
 }

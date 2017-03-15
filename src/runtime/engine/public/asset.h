@@ -45,6 +45,13 @@ public:
 	virtual bool validate() const = 0;
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
+	virtual CGUID getUniqueID() const = 0;
+
+protected:
+	friend class CPackage;
+	friend class CAssetMap;
+
+	virtual void setUniqueID(const CGUID &id) = 0;
 };
 
 template<EAssetType Type>
@@ -54,16 +61,25 @@ public:
 
 	bool checkType() const { return _type == Type; }
 	virtual EAssetType getType() const { return _type; }
+	virtual CGUID getUniqueID() const { return _uniqueID; }
 
 protected:
 	friend class CPackage;
+	friend class CAssetMap;
 
 	CAsset(CRuntimeObject* object) 
 		: CRuntimeObject(object)
-		, _type(Type) {}
+		, _type(Type)
+	{}
+
+	void setUniqueID(const CGUID &id)
+	{
+		_uniqueID = id;
+	}
 
 private:
 	EAssetType _type;
+	CGUID _uniqueID;
 };
 
 template<typename T>

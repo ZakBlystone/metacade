@@ -42,6 +42,7 @@ public:
 	uint32 getCodeLength() const;
 
 	void setCodeBuffer(const char* buffer, uint32 size);
+	void setCodeBuffer(const char* buffer);
 
 	char* _code;
 	uint32 _codeLength;

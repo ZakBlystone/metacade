@@ -131,12 +131,8 @@ int LuaVMClass::testMetaSet(lua_State *L)
 {
 	lua_getfield(L, 1, "__klass");
 
-	//std::cout << (lua_type(L, -1) == LUA_TLIGHTUSERDATA ? "YES" : "NO") << std::endl;
-
 	LuaVMClass *klass = (LuaVMClass *) lua_touserdata(L, -1);
-
 	const char *key = lua_tostring(L, 2);
-	//std::cout << key << std::endl;
 
 	if ( klass != nullptr )
 	{
@@ -156,15 +152,11 @@ int LuaVMClass::testMetaSet(lua_State *L)
 		}
 	}
 
-	//lua_pushvalue(L, 3);
-	//lua_rawset(L, 1);
-
 	return 0;
 }
 
 Arcade::IVMClass* LuaVM::loadGameVMClass()
 {
-	//string filename("test.lua");
 	string filename("E:/Projects/metacade/bin/Release/test.lua");
 
 	shared_ptr<LuaVMClass> newClass;
@@ -186,67 +178,6 @@ Arcade::IVMClass* LuaVM::loadGameVMClass()
 	}
 
 	return nullptr;
-
-	//std::fstream input(filename, std::ios::binary | std::ios::in | std::ios::ate);
-	/*if ( input.is_open() )
-	{
-		uint32 size = input.tellg();
-		input.seekg(0);
-
-		if ( size == 0 ) return nullptr;
-		
-		char *buffer = new char[size];
-		input.read(buffer, size);
-
-		//std::cout << " [ " << lua_gettop(_L) << std::endl;
-
-		if (luaL_loadbuffer(_L, buffer, size, "main"))
-		{
-			std::cout << "Lua: main: " << lua_tostring(_L, -1);
-			lua_pop(_L, 1);
-			return nullptr;	
-		}
-
-		shared_ptr<LuaVMClass> newClass = make_shared<LuaVMClass>(shared_from_this());
-
-		lua_newtable(_L);
-
-		lua_pushlightuserdata(_L, newClass.get());
-		lua_setfield(_L, -2, "__klass");
-
-		lua_newtable(_L);
-
-		lua_pushvalue(_L, -1);
-		int meta = luaL_ref(_L, LUA_REGISTRYINDEX);
-
-		lua_newtable(_L); //321
-		lua_setfield(_L, -2, "sounds"); //21
-
-		lua_pushvalue(_L, -1);
-		lua_setfield(_L, -2, "__index");
-
-		lua_pushcclosure(_L, LuaVM::testMetaSet, 0);
-		lua_setfield(_L, -2, "__newindex");
-
-		lua_setmetatable(_L, -2);
-		lua_setfenv(_L, -2);
-
-		if (lua_pcall(_L, 0, 0, 0)) {
-			std::cout << "Lua: main: " << lua_tostring(_L, -1);
-			lua_pop(_L, 1);
-			return nullptr;
-		}
-
-		//std::cout << " [ " << lua_gettop(_L) << std::endl;
-
-		_loadedClasses.insert(make_pair(filename, newClass));
-
-		return newClass.get();
-		//shared_ptr<LuaVMInstance> instance1 = make_shared<LuaVMInstance>(newClass);
-		//instance1->render(nullptr);
-	}
-
-	return nullptr;*/
 }
 
 bool LuaVM::includeGameScript()

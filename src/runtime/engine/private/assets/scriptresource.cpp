@@ -42,7 +42,7 @@ bool CCodeAsset::load(IFileObject* file)
 
 	_code[_codeLength] = 0;
 	
-	return file->read(_code, sizeof(uint32));
+	return file->read(_code, _codeLength);
 }
 
 bool CCodeAsset::save(IFileObject* file)
@@ -78,6 +78,11 @@ void CCodeAsset::setCodeBuffer(const char* buffer, uint32 size)
 	_codeLength = size;
 
 	memcpy(_code, buffer, size);
+}
+
+void CCodeAsset::setCodeBuffer(const char* buffer)
+{
+	if ( buffer != nullptr ) setCodeBuffer(buffer, (uint32) strlen(buffer));
 }
 
 void CCodeAsset::release()

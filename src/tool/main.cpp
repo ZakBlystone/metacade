@@ -88,7 +88,41 @@ int start(int argc, char *argv[])
 
 	IPackageManager* packmanager = system->getPackageManager();
 	CPackage* package = packmanager->createPackage();
-	CCodeAsset* code = package->addAsset<CCodeAsset>();
+
+	{
+		CCodeAsset* code = package->addAsset<CCodeAsset>();
+		code->setCodeBuffer("Some code");
+		std::cout << code->getUniqueID().tostring() << std::endl;
+	}
+	{
+		CCodeAsset* code = package->addAsset<CCodeAsset>();
+		code->setCodeBuffer("Some more code");
+		std::cout << code->getUniqueID().tostring() << std::endl;
+	}
+
+	{
+		IFileObject* packTest = native->getFileSystem()->openFile("pack", FILE_WRITE);
+		package->save(packTest);
+		native->getFileSystem()->closeFile(packTest);
+	}
+
+	{
+		IFileObject* packTest = native->getFileSystem()->openFile("pack", FILE_READ);
+		package->load(packTest);
+		native->getFileSystem()->closeFile(packTest);
+
+		std::cout << "Num Assets: " << package->getNumAssets() << std::endl;
+
+		for ( uint32 i=0; i<package->getNumAssets(); ++i )
+		{
+			std::cout << package->getAsset(i)->getUniqueID().tostring() << std::endl;
+			if ( package->getAsset(i)->getType() == ASSET_CODE )
+			{
+				CCodeAsset* code = (CCodeAsset* ) package->getAsset(i);
+				std::cout << code->getCodeLength() << ": " << code->getCodeBuffer() << std::endl;
+			}
+		}
+	}
 
 	packmanager->deletePackage(package);
 

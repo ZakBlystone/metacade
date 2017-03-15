@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-package.h:
+assetmap.h:
 ===============================================================================
 */
 
@@ -28,46 +28,54 @@ package.h:
 namespace Arcade
 {
 
-class METACADE_API CPackage : public CRuntimeObject
+class CAssetMap : public CRuntimeObject
 {
 public:
-	~CPackage();
+	CAssetMap(CRuntimeObject* outer);
 
-	template<typename T>
-	T* addAsset()
+	class CAssetLoadHandle
 	{
-		T* newAsset = new T(this);
-		if ( !addAssetImplementation(newAsset) )
-		{
-			delete newAsset;
-			return nullptr;
-		}
-		newAsset->setUniqueID(CGUID::generate());
-		return newAsset;
-	}
+	};
 
-	void removeAsset(class IAsset* asset);
+	struct CAssetLocator
+	{
+		CAssetLocator(IFileObject* obj = nullptr, IAsset* asset = nullptr)
+			: _type(asset ? asset->getType() : EAssetType::ASSET_NOTLOADED)
+			, _offset(obj ? obj->tell() : 0)
+			, _size(0)
+			, _id(asset ? asset->getUniqueID() : CGUID())
+		{}
 
-	int32 getNumAssets() const;
-	class IAsset* getAsset(int32 index) const;
+		EAssetType _type;
+		uint32 _offset;
+		uint32 _size;
+		CGUID _id;
+	};
+
+	void addDependency(shared_ptr<CAssetMap> other);
+	void add(shared_ptr<IAsset> asset);
+	void remove(IAsset* asset);
+
+	uint32 getNumAssets() const;
+	shared_ptr<IAsset> getAsset(uint32 index) const;
+
+	shared_ptr<IAsset> findAssetByID(const CGUID& id) const;
 
 	bool save(IFileObject* file);
 	bool load(IFileObject* file);
 
-	const char* getPackageName();
-	bool hasPackageFlag(EPackageFlags flag);
-	int32 getPackageFlags();
+	shared_ptr<CAssetLoadHandle> loadAssets(IFileObject* file);
 
 private:
 
-	friend class CPackageManager;
+	friend class CAssetLoadHandle;
 
-	CPackage(CRuntimeObject* outer, IFileObject* file = nullptr);
+	void releaseAssets();
 
-	bool addAssetImplementation(class IAsset* asset);
-
-	IFileObject* _file;
-	class CAssetMap *_map;
+	vector<shared_ptr<IAsset>> _assets;
+	vector<CAssetLocator> _locators;
+	map<CGUID, shared_ptr<IAsset>> _map;
+	map<CGUID, shared_ptr<CAssetMap>> _dependencies;
 };
 
 }

@@ -33,7 +33,7 @@ CPackageManager::CPackageManager(CRuntimeObject* outer)
 
 CPackage* CPackageManager::createPackage()
 {
-	shared_ptr<CPackage> newPackage = make_shared<CPackage>(this);
+	shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this));
 
 	_references.push_back(newPackage);
 
