@@ -25,7 +25,7 @@ filecollection.cpp:
 
 #include "engine_private.h"
 
-void CFileCollection::add(const char* filename)
+void CFileCollection::add(const CString& filename)
 {
 	_files.push_back(filename);
 }
@@ -35,7 +35,7 @@ uint32 CFileCollection::numFiles() const
 	return (uint32) _files.size();
 }
 
-string CFileCollection::getFile(uint32 index) const
+CString CFileCollection::getFile(uint32 index) const
 {
 	return _files[index];
 }

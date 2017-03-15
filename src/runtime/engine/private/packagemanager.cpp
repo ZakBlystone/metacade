@@ -50,14 +50,14 @@ void CPackageManager::deletePackageBuilder(CPackageBuilder* builder)
 	}
 }
 
-void CPackageManager::setRootDirectory(const char* path)
+void CPackageManager::setRootDirectory(const CString& path)
 {
-	_rootPath = std::string(path);
+	_rootPath = path;
 }
 
-const char*CPackageManager::getRootDirectory() const
+CString CPackageManager::getRootDirectory() const
 {
-	return _rootPath.c_str();
+	return _rootPath;
 }
 
 bool CPackageManager::findAndPreloadPackages()
@@ -65,22 +65,21 @@ bool CPackageManager::findAndPreloadPackages()
 	_references.clear();
 
 	CFileCollection files;
-	string dir(getRootDirectory());
-	if (!listFilesInDirectory(&files, (dir+"/").c_str(), "mpkg"))
+	if (!listFilesInDirectory(&files, *(_rootPath+"/"), "mpkg"))
 	{
 		return false;
 	}
 
 	for ( uint32 i=0; i<files.numFiles(); ++i )
 	{
-		string filename = files.getFile(i);
-		log(LOG_MESSAGE, "Try load package %s", filename.c_str());
+		CString filename = files.getFile(i);
+		log(LOG_MESSAGE, "Try load package %s", *filename);
 
-		IFileObject* file = openFile(filename.c_str(), FILE_READ);
+		IFileObject* file = openFile(filename, FILE_READ);
 
 		if ( file == nullptr )
 		{
-			log(LOG_WARN, "Failed to open %s", filename.c_str());
+			log(LOG_WARN, "Failed to open %s", *filename);
 			continue;
 		}
 
@@ -89,11 +88,11 @@ bool CPackageManager::findAndPreloadPackages()
 
 		if ( !newPackage->load() )
 		{
-			log(LOG_WARN, "Failed to load package %s", filename.c_str());
+			log(LOG_WARN, "Failed to load package %s", *filename);
 		}
 		else
 		{
-			log(LOG_MESSAGE, "Loaded package: %s", filename.c_str());
+			log(LOG_MESSAGE, "Loaded package: %s", *filename);
 		}
 	}
 

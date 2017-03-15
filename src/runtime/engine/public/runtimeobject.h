@@ -41,7 +41,7 @@ protected:
 	void free(void* pointer);
 	void free(const void* pointer);
 
-	class IFileObject* openFile(const char* name, EFileIOMode mode);
+	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);

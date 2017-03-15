@@ -52,10 +52,10 @@ uint32 FileObject::getSize()
 	return Size;
 }
 
-Arcade::IFileObject* FileSystem::openFile(const char* filename, EFileIOMode mode)
+Arcade::IFileObject* FileSystem::openFile(const CString& filename, EFileIOMode mode)
 {
 	FileObject *F = new FileObject;
-	fopen_s(&F->FP, filename, mode == FILE_READ ? "rb" : "wb");
+	fopen_s(&F->FP, *filename, mode == FILE_READ ? "rb" : "wb");
 
 	if (!F->FP) { delete F; return nullptr; }
 	F->Size = 0;
@@ -82,6 +82,8 @@ bool FileSystem::listFilesInDirectory(IFileCollection* collection, const char* d
 	string path(dir);
 	path += "*";
 
+	std::cout << "SEARCH: " << path << std::endl;
+
 	WIN32_FIND_DATA f;
 	HANDLE h = FindFirstFile(path.c_str(), &f);
 	if (h != INVALID_HANDLE_VALUE)
@@ -99,7 +101,6 @@ bool FileSystem::listFilesInDirectory(IFileCollection* collection, const char* d
 						continue;
 					}
 				}
-
 				
 				collection->add(fn.c_str());
 			}

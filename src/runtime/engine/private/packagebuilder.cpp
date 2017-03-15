@@ -36,11 +36,9 @@ Arcade::CPackageBuilder::~CPackageBuilder()
 	delete _package;
 }
 
-bool CPackageBuilder::save(const char* packageName)
+bool CPackageBuilder::save(const CString& packageName)
 {
-	string filename(packageName);
-
-	IFileObject* file = openFile((filename + ".mpkg").c_str(), FILE_WRITE);
+	IFileObject* file = openFile(packageName + ".mpkg", FILE_WRITE);
 	if ( file == nullptr ) return nullptr;
 
 	bool saved = _package->save(file);

@@ -770,7 +770,7 @@ namespace Arcade
 class IFileCollection
 {
 public:
-	virtual void add(const char* filename) = 0;
+	virtual void add(const CString& filename) = 0;
 };
 class IFileObject
 {
@@ -784,7 +784,7 @@ public:
 class IFileSystem
 {
 public:
-	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
+	virtual IFileObject* openFile(const CString& filename, EFileIOMode mode) = 0;
 	virtual void closeFile(IFileObject* file) = 0;
 	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;
@@ -822,7 +822,7 @@ enum EPackageFlags
 class IPackage
 {
 public:
-	virtual const char* getPackageName() const = 0;
+	virtual CString getPackageName() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 	virtual void loadAssets() = 0;
@@ -833,8 +833,8 @@ class IPackageManager
 public:
 	virtual class CPackageBuilder* createPackageBuilder() = 0;
 	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
-	virtual void setRootDirectory(const char* path) = 0;
-	virtual const char* getRootDirectory() const = 0;
+	virtual void setRootDirectory(const CString& path) = 0;
+	virtual CString getRootDirectory() const = 0;
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;
 	virtual IPackage* getPackage(uint32 index) const = 0;
@@ -855,7 +855,7 @@ protected:
 	void* realloc(void* pointer, unsigned int size);
 	void free(void* pointer);
 	void free(const void* pointer);
-	class IFileObject* openFile(const char* name, EFileIOMode mode);
+	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 private:
@@ -954,7 +954,7 @@ public:
 		return newAsset;
 	}
 	void removeAsset(class IAsset* asset);
-	bool save(const char* packageName);
+	bool save(const CString& packageName);
 private:
 	friend class CPackageManager;
 	void addAsset(class IAsset* asset);

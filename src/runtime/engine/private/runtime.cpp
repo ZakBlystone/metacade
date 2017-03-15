@@ -168,7 +168,7 @@ bool CRuntime::filesystemTest()
 
 		for ( uint32 i=0; i<fc.numFiles(); ++i )
 		{
-			log(LOG_MESSAGE, "FILE[%i]: %s", i, fc.getFile(i).c_str());
+			log(LOG_MESSAGE, "FILE[%i]: %s", i, *fc.getFile(i));
 		}
 	}
 

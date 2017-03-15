@@ -83,7 +83,7 @@ void CRuntimeObject::free(const void* pointer)
 	allocator->memfree((void *) pointer);
 }
 
-IFileObject* CRuntimeObject::openFile(const char* name, EFileIOMode mode)
+IFileObject* CRuntimeObject::openFile(const CString& name, EFileIOMode mode)
 {
 	CRuntime* runtime = (CRuntime* ) _runtime;
 	IFileSystem* fs = runtime->getFilesystem();

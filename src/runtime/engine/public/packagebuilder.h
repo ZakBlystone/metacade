@@ -54,7 +54,7 @@ public:
 	}
 
 	void removeAsset(class IAsset* asset);
-	bool save(const char* packageName);
+	bool save(const CString& packageName);
 
 private:
 	friend class CPackageManager;

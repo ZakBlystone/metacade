@@ -33,7 +33,7 @@ class CPackage : public CRuntimeObject, public IPackage
 public:
 	~CPackage();
 
-	virtual const char* getPackageName() const;
+	virtual CString getPackageName() const;
 	virtual uint32 getNumAssets() const;
 	virtual class IAsset* getAsset(uint32 index) const;
 

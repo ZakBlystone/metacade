@@ -31,13 +31,13 @@ namespace Arcade
 class CFileCollection : public IFileCollection
 {
 public:
-	virtual void add(const char* filename) override;
+	virtual void add(const CString& filename) override;
 
 	uint32 numFiles() const;
-	string getFile(uint32 index) const;
+	CString getFile(uint32 index) const;
 
 private:
-	vector<string> _files;
+	vector<CString> _files;
 };
 
 }

@@ -33,7 +33,7 @@ namespace Arcade
 class IFileCollection
 {
 public:
-	virtual void add(const char* filename) = 0;
+	virtual void add(const CString& filename) = 0;
 };
 
 class IFileObject
@@ -49,7 +49,7 @@ public:
 class IFileSystem
 {
 public:
-	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) = 0;
+	virtual IFileObject* openFile(const CString& filename, EFileIOMode mode) = 0;
 	virtual void closeFile(IFileObject* file) = 0;
 	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;

@@ -37,7 +37,7 @@ enum EPackageFlags
 class IPackage
 {
 public:
-	virtual const char* getPackageName() const = 0;
+	virtual CString getPackageName() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 
@@ -51,8 +51,8 @@ public:
 	virtual class CPackageBuilder* createPackageBuilder() = 0;
 	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
 
-	virtual void setRootDirectory(const char* path) = 0;
-	virtual const char* getRootDirectory() const = 0;
+	virtual void setRootDirectory(const CString& path) = 0;
+	virtual CString getRootDirectory() const = 0;
 
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;

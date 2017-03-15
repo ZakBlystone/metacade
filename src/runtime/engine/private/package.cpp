@@ -62,7 +62,7 @@ bool CPackage::load()
 	return _map->load(_file);
 }
 
-const char* CPackage::getPackageName() const
+CString CPackage::getPackageName() const
 {
 	return "";
 }

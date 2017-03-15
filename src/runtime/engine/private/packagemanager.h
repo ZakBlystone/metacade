@@ -36,8 +36,8 @@ public:
 	virtual CPackageBuilder* createPackageBuilder();
 	virtual void deletePackageBuilder(CPackageBuilder* builder);
 
-	virtual void setRootDirectory(const char* path) override;
-	virtual const char* getRootDirectory() const override;
+	virtual void setRootDirectory(const CString& path) override;
+	virtual CString getRootDirectory() const override;
 
 	virtual bool findAndPreloadPackages() override;
 	virtual uint32 getNumPackages() const override;
@@ -48,7 +48,7 @@ public:
 private:
 	friend class CPackageBuilder;
 
-	string _rootPath;
+	CString _rootPath;
 	vector<shared_ptr<CPackage>> _references;
 	vector<shared_ptr<CPackageBuilder>> _builders;
 };

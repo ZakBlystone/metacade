@@ -87,7 +87,6 @@ int start(int argc, char *argv[])
 	}
 
 	std::cout << "Loading Packages..." << std::endl;
-
 	IPackageManager* packmanager = system->getPackageManager();
 	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
 	if ( !packmanager->findAndPreloadPackages() )

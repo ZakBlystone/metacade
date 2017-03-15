@@ -12,7 +12,7 @@ class FileSystem : public IFileSystem
 {
 
 public:
-	virtual IFileObject* openFile(const char* filename, EFileIOMode mode) override;
+	virtual IFileObject* openFile(const CString& filename, EFileIOMode mode) override;
 	virtual void closeFile(IFileObject* file) override;
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) override;
 };

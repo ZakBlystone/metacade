@@ -51,9 +51,9 @@ CString::CString(const CString& other)
 CString::CString(const char* str)
 	: _refs(new uint32(1))
 {
-	_length = (uint32) strlen(str)+1;
-	_string = new char[_length];
-	memcpy(_string, str, _length);
+	_length = (uint32) strlen(str);
+	_string = new char[_length+1];
+	memcpy(_string, str, _length+1);
 }
 
 CString::~CString()
