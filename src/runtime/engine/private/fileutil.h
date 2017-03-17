@@ -28,6 +28,72 @@ fileutil.h:
 namespace Arcade
 {
 
+//TODO make a base class or something for reference counting
+class CFileHandle : public CRuntimeObject
+{
+public:
+	CFileHandle(const CString& filename, EFileIOMode mode, CRuntimeObject* runtime)
+		: CRuntimeObject(runtime)
+		, _file(openFile(filename, mode))
+		, _ref(new uint32(1))
+	{}
+
+	CFileHandle(const CFileHandle& other)
+		: CRuntimeObject(other)
+	{
+		_ref = other._ref;
+		_file = other._file;
+
+		if ( _ref ) (*_ref)++;
+	}
+
+	bool isValid()
+	{
+		return _file != nullptr;
+	}
+
+	~CFileHandle() { reset(); }
+
+	CFileHandle& operator=(const CFileHandle& other)
+	{
+		if ( &other == this ) return *this;
+		
+		reset();
+
+		_ref = other._ref;
+		_file = other._file;
+
+		if ( _ref ) (*_ref)++;
+		return *this;
+	}
+
+	void reset()
+	{
+		if ( _file != nullptr && --(*_ref) == 0 )
+		{
+			closeFIle(_file);
+			delete _ref;
+
+			_file = nullptr;
+			_ref = nullptr;
+		}
+	}
+
+	operator IFileObject*()
+	{
+		return _file;
+	}
+
+	IFileObject* operator -> ()
+	{
+		return _file;
+	}
+
+private:
+	IFileObject* _file;
+	uint32* _ref;
+};
+
 class CFileUtil
 {
 public:
