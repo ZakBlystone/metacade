@@ -29,6 +29,7 @@ engine_public.h:
 #include "public/ilogger.h"
 #include "public/iallocator.h"
 #include "public/ifilesystem.h"
+#include "public/imetadata.h"
 #include "public/imachineenvironment.h"
 #include "public/iruntimeenvironment.h"
 #include "public/ipackagemanager.h"

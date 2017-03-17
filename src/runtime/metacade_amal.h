@@ -829,6 +829,19 @@ public:
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;
 };
 }
+//src/runtime/engine/public/imetadata.h
+namespace Arcade
+{
+class IMetaData
+{
+public:
+	virtual uint32 getNumKeys() const = 0;
+	virtual CString getKey(uint32 i) const = 0;
+	virtual CString getValue(uint32 i) const = 0;
+	virtual CString getValue(const CString& key) const = 0;
+	virtual void setKeyValuePair(const CString& key, const CString& value) = 0;
+};
+}
 //src/runtime/engine/public/imachineenvironment.h
 namespace Arcade
 {
@@ -864,6 +877,7 @@ public:
 	virtual CString getPackageName() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
+	virtual const IMetaData* getMetaData() const = 0;
 	virtual void loadAssets() = 0;
 	virtual void releaseAssets() = 0;
 };
@@ -897,6 +911,7 @@ protected:
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
+	class IRuntime* getRuntime();
 private:
 	class IRuntime* _runtime;
 };
@@ -992,6 +1007,7 @@ public:
 		newAsset->setUniqueID(CGUID::generate());
 		return newAsset;
 	}
+	IMetaData* getMetaData();
 	void removeAsset(class IAsset* asset);
 	bool save(const CString& packageName);
 private:

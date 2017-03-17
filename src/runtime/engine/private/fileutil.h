@@ -19,6 +19,20 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gamemetadata.cpp:
+fileutil.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class CFileUtil
+{
+public:
+	static bool writeString(IFileObject* file, const CString &str);
+	static bool readString(IFileObject* file, CString& str);
+};
+
+}

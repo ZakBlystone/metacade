@@ -36,9 +36,15 @@ Arcade::CPackageBuilder::~CPackageBuilder()
 	delete _package;
 }
 
+IMetaData* CPackageBuilder::getMetaData()
+{
+	return _package->getWritableMetaData();
+}
+
 bool CPackageBuilder::save(const CString& packageName)
 {
-	IFileObject* file = openFile(packageName + ".mpkg", FILE_WRITE);
+	IPackageManager* manager = getRuntime()->getPackageManager();
+	IFileObject* file = openFile(manager->getRootDirectory() + "/" + packageName + ".mpkg", FILE_WRITE);
 	if ( file == nullptr ) return nullptr;
 
 	bool saved = _package->save(file);

@@ -103,3 +103,13 @@ void CPackage::removeAsset(IAsset* asset)
 {
 	_map->remove(asset);
 }
+
+const IMetaData* CPackage::getMetaData() const
+{
+	return _meta.get();
+}
+
+CMetaData* CPackage::getWritableMetaData()
+{
+	return _meta.get();
+}

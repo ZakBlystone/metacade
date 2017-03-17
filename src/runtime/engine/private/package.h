@@ -36,6 +36,7 @@ public:
 	virtual CString getPackageName() const;
 	virtual uint32 getNumAssets() const;
 	virtual class IAsset* getAsset(uint32 index) const;
+	virtual const IMetaData* getMetaData() const;
 
 	virtual void loadAssets();
 	virtual void releaseAssets();
@@ -49,6 +50,8 @@ public:
 	bool hasPackageFlag(EPackageFlags flag);
 	int32 getPackageFlags();
 
+	CMetaData* getWritableMetaData();
+
 private:
 
 	friend class CPackageManager;
@@ -57,6 +60,7 @@ private:
 
 	IFileObject* _file;
 	shared_ptr<CAssetMap> _map;
+	shared_ptr<CMetaData> _meta;
 
 	vector<shared_ptr<CAssetMap::CAssetLoadHandle>> _loadHandles;
 };

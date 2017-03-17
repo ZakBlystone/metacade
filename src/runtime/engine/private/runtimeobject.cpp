@@ -109,3 +109,8 @@ bool CRuntimeObject::listFilesInDirectory(IFileCollection* collection, const cha
 	if ( fs == nullptr ) return false;
 	return fs->listFilesInDirectory(collection, dir, extFilter);
 }
+
+class IRuntime* CRuntimeObject::getRuntime()
+{
+	return _runtime;
+}

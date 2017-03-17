@@ -123,6 +123,9 @@ int start(int argc, char *argv[])
 	{
 		CPackageBuilder* builder = packmanager->createPackageBuilder();
 
+		builder->getMetaData()->setKeyValuePair("game", "My Test");
+		builder->getMetaData()->setKeyValuePair("author", "Zak");
+
 		CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("main.lua");
 		code->setCodeBuffer("This is some code contained within a package");
 

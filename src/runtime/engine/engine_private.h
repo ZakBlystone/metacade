@@ -31,6 +31,8 @@ engine_private.h:
 
 #include "public/asset.h"
 
+#include "private/fileutil.h"
+#include "private/metadata.h"
 #include "private/filecollection.h"
 #include "private/assetmap.h"
 #include "private/rendertest.h"

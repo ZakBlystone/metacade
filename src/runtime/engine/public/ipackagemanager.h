@@ -40,6 +40,7 @@ public:
 	virtual CString getPackageName() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
+	virtual const IMetaData* getMetaData() const = 0;
 
 	virtual void loadAssets() = 0;
 	virtual void releaseAssets() = 0;

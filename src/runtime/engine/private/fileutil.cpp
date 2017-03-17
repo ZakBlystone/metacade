@@ -19,18 +19,31 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gamemetadata.h:
+fileutil.cpp:
 ===============================================================================
 */
 
-#pragma once
+#include "engine_private.h"
 
-namespace Arcade
+bool CFileUtil::writeString(IFileObject* file, const CString &str)
 {
+	uint32 len = str.length();
+	return file->write(&len, sizeof(uint32)) && file->write(*str, len);
+}
 
-class CGameMetadata
+bool CFileUtil::readString(IFileObject* file, CString& str)
 {
+	uint32 len;
+	if ( !file->read(&len, sizeof(uint32)) ) return false;
 
-};
-
+	char* buffer = new char[len+1];
+	if ( !file->read(buffer, len) )
+	{
+		delete [] buffer;
+		return false;
+	}
+	buffer[len] = 0;
+	str = CString(buffer);
+	delete [] buffer;
+	return true;
 }

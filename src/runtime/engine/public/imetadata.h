@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-packagebuilder.h:
+imetadata.h:
 ===============================================================================
 */
 
@@ -28,43 +28,15 @@ packagebuilder.h:
 namespace Arcade
 {
 
-class METACADE_API CPackageBuilder : public CRuntimeObject
+class IMetaData
 {
 public:
+	virtual uint32 getNumKeys() const = 0;
+	virtual CString getKey(uint32 i) const = 0;
+	virtual CString getValue(uint32 i) const = 0;
+	virtual CString getValue(const CString& key) const = 0;
 
-	~CPackageBuilder();
-
-	template<typename T>
-	T* addAsset()
-	{
-		T* newAsset = new T(this);
-		addAsset(newAsset);
-		newAsset->setUniqueID(CGUID::generate());
-		return newAsset;
-	}
-
-	template<typename T>
-	T* addNamedAsset(const CString& name)
-	{
-		T* newAsset = new T(this);
-		addAsset(newAsset);
-		newAsset->setName(name);
-		newAsset->setUniqueID(CGUID::generate());
-		return newAsset;
-	}
-
-	IMetaData* getMetaData();
-
-	void removeAsset(class IAsset* asset);
-	bool save(const CString& packageName);
-
-private:
-	friend class CPackageManager;
-
-	void addAsset(class IAsset* asset);
-
-	CPackageBuilder(class CPackage* package);
-	class CPackage* _package;
+	virtual void setKeyValuePair(const CString& key, const CString& value) = 0;
 };
 
 }
