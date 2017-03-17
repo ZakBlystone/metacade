@@ -168,3 +168,31 @@ void CString::reset()
 		_refs = nullptr;
 	}
 }
+
+CString CString::lower() const
+{
+	CString out(*this);
+
+	for ( uint32 i=0; i<out.length(); ++i )
+	{
+		char ch = out._string[i];
+		if ( ch >= 'A' && ch <= 'Z' ) ch += 32;
+
+		out._string[i] = ch;
+	}
+	return out;
+}
+
+CString CString::upper() const
+{
+	CString out(*this);
+
+	for ( uint32 i=0; i<out.length(); ++i )
+	{
+		char ch = out._string[i];
+		if ( ch >= 'a' && ch <= 'z' ) ch -= 32;
+
+		out._string[i] = ch;
+	}
+	return out;
+}

@@ -41,6 +41,8 @@ public:
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;
+	CString lower() const;
+	CString upper() const;
 
 	CString operator+(const CString& other) const;
 	CString operator+(const char* other) const;
