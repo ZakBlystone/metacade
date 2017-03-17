@@ -82,6 +82,7 @@ public:
 	bool get(int8& value) const { int64 v; bool s = get(v); if(s) value = (int8) v; return s; }
 	bool get(double& value) const;
 	bool get(const char*& buffer, int32& length) const;
+	bool get(class CString& str) const;
 
 	CVariant& operator = (const CVariant& other);
 

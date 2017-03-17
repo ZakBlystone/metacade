@@ -121,6 +121,53 @@ lua_State* Arcade::LuaVM::getState()
 	return _L;
 }
 
+bool LuaVM::pushVariant(const CVariant& variant)
+{
+	switch(variant.type())
+	{
+	case Arcade::VT_NONE:
+		lua_pushnil(_L);
+		return true;
+	break;
+	case Arcade::VT_BOOLEAN:
+		{
+			bool b;
+			if ( variant.get(b) ) { lua_pushboolean(_L, b); return true; }
+		}
+	break;
+	case Arcade::VT_UINT:
+		{
+			uint64 v;
+			if ( variant.get(v) ) { lua_pushnumber(_L, (lua_Number) v); return true; }
+		}
+	break;
+	case Arcade::VT_INT:
+		{
+			int64 v;
+			if ( variant.get(v) ) { lua_pushnumber(_L, (lua_Number) v); return true; }
+		}
+	break;
+	case Arcade::VT_DOUBLE:
+		{
+			double v;
+			if ( variant.get(v) ) { lua_pushnumber(_L, (lua_Number) v); return true; }
+		}
+	break;
+	case Arcade::VT_STRING:
+		{
+			CString str;
+			if ( variant.get(str) ) { lua_pushstring(_L, *str); return true; }
+		}
+	break;
+	default:
+		lua_pushnil(_L);
+		return true;
+	break;
+	}
+
+	return false;
+}
+
 static int testMetaGet(lua_State *L)
 {
 	std::cout << "META GET" << std::endl;
@@ -383,6 +430,30 @@ void Arcade::LuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 void Arcade::LuaVMInstance::reset()
 {
 	if ( getLuaClass()->pushLuaFunction("reset") ) pcall(0);
+}
+
+bool LuaVMInstance::callFunction(CFunctionCall call)
+{
+	lua_State *L = getLuaHost()->_L;
+
+	if ( !getLuaClass()->pushLuaFunction(*call.getFunction()) ) 
+	{
+		lua_pop(L, 1);
+		return false;
+	}
+
+	int top = lua_gettop(L);
+
+	for ( uint32 i=0; i<call.numArgs(); ++i )
+	{
+		if ( !getLuaHost()->pushVariant(call.getArg(i)) )
+		{
+			lua_settop(L, top);
+			return false;
+		}
+	}
+
+	return pcall(call.numArgs());
 }
 
 shared_ptr<Arcade::LuaVM> Arcade::LuaVMInstance::getLuaHost() const

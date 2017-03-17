@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntime.h: minimal API-facing runtime object
+functioncall.h: call VM functions externally
 ===============================================================================
 */
 
@@ -28,24 +28,34 @@ iruntime.h: minimal API-facing runtime object
 namespace Arcade
 {
 
-class IRenderer;
-class IRenderTest
+class METACADE_API CFunctionCall
 {
 public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
+	CFunctionCall(const CString& func);
+	~CFunctionCall();
 
-	virtual void callFunction(CFunctionCall call) = 0;
-};
+	template<typename...Args>
+	CFunctionCall(const CString& func, const Args&... args)
+		: CFunctionCall(func)
+	{
+		int32 length = sizeof...(args);
+		CVariant vals[] = {args...};
+		for ( int32 i=0; i<length; ++i )
+			addArg(vals[i]);
+	}
 
-class IRuntime
-{
-public:
-	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
-	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* getRenderTest() = 0;
+	uint32 numArgs() const;
+	CVariant getArg(uint32 i) const;
+
+	CString getFunction() const;
+
+private:
+
+	void addArg(const CVariant& v);
+
+	CString _func;
+	CReferenceCounter _counter;
+	void* _args;
 };
 
 }

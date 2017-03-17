@@ -124,7 +124,8 @@ void CVariant::set(const char *value)
 	_type = VT_STRING;
 	*((int32 *)(_pod)) = length;
 	
-	_strdata = (uint8 *) new uint8[length * sizeof(char)];
+	_strdata = (uint8 *) new uint8[length * sizeof(char) + 1];
+	_strdata[length] = 0;
 	memcpy(_strdata, value, length * sizeof(char));
 }
 
@@ -189,5 +190,13 @@ bool CVariant::get(const char*& buffer, int32& length) const
 
 	buffer = (const char *) _strdata;
 	length = *((int32 *)(_pod));
+	return true;
+}
+
+bool CVariant::get(CString& str) const
+{
+	if ( _type != VT_STRING ) return false;
+
+	str = CString((const char*) _strdata);
 	return true;
 }

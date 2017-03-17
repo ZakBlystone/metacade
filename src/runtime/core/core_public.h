@@ -33,6 +33,7 @@ core_public.h: Inter-modular headers
 #include "public/gfx/image.h"
 #include "public/gfx/vertex.h"
 
+#include "public/util/refcounter.h"
 #include "public/util/variant.h"
 #include "public/util/guid.h"
 #include "public/util/string.h"

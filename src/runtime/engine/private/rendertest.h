@@ -41,6 +41,8 @@ public:
 	virtual void end(IRenderer *renderer);
 	virtual void reloadVM();
 
+	virtual void callFunction(CFunctionCall call);
+
 private:
 	ITexture* _testTexture;
 	ITexture* _testTexture2;

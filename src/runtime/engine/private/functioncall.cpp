@@ -19,33 +19,40 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntime.h: minimal API-facing runtime object
+functioncall.cpp: call VM functions externally
 ===============================================================================
 */
 
-#pragma once
+#include "engine_private.h"
 
-namespace Arcade
+CFunctionCall::CFunctionCall(const CString& func)
+	: _func(func)
+	, _args(new vector<CVariant>())
 {
 
-class IRenderer;
-class IRenderTest
+}
+
+CFunctionCall::~CFunctionCall()
 {
-public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
+	if (_counter.unique()) delete ((vector<CVariant>*)(_args));
+}
 
-	virtual void callFunction(CFunctionCall call) = 0;
-};
-
-class IRuntime
+uint32 CFunctionCall::numArgs() const
 {
-public:
-	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
-	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* getRenderTest() = 0;
-};
+	return (uint32) ((vector<CVariant>*)(_args))->size();
+}
 
+CVariant CFunctionCall::getArg(uint32 i) const
+{
+	return (*((vector<CVariant>*)(_args)))[i];
+}
+
+CString CFunctionCall::getFunction() const
+{
+	return _func;
+}
+
+void CFunctionCall::addArg(const CVariant& v)
+{
+	((vector<CVariant>*)(_args))->push_back(v);
 }

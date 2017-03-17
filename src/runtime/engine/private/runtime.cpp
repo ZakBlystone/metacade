@@ -41,6 +41,12 @@ public:
 
 static CDefaultAllocator gDefaultAllocator;
 
+
+struct CRefTest
+{
+	CReferenceCounter counter;
+};
+
 CRuntime::CRuntime()
 	: CRuntimeObject((IRuntime*) this)
 	, _packageManager(nullptr)
@@ -79,6 +85,23 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	log(LOG_MESSAGE, "SHA:%s", *sha.tostring());
 
 	log(LOG_MESSAGE, "AbCdEf: %s %s", *CString("AbCdEf").lower(), *CString("AbCdEf").upper());
+
+	CRefTest A;
+	log(LOG_MESSAGE, "=REF: %i", A.counter.count());
+
+	{
+		CRefTest B(A);
+		log(LOG_MESSAGE, "=REF: %i", A.counter.count());
+
+		{
+			CRefTest C = B;
+			log(LOG_MESSAGE, "=REF: %i", A.counter.count());
+		}
+
+		log(LOG_MESSAGE, "=REF: %i", A.counter.count());
+	}
+	
+	log(LOG_MESSAGE, "=REF: %i", A.counter.count());
 
 	return true;
 }

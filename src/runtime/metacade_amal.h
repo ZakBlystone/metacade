@@ -409,6 +409,46 @@ struct METACADE_API CVertex2D
 	CColor _color;
 };
 }
+//src/runtime/core/public/util/refcounter.h
+namespace Arcade
+{
+class METACADE_API CReferenceCounter
+{
+public:
+	CReferenceCounter()
+		: _ref(new uint32(1))
+	{}
+	CReferenceCounter(const CReferenceCounter& other)
+		: _ref(other._ref)
+	{
+		(*_ref)++;
+	}
+	~CReferenceCounter()
+	{
+		reset();
+	}
+	CReferenceCounter &operator=(const CReferenceCounter& other)
+	{
+		if ( &other == this ) return *this;
+		reset();
+		_ref = other._ref;
+		(*_ref)++;
+		return *this;
+	}
+	bool unique() const { return _ref == nullptr || (*_ref) <= 1; }
+	uint32 count() const { return _ref == nullptr ? 0 : (*_ref); }
+private:
+	void reset()
+	{
+		if ( --(*_ref) == 0 )
+		{
+			delete _ref;
+			_ref = nullptr;
+		}
+	}
+	uint32 *_ref;
+};
+}
 //src/runtime/core/public/util/variant.h
 namespace Arcade
 {
@@ -461,6 +501,7 @@ public:
 	bool get(int8& value) const { int64 v; bool s = get(v); if(s) value = (int8) v; return s; }
 	bool get(double& value) const;
 	bool get(const char*& buffer, int32& length) const;
+	bool get(class CString& str) const;
 	CVariant& operator = (const CVariant& other);
 	template<typename T>
 	CVariant& operator = (const T& value)
@@ -767,6 +808,33 @@ private:
 };
 }
 //src/runtime/engine/engine_public.h
+//src/runtime/engine/public/functioncall.h
+namespace Arcade
+{
+class METACADE_API CFunctionCall
+{
+public:
+	CFunctionCall(const CString& func);
+	~CFunctionCall();
+	template<typename...Args>
+	CFunctionCall(const CString& func, const Args&... args)
+		: CFunctionCall(func)
+	{
+		int32 length = sizeof...(args);
+		CVariant vals[] = {args...};
+		for ( int32 i=0; i<length; ++i )
+			addArg(vals[i]);
+	}
+	uint32 numArgs() const;
+	CVariant getArg(uint32 i) const;
+	CString getFunction() const;
+private:
+	void addArg(const CVariant& v);
+	CString _func;
+	CReferenceCounter _counter;
+	void* _args;
+};
+}
 //src/runtime/engine/public/iruntime.h
 namespace Arcade
 {
@@ -778,6 +846,7 @@ public:
 	virtual void start(IRenderer *renderer) = 0;
 	virtual void end(IRenderer *renderer) = 0;
 	virtual void reloadVM() = 0;
+	virtual void callFunction(CFunctionCall call) = 0;
 };
 class IRuntime
 {

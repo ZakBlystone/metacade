@@ -25,6 +25,7 @@ engine_public.h:
 
 #include "core/core_public.h"
 
+#include "public/functioncall.h"
 #include "public/iruntime.h"
 #include "public/ilogger.h"
 #include "public/iallocator.h"

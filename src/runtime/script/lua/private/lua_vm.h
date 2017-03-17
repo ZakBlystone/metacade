@@ -63,6 +63,8 @@ public:
 	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
 	virtual void reset() override;
 
+	virtual bool callFunction(CFunctionCall call) override;
+
 	shared_ptr<LuaVM> getLuaHost() const;
 
 	shared_ptr<LuaVMClass> getLuaClass() const
@@ -129,6 +131,8 @@ public:
 
 	bool pcall(int nargs);
 	lua_State *getState();
+
+	bool pushVariant(const CVariant& variant);
 
 private:
 

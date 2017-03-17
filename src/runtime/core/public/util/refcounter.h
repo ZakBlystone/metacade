@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntime.h: minimal API-facing runtime object
+refcounter.h: reference counting class to determine if outer is unique
 ===============================================================================
 */
 
@@ -28,24 +28,49 @@ iruntime.h: minimal API-facing runtime object
 namespace Arcade
 {
 
-class IRenderer;
-class IRenderTest
+class METACADE_API CReferenceCounter
 {
 public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
+	CReferenceCounter()
+		: _ref(new uint32(1))
+	{}
 
-	virtual void callFunction(CFunctionCall call) = 0;
-};
+	CReferenceCounter(const CReferenceCounter& other)
+		: _ref(other._ref)
+	{
+		(*_ref)++;
+	}
 
-class IRuntime
-{
-public:
-	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
-	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* getRenderTest() = 0;
+	~CReferenceCounter()
+	{
+		reset();
+	}
+
+	CReferenceCounter &operator=(const CReferenceCounter& other)
+	{
+		if ( &other == this ) return *this;
+		reset();
+
+		_ref = other._ref;
+		(*_ref)++;
+
+		return *this;
+	}
+
+	bool unique() const { return _ref == nullptr || (*_ref) <= 1; }
+	uint32 count() const { return _ref == nullptr ? 0 : (*_ref); }
+
+private:
+	void reset()
+	{
+		if ( --(*_ref) == 0 )
+		{
+			delete _ref;
+			_ref = nullptr;
+		}
+	}
+
+	uint32 *_ref;
 };
 
 }

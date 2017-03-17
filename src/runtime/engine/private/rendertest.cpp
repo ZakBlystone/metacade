@@ -138,7 +138,14 @@ bool Arcade::CRenderTest::init()
 		return false;
 	}
 
+	callFunction(CFunctionCall("test", 3.2, false, 35, "hi"));
+
 	return true;
+}
+
+void CRenderTest::callFunction(CFunctionCall call)
+{
+	_vmInstance->callFunction(call);
 }
 
 void CRenderTest::reloadVM()
