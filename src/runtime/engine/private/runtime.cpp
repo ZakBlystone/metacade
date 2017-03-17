@@ -77,6 +77,8 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	log(LOG_MESSAGE, "SHA:%s", *sha.tostring());
 
+	log(LOG_MESSAGE, "AbCdEf: %s %s", *CString("AbCdEf").lower(), *CString("AbCdEf").upper());
+
 	return true;
 }
 
@@ -120,26 +122,23 @@ bool CRuntime::filesystemTest()
 	string writeTestString("Hello World");
 
 	{
-		IFileObject* obj = fs->openFile("TestFile.txt", FILE_WRITE);
-		if ( obj == nullptr )
+		CFileHandle obj("TestFile.txt", FILE_WRITE, this);
+		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to create test file");
 			return false;
 		}
-
 		
 		if ( !obj->write((void*)writeTestString.c_str(), (uint32)writeTestString.length()) )
 		{
 			log(LOG_ERROR, "Error while writing test data");
 			return false;
 		}
-
-		fs->closeFile(obj);
 	}
 
 	{
-		IFileObject* obj = fs->openFile("TestFile.txt", FILE_READ);
-		if ( obj == nullptr )
+		CFileHandle obj("TestFile.txt", FILE_READ, this);
+		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to re-open test file");
 			return false;

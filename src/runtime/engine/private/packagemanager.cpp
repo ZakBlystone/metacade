@@ -31,9 +31,11 @@ CPackageManager::CPackageManager(CRuntimeObject* outer)
 {
 }
 
-CPackageBuilder* CPackageManager::createPackageBuilder()
+CPackageBuilder* CPackageManager::createPackageBuilder(const CString& packageName)
 {
-	shared_ptr<CPackageBuilder> builder = shared_ptr<CPackageBuilder>( new CPackageBuilder(new CPackage(this, nullptr)) );
+	CString path = getRootDirectory() + "/" + packageName + ".mpkg";
+
+	shared_ptr<CPackageBuilder> builder = shared_ptr<CPackageBuilder>( new CPackageBuilder(new CPackage(this, path)) );
 	_builders.push_back(builder);
 	return builder.get();
 }
@@ -72,27 +74,19 @@ bool CPackageManager::findAndPreloadPackages()
 
 	for ( uint32 i=0; i<files.numFiles(); ++i )
 	{
-		CString filename = files.getFile(i);
-		log(LOG_MESSAGE, "Try load package %s", *filename);
+		CString filepath = files.getFile(i);
+		log(LOG_MESSAGE, "Try load package %s", *filepath);
 
-		IFileObject* file = openFile(filename, FILE_READ);
-
-		if ( file == nullptr )
-		{
-			log(LOG_WARN, "Failed to open %s", *filename);
-			continue;
-		}
-
-		shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this, file));
+		shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this, filepath));
 		_references.push_back(newPackage);
 
 		if ( !newPackage->load() )
 		{
-			log(LOG_WARN, "Failed to load package %s", *filename);
+			log(LOG_WARN, "Failed to load package %s", *filepath);
 		}
 		else
 		{
-			log(LOG_MESSAGE, "Loaded package: %s", *filename);
+			log(LOG_MESSAGE, "Loaded package: %s", *filepath);
 		}
 	}
 

@@ -485,6 +485,7 @@ public:
 	bool operator == (const CGUID& other) const;
 	bool operator != (const CGUID& other) const;
 	bool operator < (const CGUID& other) const;
+	bool isValid() const;
 	static CGUID generate();
 	void reset();
 	const char* tostring() const;
@@ -517,6 +518,8 @@ public:
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;
+	CString lower() const;
+	CString upper() const;
 	CString operator+(const CString& other) const;
 	CString operator+(const char* other) const;
 	CString &operator=(const CString& other);
@@ -870,6 +873,7 @@ enum EPackageFlags
 {
 	PACKAGE_LOADED = 0x1,
 	PACKAGE_READONLY = 0x2,
+	PACKAGE_PRELOADED = 0x4,
 };
 class IPackage
 {
@@ -878,13 +882,13 @@ public:
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 	virtual const IMetaData* getMetaData() const = 0;
-	virtual void loadAssets() = 0;
+	virtual bool loadAssets() = 0;
 	virtual void releaseAssets() = 0;
 };
 class IPackageManager
 {
 public:
-	virtual class CPackageBuilder* createPackageBuilder() = 0;
+	virtual class CPackageBuilder* createPackageBuilder(const CString& packageName = "unnamed") = 0;
 	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
 	virtual void setRootDirectory(const CString& path) = 0;
 	virtual CString getRootDirectory() const = 0;
@@ -994,22 +998,25 @@ public:
 	T* addAsset()
 	{
 		T* newAsset = new T(this);
-		addAsset(newAsset);
 		newAsset->setUniqueID(CGUID::generate());
+		addAsset(newAsset);
 		return newAsset;
 	}
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
 		T* newAsset = new T(this);
-		addAsset(newAsset);
 		newAsset->setName(name);
 		newAsset->setUniqueID(CGUID::generate());
+		addAsset(newAsset);
 		return newAsset;
 	}
-	IMetaData* getMetaData();
 	void removeAsset(class IAsset* asset);
-	bool save(const CString& packageName);
+	IMetaData* getMetaData();
+	class IAsset* findAssetByName(const CString& name);
+	class IAsset* findAssetById(const CGUID& id);
+	bool load();
+	bool save();
 private:
 	friend class CPackageManager;
 	void addAsset(class IAsset* asset);

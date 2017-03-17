@@ -32,6 +32,7 @@ enum EPackageFlags
 {
 	PACKAGE_LOADED = 0x1,
 	PACKAGE_READONLY = 0x2,
+	PACKAGE_PRELOADED = 0x4,
 };
 
 class IPackage
@@ -42,14 +43,14 @@ public:
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 	virtual const IMetaData* getMetaData() const = 0;
 
-	virtual void loadAssets() = 0;
+	virtual bool loadAssets() = 0;
 	virtual void releaseAssets() = 0;
 };
 
 class IPackageManager
 {
 public:
-	virtual class CPackageBuilder* createPackageBuilder() = 0;
+	virtual class CPackageBuilder* createPackageBuilder(const CString& packageName = "unnamed") = 0;
 	virtual void deletePackageBuilder(class CPackageBuilder* builder) = 0;
 
 	virtual void setRootDirectory(const CString& path) = 0;

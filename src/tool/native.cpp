@@ -20,6 +20,7 @@ public:
 
 	FILE *FP;
 	unsigned int Size;
+	CString _filename;
 };
 
 FileObject::~FileObject()
@@ -59,6 +60,7 @@ Arcade::IFileObject* FileSystem::openFile(const CString& filename, EFileIOMode m
 
 	if (!F->FP) { delete F; return nullptr; }
 	F->Size = 0;
+	F->_filename = filename;
 
 	if (mode == FILE_READ)
 	{
@@ -67,6 +69,8 @@ Arcade::IFileObject* FileSystem::openFile(const CString& filename, EFileIOMode m
 		fseek(F->FP, 0, SEEK_SET);
 	}
 
+	std::cout << "OPEN: " << *filename << std::endl;
+
 	return F;
 }
 
@@ -74,6 +78,9 @@ void FileSystem::closeFile(IFileObject* file)
 {
 	FileObject *F = (FileObject *)file;
 	if (!F) return;
+
+	std::cout << "CLOSE: " << *F->_filename << std::endl;
+
 	delete F;
 }
 

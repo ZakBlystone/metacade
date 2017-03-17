@@ -41,24 +41,49 @@ IMetaData* CPackageBuilder::getMetaData()
 	return _package->getWritableMetaData();
 }
 
-bool CPackageBuilder::save(const CString& packageName)
+void CPackageBuilder::addAsset(IAsset* asset)
 {
-	IPackageManager* manager = getRuntime()->getPackageManager();
-	IFileObject* file = openFile(manager->getRootDirectory() + "/" + packageName + ".mpkg", FILE_WRITE);
-	if ( file == nullptr ) return nullptr;
+	CAssetMap* map = _package->getAssetMap();
 
-	bool saved = _package->save(file);
+	if ( asset->isNamedAsset() )
+	{
+		IAsset* existing = map->findAssetByName(asset->getName()).get();
+		if ( existing != nullptr )
+		{
+			asset->setUniqueID(existing->getUniqueID());
+			log(LOG_MESSAGE, "Overwrite existing named asset: %s", *asset->getName());
+			map->remove(existing);
+		}
+	}
 
-	closeFIle(file);
-	return saved;
+	map->add(shared_ptr<IAsset>(asset));
 }
 
 void CPackageBuilder::removeAsset(class IAsset* asset)
 {
-	_package->removeAsset(asset);
+	_package->getAssetMap()->remove(asset);
 }
 
-void CPackageBuilder::addAsset(IAsset* asset)
+class IAsset* CPackageBuilder::findAssetByName(const CString& name)
 {
-	_package->addAsset(shared_ptr<IAsset>(asset));
+	return _package->getAssetMap()->findAssetByName(name).get();
+}
+
+class IAsset* CPackageBuilder::findAssetById(const CGUID& id)
+{
+	return _package->getAssetMap()->findAssetByID(id).get();
+}
+
+bool CPackageBuilder::load()
+{
+	if ( _package->load() )
+	{
+		return _package->loadAssets();
+	}
+	return false;
+}
+
+bool CPackageBuilder::save()
+{
+	return _package->save();
 }

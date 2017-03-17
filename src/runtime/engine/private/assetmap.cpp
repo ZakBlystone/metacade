@@ -82,6 +82,16 @@ void CAssetMap::remove(IAsset* asset)
 	if ( found != _map.end() )
 	{
 		_map.erase(found);
+
+		for ( auto it = _assets.begin(); it != _assets.end(); ++it )
+		{
+			if ( (*it)->getUniqueID() == asset->getUniqueID() ) { _assets.erase(it); break; }
+		}
+
+		if ( asset->isNamedAsset())
+		{
+			_nameMap.erase(_nameMap.find(asset->getName()));
+		}
 	}
 }
 
@@ -129,8 +139,6 @@ bool CAssetMap::load(IFileObject* file)
 	_assets.clear();
 	_locators.clear();
 
-	if ( !file->seek(0) ) return false;
-
 	uint32 numAssets;
 	if ( !file->read(&numAssets, sizeof(uint32)) ) 
 	{
@@ -167,7 +175,7 @@ bool CAssetMap::load(IFileObject* file)
 
 		if ( asset == nullptr ) 
 		{
-			log(LOG_ERROR, "Failed to create asset on package");
+			log(LOG_ERROR, "Failed to create asset type[%i] on package", locator._type);
 			return false;
 		}
 
@@ -179,6 +187,8 @@ bool CAssetMap::load(IFileObject* file)
 		}
 
 		asset->setUniqueID(locator._id);
+		log(LOG_MESSAGE, "Preload asset with GUID %s", asset->getUniqueID().tostring());
+
 		add(asset);
 	}
 
@@ -189,14 +199,25 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 {
 	if ( _assetsLoaded ) return nullptr;
 
+	for ( auto pair : _map )
+	{
+		log(LOG_MESSAGE, "MAPPED: %s : 0x%X", pair.first.tostring(), pair.second.get() );
+	}
+
 	for ( uint32 i=0; i<_locators.size(); ++i )
 	{
 		CAssetLocator &locator = _locators[i];
 
+		log(LOG_MESSAGE, "Load asset at offset: 0x%X", locator._offset);
+
 		if ( !file->seek(locator._offset) ) return nullptr;
 
 		auto found = _map.find(locator._id);
-		if ( found == _map.end() ) return nullptr;
+		if ( found == _map.end() ) 
+		{
+			log(LOG_ERROR, "No asset created for locator at: 0x%X [GUID %s]", locator._offset, locator._id.tostring());
+			return nullptr;
+		}
 
 		shared_ptr<IAsset> asset = (*found).second;
 		if ( !asset->load(file) ) return nullptr;

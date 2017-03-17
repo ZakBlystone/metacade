@@ -25,21 +25,37 @@ package.cpp:
 
 #include "engine_private.h"
 
-CPackage::CPackage(CRuntimeObject* outer, IFileObject* file)
-	: CRuntimeObject(outer)
-	, _file(file)
-	, _map(make_shared<CAssetMap>(this))
-{
+#define PACKAGE_FORMAT_MAGIC 0x474B504D
+#define PACKAGE_FORMAT_VERSION 1
 
+#pragma pack(push, 1)
+
+struct CPackHeader
+{
+	CPackHeader()
+		: magic(PACKAGE_FORMAT_MAGIC)
+		, version(PACKAGE_FORMAT_VERSION)
+	{}
+
+	uint32 magic;
+	uint32 version;
+	CGUID id;
+	CSHA1 hash;
+};
+
+#pragma pack(pop)
+
+CPackage::CPackage(CRuntimeObject* outer, const CString& filepath)
+	: CRuntimeObject(outer)
+	, _filepath(filepath)
+	, _map(make_shared<CAssetMap>(this))
+	, _meta(make_shared<CMetaData>())
+{
 }
 
 CPackage::~CPackage()
 {
-	if ( _file )
-	{
-		closeFIle(_file);
-		_file = nullptr;
-	}
+
 }
 
 uint32 CPackage::getNumAssets() const
@@ -52,19 +68,63 @@ IAsset* CPackage::getAsset(uint32 index) const
 	return _map->getAsset(index).get();
 }
 
-bool CPackage::save(IFileObject* file)
+bool CPackage::save()
 {
+	CPackHeader header;
+	CFileHandle file = openPackageFile(FILE_WRITE);
+
+	if ( !file.isValid() )
+	{
+		log(LOG_ERROR, "Failed to open package for writing: %s", *_filepath);
+		return false;
+	}
+
+	if ( !_uniqueID.isValid() )
+	{
+		header.id = _uniqueID = CGUID::generate();
+	}
+
+	if ( !file->write(&header, sizeof(CPackHeader)) ) return false;
+
+	if ( !_meta->save(file) ) return false;
+
 	return _map->save(file);
 }
 
 bool CPackage::load()
 {
-	return _map->load(_file);
+	CPackHeader header;
+	CFileHandle file = openPackageFile(FILE_READ);
+
+	if ( !file.isValid() ) return false;
+
+	if ( !file->read(&header, sizeof(CPackHeader)) ) return false;
+
+	if ( header.magic != PACKAGE_FORMAT_MAGIC ) 
+	{
+		log(LOG_ERROR, "Error loading package, not a valid .mpkg file");
+		return false;
+	}
+
+	if ( header.version != PACKAGE_FORMAT_VERSION )
+	{
+		log(LOG_ERROR, "Error loading package, incorrect version");
+		return false;	
+	}
+
+	if ( !_meta->load(file) ) return false;
+
+	return _map->load(file);
+}
+
+bool CPackage::exists()
+{
+	return openPackageFile(FILE_READ).isValid();
 }
 
 CString CPackage::getPackageName() const
 {
-	return "";
+	return _meta->getValue("name");
 }
 
 bool CPackage::hasPackageFlag(EPackageFlags flag)
@@ -80,28 +140,33 @@ int32 CPackage::getPackageFlags()
 	return flags;
 }
 
-void CPackage::loadAssets()
+bool CPackage::loadAssets()
 {
+	CFileHandle file = openPackageFile(FILE_READ);
+
+	if ( !file.isValid() ) 
+	{
+		log(LOG_ERROR, "Failed to open package: %s", *_filepath);
+		return false;
+	}
+
 	if ( !_map->hasLoadedAssets() )
 	{
-		_loadHandles.push_back(_map->loadAssets(_file));
+		shared_ptr<CAssetMap::CAssetLoadHandle> loaded = _map->loadAssets(file);
+		if ( loaded == nullptr )
+		{
+			log(LOG_ERROR, "Failed to load package assets");
+			return false;
+		}
+		_loadHandles.push_back(loaded);
 	}
+
+	return true;
 }
 
 void CPackage::releaseAssets()
 {
 	_loadHandles.clear();
-}
-
-bool CPackage::addAsset(shared_ptr<IAsset> asset)
-{
-	_map->add(asset);
-	return true;
-}
-
-void CPackage::removeAsset(IAsset* asset)
-{
-	_map->remove(asset);
 }
 
 const IMetaData* CPackage::getMetaData() const
@@ -112,4 +177,14 @@ const IMetaData* CPackage::getMetaData() const
 CMetaData* CPackage::getWritableMetaData()
 {
 	return _meta.get();
+}
+
+CAssetMap* CPackage::getAssetMap()
+{
+	return _map.get();
+}
+
+CFileHandle CPackage::openPackageFile(EFileIOMode mode)
+{
+	return CFileHandle(_filepath, mode, this);
 }

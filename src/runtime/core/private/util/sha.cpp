@@ -46,6 +46,7 @@ sha.cpp:
 
 CSHA1::CSHA1()
 {
+	memset(_digest, 0, 20);
 }
 
 void CSHA1::Generator::init()	

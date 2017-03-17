@@ -33,7 +33,7 @@ class CPackageManager : public IPackageManager, public CRuntimeObject
 public:
 	CPackageManager(CRuntimeObject* outer);
 
-	virtual CPackageBuilder* createPackageBuilder();
+	virtual CPackageBuilder* createPackageBuilder(const CString& packageName = "unnamed");
 	virtual void deletePackageBuilder(CPackageBuilder* builder);
 
 	virtual void setRootDirectory(const CString& path) override;

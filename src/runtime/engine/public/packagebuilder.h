@@ -38,8 +38,8 @@ public:
 	T* addAsset()
 	{
 		T* newAsset = new T(this);
-		addAsset(newAsset);
 		newAsset->setUniqueID(CGUID::generate());
+		addAsset(newAsset);
 		return newAsset;
 	}
 
@@ -47,16 +47,21 @@ public:
 	T* addNamedAsset(const CString& name)
 	{
 		T* newAsset = new T(this);
-		addAsset(newAsset);
 		newAsset->setName(name);
 		newAsset->setUniqueID(CGUID::generate());
+		addAsset(newAsset);
 		return newAsset;
 	}
 
+	void removeAsset(class IAsset* asset);
+
 	IMetaData* getMetaData();
 
-	void removeAsset(class IAsset* asset);
-	bool save(const CString& packageName);
+	class IAsset* findAssetByName(const CString& name);
+	class IAsset* findAssetById(const CGUID& id);
+
+	bool load();
+	bool save();
 
 private:
 	friend class CPackageManager;

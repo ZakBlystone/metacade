@@ -89,6 +89,52 @@ int start(int argc, char *argv[])
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = system->getPackageManager();
 	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
+
+
+	if(true)
+	{
+		CPackageBuilder* builder = packmanager->createPackageBuilder("MyPackage2");
+		builder->load();
+
+		builder->getMetaData()->setKeyValuePair("name", "Another Package Test");
+		builder->getMetaData()->setKeyValuePair("game", "My Test");
+		builder->getMetaData()->setKeyValuePair("author", "Zak");
+
+		{
+			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("main.lua");
+			code->setCodeBuffer("This is some code contained within a package, Yeah");
+		}
+
+		{
+			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("aux.lua");
+			code->setCodeBuffer("Some other code that isn't main");
+		}
+
+		{
+			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("aux2.lua");
+			code->setCodeBuffer("Whatever, here's more");
+		}
+
+		//packmanager->unloadAllPackages();
+		if ( builder->save() )
+		{
+			std::cout << "Saved OK" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to save!" << std::endl;
+		}
+
+		/*if ( !packmanager->findAndPreloadPackages() )
+		{
+			std::cout << "Failed to load packages" << std::endl;
+		}*/
+
+		packmanager->deletePackageBuilder(builder);
+	}
+
+
+
 	if ( !packmanager->findAndPreloadPackages() )
 	{
 		std::cout << "Failed to load packages" << std::endl;
@@ -99,8 +145,15 @@ int start(int argc, char *argv[])
 		IPackage* pkg = packmanager->getPackage(i);
 		std::cout << "Num Assets: " << pkg->getNumAssets() << std::endl;
 
-		pkg->loadAssets();
-		std::cout << "Loaded" << std::endl;
+		for ( uint32 j=0; j < pkg->getMetaData()->getNumKeys(); ++j )
+		{
+			std::cout << "\t" << *pkg->getMetaData()->getKey(j) << ": " << *pkg->getMetaData()->getValue(j) << std::endl;
+		}
+
+		if ( pkg->loadAssets() )
+		{
+			std::cout << "Loaded Assets" << std::endl;
+		}
 
 		for ( uint32 j=0; j < pkg->getNumAssets(); ++j )
 		{
@@ -118,30 +171,6 @@ int start(int argc, char *argv[])
 	}
 
 	//if ( true ) return 0;
-
-	if(false)
-	{
-		CPackageBuilder* builder = packmanager->createPackageBuilder();
-
-		builder->getMetaData()->setKeyValuePair("game", "My Test");
-		builder->getMetaData()->setKeyValuePair("author", "Zak");
-
-		CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("main.lua");
-		code->setCodeBuffer("This is some code contained within a package");
-
-		packmanager->unloadAllPackages();
-		if ( builder->save("MyPackage") )
-		{
-			std::cout << "Saved OK" << std::endl;
-		}
-
-		if ( !packmanager->findAndPreloadPackages() )
-		{
-			std::cout << "Failed to load packages" << std::endl;
-		}
-
-		packmanager->deletePackageBuilder(builder);
-	}
 
 	/*CPackage* package = packmanager->createPackage();
 

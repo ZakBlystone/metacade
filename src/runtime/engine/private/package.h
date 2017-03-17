@@ -38,29 +38,32 @@ public:
 	virtual class IAsset* getAsset(uint32 index) const;
 	virtual const IMetaData* getMetaData() const;
 
-	virtual void loadAssets();
+	virtual bool loadAssets();
 	virtual void releaseAssets();
 
-	bool addAsset(shared_ptr<IAsset> asset);
-	void removeAsset(IAsset* asset);
-
-	bool save(IFileObject* file);
+	bool save();
 	bool load();
+	bool exists();
 
 	bool hasPackageFlag(EPackageFlags flag);
 	int32 getPackageFlags();
 
 	CMetaData* getWritableMetaData();
+	CAssetMap* getAssetMap();
 
 private:
 
+	CFileHandle openPackageFile(EFileIOMode mode);
+
 	friend class CPackageManager;
 
-	CPackage(CRuntimeObject* outer, IFileObject* file);
+	CPackage(CRuntimeObject* outer, const CString& filepath);
 
-	IFileObject* _file;
 	shared_ptr<CAssetMap> _map;
 	shared_ptr<CMetaData> _meta;
+	CGUID _uniqueID;
+
+	CString _filepath;
 
 	vector<shared_ptr<CAssetMap::CAssetLoadHandle>> _loadHandles;
 };
