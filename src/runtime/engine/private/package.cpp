@@ -81,8 +81,9 @@ bool CPackage::save()
 
 	if ( !_uniqueID.isValid() )
 	{
-		header.id = _uniqueID = CGUID::generate();
+		_uniqueID = CGUID::generate();
 	}
+	header.id = _uniqueID;
 
 	if ( !file->write(&header, sizeof(CPackHeader)) ) return false;
 
@@ -111,6 +112,8 @@ bool CPackage::load()
 		log(LOG_ERROR, "Error loading package, incorrect version");
 		return false;	
 	}
+
+	_uniqueID = header.id;
 
 	if ( !_meta->load(file) ) return false;
 
