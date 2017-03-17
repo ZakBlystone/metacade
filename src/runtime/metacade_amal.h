@@ -1068,7 +1068,13 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const override;
 	virtual uint8* getPixels() const override;
 	virtual uint32 getID() const override;
+	void setImagePixels(EImagePixelFormat format, uint8 bpc, int32 width, int32 height, uint8* pixels);
 private:
 	class CIndex *_index;
+	EImagePixelFormat _format;
+	uint8 _bpc;
+	int32 _width;
+	int32 _height;
+	uint8* _pixels;
 };
 }

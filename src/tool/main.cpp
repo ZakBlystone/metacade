@@ -70,6 +70,20 @@ int initOpenGLAndWindow()
 	return 0;
 }
 
+void buildImage(CImageAsset* asset, const CString& file)
+{
+	ILuint test = ilGenImage();
+	ilBindImage(test);
+	ilLoadImage(*file);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);
+	int height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
+	
+	uint8* data = (uint8*) ilGetData();
+	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
+}
+
 int start(int argc, char *argv[])
 {
 	ilInit();
@@ -117,10 +131,16 @@ int start(int argc, char *argv[])
 
 		{
 			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test");
+			buildImage(image, "E:/Temp/starblur.png");
 		}
 
 		{
 			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
+			buildImage(image, "E:/Temp/chair_icon0.png");
+		}
+
+		{
+			//CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
 		}
 
 		//packmanager->unloadAllPackages();
@@ -141,6 +161,8 @@ int start(int argc, char *argv[])
 		packmanager->deletePackageBuilder(builder);
 	}
 
+
+	//if ( true ) return 0;
 
 
 	if ( !packmanager->findAndPreloadPackages() )
@@ -177,7 +199,7 @@ int start(int argc, char *argv[])
 			else if ( asset->getType() == ASSET_TEXTURE )
 			{
 				CImageAsset* image = (CImageAsset* ) asset;
-				std::cout << "[" << image->getID() << "]" << std::endl;
+				std::cout << "[" << image->getID() << "]: " << image->getWidth() << "x" << image->getHeight() << std::endl;
 			}
 		}
 	}
@@ -228,25 +250,6 @@ int start(int argc, char *argv[])
 	}*/
 
 	//packmanager->deletePackage(package);
-
-
-	/*ILuint test = ilGenImage();
-	ilBindImage(test);
-	ilLoadImage("E:/Temp/chair_icon0.png");
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-
-	int Width = (int) ilGetInteger(IL_IMAGE_WIDTH);
-	int Height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
-	
-	uint8* Data = (uint8*) ilGetData();
-
-	std::fstream output("E:/Temp/pic3.dat", std::ios::out | std::ios::binary);
-
-	output.write((const char *)& Width, 4);
-	output.write((const char *)& Height, 4);
-	output.write((const char *)Data, Width * Height * 4);
-
-	output.close();*/
 
 	/*std::map<CGUID, uint32> mapped;
 

@@ -28,25 +28,48 @@ imageresource.cpp:
 CImageAsset::CImageAsset(CRuntimeObject* outer)
 	: CAsset(outer)
 	, _index(nullptr)
+	, _pixels(nullptr)
 {
 
 }
 
 CImageAsset::~CImageAsset()
 {
-	delete _index;
+	release();
 }
 
 bool CImageAsset::load(IFileObject* file)
 {
+	if ( !file->read(&_format, sizeof(EImagePixelFormat)) ) return false;
+	if ( !file->read(&_bpc, sizeof(uint8)) ) return false;
+	if ( !file->read(&_width, sizeof(int32)) ) return false;
+	if ( !file->read(&_height, sizeof(int32)) ) return false;
+
 	if ( _index == nullptr ) 
 		_index = new CIndex(allocateImageIndex());
+
+	if ( _pixels != nullptr )
+		release();
+
+	uint32 size = _bpc * _width * _height;
+	_pixels = new uint8[size];
+
+	if ( !file->read(_pixels, size) ) return false;
 
 	return true;
 }
 
 bool CImageAsset::save(IFileObject* file)
 {
+	if ( !file->write(&_format, sizeof(EImagePixelFormat)) ) return false;
+	if ( !file->write(&_bpc, sizeof(uint8)) ) return false;
+	if ( !file->write(&_width, sizeof(int32)) ) return false;
+	if ( !file->write(&_height, sizeof(int32)) ) return false;
+
+	if ( _pixels == nullptr ) return false;
+
+	if ( !file->write(_pixels, _bpc * _width * _height) ) return false;
+
 	return true;
 }
 
@@ -62,26 +85,32 @@ void CImageAsset::release()
 		delete _index;
 		_index = nullptr;
 	}
+
+	if ( _pixels == nullptr )
+	{
+		delete [] _pixels;
+		_pixels = nullptr;
+	}
 }
 
 int32 CImageAsset::getWidth() const
 {
-	return 0;
+	return _width;
 }
 
 int32 CImageAsset::getHeight() const
 {
-	return 0;
+	return _height;
 }
 
 int32 CImageAsset::getBytesPerPixel() const
 {
-	return 4;
+	return _bpc;
 }
 
 EImagePixelFormat CImageAsset::getPixelFormat() const
 {
-	return EImagePixelFormat::PFM_RGBA8;
+	return _format;
 }
 
 uint8* CImageAsset::getPixels() const
@@ -92,4 +121,22 @@ uint8* CImageAsset::getPixels() const
 uint32 CImageAsset::getID() const
 {
 	return _index != nullptr ? _index->get() : 0;
+}
+
+void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 width, int32 height, uint8* pixels)
+{
+	uint32 size = bpc * width * height;
+
+	_format = format;
+	_bpc = bpc;
+	_width = width;
+	_height = height;
+
+	if ( _pixels != nullptr )
+	{
+		delete [] _pixels;
+	}
+
+	_pixels = new uint8[size];
+	memcpy(_pixels, pixels, size);
 }
