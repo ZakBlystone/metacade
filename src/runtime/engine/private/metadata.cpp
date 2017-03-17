@@ -42,10 +42,11 @@ CString CMetaData::getValue(uint32 i) const
 
 void CMetaData::setKeyValuePair(const CString& key, const CString& value)
 {
-	if ( _keyvalues.find(key) != _keyvalues.end() ) return;
+	CString lowkey = key.lower();
+	if ( _keyvalues.find(lowkey) != _keyvalues.end() ) return;
 
-	_keyvalues.insert(make_pair(key, value));
-	_keys.push_back(key);
+	_keyvalues.insert(make_pair(lowkey, value));
+	_keys.push_back(lowkey);
 }
 
 bool CMetaData::save(IFileObject* file) const
