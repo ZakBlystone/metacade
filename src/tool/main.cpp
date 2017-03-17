@@ -109,7 +109,7 @@ int start(int argc, char *argv[])
 			if ( asset->getType() == ASSET_CODE )
 			{
 				CCodeAsset* code = (CCodeAsset* ) asset;
-				std::cout << asset->getUniqueID().tostring() << ": [" << code->getCodeLength() << "]: " << 
+				std::cout << asset->getUniqueID().tostring() << "(" << *asset->getName() << "): [" << code->getCodeLength() << "]: " << 
 					(code->getCodeLength() ? code->getCodeBuffer() : "<no code>") << std::endl;
 			}
 		}

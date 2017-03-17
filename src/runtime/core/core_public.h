@@ -36,3 +36,4 @@ core_public.h: Inter-modular headers
 #include "public/util/variant.h"
 #include "public/util/guid.h"
 #include "public/util/string.h"
+#include "public/util/sha.h"

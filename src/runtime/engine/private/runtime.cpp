@@ -67,6 +67,16 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	filesystemTest();
 
+	CSHA1 sha;
+	CSHA1::Generator gen;
+	gen.init();
+	gen.update("",0);
+	gen.done();
+
+	sha = gen.get();
+
+	log(LOG_MESSAGE, "SHA:%s", *sha.tostring());
+
 	return true;
 }
 

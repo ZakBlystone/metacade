@@ -533,6 +533,45 @@ private:
 	uint32* _refs;
 };
 }
+//src/runtime/core/public/util/sha.h
+namespace Arcade
+{
+class CSHA1
+{
+public:
+	CSHA1();
+	typedef union
+	{
+		uint8 c[64];
+		uint32 l[16];
+	} WorkspaceBlock;
+	class Generator
+	{
+	public:
+		Generator()
+			: _block ((WorkspaceBlock* ) _workspace)
+		{}
+		void init();
+		void update(const void* data, uint32 length);
+		void done();
+		CSHA1 get() const;
+	private:
+		void transform(uint32* state, const uint8* buffer);
+		uint32 _state[5];
+		uint32 _count[2];
+		uint32 reserved0;
+		uint8 _buffer[64];
+		uint8 _digest[20];
+		uint32 _reserved1[3];
+		uint8 _workspace[64];
+		WorkspaceBlock* _block;
+	};
+	void getDigest(uint8 digest[20]) const;
+	CString tostring() const;
+private:
+	uint8 _digest[20];
+};
+}
 //src/runtime/render/render_public.h
 #define MAX_TEXTURE_BITS 10
 #define MAX_TEXTURES 1024
