@@ -37,6 +37,8 @@ public:
 	bool operator != (const CGUID& other) const;
 	bool operator < (const CGUID& other) const;
 
+	bool isValid() const;
+
 	static CGUID generate();
 
 	void reset();

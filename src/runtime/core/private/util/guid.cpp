@@ -53,13 +53,16 @@ bool CGUID::operator!=(const CGUID& other) const
 bool CGUID::operator<(const CGUID& other) const
 {
 	if ( X < other.X ) return true;
-	else if ( X > other.X )
-	{
-		if ( Y < other.Y ) return true;
-		else return false;
-	}
+	else if ( X > other.X ) return false;
+	else if ( Y < other.Y ) return true;
+	else return false;
 
 	return false;
+}
+
+bool CGUID::isValid() const
+{
+	return X != 0 && Y != 0;
 }
 
 CGUID CGUID::generate()
