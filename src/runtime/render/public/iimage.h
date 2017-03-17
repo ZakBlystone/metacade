@@ -38,7 +38,7 @@ public:
 	virtual int32 getBytesPerPixel() const = 0;
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
-	virtual uint32 getUniqueID() const = 0;
+	virtual uint32 getID() const = 0;
 };
 
 }

@@ -48,10 +48,13 @@ public:
 
 	bool filesystemTest();
 
+	shared_ptr<CIndexAllocator> getImageIndexAllocator();
+
 private:
 	shared_ptr<CPackageManager> _packageManager;
 	shared_ptr<CRenderTest> _renderTest;
 	IRuntimeEnvironment* _runtimeEnvironment;
+	shared_ptr<CIndexAllocator> _textureIndices;
 };
 
 }

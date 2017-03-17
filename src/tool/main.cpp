@@ -93,7 +93,7 @@ int start(int argc, char *argv[])
 
 	if(true)
 	{
-		CPackageBuilder* builder = packmanager->createPackageBuilder("MyPackage2");
+		CPackageBuilder* builder = packmanager->createPackageBuilder("MyPackage");
 		builder->load();
 
 		builder->getMetaData()->setKeyValuePair("name", "Another Package Test");
@@ -113,6 +113,14 @@ int start(int argc, char *argv[])
 		{
 			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("aux2.lua");
 			code->setCodeBuffer("Whatever, here's more");
+		}
+
+		{
+			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test");
+		}
+
+		{
+			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
 		}
 
 		//packmanager->unloadAllPackages();
@@ -159,14 +167,24 @@ int start(int argc, char *argv[])
 		{
 			IAsset* asset = pkg->getAsset(j);
 
+			std::cout << asset->getUniqueID().tostring() << "(" << *asset->getName() << "): ";
+
 			if ( asset->getType() == ASSET_CODE )
 			{
 				CCodeAsset* code = (CCodeAsset* ) asset;
-				std::cout << asset->getUniqueID().tostring() << "(" << *asset->getName() << "): [" << code->getCodeLength() << "]: " << 
-					(code->getCodeLength() ? code->getCodeBuffer() : "<no code>") << std::endl;
+				std::cout << "[" << code->getCodeLength() << "]: " << (code->getCodeLength() ? code->getCodeBuffer() : "<no code>") << std::endl;
+			}
+			else if ( asset->getType() == ASSET_TEXTURE )
+			{
+				CImageAsset* image = (CImageAsset* ) asset;
+				std::cout << "[" << image->getID() << "]" << std::endl;
 			}
 		}
+	}
 
+	for ( uint32 i=0; i<packmanager->getNumPackages(); ++i )
+	{
+		IPackage* pkg = packmanager->getPackage(i);
 		pkg->releaseAssets();
 	}
 

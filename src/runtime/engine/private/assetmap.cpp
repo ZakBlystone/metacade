@@ -166,6 +166,7 @@ bool CAssetMap::load(IFileObject* file)
 			asset = make_shared<CCodeAsset>(this);
 		break;
 		case Arcade::ASSET_TEXTURE:
+			asset = make_shared<CImageAsset>(this);
 		break;
 		case Arcade::ASSET_SOUND:
 		break;

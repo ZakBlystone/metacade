@@ -51,7 +51,7 @@ class WhiteImage : public IImage
 		return (uint8 *) pixels;
 	}
 
-	virtual uint32 getUniqueID() const override
+	virtual uint32 getID() const override
 	{
 		return 0;
 	}
@@ -92,7 +92,7 @@ public:
 		return (uint8 *) _bytes;
 	}
 
-	virtual uint32 getUniqueID() const override
+	virtual uint32 getID() const override
 	{
 		return _id;
 	}

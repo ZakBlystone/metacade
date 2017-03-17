@@ -46,6 +46,7 @@ CRuntime::CRuntime()
 	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
 	, _renderTest(make_shared<CRenderTest>(this))
+	, _textureIndices(make_shared<CIndexAllocator>(this))
 {
 
 }
@@ -183,4 +184,9 @@ bool CRuntime::filesystemTest()
 
 	log(LOG_MESSAGE, "All tests passed");
 	return true;
+}
+
+shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
+{
+	return _textureIndices;
 }

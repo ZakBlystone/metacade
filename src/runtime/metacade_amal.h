@@ -641,7 +641,7 @@ public:
 	virtual int32 getBytesPerPixel() const = 0;
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
-	virtual uint32 getUniqueID() const = 0;
+	virtual uint32 getID() const = 0;
 };
 }
 //src/runtime/render/public/material.h
@@ -916,6 +916,7 @@ protected:
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 	class IRuntime* getRuntime();
+	class CIndex allocateImageIndex();
 private:
 	class IRuntime* _runtime;
 };
@@ -1047,5 +1048,27 @@ public:
 	void setCodeBuffer(const char* buffer);
 	char* _code;
 	uint32 _codeLength;
+};
+}
+//src/runtime/engine/public/assets/imageresource.h
+namespace Arcade
+{
+class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
+{
+public:
+	CImageAsset(CRuntimeObject* outer);
+	virtual ~CImageAsset();
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+	virtual int32 getWidth() const override;
+	virtual int32 getHeight() const override;
+	virtual int32 getBytesPerPixel() const override;
+	virtual EImagePixelFormat getPixelFormat() const override;
+	virtual uint8* getPixels() const override;
+	virtual uint32 getID() const override;
+private:
+	class CIndex *_index;
 };
 }

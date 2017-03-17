@@ -31,6 +31,7 @@ engine_private.h:
 
 #include "public/asset.h"
 
+#include "private/indexallocator.h"
 #include "private/fileutil.h"
 #include "private/metadata.h"
 #include "private/filecollection.h"

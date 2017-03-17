@@ -114,3 +114,9 @@ class IRuntime* CRuntimeObject::getRuntime()
 {
 	return _runtime;
 }
+
+CIndex CRuntimeObject::allocateImageIndex()
+{
+	CRuntime* runtime = (CRuntime* ) _runtime;
+	return runtime->getImageIndexAllocator()->getIndex();
+}

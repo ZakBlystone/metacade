@@ -22,3 +22,34 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 imageresource.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
+{
+public:
+	CImageAsset(CRuntimeObject* outer);
+	virtual ~CImageAsset();
+
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+
+	virtual int32 getWidth() const override;
+	virtual int32 getHeight() const override;
+	virtual int32 getBytesPerPixel() const override;
+
+	virtual EImagePixelFormat getPixelFormat() const override;
+
+	virtual uint8* getPixels() const override;
+	virtual uint32 getID() const override;
+
+private:
+	class CIndex *_index;
+};
+
+}

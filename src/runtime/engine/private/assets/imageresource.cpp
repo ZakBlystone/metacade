@@ -22,3 +22,74 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 imageresource.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+
+CImageAsset::CImageAsset(CRuntimeObject* outer)
+	: CAsset(outer)
+	, _index(nullptr)
+{
+
+}
+
+CImageAsset::~CImageAsset()
+{
+	delete _index;
+}
+
+bool CImageAsset::load(IFileObject* file)
+{
+	if ( _index == nullptr ) 
+		_index = new CIndex(allocateImageIndex());
+
+	return true;
+}
+
+bool CImageAsset::save(IFileObject* file)
+{
+	return true;
+}
+
+bool CImageAsset::validate() const
+{
+	return true;
+}
+
+void CImageAsset::release()
+{
+	if ( _index != nullptr ) 
+	{
+		delete _index;
+		_index = nullptr;
+	}
+}
+
+int32 CImageAsset::getWidth() const
+{
+	return 0;
+}
+
+int32 CImageAsset::getHeight() const
+{
+	return 0;
+}
+
+int32 CImageAsset::getBytesPerPixel() const
+{
+	return 4;
+}
+
+EImagePixelFormat CImageAsset::getPixelFormat() const
+{
+	return EImagePixelFormat::PFM_RGBA8;
+}
+
+uint8* CImageAsset::getPixels() const
+{
+	return nullptr;
+}
+
+uint32 CImageAsset::getID() const
+{
+	return _index != nullptr ? _index->get() : 0;
+}

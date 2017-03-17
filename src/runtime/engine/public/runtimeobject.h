@@ -48,6 +48,8 @@ protected:
 
 	class IRuntime* getRuntime();
 
+	class CIndex allocateImageIndex();
+
 private:
 	class IRuntime* _runtime;
 };

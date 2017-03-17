@@ -39,3 +39,4 @@ engine_public.h:
 #include "public/api.h"
 
 #include "public/assets/scriptresource.h"
+#include "public/assets/imageresource.h"
