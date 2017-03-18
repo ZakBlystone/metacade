@@ -39,7 +39,11 @@ public:
 	void beginFrame();
 
 	CRenderElement& addRenderElement();
+
+	void setViewSize(const CVec2& size);
 	void setViewportClip(const CClipShape& clip);
+
+	CVec2 getViewSize() const;
 	CClipShape getViewportClip() const;
 
 	void endFrame();
@@ -58,6 +62,7 @@ private:
 	shared_ptr<CDrawBuffer> _drawBuffer;
 
 	CClipShape _viewClip;
+	CVec2 _viewSize;
 	CRenderState _currentRenderState;
 	uint32 _numVertsRendered;
 	bool _inFrame;

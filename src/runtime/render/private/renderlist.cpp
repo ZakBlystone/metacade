@@ -63,6 +63,7 @@ bool CRenderList::empty()
 
 void CRenderList::sort()
 {
+	std::reverse(_elements.begin(), _elements.end());
 	std::sort(_elements.begin(), _elements.end(), [](const CRenderElement &a, const CRenderElement &b)
 	{
 		int32 layerA = a.getLayer();

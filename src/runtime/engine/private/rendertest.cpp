@@ -106,6 +106,8 @@ private:
 
 CRenderTest::CRenderTest(CRuntimeObject* outer)
 	: CRuntimeObject(outer)
+	, _vmKlass(nullptr)
+	, _vmInstance(nullptr)
 {
 
 	_whiteImage = new WhiteImage;
@@ -118,6 +120,11 @@ CRenderTest::CRenderTest(CRuntimeObject* outer)
 
 CRenderTest::~CRenderTest()
 {
+	if ( _vmKlass != nullptr && _vmInstance != nullptr )
+	{
+		_vmKlass->shutdownVMInstance(_vmInstance);
+	}
+
 	delete _whiteImage;
 	delete _loadImage;
 	delete _loadImage2;
@@ -126,19 +133,9 @@ CRenderTest::~CRenderTest()
 bool Arcade::CRenderTest::init()
 {
 	_vmHost = getLuaVM();
-	if ( _vmHost->init() )
-	{
-		log(LOG_MESSAGE, "Initialized VM");
-		_vmKlass = _vmHost->loadGameVMClass();
-		_vmInstance = _vmKlass->createVMInstance();
-	}
-	else
-	{
-		log(LOG_ERROR, "Failed to initialize VM");
-		return false;
-	}
-
-	callFunction(CFunctionCall("test", 3.2, false, 35, "hi"));
+	_vmKlass = _vmHost->loadGameVMClass();
+	_vmKlass->reload();
+	_vmInstance = _vmKlass->createVMInstance();
 
 	return true;
 }
@@ -166,6 +163,7 @@ void CRenderTest::frame(IRenderer *renderer, float time, CVec2 viewportsize)
 
 	_vmInstance->think(time, DT);
 
+	_renderer->setViewSize(viewportsize);
 	_renderer->beginFrame();
 
 	CClipShape viewClip;

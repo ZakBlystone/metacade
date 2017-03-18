@@ -32,7 +32,7 @@ class CRenderTest : public IRenderTest, public CRuntimeObject
 {
 public:
 	CRenderTest(CRuntimeObject* outer);
-	~CRenderTest();
+	virtual ~CRenderTest();
 
 	bool init();
 
@@ -53,7 +53,7 @@ private:
 	IImage* _whiteImage;
 
 	shared_ptr<CElementRenderer> _renderer;
-	shared_ptr<IVMHost> _vmHost;
+	IVMHost* _vmHost;
 
 	IVMClass* _vmKlass;
 	IVMInstance* _vmInstance;

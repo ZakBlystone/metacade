@@ -39,7 +39,7 @@ enum EVariantType
 	VT_MAX,
 };
 
-class CVariant
+class METACADE_API CVariant
 {
 public:
 	template<typename T>

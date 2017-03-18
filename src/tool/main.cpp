@@ -278,6 +278,7 @@ int start(int argc, char *argv[])
 
 	system->getRenderTest()->start(renderer.get());
 
+	bool paused = false;
 	bool running = true;
 	float lastTime = 0;
 	float deltaSeconds = 0;
@@ -307,6 +308,28 @@ int start(int argc, char *argv[])
 					system->getRenderTest()->reloadVM();
 				}
 			}
+
+			if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
+			{
+				if ( evt.key.keysym.scancode == SDL_SCANCODE_E )
+				{
+					bool wasPaused = paused;
+					paused = evt.key.state == SDL_PRESSED;
+					bool changed = wasPaused != paused;
+
+					if ( changed )
+					{
+					if ( paused )
+					{
+						system->getRenderTest()->end(renderer.get());
+					}
+					else
+					{
+						system->getRenderTest()->start(renderer.get());
+					}
+					}
+				}
+			}
 		}
 
 		float time = (float)(SDL_GetTicks()) / 1000.f;
@@ -317,7 +340,11 @@ int start(int argc, char *argv[])
 		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
+		if ( !paused )
+		{
+			system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
+			system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
+		}
 
 		SDL_GL_SwapWindow(window);
 

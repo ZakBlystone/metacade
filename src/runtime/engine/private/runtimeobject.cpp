@@ -120,3 +120,9 @@ CIndex CRuntimeObject::allocateImageIndex()
 	CRuntime* runtime = (CRuntime* ) _runtime;
 	return runtime->getImageIndexAllocator()->getIndex();
 }
+
+class IVMHost* Arcade::CRuntimeObject::getLuaVM()
+{
+	CRuntime* runtime = (CRuntime* ) _runtime;
+	return runtime->getLuaVM();
+}

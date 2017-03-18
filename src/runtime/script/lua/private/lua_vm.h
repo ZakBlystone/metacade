@@ -144,6 +144,5 @@ private:
 	map<string, shared_ptr<LuaVMClass>> _loadedClasses;
 };
 
-extern shared_ptr<IVMHost> getLuaVM();
 
 }

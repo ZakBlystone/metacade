@@ -42,6 +42,9 @@ public:
 	virtual IPackageManager* getPackageManager();
 	virtual IRenderTest* getRenderTest();
 
+	virtual IRenderTest* createRenderTest();
+	virtual void deleteRenderTest(IRenderTest* test);
+
 	IAllocator* getAllocator();
 	IFileSystem* getFilesystem();
 	ILogger* getLogger();
@@ -50,11 +53,14 @@ public:
 
 	shared_ptr<CIndexAllocator> getImageIndexAllocator();
 
+	IVMHost* getLuaVM();
+
 private:
 	shared_ptr<CPackageManager> _packageManager;
 	shared_ptr<CRenderTest> _renderTest;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
+	shared_ptr<class LuaVM> _luaVM;
 };
 
 }

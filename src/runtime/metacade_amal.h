@@ -462,7 +462,7 @@ enum EVariantType
 	VT_STRING,
 	VT_MAX,
 };
-class CVariant
+class METACADE_API CVariant
 {
 public:
 	template<typename T>
@@ -854,6 +854,8 @@ public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
 	virtual IRenderTest* getRenderTest() = 0;
+	virtual IRenderTest* createRenderTest() = 0;
+	virtual void deleteRenderTest(IRenderTest* test) = 0;
 };
 }
 //src/runtime/engine/public/ilogger.h
@@ -986,6 +988,7 @@ protected:
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 	class IRuntime* getRuntime();
 	class CIndex allocateImageIndex();
+	class IVMHost* getLuaVM();
 private:
 	class IRuntime* _runtime;
 };

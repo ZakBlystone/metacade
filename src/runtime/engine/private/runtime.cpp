@@ -24,6 +24,7 @@ runtime.cpp:
 */
 
 #include "engine_private.h"
+#include "script/lua/lua_private.h"
 
 class CDefaultAllocator : public IAllocator
 {
@@ -53,8 +54,8 @@ CRuntime::CRuntime()
 	, _runtimeEnvironment(nullptr)
 	, _renderTest(make_shared<CRenderTest>(this))
 	, _textureIndices(make_shared<CIndexAllocator>(this))
+	, _luaVM(make_shared<LuaVM>())
 {
-
 }
 
 CRuntime::~CRuntime()
@@ -66,6 +67,7 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 {
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
+	if ( !_luaVM->init() ) return false;
 
 	_packageManager = make_shared<CPackageManager>(this);
 	_renderTest = make_shared<CRenderTest>(this);
@@ -212,4 +214,22 @@ bool CRuntime::filesystemTest()
 shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
 {
 	return _textureIndices;
+}
+
+Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
+{
+	CRenderTest* test = new CRenderTest(this);
+	if ( !test->init() ) return nullptr;
+
+	return test;
+}
+
+void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
+{
+	delete test;
+}
+
+Arcade::IVMHost* Arcade::CRuntime::getLuaVM()
+{
+	return _luaVM.get();
 }

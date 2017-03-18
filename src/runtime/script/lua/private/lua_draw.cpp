@@ -98,10 +98,21 @@ public:
 		return 0;
 	}
 
+	MODULE_FUNCTION_DEF(size)
+	{
+		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
+
+		lua_pushnumber(L, instance->_renderer->getViewSize().x);
+		lua_pushnumber(L, instance->_renderer->getViewSize().y);
+		return 2;
+	}
+
 	DEFINE_MODULE(LuaDrawModule, Drawer)
 	MODULE_FUNCTION(color)
 	MODULE_FUNCTION(rect)
 	MODULE_FUNCTION(sprite)
+	MODULE_FUNCTION(size)
 	END_DEFINE_MODULE()
 
 	CFloatColor _currentColor;

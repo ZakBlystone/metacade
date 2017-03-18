@@ -82,6 +82,7 @@ bool LuaVM::init()
 	luaopen_bit(_L);
 	luaopen_math(_L);
 	luaopen_table(_L);
+	luaopen_string(_L);
 
 	OpenLuaMathModule(_L);
 	OpenLuaDrawModule(_L);
@@ -204,7 +205,7 @@ int LuaVMClass::testMetaSet(lua_State *L)
 
 Arcade::IVMClass* LuaVM::loadGameVMClass()
 {
-	string filename("E:/Projects/metacade/bin/Release/test.lua");
+	string filename("E:/Projects/metacade/bin/Release/default.lua");
 
 	shared_ptr<LuaVMClass> newClass;
 
@@ -235,11 +236,6 @@ bool LuaVM::includeGameScript()
 bool LuaVM::validateGameScript()
 {
 	return false;
-}
-
-extern shared_ptr<IVMHost> Arcade::getLuaVM()
-{
-	return make_shared<LuaVM>();
 }
 
 Arcade::LuaVMClass::LuaVMClass(shared_ptr<LuaVM> host)
@@ -438,7 +434,6 @@ bool LuaVMInstance::callFunction(CFunctionCall call)
 
 	if ( !getLuaClass()->pushLuaFunction(*call.getFunction()) ) 
 	{
-		lua_pop(L, 1);
 		return false;
 	}
 

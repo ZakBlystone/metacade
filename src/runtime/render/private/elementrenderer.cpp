@@ -160,9 +160,19 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 	writePolygonToBufferAsTris(vlist.data(), (uint32) vlist.size());
 }
 
+void Arcade::CElementRenderer::setViewSize(const CVec2& size)
+{
+	_viewSize = size;
+}
+
 void Arcade::CElementRenderer::setViewportClip(const CClipShape& clip)
 {
 	_viewClip = clip;
+}
+
+Arcade::CVec2 Arcade::CElementRenderer::getViewSize() const
+{
+	return _viewSize;
 }
 
 Arcade::CClipShape Arcade::CElementRenderer::getViewportClip() const

@@ -50,6 +50,8 @@ protected:
 
 	class CIndex allocateImageIndex();
 
+	class IVMHost* getLuaVM();
+
 private:
 	class IRuntime* _runtime;
 };
