@@ -40,7 +40,7 @@ public:
 	virtual ~CLuaVMClass();
 
 	virtual bool reload() override;
-	virtual class CMetaData* getMetaData() override;
+	virtual shared_ptr<CMetaData> getMetaData() override;
 	virtual class IVMHost* getHost() override;
 	virtual shared_ptr<IVMInstance> createVMInstance() override;
 
@@ -58,6 +58,8 @@ private:
 
 	friend class CLuaVM;
 	friend class CLuaVMInstance;
+
+	shared_ptr<CMetaData> _metaData;
 
 	string _lastLoadFile;
 	shared_ptr<CLuaVM> _host;

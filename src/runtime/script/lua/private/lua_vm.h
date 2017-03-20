@@ -45,7 +45,7 @@ public:
 	virtual bool init() override;
 	virtual void shutdown() override;
 	virtual bool isRunning() override;
-	virtual IVMClass* loadGameVMClass() override;
+	virtual weak_ptr<IVMClass> loadGameVMClass() override;
 	virtual bool includeGameScript() override;
 	virtual bool validateGameScript() override;
 

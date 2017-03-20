@@ -35,12 +35,11 @@ class CLuaVMInstance : public IVMInstance
 {
 
 public:
-	CLuaVMInstance(shared_ptr<class CLuaVMClass> klass);
+	CLuaVMInstance(weak_ptr<class CLuaVMClass> klass);
 	virtual ~CLuaVMInstance();
 
 	virtual class IVMClass* getClass() override;
 	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
-	virtual bool postCommand(const char** commandBuffer) override;
 	virtual void postInputEvent(const class CInputEvent& input) override;
 	virtual void precacheAssets(CPackageBuilder* builder) override;
 	virtual void think(float seconds, float deltaSeconds) override;
@@ -56,7 +55,7 @@ public:
 	bool pcall(int nargs);
 
 private:
-	shared_ptr<class CLuaVMClass> _klass;
+	weak_ptr<class CLuaVMClass> _klass;
 	shared_ptr<LuaVMReference> _object;
 };
 

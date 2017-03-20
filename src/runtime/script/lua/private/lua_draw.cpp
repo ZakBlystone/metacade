@@ -26,19 +26,19 @@ lua_draw.cpp:
 #include "lua_private.h"
 #include "render/render_private.h"
 
-class LuaDrawModule : public LuaDrawModulePublic
+class CLuaDrawModule : public LuaDrawModulePublic
 {
 public:
 	static CElementRenderer *get(lua_State *L)
 	{
-		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return nullptr;
 		return instance->_renderer.get();
 	}
 
 	MODULE_FUNCTION_DEF(color)
 	{
-		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
 		instance->_currentColor.r = (float)luaL_checknumber(L, 2);
@@ -51,7 +51,7 @@ public:
 
 	MODULE_FUNCTION_DEF(rect)
 	{
-		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
 		float x = (float)luaL_checknumber(L, 2);
@@ -72,7 +72,7 @@ public:
 
 	MODULE_FUNCTION_DEF(sprite)
 	{
-		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
 		float x = (float)luaL_checknumber(L, 2);
@@ -100,7 +100,7 @@ public:
 
 	MODULE_FUNCTION_DEF(size)
 	{
-		LuaDrawModule *instance = GET_OBJECT(LuaDrawModule, L, 1);
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
 		lua_pushnumber(L, instance->_renderer->getViewSize().x);
@@ -108,7 +108,7 @@ public:
 		return 2;
 	}
 
-	DEFINE_MODULE(LuaDrawModule, Drawer)
+	DEFINE_MODULE(CLuaDrawModule, Drawer)
 	MODULE_FUNCTION(color)
 	MODULE_FUNCTION(rect)
 	MODULE_FUNCTION(sprite)
@@ -118,14 +118,14 @@ public:
 	CFloatColor _currentColor;
 }; 
 
-CREATE_MODULE(LuaDrawModule)
+CREATE_MODULE(CLuaDrawModule)
 
 void Arcade::pushRenderer(lua_State *L, shared_ptr<CElementRenderer> renderer)
 {
-	PUSH_MODULE(LuaDrawModule, L)->_renderer = renderer;
+	PUSH_MODULE(CLuaDrawModule, L)->_renderer = renderer;
 }
 
 void Arcade::OpenLuaDrawModule(lua_State *L)
 {
-	OPEN_MODULE(L, LuaDrawModule);
+	OPEN_MODULE(L, CLuaDrawModule);
 }

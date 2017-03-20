@@ -55,7 +55,7 @@ private:
 	shared_ptr<CElementRenderer> _renderer;
 	IVMHost* _vmHost;
 
-	IVMClass* _vmKlass;
+	weak_ptr<IVMClass> _vmKlass;
 	shared_ptr<IVMInstance> _vmInstance;
 
 	float _lastTime;

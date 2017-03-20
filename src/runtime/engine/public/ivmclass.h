@@ -34,7 +34,7 @@ class IVMClass
 {
 public:
 	virtual bool reload() = 0;
-	virtual class CMetaData* getMetaData() = 0;
+	virtual shared_ptr<class CMetaData> getMetaData() = 0;
 	virtual class IVMHost* getHost() = 0;
 	virtual shared_ptr<class IVMInstance> createVMInstance() = 0;
 };

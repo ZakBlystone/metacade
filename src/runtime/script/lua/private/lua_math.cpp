@@ -28,11 +28,11 @@ lua_math.cpp:
 const float RAD_2_DEG = 57.29577f;
 const float DEG_2_RAD = 1.f / RAD_2_DEG;
 
-class LuaVec2Module : public LuaModule
+class CLuaVec2Module : public LuaModule
 {
 public:
 	float X, Y;
-	static LuaVec2Module C;
+	static CLuaVec2Module C;
 
 	virtual void __get(lua_State *L) 
 	{
@@ -51,11 +51,11 @@ public:
 
 	MODULE_FUNCTION_DEF(__add)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
-		LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
+		CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 		if (!V1 || !V2) return 0;
 
-		LuaVec2Module *O = (LuaVec2Module*)C.push(L);
+		CLuaVec2Module *O = (CLuaVec2Module*)C.push(L);
 		if (!O) return 0;
 
 		O->X = V1->X - V2->X;
@@ -65,11 +65,11 @@ public:
 
 	MODULE_FUNCTION_DEF(__sub)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
-		LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
+		CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 		if (!V1 || !V2) return 0;
 
-		LuaVec2Module *O = (LuaVec2Module*) C.push(L);
+		CLuaVec2Module *O = (CLuaVec2Module*) C.push(L);
 		if (!O) return 0;
 
 		O->X = V1->X - V2->X;
@@ -79,12 +79,12 @@ public:
 
 	MODULE_FUNCTION_DEF(__mul)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V1) return 0;
 
 		if (lua_type(L, 2) == LUA_TUSERDATA)
 		{
-			LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+			CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 			if (!V2) return 0;
 
 			C.X = V1->X * V2->X; 
@@ -105,12 +105,12 @@ public:
 
 	MODULE_FUNCTION_DEF(__div)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V1) return 0;
 
 		if (lua_type(L, 2) == LUA_TUSERDATA)
 		{
-			LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+			CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 			if (!V2) return 0;
 
 			C.X = V1->X * V2->X;
@@ -131,7 +131,7 @@ public:
 
 	MODULE_FUNCTION_DEF(__unm)
 	{
-		LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V) return 0;
 
 		C.X = -V->X;
@@ -142,7 +142,7 @@ public:
 
 	MODULE_FUNCTION_DEF(__tostring)
 	{
-		LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V) return 0;
 
 		lua_pushfstring(L, "[%f, %f]", V->X, V->Y);
@@ -152,7 +152,7 @@ public:
 
 	MODULE_FUNCTION_DEF(Length)
 	{
-		LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V) return 0;
 
 		lua_pushnumber(L, sqrtf(V->X * V->X + V->Y * V->Y));
@@ -161,7 +161,7 @@ public:
 
 	MODULE_FUNCTION_DEF(LengthSquared)
 	{
-		LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 1);
+		CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 1);
 		if (!V) return 0;
 
 		lua_pushnumber(L, V->X * V->X + V->Y * V->Y);
@@ -170,8 +170,8 @@ public:
 
 	MODULE_FUNCTION_DEF(Cross)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
-		LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
+		CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 		if (!V1 || !V2) return 0;
 
 		lua_pushnumber(L, V1->X * V2->Y - V1->Y * V2->X);
@@ -180,8 +180,8 @@ public:
 
 	MODULE_FUNCTION_DEF(Dot)
 	{
-		LuaVec2Module *V1 = GET_OBJECT(LuaVec2Module, L, 1);
-		LuaVec2Module *V2 = GET_OBJECT(LuaVec2Module, L, 2);
+		CLuaVec2Module *V1 = GET_OBJECT(CLuaVec2Module, L, 1);
+		CLuaVec2Module *V2 = GET_OBJECT(CLuaVec2Module, L, 2);
 		if (!V1 || !V2) return 0;
 
 		lua_pushnumber(L, V1->X * V2->X + V1->Y * V2->Y);
@@ -193,13 +193,13 @@ public:
 		C.X = (float) luaL_optnumber(L, 1, 0.f);
 		C.Y = (float) luaL_optnumber(L, 2, 0.f);
 
-		LuaVec2Module *O = (LuaVec2Module*)C.push(L);
+		CLuaVec2Module *O = (CLuaVec2Module*)C.push(L);
 		if (!O) return 0;
 
 		return 1;
 	}
 
-	DEFINE_MODULE(LuaVec2Module, Vector)
+	DEFINE_MODULE(CLuaVec2Module, Vector)
 	MODULE_CONSTRUCTOR(constructor)
 	MODULE_FUNCTION(__add)
 	MODULE_FUNCTION(__sub)
@@ -212,9 +212,9 @@ public:
 	MODULE_FUNCTION(Cross)
 	MODULE_FUNCTION(Dot)
 	END_DEFINE_MODULE()
-}; CREATE_MODULE(LuaVec2Module);
+}; CREATE_MODULE(CLuaVec2Module);
 
-LuaVec2Module LuaVec2Module::C;
+CLuaVec2Module CLuaVec2Module::C;
 
 class LuaMatrix3x3Module : public LuaModule
 {
@@ -284,7 +284,7 @@ public:
 		float X, Y;
 		if (lua_type(L, 2) == LUA_TUSERDATA)
 		{
-			LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 2);
+			CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 2);
 			if (!V) return 0;
 			X = V->X;
 			Y = V->Y;
@@ -341,7 +341,7 @@ public:
 		float X, Y;
 		if (lua_type(L, 2) == LUA_TUSERDATA)
 		{
-			LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 2);
+			CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 2);
 			if (!V) return 0;
 			X = V->X;
 			Y = V->Y;
@@ -383,10 +383,10 @@ public:
 	MODULE_FUNCTION_DEF(Transform)
 	{
 		LuaMatrix3x3Module *M = GET_OBJECT(LuaMatrix3x3Module, L, 1);
-		LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, 2);
+		CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, 2);
 		if (!M || !V) return 0;
 
-		LuaVec2Module *O = PUSH_MODULE(LuaVec2Module, L);
+		CLuaVec2Module *O = PUSH_MODULE(CLuaVec2Module, L);
 		if (!O) return 0;
 
 		O->X = V->X * M->Mtx[0] + V->Y * M->Mtx[1] + M->Mtx[2];
@@ -440,13 +440,13 @@ LuaMatrix3x3Module LuaMatrix3x3Module::C;
 
 void Arcade::OpenLuaMathModule(lua_State *L)
 {
-	OPEN_MODULE(L, LuaVec2Module);
+	OPEN_MODULE(L, CLuaVec2Module);
 	OPEN_MODULE(L, LuaMatrix3x3Module);
 }
 
 bool Arcade::lua_toVec2(lua_State *L, int idx, CVec2& vec)
 {
-	LuaVec2Module *V = GET_OBJECT(LuaVec2Module, L, idx);
+	CLuaVec2Module *V = GET_OBJECT(CLuaVec2Module, L, idx);
 	if (!V) return false;
 	
 	vec.x = V->X;
@@ -457,7 +457,7 @@ bool Arcade::lua_toVec2(lua_State *L, int idx, CVec2& vec)
 
 void Arcade::lua_pushVec2(lua_State *L, const CVec2& vec)
 {
-	LuaVec2Module *V = PUSH_MODULE(LuaVec2Module, L);
+	CLuaVec2Module *V = PUSH_MODULE(CLuaVec2Module, L);
 	if (V)
 	{
 		V->X = vec.x;

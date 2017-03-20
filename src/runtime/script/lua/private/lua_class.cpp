@@ -29,6 +29,7 @@ lua_class.cpp:
 
 Arcade::CLuaVMClass::CLuaVMClass(shared_ptr<CLuaVM> host)
 	: _host(host)
+	, _metaData(make_shared<CMetaData>())
 {
 
 }
@@ -47,14 +48,48 @@ bool Arcade::CLuaVMClass::reload()
 	return false;
 }
 
-class CMetaData* Arcade::CLuaVMClass::getMetaData()
+shared_ptr<CMetaData> Arcade::CLuaVMClass::getMetaData()
 {
-	return nullptr;
+	return _metaData;
 }
 
 class IVMHost* Arcade::CLuaVMClass::getHost()
 {
 	return _host.get();
+}
+
+static int testMetaGet(lua_State *L)
+{
+	std::cout << "META GET" << std::endl;
+	return 0;
+}
+
+int CLuaVMClass::testMetaSet(lua_State *L)
+{
+	lua_getfield(L, 1, "__klass");
+
+	CLuaVMClass *klass = (CLuaVMClass *) lua_touserdata(L, -1);
+	const char *key = lua_tostring(L, 2);
+
+	if ( klass != nullptr )
+	{
+		int type = lua_type(L, 3);
+
+		if ( type == LUA_TFUNCTION )
+		{
+			lua_getglobal(L, "_G");
+			lua_setfenv(L, 3);
+
+			auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
+			klass->_functions.insert(entry);
+		}
+		else
+		{
+			luaL_error(L, "functions only");
+		}
+	}
+
+	return 0;
 }
 
 shared_ptr<IVMInstance> Arcade::CLuaVMClass::createVMInstance()

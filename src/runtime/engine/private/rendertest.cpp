@@ -106,7 +106,6 @@ private:
 
 CRenderTest::CRenderTest(CRuntimeObject* outer)
 	: CRuntimeObject(outer)
-	, _vmKlass(nullptr)
 	, _vmInstance(nullptr)
 {
 
@@ -129,8 +128,13 @@ bool Arcade::CRenderTest::init()
 {
 	_vmHost = getLuaVM();
 	_vmKlass = _vmHost->loadGameVMClass();
-	_vmKlass->reload();
-	_vmInstance = _vmKlass->createVMInstance();
+
+	shared_ptr<IVMClass> klass = _vmKlass.lock();
+	if ( klass != nullptr )
+	{
+		klass->reload();
+		_vmInstance = klass->createVMInstance();
+	}
 
 	return true;
 }
@@ -142,10 +146,11 @@ void CRenderTest::callFunction(CFunctionCall call)
 
 void CRenderTest::reloadVM()
 {
-	if ( _vmKlass != nullptr && _vmInstance != nullptr )
+	shared_ptr<IVMClass> klass = _vmKlass.lock();
+	if ( klass != nullptr )
 	{
-		_vmKlass->reload();
-		_vmInstance = _vmKlass->createVMInstance();
+		klass->reload();
+		_vmInstance = klass->createVMInstance();
 	}
 }
 

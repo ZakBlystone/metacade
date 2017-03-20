@@ -26,6 +26,7 @@ lua_private.h:
 #include "lua_public.h"
 
 #include "private/lua_assets.h"
+#include "private/lua_class.h"
 #include "private/lua_instance.h"
 #include "private/lua_vm.h"
 #include "private/lua_module.h"

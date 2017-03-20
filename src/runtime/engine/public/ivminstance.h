@@ -37,7 +37,6 @@ public:
 
 	virtual void setMachineEnvironment(IMachineEnvironment *env) = 0;
 
-	virtual bool postCommand(const char** commandBuffer) = 0;
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 
 	virtual void precacheAssets(CPackageBuilder* builder) = 0;

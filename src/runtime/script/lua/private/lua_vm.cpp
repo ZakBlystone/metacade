@@ -169,50 +169,16 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 	return false;
 }
 
-static int testMetaGet(lua_State *L)
-{
-	std::cout << "META GET" << std::endl;
-	return 0;
-}
-
-int CLuaVMClass::testMetaSet(lua_State *L)
-{
-	lua_getfield(L, 1, "__klass");
-
-	CLuaVMClass *klass = (CLuaVMClass *) lua_touserdata(L, -1);
-	const char *key = lua_tostring(L, 2);
-
-	if ( klass != nullptr )
-	{
-		int type = lua_type(L, 3);
-
-		if ( type == LUA_TFUNCTION )
-		{
-			lua_getglobal(L, "_G");
-			lua_setfenv(L, 3);
-
-			auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
-			klass->_functions.insert(entry);
-		}
-		else
-		{
-			luaL_error(L, "functions only");
-		}
-	}
-
-	return 0;
-}
-
-Arcade::IVMClass* CLuaVM::loadGameVMClass()
+weak_ptr<IVMClass> CLuaVM::loadGameVMClass()
 {
 	string filename("E:/Projects/metacade/bin/Release/default.lua");
 
-	shared_ptr<CLuaVMClass> newClass;
+	shared_ptr<CLuaVMClass> newClass(nullptr);
 
 	auto found = _loadedClasses.find(filename);
 	if ( found != _loadedClasses.end() )
 	{
-		return ((*found).second).get();
+		return (*found).second;
 	}
 	else
 	{
@@ -221,11 +187,11 @@ Arcade::IVMClass* CLuaVM::loadGameVMClass()
 
 		if ( newClass->loadFromFile(filename) )
 		{
-			return newClass.get();
+			return newClass;
 		}
 	}
 
-	return nullptr;
+	return newClass;
 }
 
 bool CLuaVM::includeGameScript()
