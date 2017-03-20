@@ -40,7 +40,7 @@ public:
 	virtual bool postCommand(const char** commandBuffer) = 0;
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 
-	virtual void precacheAssets() = 0;
+	virtual void precacheAssets(CPackageBuilder* builder) = 0;
 	virtual void think(float seconds, float deltaSeconds) = 0;
 	virtual void render(shared_ptr<class CElementRenderer> renderer) = 0;
 

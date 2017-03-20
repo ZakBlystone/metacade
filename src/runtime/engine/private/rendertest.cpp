@@ -120,11 +120,6 @@ CRenderTest::CRenderTest(CRuntimeObject* outer)
 
 CRenderTest::~CRenderTest()
 {
-	if ( _vmKlass != nullptr && _vmInstance != nullptr )
-	{
-		_vmKlass->shutdownVMInstance(_vmInstance);
-	}
-
 	delete _whiteImage;
 	delete _loadImage;
 	delete _loadImage2;
@@ -149,7 +144,6 @@ void CRenderTest::reloadVM()
 {
 	if ( _vmKlass != nullptr && _vmInstance != nullptr )
 	{
-		_vmKlass->shutdownVMInstance(_vmInstance);
 		_vmKlass->reload();
 		_vmInstance = _vmKlass->createVMInstance();
 	}

@@ -19,24 +19,32 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-ivmclass.h: Game archetype
+lua_reference.h:
 ===============================================================================
 */
 
 #pragma once
 
-#include "metacade_types.h"
+#include "engine_private.h"
+
+#include "lua.hpp"
+
+//VM stuff is private, we can convert these interfaces to make more sense now
 
 namespace Arcade
 {
 
-class IVMClass
+class LuaVMReference
 {
 public:
-	virtual bool reload() = 0;
-	virtual class CMetaData* getMetaData() = 0;
-	virtual class IVMHost* getHost() = 0;
-	virtual shared_ptr<class IVMInstance> createVMInstance() = 0;
+	LuaVMReference(shared_ptr<class LuaVM> host, int idx);
+	~LuaVMReference();
+
+	void push();
+
+private:
+	int _ref;
+	shared_ptr<LuaVM> _host;
 };
 
 }

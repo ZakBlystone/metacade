@@ -19,50 +19,45 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-lua_vm.h:
+lua_instance.h:
 ===============================================================================
 */
 
-#pragma once
-
 #include "engine_private.h"
-
-#include "lua.hpp"
-#include "lua_class.h"
 #include "lua_reference.h"
 
-//VM stuff is private, we can convert these interfaces to make more sense now
+#pragma once
 
 namespace Arcade
 {
 
-class LuaVM : public IVMHost, public enable_shared_from_this<LuaVM>
+class LuaVMInstance : public IVMInstance
 {
+
 public:
-	LuaVM();
-	virtual ~LuaVM();
-	virtual ELanguage getLanguage() override;
-	virtual bool init() override;
-	virtual void shutdown() override;
-	virtual bool isRunning() override;
-	virtual IVMClass* loadGameVMClass() override;
-	virtual bool includeGameScript() override;
-	virtual bool validateGameScript() override;
+	LuaVMInstance(shared_ptr<class LuaVMClass> klass);
+	virtual ~LuaVMInstance();
+
+	virtual class IVMClass* getClass() override;
+	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
+	virtual bool postCommand(const char** commandBuffer) override;
+	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void precacheAssets(CPackageBuilder* builder) override;
+	virtual void think(float seconds, float deltaSeconds) override;
+	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
+	virtual void reset() override;
+
+	virtual bool callFunction(CFunctionCall call) override;
+
+	class LuaVM* getLuaHost() const;
+	class LuaVMClass* getLuaClass() const;
+	class LuaVMReference* getLuaObject() const;
 
 	bool pcall(int nargs);
-	lua_State *getState();
-
-	bool pushVariant(const CVariant& variant);
 
 private:
-
-	friend class LuaVMInstance;
-	friend class LuaVMReference;
-
-	lua_State *_L;
-	unsigned int _memUsage;
-	map<string, shared_ptr<LuaVMClass>> _loadedClasses;
+	shared_ptr<class LuaVMClass> _klass;
+	shared_ptr<LuaVMReference> _object;
 };
-
 
 }

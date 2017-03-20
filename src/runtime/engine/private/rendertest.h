@@ -56,7 +56,7 @@ private:
 	IVMHost* _vmHost;
 
 	IVMClass* _vmKlass;
-	IVMInstance* _vmInstance;
+	shared_ptr<IVMInstance> _vmInstance;
 
 	float _lastTime;
 };
