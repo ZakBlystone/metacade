@@ -43,7 +43,13 @@ CString CMetaData::getValue(uint32 i) const
 void CMetaData::setKeyValuePair(const CString& key, const CString& value)
 {
 	CString lowkey = key.lower();
-	if ( _keyvalues.find(lowkey) != _keyvalues.end() ) return;
+
+	auto existing = _keyvalues.find(lowkey);
+	if ( existing != _keyvalues.end() )
+	{
+		(*existing).second = value;
+		return;
+	}
 
 	_keyvalues.insert(make_pair(lowkey, value));
 	_keys.push_back(lowkey);
