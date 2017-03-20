@@ -73,7 +73,6 @@ void CRenderList::sort()
 
 		uint64 hashA = a.getRenderState().getHash();
 		uint64 hashB = b.getRenderState().getHash();
-
 		return hashA > hashB;
 	});
 }

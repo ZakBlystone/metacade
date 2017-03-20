@@ -216,9 +216,11 @@ public:
 	{
 		_width = imagesource->getWidth();
 		_height = imagesource->getHeight();
+		_id = imagesource->getID();
+		_refs = 0;
 
-		glGenTextures(1, &_id);
-		glBindTexture(GL_TEXTURE_2D, _id);
+		glGenTextures(1, &_nativeid);
+		glBindTexture(GL_TEXTURE_2D, _nativeid);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width,_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagesource->getPixels());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -226,26 +228,71 @@ public:
 
 	virtual ~CTextureGL()
 	{
-		glDeleteTextures(1, &_id);
+		glDeleteTextures(1, &_nativeid);
 	}
 
 	virtual int32 getWidth() const override { return _width; }
 	virtual int32 getHeight() const override { return _height; }
 	virtual uint16 getID() const override { return _id; }
 
+	void addRef()
+	{
+		++_refs;
+	}
+
+	void decRef()
+	{
+		--_refs;
+	}
+
+	bool isDead()
+	{
+		return _refs == 0;
+	}
+
+	uint32 getNativeID()
+	{
+		return _nativeid;
+	}
+
 private:
 	uint32 _id;
+	uint32 _nativeid;
 	int32 _width;
 	int32 _height;
+	uint32 _refs;
 };
 
 class ITexture* CRendererGL::loadTexture(class IRenderer* renderContext, class IImage* imagesource)
 {
-	return new CTextureGL(imagesource);
+	auto found = _textureRemap.find(imagesource->getID());
+	if ( found != _textureRemap.end() ) 
+	{
+		CTextureGL* tex = (CTextureGL*) (*found).second;
+		tex->addRef();
+		return tex;
+	}
+
+	CTextureGL* newTexture = new CTextureGL(imagesource);
+	newTexture->addRef();
+
+	_textureRemap.insert(std::make_pair(imagesource->getID(), newTexture));
+
+	return newTexture;
 }
 
 void CRendererGL::freeTexture(class IRenderer* renderContext, ITexture* texture)
 {
+	if ( texture == nullptr ) return;
+
+	CTextureGL* tex = (CTextureGL*) texture;
+	tex->decRef();
+
+	if ( tex->isDead() )
+	{
+		_textureRemap.erase(_textureRemap.find(tex->getID()));
+	}
+
 	delete texture;
 }
 
@@ -282,7 +329,12 @@ void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState&
 		uint32 textureID = newState._material._baseTexture;
 		if ( textureID != 0 )
 		{
-			glBindTexture(GL_TEXTURE_2D, textureID);
+			auto found = _textureRemap.find(textureID);
+			if ( found != _textureRemap.end() )
+			{
+				CTextureGL* tex = (CTextureGL*) (*found).second;
+				glBindTexture(GL_TEXTURE_2D, tex->getNativeID());
+			}
 		}
 		else
 		{

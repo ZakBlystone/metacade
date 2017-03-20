@@ -68,7 +68,7 @@ public:
 		quad.makeBox(CVec2(x,y), CVec2(x+w,y+h), instance->_currentColor);
 
 		CRenderElement& el = instance->_renderer->addRenderElement();
-		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState);
+		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState, instance->_layer);
 
 		return 0;
 	}
@@ -99,7 +99,7 @@ public:
 		quad.transform(xform);
 
 		CRenderElement& el = instance->_renderer->addRenderElement();
-		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState);
+		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState, instance->_layer);
 
 		return 0;
 	}
@@ -114,13 +114,24 @@ public:
 		return 2;
 	}
 
+	MODULE_FUNCTION_DEF(layer)
+	{
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
+		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
+
+		instance->_layer = (int32) lua_tointeger(L, 2);
+		return 0;
+	}
+
 	DEFINE_MODULE(CLuaDrawModule, Drawer)
 	MODULE_FUNCTION(color)
 	MODULE_FUNCTION(rect)
 	MODULE_FUNCTION(sprite)
 	MODULE_FUNCTION(size)
+	MODULE_FUNCTION(layer)
 	END_DEFINE_MODULE()
 
+	int32 _layer;
 	CFloatColor _currentColor;
 }; 
 
@@ -128,7 +139,9 @@ CREATE_MODULE(CLuaDrawModule)
 
 void Arcade::pushRenderer(lua_State *L, shared_ptr<CElementRenderer> renderer)
 {
-	PUSH_MODULE(CLuaDrawModule, L)->_renderer = renderer;
+	CLuaDrawModule* drawModule = PUSH_MODULE(CLuaDrawModule, L);
+	drawModule->_renderer = renderer;
+	drawModule->_layer = 0;
 }
 
 void Arcade::OpenLuaDrawModule(lua_State *L)

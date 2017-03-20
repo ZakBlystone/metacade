@@ -27,6 +27,8 @@ glrender.h:
 
 //#include "render/render_public.h"
 #include "metacade_amal.h"
+#include <map>
+#include <algorithm>
 
 using namespace Arcade;
 
@@ -47,4 +49,6 @@ public:
 private:
 	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);
 	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
+
+	std::map<uint32, ITexture*> _textureRemap;
 };
