@@ -59,6 +59,9 @@ private:
 
 	static int metaFunctionCreate(lua_State *L);
 	static int metaTextureCreate(lua_State *L);
+	static int metaKeyvalCreate(lua_State *L);
+
+	void createMetaTable(const char* name, lua_CFunction target);
 
 	friend class CLuaVM;
 	friend class CLuaVMInstance;
@@ -70,6 +73,7 @@ private:
 	map<string, shared_ptr<LuaVMReference>> _functions;
 
 	map<CString, CString> _textureLoadArgs;
+	//map<CString, CString> _soundLoadArgs;
 };
 
 }

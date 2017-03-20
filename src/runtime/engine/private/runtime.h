@@ -40,10 +40,11 @@ public:
 
 	virtual bool initialize(IRuntimeEnvironment* env);
 	virtual IPackageManager* getPackageManager();
-	virtual IRenderTest* getRenderTest();
 
 	virtual IRenderTest* createRenderTest();
 	virtual void deleteRenderTest(IRenderTest* test);
+
+	virtual CGameClass* getGameClassForPackage(CPackage* package);
 
 	IAllocator* getAllocator();
 	IFileSystem* getFilesystem();
@@ -57,10 +58,11 @@ public:
 
 private:
 	shared_ptr<CPackageManager> _packageManager;
-	shared_ptr<CRenderTest> _renderTest;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
 	shared_ptr<class CLuaVM> _luaVM;
+
+	map<CGUID, shared_ptr<CGameClass>> _classes;
 };
 
 }

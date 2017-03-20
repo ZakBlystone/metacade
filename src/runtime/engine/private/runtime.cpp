@@ -52,7 +52,6 @@ CRuntime::CRuntime()
 	: CRuntimeObject((IRuntime*) this)
 	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
-	, _renderTest(make_shared<CRenderTest>(this))
 	, _textureIndices(make_shared<CIndexAllocator>(this))
 	, _luaVM(make_shared<CLuaVM>())
 {
@@ -70,13 +69,13 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	if ( !_luaVM->init() ) return false;
 
 	_packageManager = make_shared<CPackageManager>(this);
-	_renderTest = make_shared<CRenderTest>(this);
+	//_renderTest = make_shared<CRenderTest>(this);
 
-	if ( !_renderTest->init() ) return false;
+	//if ( !_renderTest->init() ) return false;
 
 	filesystemTest();
 
-	CSHA1 sha;
+	/*CSHA1 sha;
 	CSHA1::Generator gen;
 	gen.init();
 	gen.update("",0);
@@ -103,7 +102,7 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 		log(LOG_MESSAGE, "=REF: %i", A.counter.count());
 	}
 	
-	log(LOG_MESSAGE, "=REF: %i", A.counter.count());
+	log(LOG_MESSAGE, "=REF: %i", A.counter.count());*/
 
 	return true;
 }
@@ -111,11 +110,6 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 IPackageManager* CRuntime::getPackageManager()
 {
 	return _packageManager.get();
-}
-
-IRenderTest* CRuntime::getRenderTest()
-{
-	return _renderTest.get();
 }
 
 IAllocator* CRuntime::getAllocator()
@@ -227,6 +221,11 @@ Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
 void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
 {
 	delete test;
+}
+
+CGameClass* CRuntime::getGameClassForPackage(CPackage* package)
+{
+	return nullptr;
 }
 
 Arcade::IVMHost* Arcade::CRuntime::getLuaVM()

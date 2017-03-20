@@ -853,9 +853,9 @@ class IRuntime
 public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* getRenderTest() = 0;
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
+	virtual class CGameClass* getGameClassForPackage(class CPackage* package) = 0;
 };
 }
 //src/runtime/engine/public/ilogger.h
@@ -1112,6 +1112,26 @@ namespace Arcade
 {
 METACADE_API bool create(class IRuntime** runtime);
 METACADE_API void destroy(class IRuntime* runtime);
+}
+//src/runtime/engine/public/gameclass.h
+namespace Arcade
+{
+class CGameClass
+{
+public:
+	class CGameInstance* createInstance();
+	void deleteInstance(class CGameInstance* instance);
+private:
+	friend class CRuntime;
+	CGameClass(class CPackage* package);
+};
+}
+//src/runtime/engine/public/gameinstance.h
+namespace Arcade
+{
+class CGameInstance
+{
+};
 }
 //src/runtime/engine/public/assets/scriptresource.h
 namespace Arcade

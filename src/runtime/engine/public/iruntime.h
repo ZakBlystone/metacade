@@ -45,10 +45,11 @@ class IRuntime
 public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* getRenderTest() = 0;
 
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
+
+	virtual class CGameClass* getGameClassForPackage(class CPackage* package) = 0;
 };
 
 }

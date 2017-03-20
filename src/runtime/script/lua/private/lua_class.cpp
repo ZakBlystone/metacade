@@ -97,6 +97,11 @@ void CLuaVMClass::buildAssets(CPackageBuilder* builder)
 			compiler->compile(image, &meta);
 		}
 	}
+
+	for ( uint32 i=0; i<_metaData->getNumKeys(); ++i )
+	{
+		builder->getMetaData()->setKeyValuePair(_metaData->getKey(i), _metaData->getValue(i));
+	}
 }
 
 shared_ptr<CMetaData> Arcade::CLuaVMClass::getMetaData()
@@ -116,22 +121,20 @@ int CLuaVMClass::metaFunctionCreate(lua_State *L)
 	CLuaVMClass *klass = (CLuaVMClass *) lua_touserdata(L, -1);
 	const char *key = lua_tostring(L, 2);
 
-	if ( klass != nullptr )
+	if ( klass == nullptr ) return 0;
+
+	int type = lua_type(L, 3);
+	if ( type == LUA_TFUNCTION )
 	{
-		int type = lua_type(L, 3);
+		lua_getglobal(L, "_G");
+		lua_setfenv(L, 3);
 
-		if ( type == LUA_TFUNCTION )
-		{
-			lua_getglobal(L, "_G");
-			lua_setfenv(L, 3);
-
-			auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
-			klass->_functions.insert(entry);
-		}
-		else
-		{
-			luaL_error(L, "functions only");
-		}
+		auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
+		klass->_functions.insert(entry);
+	}
+	else
+	{
+		luaL_error(L, "functions only");
 	}
 
 	return 0;
@@ -139,37 +142,32 @@ int CLuaVMClass::metaFunctionCreate(lua_State *L)
 
 int CLuaVMClass::metaTextureCreate(lua_State *L)
 {
-	lua_getfield(L, 1, "__klass");
-
-	CLuaVMClass* klass = (CLuaVMClass*) lua_touserdata(L, -1);
+	CLuaVMClass* klass = (CLuaVMClass*) lua_touserdata(L, lua_upvalueindex(1));
 	const char* key = lua_tostring(L, 2);
 
-	if ( klass != nullptr )
+	if ( klass == nullptr ) return 0;
+	int type = lua_type(L, 3);
+
+	if ( type == LUA_TSTRING )
 	{
-		int type = lua_type(L, 3);
-
-		if ( type == LUA_TSTRING )
-		{
-			const char *value = lua_tostring(L, 3);
-
-			lua_getglobal(L, "_G");
-			lua_setfenv(L, 3);
-
-			std::cout << "TEXTURE: " << key << " = " << value << std::endl;
-
-			auto entry = make_pair(CString(key), CString(value));
-			klass->_textureLoadArgs.insert(entry);
-		}
-		else
-		{
-			luaL_error(L, "strings only");
-		}
-	}
-	else
-	{
-		std::cout << "NO KLASS" << std::endl;
+		klass->_textureLoadArgs.insert(make_pair(CString(key), CString(lua_tostring(L, 3))));
 	}
 
+	return 0;
+}
+
+int CLuaVMClass::metaKeyvalCreate(lua_State *L)
+{
+	CLuaVMClass* klass = (CLuaVMClass*) lua_touserdata(L, lua_upvalueindex(1));
+	const char* key = lua_tostring(L, 2);
+
+	if ( klass == nullptr ) return 0;
+	int type = lua_type(L, 3);
+
+	if ( type == LUA_TSTRING )
+	{
+		klass->_metaData->setKeyValuePair(key, lua_tostring(L, 3));
+	}
 	return 0;
 }
 
@@ -189,14 +187,33 @@ bool Arcade::CLuaVMClass::pushLuaFunction(string functionName) const
 	return false;
 }
 
-bool Arcade::CLuaVMClass::loadFromAsset(CCodeAsset* asset)
+void CLuaVMClass::createMetaTable(const char* name, lua_CFunction target)
+{
+	lua_State *L = _host->getState();
+
+	//TABLE
+	lua_newtable(L);
+
+		//METATABLE
+		lua_newtable(L);
+		lua_pushlightuserdata(L, this);
+		lua_pushcclosure(L, target, 1); //could pass values here
+		lua_setfield(L, -2, "__newindex");
+		//DONE METATABLE
+
+	lua_setmetatable(L, -2);
+	lua_setfield(L, -2, name);
+	//DONE TABLE
+}
+
+bool CLuaVMClass::loadFromAsset(CCodeAsset* asset)
 {
 	lua_State *L = _host->getState();
 	_functions.clear();
 
 	if (luaL_loadbuffer(L, asset->getCodeBuffer(), asset->getCodeLength(), "main"))
 	{
-		std::cout << "Lua: main: " << lua_tostring(L, -1);
+		std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L, 1);
 		return false;	
 	}
@@ -207,25 +224,8 @@ bool Arcade::CLuaVMClass::loadFromAsset(CCodeAsset* asset)
 	lua_setfield(L, -2, "__klass");
 
 	lua_newtable(L);
-	lua_newtable(L);
-	lua_setfield(L, -2, "sounds");
-
-		
-	//TEXTURE TABLE
-	lua_newtable(L);
-
-	lua_pushlightuserdata(L, this);
-	lua_setfield(L, -2, "__klass");
-
-		//TEXTURE METATABLE
-		lua_newtable(L);
-		lua_pushcclosure(L, CLuaVMClass::metaTextureCreate, 0);
-		lua_setfield(L, -2, "__newindex");
-		//DONE TEXTURE METATABLE
-
-	lua_setmetatable(L, -2);
-	lua_setfield(L, -2, "textures");
-	//DONE TEXTURE TABLE
+	createMetaTable("textures", CLuaVMClass::metaTextureCreate);
+	createMetaTable("info", CLuaVMClass::metaKeyvalCreate);
 
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
@@ -237,7 +237,7 @@ bool Arcade::CLuaVMClass::loadFromAsset(CCodeAsset* asset)
 	lua_setfenv(L, -2);
 
 	if (lua_pcall(L, 0, 0, 0)) {
-		std::cout << "Lua: main: " << lua_tostring(L, -1);
+		std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L, 1);
 		return false;
 	}
@@ -266,7 +266,7 @@ bool Arcade::CLuaVMClass::loadFromFile(string filename)
 
 		if (luaL_loadbuffer(L, buffer, size, "main"))
 		{
-			std::cout << "Lua: main: " << lua_tostring(L, -1);
+			std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
 			lua_pop(L, 1);
 			return false;	
 		}
@@ -277,25 +277,8 @@ bool Arcade::CLuaVMClass::loadFromFile(string filename)
 		lua_setfield(L, -2, "__klass");
 
 		lua_newtable(L);
-		lua_newtable(L);
-		lua_setfield(L, -2, "sounds");
-
-		
-		//TEXTURE TABLE
-		lua_newtable(L);
-
-		lua_pushlightuserdata(L, this);
-		lua_setfield(L, -2, "__klass");
-
-			//TEXTURE METATABLE
-			lua_newtable(L);
-			lua_pushcclosure(L, CLuaVMClass::metaTextureCreate, 0);
-			lua_setfield(L, -2, "__newindex");
-			//DONE TEXTURE METATABLE
-
-		lua_setmetatable(L, -2);
-		lua_setfield(L, -2, "textures");
-		//DONE TEXTURE TABLE
+		createMetaTable("textures", CLuaVMClass::metaTextureCreate);
+		createMetaTable("info", CLuaVMClass::metaKeyvalCreate);
 
 		lua_pushvalue(L, -1);
 		lua_setfield(L, -2, "__index");
@@ -307,7 +290,7 @@ bool Arcade::CLuaVMClass::loadFromFile(string filename)
 		lua_setfenv(L, -2);
 
 		if (lua_pcall(L, 0, 0, 0)) {
-			std::cout << "Lua: main: " << lua_tostring(L, -1);
+			std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
 			lua_pop(L, 1);
 			return false;
 		}

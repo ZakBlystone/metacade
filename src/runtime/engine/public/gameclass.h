@@ -22,3 +22,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 gameclass.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class CGameClass
+{
+public:
+	class CGameInstance* createInstance();
+	void deleteInstance(class CGameInstance* instance);
+
+private:
+	friend class CRuntime;
+
+	CGameClass(class CPackage* package);
+};
+
+}

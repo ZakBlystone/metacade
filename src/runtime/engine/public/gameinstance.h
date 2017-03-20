@@ -22,3 +22,15 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 gameinstance.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class CGameInstance
+{
+
+};
+
+}

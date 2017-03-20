@@ -250,9 +250,9 @@ int start(int argc, char *argv[])
 	builder->load();
 
 	builder->setAssetCompiler(assetCompiler.get());
-	builder->getMetaData()->setKeyValuePair("name", "Another Package Test");
-	builder->getMetaData()->setKeyValuePair("game", "My Test");
-	builder->getMetaData()->setKeyValuePair("author", "Zak");
+	builder->getMetaData()->setKeyValuePair("name", "<unnamed package>");
+	builder->getMetaData()->setKeyValuePair("game", "<unnamed game>");
+	builder->getMetaData()->setKeyValuePair("author", "anonymous");
 
 	if ( !builder->setAndBuildMainScript("default.lua") )
 	{
@@ -340,7 +340,9 @@ int start(int argc, char *argv[])
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);
 
-	system->getRenderTest()->start(renderer.get());
+	IRenderTest* rendertest = system->createRenderTest();
+
+	rendertest->start(renderer.get());
 
 	bool paused = false;
 	bool running = true;
@@ -369,7 +371,7 @@ int start(int argc, char *argv[])
 				bool pressed = evt.key.state == SDL_PRESSED;
 				if ( pressed && evt.key.keysym.scancode == SDL_SCANCODE_R )
 				{
-					system->getRenderTest()->reloadVM();
+					rendertest->reloadVM();
 				}
 			}
 
@@ -385,11 +387,11 @@ int start(int argc, char *argv[])
 					{
 					if ( paused )
 					{
-						system->getRenderTest()->end(renderer.get());
+						rendertest->end(renderer.get());
 					}
 					else
 					{
-						system->getRenderTest()->start(renderer.get());
+						rendertest->start(renderer.get());
 					}
 					}
 				}
@@ -406,8 +408,8 @@ int start(int argc, char *argv[])
 
 		if ( !paused )
 		{
-			system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
-			system->getRenderTest()->frame(renderer.get(), time, CVec2(400, 300));
+			rendertest->frame(renderer.get(), time, CVec2(400, 300));
+			rendertest->frame(renderer.get(), time, CVec2(400, 300));
 		}
 
 		SDL_GL_SwapWindow(window);
@@ -415,7 +417,9 @@ int start(int argc, char *argv[])
 		Sleep(5);
 	}
 
-	system->getRenderTest()->end(renderer.get());
+	rendertest->end(renderer.get());
+
+	system->deleteRenderTest(rendertest);
 
 	ilShutDown();
 

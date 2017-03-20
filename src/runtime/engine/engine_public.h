@@ -38,6 +38,8 @@ engine_public.h:
 #include "public/asset.h"
 #include "public/packagebuilder.h"
 #include "public/api.h"
+#include "public/gameclass.h"
+#include "public/gameinstance.h"
 
 #include "public/assets/scriptresource.h"
 #include "public/assets/imageresource.h"
