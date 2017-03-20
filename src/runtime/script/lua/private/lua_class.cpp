@@ -27,18 +27,18 @@ lua_class.cpp:
 
 #include <fstream>
 
-Arcade::LuaVMClass::LuaVMClass(shared_ptr<LuaVM> host)
+Arcade::CLuaVMClass::CLuaVMClass(shared_ptr<CLuaVM> host)
 	: _host(host)
 {
 
 }
 
-Arcade::LuaVMClass::~LuaVMClass()
+Arcade::CLuaVMClass::~CLuaVMClass()
 {
 
 }
 
-bool Arcade::LuaVMClass::reload()
+bool Arcade::CLuaVMClass::reload()
 {
 	if ( _lastLoadFile != "" )
 	{
@@ -47,22 +47,22 @@ bool Arcade::LuaVMClass::reload()
 	return false;
 }
 
-class CMetaData* Arcade::LuaVMClass::getMetaData()
+class CMetaData* Arcade::CLuaVMClass::getMetaData()
 {
 	return nullptr;
 }
 
-class IVMHost* Arcade::LuaVMClass::getHost()
+class IVMHost* Arcade::CLuaVMClass::getHost()
 {
 	return _host.get();
 }
 
-shared_ptr<IVMInstance> Arcade::LuaVMClass::createVMInstance()
+shared_ptr<IVMInstance> Arcade::CLuaVMClass::createVMInstance()
 {
-	return shared_ptr<LuaVMInstance>( new LuaVMInstance(shared_from_this()) );
+	return shared_ptr<CLuaVMInstance>( new CLuaVMInstance(shared_from_this()) );
 }
 
-bool Arcade::LuaVMClass::pushLuaFunction(string functionName) const
+bool Arcade::CLuaVMClass::pushLuaFunction(string functionName) const
 {
 	auto found = _functions.find(functionName);
 	if ( found != _functions.end() )
@@ -73,7 +73,7 @@ bool Arcade::LuaVMClass::pushLuaFunction(string functionName) const
 	return false;
 }
 
-bool Arcade::LuaVMClass::loadFromFile(string filename)
+bool Arcade::CLuaVMClass::loadFromFile(string filename)
 {
 	_lastLoadFile = filename;
 	_functions.clear();
@@ -111,7 +111,7 @@ bool Arcade::LuaVMClass::loadFromFile(string filename)
 		lua_pushvalue(L, -1);
 		lua_setfield(L, -2, "__index");
 
-		lua_pushcclosure(L, LuaVMClass::testMetaSet, 0);
+		lua_pushcclosure(L, CLuaVMClass::testMetaSet, 0);
 		lua_setfield(L, -2, "__newindex");
 
 		lua_setmetatable(L, -2);

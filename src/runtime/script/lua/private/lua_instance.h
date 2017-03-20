@@ -31,12 +31,12 @@ lua_instance.h:
 namespace Arcade
 {
 
-class LuaVMInstance : public IVMInstance
+class CLuaVMInstance : public IVMInstance
 {
 
 public:
-	LuaVMInstance(shared_ptr<class LuaVMClass> klass);
-	virtual ~LuaVMInstance();
+	CLuaVMInstance(shared_ptr<class CLuaVMClass> klass);
+	virtual ~CLuaVMInstance();
 
 	virtual class IVMClass* getClass() override;
 	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
@@ -49,14 +49,14 @@ public:
 
 	virtual bool callFunction(CFunctionCall call) override;
 
-	class LuaVM* getLuaHost() const;
-	class LuaVMClass* getLuaClass() const;
+	class CLuaVM* getLuaHost() const;
+	class CLuaVMClass* getLuaClass() const;
 	class LuaVMReference* getLuaObject() const;
 
 	bool pcall(int nargs);
 
 private:
-	shared_ptr<class LuaVMClass> _klass;
+	shared_ptr<class CLuaVMClass> _klass;
 	shared_ptr<LuaVMReference> _object;
 };
 

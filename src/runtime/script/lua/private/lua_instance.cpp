@@ -26,7 +26,7 @@ lua_instance.cpp:
 #include "lua_private.h"
 
 //VM INSTANCE
-Arcade::LuaVMInstance::LuaVMInstance(shared_ptr<LuaVMClass> klass)
+Arcade::CLuaVMInstance::CLuaVMInstance(shared_ptr<CLuaVMClass> klass)
 	: _klass(klass)
 {
 	lua_State *L = _klass->_host->_L;
@@ -45,37 +45,37 @@ Arcade::LuaVMInstance::LuaVMInstance(shared_ptr<LuaVMClass> klass)
 	if ( getLuaClass()->pushLuaFunction("init") ) pcall(0);
 }
 
-Arcade::LuaVMInstance::~LuaVMInstance()
+Arcade::CLuaVMInstance::~CLuaVMInstance()
 {
 
 }
 
-class IVMClass* Arcade::LuaVMInstance::getClass()
+class IVMClass* Arcade::CLuaVMInstance::getClass()
 {
 	return _klass.get();
 }
 
-void Arcade::LuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
+void Arcade::CLuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
 {
 
 }
 
-bool Arcade::LuaVMInstance::postCommand(const char** commandBuffer)
+bool Arcade::CLuaVMInstance::postCommand(const char** commandBuffer)
 {
 	return false;
 }
 
-void Arcade::LuaVMInstance::postInputEvent(const class CInputEvent& input)
+void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 {
 
 }
 
-void Arcade::LuaVMInstance::precacheAssets(CPackageBuilder* builder)
+void Arcade::CLuaVMInstance::precacheAssets(CPackageBuilder* builder)
 {
 
 }
 
-void Arcade::LuaVMInstance::think(float seconds, float deltaSeconds)
+void Arcade::CLuaVMInstance::think(float seconds, float deltaSeconds)
 {
 	if ( getLuaClass()->pushLuaFunction("think") )
 	{
@@ -87,7 +87,7 @@ void Arcade::LuaVMInstance::think(float seconds, float deltaSeconds)
 	}
 }
 
-void Arcade::LuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
+void Arcade::CLuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 {
 	if ( getLuaClass()->pushLuaFunction("draw") ) 
 	{
@@ -103,12 +103,12 @@ void Arcade::LuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 	}
 }
 
-void Arcade::LuaVMInstance::reset()
+void Arcade::CLuaVMInstance::reset()
 {
 	if ( getLuaClass()->pushLuaFunction("reset") ) pcall(0);
 }
 
-bool LuaVMInstance::callFunction(CFunctionCall call)
+bool CLuaVMInstance::callFunction(CFunctionCall call)
 {
 	lua_State *L = getLuaHost()->_L;
 
@@ -131,22 +131,22 @@ bool LuaVMInstance::callFunction(CFunctionCall call)
 	return pcall(call.numArgs());
 }
 
-LuaVM* Arcade::LuaVMInstance::getLuaHost() const
+CLuaVM* Arcade::CLuaVMInstance::getLuaHost() const
 {
 	return _klass->getLuaHost().get();
 }
 
-LuaVMClass* Arcade::LuaVMInstance::getLuaClass() const
+CLuaVMClass* Arcade::CLuaVMInstance::getLuaClass() const
 {
 	return _klass.get();
 }
 
-LuaVMReference* Arcade::LuaVMInstance::getLuaObject() const
+LuaVMReference* Arcade::CLuaVMInstance::getLuaObject() const
 {
 	return _object.get();
 }
 
-bool Arcade::LuaVMInstance::pcall(int nargs)
+bool Arcade::CLuaVMInstance::pcall(int nargs)
 {
 	getLuaObject()->push();
 	lua_setglobal(getLuaHost()->_L, "game");

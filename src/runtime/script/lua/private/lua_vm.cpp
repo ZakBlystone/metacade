@@ -51,24 +51,24 @@ static int l_print(lua_State *S)
 	return 0;
 }
 
-LuaVM::LuaVM()
+CLuaVM::CLuaVM()
 	: _L(nullptr)
 	, _memUsage(0)
 {
 
 }
 
-LuaVM::~LuaVM()
+CLuaVM::~CLuaVM()
 {
 	shutdown();
 }
 
-Arcade::ELanguage LuaVM::getLanguage()
+Arcade::ELanguage CLuaVM::getLanguage()
 {
 	return LANG_LUA;
 }
 
-bool LuaVM::init()
+bool CLuaVM::init()
 {
 	if ( _L != nullptr ) return true;
 
@@ -92,7 +92,7 @@ bool LuaVM::init()
 	return true;
 }
 
-void LuaVM::shutdown()
+void CLuaVM::shutdown()
 {
 	if ( _L == nullptr ) return;
 
@@ -101,12 +101,12 @@ void LuaVM::shutdown()
 	_L = nullptr;
 }
 
-bool Arcade::LuaVM::isRunning()
+bool Arcade::CLuaVM::isRunning()
 {
 	return _L != nullptr;
 }
 
-bool Arcade::LuaVM::pcall(int nargs)
+bool Arcade::CLuaVM::pcall(int nargs)
 {
 	if (lua_pcall(_L, nargs, 0, 0)) 
 	{
@@ -117,12 +117,12 @@ bool Arcade::LuaVM::pcall(int nargs)
 	return true;
 }
 
-lua_State* Arcade::LuaVM::getState()
+lua_State* Arcade::CLuaVM::getState()
 {
 	return _L;
 }
 
-bool LuaVM::pushVariant(const CVariant& variant)
+bool CLuaVM::pushVariant(const CVariant& variant)
 {
 	switch(variant.type())
 	{
@@ -175,11 +175,11 @@ static int testMetaGet(lua_State *L)
 	return 0;
 }
 
-int LuaVMClass::testMetaSet(lua_State *L)
+int CLuaVMClass::testMetaSet(lua_State *L)
 {
 	lua_getfield(L, 1, "__klass");
 
-	LuaVMClass *klass = (LuaVMClass *) lua_touserdata(L, -1);
+	CLuaVMClass *klass = (CLuaVMClass *) lua_touserdata(L, -1);
 	const char *key = lua_tostring(L, 2);
 
 	if ( klass != nullptr )
@@ -203,11 +203,11 @@ int LuaVMClass::testMetaSet(lua_State *L)
 	return 0;
 }
 
-Arcade::IVMClass* LuaVM::loadGameVMClass()
+Arcade::IVMClass* CLuaVM::loadGameVMClass()
 {
 	string filename("E:/Projects/metacade/bin/Release/default.lua");
 
-	shared_ptr<LuaVMClass> newClass;
+	shared_ptr<CLuaVMClass> newClass;
 
 	auto found = _loadedClasses.find(filename);
 	if ( found != _loadedClasses.end() )
@@ -216,7 +216,7 @@ Arcade::IVMClass* LuaVM::loadGameVMClass()
 	}
 	else
 	{
-		newClass = make_shared<LuaVMClass>(shared_from_this());
+		newClass = make_shared<CLuaVMClass>(shared_from_this());
 		_loadedClasses.insert(make_pair(filename, newClass));
 
 		if ( newClass->loadFromFile(filename) )
@@ -228,12 +228,12 @@ Arcade::IVMClass* LuaVM::loadGameVMClass()
 	return nullptr;
 }
 
-bool LuaVM::includeGameScript()
+bool CLuaVM::includeGameScript()
 {
 	return false;
 }
 
-bool LuaVM::validateGameScript()
+bool CLuaVM::validateGameScript()
 {
 	return false;
 }

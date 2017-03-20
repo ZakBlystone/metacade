@@ -60,7 +60,7 @@ private:
 	shared_ptr<CRenderTest> _renderTest;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
-	shared_ptr<class LuaVM> _luaVM;
+	shared_ptr<class CLuaVM> _luaVM;
 };
 
 }

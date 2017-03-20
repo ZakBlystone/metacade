@@ -54,7 +54,7 @@ CRuntime::CRuntime()
 	, _runtimeEnvironment(nullptr)
 	, _renderTest(make_shared<CRenderTest>(this))
 	, _textureIndices(make_shared<CIndexAllocator>(this))
-	, _luaVM(make_shared<LuaVM>())
+	, _luaVM(make_shared<CLuaVM>())
 {
 }
 

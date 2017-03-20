@@ -36,11 +36,11 @@ lua_vm.h:
 namespace Arcade
 {
 
-class LuaVM : public IVMHost, public enable_shared_from_this<LuaVM>
+class CLuaVM : public IVMHost, public enable_shared_from_this<CLuaVM>
 {
 public:
-	LuaVM();
-	virtual ~LuaVM();
+	CLuaVM();
+	virtual ~CLuaVM();
 	virtual ELanguage getLanguage() override;
 	virtual bool init() override;
 	virtual void shutdown() override;
@@ -56,12 +56,12 @@ public:
 
 private:
 
-	friend class LuaVMInstance;
+	friend class CLuaVMInstance;
 	friend class LuaVMReference;
 
 	lua_State *_L;
 	unsigned int _memUsage;
-	map<string, shared_ptr<LuaVMClass>> _loadedClasses;
+	map<string, shared_ptr<CLuaVMClass>> _loadedClasses;
 };
 
 

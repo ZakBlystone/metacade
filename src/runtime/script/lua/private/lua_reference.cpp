@@ -25,7 +25,7 @@ lua_reference.cpp:
 
 #include "lua_private.h"
 
-Arcade::LuaVMReference::LuaVMReference(shared_ptr<class LuaVM> host, int idx)
+Arcade::LuaVMReference::LuaVMReference(shared_ptr<class CLuaVM> host, int idx)
 	: _host(host)
 {
 	lua_State *L = host->_L;

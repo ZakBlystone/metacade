@@ -33,11 +33,11 @@ lua_class.h:
 namespace Arcade
 {
 
-class LuaVMClass : public IVMClass, public enable_shared_from_this<LuaVMClass>
+class CLuaVMClass : public IVMClass, public enable_shared_from_this<CLuaVMClass>
 {
 public:
-	LuaVMClass(shared_ptr<class LuaVM> host);
-	virtual ~LuaVMClass();
+	CLuaVMClass(shared_ptr<class CLuaVM> host);
+	virtual ~CLuaVMClass();
 
 	virtual bool reload() override;
 	virtual class CMetaData* getMetaData() override;
@@ -47,7 +47,7 @@ public:
 	bool pushLuaFunction(string functionName) const;
 	bool loadFromFile(string filename);
 
-	shared_ptr<LuaVM> getLuaHost() const
+	shared_ptr<CLuaVM> getLuaHost() const
 	{
 		return _host;
 	}
@@ -56,11 +56,11 @@ private:
 
 	static int testMetaSet(lua_State *L);
 
-	friend class LuaVM;
-	friend class LuaVMInstance;
+	friend class CLuaVM;
+	friend class CLuaVMInstance;
 
 	string _lastLoadFile;
-	shared_ptr<LuaVM> _host;
+	shared_ptr<CLuaVM> _host;
 	map<string, shared_ptr<LuaVMReference>> _functions;
 };
 
