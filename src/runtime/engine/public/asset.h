@@ -106,4 +106,7 @@ private:
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
 
+template<typename T>
+const T* castAsset(const IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+
 }

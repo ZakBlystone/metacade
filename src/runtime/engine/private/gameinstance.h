@@ -28,9 +28,31 @@ gameinstance.h:
 namespace Arcade
 {
 
-class CGameInstance
+class CGameInstance : public CRuntimeObject, public IGameInstance
 {
+public:
+	virtual class IGameClass* getClass() override;
 
+	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void think(float time) override;
+	virtual void render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) override;
+	virtual void initializeRenderer(IRenderer* renderer) override;
+	virtual void finishRenderer(IRenderer* renderer) override;
+	virtual bool callFunction(CFunctionCall call) override;
+
+private:
+	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
+
+	friend class CGameClass;
+
+	weak_ptr<CGameClass> _klass;
+	shared_ptr<IVMInstance> _vmInstance;
+	shared_ptr<CElementRenderer> _elementRenderer;
+
+	shared_ptr<IImage> _defaultWhiteImage;
+	vector<ITexture* > _loadedTextures;
+
+	float _lastTime;
 };
 
 }

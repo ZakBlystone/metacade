@@ -25,6 +25,8 @@ indexallocator.h:
 
 #pragma once
 
+#define INDEX_NONE 0
+
 namespace Arcade
 {
 
@@ -84,7 +86,7 @@ class CIndex
 public:
 	uint32 get()
 	{
-		if ( _lock == nullptr ) return 0;
+		if ( _lock == nullptr ) return INDEX_NONE;
 		return _lock->get();
 	}
 

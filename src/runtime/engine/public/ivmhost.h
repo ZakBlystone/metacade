@@ -40,7 +40,7 @@ public:
 	virtual bool isRunning() = 0;
 
 	virtual weak_ptr<IVMClass> loadGameVMClass() = 0;
-	virtual weak_ptr<IVMClass> loadGameVMClass(class CCodeAsset* codeAsset) = 0;
+	virtual weak_ptr<IVMClass> loadGameVMClass(const class CCodeAsset* codeAsset) = 0;
 
 	virtual bool includeGameScript() = 0;
 	virtual bool validateGameScript() = 0;

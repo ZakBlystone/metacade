@@ -34,7 +34,7 @@ CIndex CIndexAllocator::getIndex()
 
 void CIndexAllocator::lock(uint32 &index)
 {
-	index = 0;
+	index = 1;
 	while ( _indices.find(index) != _indices.end() )
 	{
 		++index;

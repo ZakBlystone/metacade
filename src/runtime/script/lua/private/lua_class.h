@@ -48,7 +48,7 @@ public:
 
 	bool pushLuaFunction(string functionName) const;
 	bool loadFromFile(string filename);
-	bool loadFromAsset(CCodeAsset* asset);
+	bool loadFromAsset(const CCodeAsset* asset);
 
 	shared_ptr<CLuaVM> getLuaHost() const
 	{

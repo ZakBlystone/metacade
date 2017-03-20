@@ -206,7 +206,7 @@ void CLuaVMClass::createMetaTable(const char* name, lua_CFunction target)
 	//DONE TABLE
 }
 
-bool CLuaVMClass::loadFromAsset(CCodeAsset* asset)
+bool CLuaVMClass::loadFromAsset(const CCodeAsset* asset)
 {
 	lua_State *L = _host->getState();
 	_functions.clear();

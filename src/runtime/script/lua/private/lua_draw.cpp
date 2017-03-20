@@ -58,8 +58,11 @@ public:
 		float y = (float)luaL_checknumber(L, 3);
 		float w = (float)luaL_checknumber(L, 4);
 		float h = (float)luaL_checknumber(L, 5);
+		uint32 t = (uint32)luaL_optnumber(L, 6, 0);
 
 		CRenderState defState;
+
+		defState._material._baseTexture = t;
 
 		CRenderQuad quad;
 		quad.makeBox(CVec2(x,y), CVec2(x+w,y+h), instance->_currentColor);
@@ -80,10 +83,13 @@ public:
 		float w = (float)luaL_checknumber(L, 4) * .5f;
 		float h = (float)luaL_checknumber(L, 5) * .5f;
 		float r = (float)luaL_optnumber(L, 6, 0);
+		uint32 t = (uint32)luaL_optnumber(L, 7, 0);
 
 		CRenderState defState;
 		CMatrix3 xform;
 		CMatrix3::identity(xform);
+
+		defState._material._baseTexture = t;
 
 		xform.rotate(r);
 		xform.translate(CVec2(x,y));

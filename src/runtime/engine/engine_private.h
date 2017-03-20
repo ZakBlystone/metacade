@@ -40,5 +40,7 @@ engine_private.h:
 #include "private/package.h"
 #include "private/packagemanager.h"
 #include "private/runtime.h"
+#include "private/gameclass.h"
+#include "private/gameinstance.h"
 
 using namespace Arcade;

@@ -22,3 +22,131 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 gameinstance.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+#include "render/render_private.h"
+
+class CWhiteImage : public IImage
+{
+	virtual int32 getWidth() const override { return 2; }
+	virtual int32 getHeight() const override { return 2; }
+	virtual int32 getBytesPerPixel() const override { return 4; }
+	virtual EImagePixelFormat getPixelFormat() const override
+	{
+		return EImagePixelFormat::PFM_RGBA8;
+	}
+
+	virtual uint8* getPixels() const override
+	{
+		static const CColor pixels[4] = {
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+			CColor(0xFFFFFFFF),
+		};
+		return (uint8 *) pixels;
+	}
+
+	virtual uint32 getID() const override
+	{
+		return 0;
+	}
+};
+
+CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance)
+	: CRuntimeObject(klass.lock().get())
+	, _klass(klass)
+	, _vmInstance(vmInstance)
+	, _elementRenderer(make_shared<CElementRenderer>(this))
+	, _lastTime(0.f)
+	, _defaultWhiteImage(make_shared<CWhiteImage>())
+{
+
+}
+
+class IGameClass* CGameInstance::getClass()
+{
+	return _klass.lock().get();
+}
+
+void CGameInstance::postInputEvent(const CInputEvent& input)
+{
+
+}
+
+void CGameInstance::think(float time)
+{
+	float DT = time - _lastTime;
+	if ( DT > 1.f ) DT = 1.f;
+	_lastTime = time;
+
+	_vmInstance->think(time, DT);
+}
+
+void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID /*= 0*/)
+{
+	_elementRenderer->setViewSize(viewportSize);
+	_elementRenderer->beginFrame();
+
+	CClipShape viewClip;
+	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
+	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
+	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportSize.x,0)));
+	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportSize.y)));
+
+	_elementRenderer->setViewportClip(viewClip);
+
+	_vmInstance->render(_elementRenderer);
+
+	_elementRenderer->endFrame();
+
+	renderer->render(_elementRenderer->getDrawBuffer().get());
+}
+
+void CGameInstance::initializeRenderer(IRenderer* renderer)
+{
+	ITextureProvider* provider = renderer->getTextureProvider();
+	if ( provider == nullptr ) return;
+
+	ITexture* base = provider->loadTexture(renderer, _defaultWhiteImage.get());
+	if ( base == nullptr ) return;
+	_loadedTextures.push_back(base);
+
+	shared_ptr<CGameClass> klass = _klass.lock();
+	if ( klass == nullptr ) return;
+	
+	IPackage* pkg = klass->getPackage();
+	if ( pkg == nullptr ) return;
+
+	for ( uint32 i=0; i<pkg->getNumAssets(); ++i )
+	{
+		CImageAsset* image = castAsset<CImageAsset>(pkg->getAsset(i));
+		if ( image == nullptr ) continue;
+
+		ITexture* loaded = provider->loadTexture(renderer, image);	
+		if ( loaded != nullptr )
+		{
+			log(LOG_MESSAGE, "Load Texture: %s[%i] (%ix%i)", *image->getName(), loaded->getID(), loaded->getWidth(), loaded->getHeight());
+
+			_loadedTextures.push_back(loaded);
+		}
+	}
+}
+
+void CGameInstance::finishRenderer(IRenderer* renderer)
+{
+	ITextureProvider* provider = renderer->getTextureProvider();
+	if ( provider == nullptr ) return;
+
+	for ( ITexture* tex : _loadedTextures )
+	{
+		provider->freeTexture(renderer, tex);
+	}
+
+	_loadedTextures.clear();
+}
+
+bool CGameInstance::callFunction(CFunctionCall call)
+{
+	return _vmInstance->callFunction(call);
+}

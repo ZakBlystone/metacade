@@ -42,6 +42,7 @@ public:
 	virtual bool findAndPreloadPackages() override;
 	virtual uint32 getNumPackages() const override;
 	virtual IPackage* getPackage(uint32 index) const override;
+	virtual IPackage* getPackageByName(const CString& name) const override;
 
 	virtual void unloadAllPackages();
 

@@ -44,7 +44,7 @@ public:
 	virtual IRenderTest* createRenderTest();
 	virtual void deleteRenderTest(IRenderTest* test);
 
-	virtual CGameClass* getGameClassForPackage(CPackage* package);
+	virtual IGameClass* getGameClassForPackage(IPackage* package);
 
 	IAllocator* getAllocator();
 	IFileSystem* getFilesystem();
@@ -62,7 +62,7 @@ private:
 	shared_ptr<CIndexAllocator> _textureIndices;
 	shared_ptr<class CLuaVM> _luaVM;
 
-	map<CGUID, shared_ptr<CGameClass>> _classes;
+	map<CGUID, shared_ptr<class CGameClass>> _classes;
 };
 
 }

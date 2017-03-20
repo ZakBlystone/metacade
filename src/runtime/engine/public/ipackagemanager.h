@@ -39,12 +39,16 @@ class IPackage
 {
 public:
 	virtual CString getPackageName() const = 0;
+	virtual CGUID getPackageID() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 	virtual const IMetaData* getMetaData() const = 0;
 
 	virtual bool loadAssets() = 0;
 	virtual void releaseAssets() = 0;
+
+	virtual const class IAsset* findAssetByID(const CGUID& id) const = 0;
+	virtual const class IAsset* findAssetByName(const CString& name) const = 0;
 };
 
 class IPackageManager
@@ -59,6 +63,7 @@ public:
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;
 	virtual IPackage* getPackage(uint32 index) const = 0;
+	virtual IPackage* getPackageByName(const CString& name) const = 0;
 
 	virtual void unloadAllPackages() = 0;
 };

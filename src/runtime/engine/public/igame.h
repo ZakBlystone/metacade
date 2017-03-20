@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-gameclass.h:
+igame.h: interfaces for internal game types
 ===============================================================================
 */
 
@@ -28,16 +28,24 @@ gameclass.h:
 namespace Arcade
 {
 
-class CGameClass
+class IGameClass
 {
 public:
-	class CGameInstance* createInstance();
-	void deleteInstance(class CGameInstance* instance);
+	virtual bool createInstance(class IGameInstance** instance) = 0;
+	virtual void deleteInstance(class IGameInstance* instance) = 0;
+};
 
-private:
-	friend class CRuntime;
+class IGameInstance
+{
+public:
+	virtual class IGameClass* getClass() = 0;
 
-	CGameClass(class CPackage* package);
+	virtual void postInputEvent(const class CInputEvent& input) = 0;
+	virtual void think(float time) = 0;
+	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
+	virtual void initializeRenderer(class IRenderer* renderer) = 0;
+	virtual void finishRenderer(class IRenderer* renderer) = 0;
+	virtual bool callFunction(CFunctionCall call) = 0;
 };
 
 }

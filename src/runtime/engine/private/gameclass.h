@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-iruntime.h: minimal API-facing runtime object
+gameclass.h:
 ===============================================================================
 */
 
@@ -28,28 +28,25 @@ iruntime.h: minimal API-facing runtime object
 namespace Arcade
 {
 
-class IRenderer;
-class IRenderTest
+class CGameClass : public CRuntimeObject, public IGameClass, public enable_shared_from_this<CGameClass>
 {
 public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
+	virtual bool createInstance(IGameInstance** instance) override;
+	virtual void deleteInstance(IGameInstance* instance) override;
 
-	virtual void callFunction(CFunctionCall call) = 0;
-};
+	IPackage* getPackage();
 
-class IRuntime
-{
-public:
-	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
-	virtual class IPackageManager* getPackageManager() = 0;
+private:
+	friend class CRuntime;
 
-	virtual IRenderTest* createRenderTest() = 0;
-	virtual void deleteRenderTest(IRenderTest* test) = 0;
+	CGameClass(class IPackage* package, class CRuntimeObject* outer);
 
-	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
+	bool init();
+	void release();
+
+	IPackage* _package;
+	int32 _instanceCount;
+	weak_ptr<IVMClass> _vmKlass;
 };
 
 }

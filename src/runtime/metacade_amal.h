@@ -835,6 +835,27 @@ private:
 	void* _args;
 };
 }
+//src/runtime/engine/public/igame.h
+namespace Arcade
+{
+class IGameClass
+{
+public:
+	virtual bool createInstance(class IGameInstance** instance) = 0;
+	virtual void deleteInstance(class IGameInstance* instance) = 0;
+};
+class IGameInstance
+{
+public:
+	virtual class IGameClass* getClass() = 0;
+	virtual void postInputEvent(const class CInputEvent& input) = 0;
+	virtual void think(float time) = 0;
+	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
+	virtual void initializeRenderer(class IRenderer* renderer) = 0;
+	virtual void finishRenderer(class IRenderer* renderer) = 0;
+	virtual bool callFunction(CFunctionCall call) = 0;
+};
+}
 //src/runtime/engine/public/iruntime.h
 namespace Arcade
 {
@@ -855,7 +876,7 @@ public:
 	virtual class IPackageManager* getPackageManager() = 0;
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
-	virtual class CGameClass* getGameClassForPackage(class CPackage* package) = 0;
+	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
 };
 }
 //src/runtime/engine/public/ilogger.h
@@ -950,11 +971,14 @@ class IPackage
 {
 public:
 	virtual CString getPackageName() const = 0;
+	virtual CGUID getPackageID() const = 0;
 	virtual uint32 getNumAssets() const = 0;
 	virtual class IAsset* getAsset(uint32 index) const = 0;
 	virtual const IMetaData* getMetaData() const = 0;
 	virtual bool loadAssets() = 0;
 	virtual void releaseAssets() = 0;
+	virtual const class IAsset* findAssetByID(const CGUID& id) const = 0;
+	virtual const class IAsset* findAssetByName(const CString& name) const = 0;
 };
 class IPackageManager
 {
@@ -966,6 +990,7 @@ public:
 	virtual bool findAndPreloadPackages() = 0;
 	virtual uint32 getNumPackages() const = 0;
 	virtual IPackage* getPackage(uint32 index) const = 0;
+	virtual IPackage* getPackageByName(const CString& name) const = 0;
 	virtual void unloadAllPackages() = 0;
 };
 }
@@ -1060,6 +1085,8 @@ private:
 };
 template<typename T>
 T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+template<typename T>
+const T* castAsset(const IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
 }
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade
@@ -1112,26 +1139,6 @@ namespace Arcade
 {
 METACADE_API bool create(class IRuntime** runtime);
 METACADE_API void destroy(class IRuntime* runtime);
-}
-//src/runtime/engine/public/gameclass.h
-namespace Arcade
-{
-class CGameClass
-{
-public:
-	class CGameInstance* createInstance();
-	void deleteInstance(class CGameInstance* instance);
-private:
-	friend class CRuntime;
-	CGameClass(class CPackage* package);
-};
-}
-//src/runtime/engine/public/gameinstance.h
-namespace Arcade
-{
-class CGameInstance
-{
-};
 }
 //src/runtime/engine/public/assets/scriptresource.h
 namespace Arcade

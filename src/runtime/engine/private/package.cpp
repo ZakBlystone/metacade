@@ -130,6 +130,11 @@ CString CPackage::getPackageName() const
 	return _meta->getValue("name");
 }
 
+CGUID CPackage::getPackageID() const
+{
+	return _uniqueID;
+}
+
 bool CPackage::hasPackageFlag(EPackageFlags flag)
 {
 	return (getPackageFlags() & flag) != 0;
@@ -190,4 +195,16 @@ CAssetMap* CPackage::getAssetMap()
 CFileHandle CPackage::openPackageFile(EFileIOMode mode)
 {
 	return CFileHandle(_filepath, mode, this);
+}
+
+const IAsset* CPackage::findAssetByID(const CGUID& id) const
+{
+	auto found = _map->findAssetByID(id);
+	return found.get();
+}
+
+const IAsset* CPackage::findAssetByName(const CString& name) const
+{
+	auto found = _map->findAssetByName(name);
+	return found.get();
 }

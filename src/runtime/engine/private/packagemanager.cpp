@@ -103,6 +103,18 @@ IPackage* CPackageManager::getPackage(uint32 index) const
 	return _references[index].get();
 }
 
+IPackage* CPackageManager::getPackageByName(const CString& name) const
+{
+	for ( auto package : _references )
+	{
+		if ( package->getPackageName().lower() == name.lower() )
+		{
+			return package.get();
+		}
+	}
+	return nullptr;
+}
+
 void CPackageManager::unloadAllPackages()
 {
 	_references.clear();

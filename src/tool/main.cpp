@@ -340,9 +340,23 @@ int start(int argc, char *argv[])
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);
 
-	IRenderTest* rendertest = system->createRenderTest();
+	packmanager->findAndPreloadPackages();
 
-	rendertest->start(renderer.get());
+	IPackage* defaultPackage = packmanager->getPackageByName("default");
+	IGameClass* gameClass = system->getGameClassForPackage(defaultPackage);
+
+	if ( gameClass == nullptr )
+	{
+		return onError("Couldn't create game class");
+	}
+
+	IGameInstance* gameInstance = nullptr;
+	if ( !gameClass->createInstance(&gameInstance) )
+	{
+		return onError("Couldn't create game instance");
+	}
+
+	gameInstance->initializeRenderer(renderer.get());
 
 	bool paused = false;
 	bool running = true;
@@ -371,7 +385,7 @@ int start(int argc, char *argv[])
 				bool pressed = evt.key.state == SDL_PRESSED;
 				if ( pressed && evt.key.keysym.scancode == SDL_SCANCODE_R )
 				{
-					rendertest->reloadVM();
+					//rendertest->reloadVM();
 				}
 			}
 
@@ -387,11 +401,11 @@ int start(int argc, char *argv[])
 					{
 					if ( paused )
 					{
-						rendertest->end(renderer.get());
+						gameInstance->finishRenderer(renderer.get());
 					}
 					else
 					{
-						rendertest->start(renderer.get());
+						gameInstance->initializeRenderer(renderer.get());
 					}
 					}
 				}
@@ -406,10 +420,11 @@ int start(int argc, char *argv[])
 		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		gameInstance->think(time);
+
 		if ( !paused )
 		{
-			rendertest->frame(renderer.get(), time, CVec2(400, 300));
-			rendertest->frame(renderer.get(), time, CVec2(400, 300));
+			gameInstance->render(renderer.get(), CVec2(400, 300));
 		}
 
 		SDL_GL_SwapWindow(window);
@@ -417,9 +432,8 @@ int start(int argc, char *argv[])
 		Sleep(5);
 	}
 
-	rendertest->end(renderer.get());
-
-	system->deleteRenderTest(rendertest);
+	gameInstance->finishRenderer(renderer.get());
+	gameClass->deleteInstance(gameInstance);
 
 	ilShutDown();
 

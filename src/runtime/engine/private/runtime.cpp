@@ -223,9 +223,27 @@ void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
 	delete test;
 }
 
-CGameClass* CRuntime::getGameClassForPackage(CPackage* package)
+IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 {
-	return nullptr;
+	if ( package == nullptr ) 
+	{
+		log(LOG_ERROR, "Null package");
+		return nullptr;
+	}
+
+	CGUID packageID = package->getPackageID();
+
+	auto existing = _classes.find(packageID);
+	if ( existing != _classes.end() )
+	{
+		return (*existing).second.get();
+	}
+
+	shared_ptr<CGameClass> newClass = shared_ptr<CGameClass>( new CGameClass(package, this) );
+
+	_classes.insert(make_pair(packageID, newClass));
+
+	return newClass.get();
 }
 
 Arcade::IVMHost* Arcade::CRuntime::getLuaVM()

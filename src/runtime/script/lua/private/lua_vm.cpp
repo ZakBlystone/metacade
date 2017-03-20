@@ -169,7 +169,7 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 	return false;
 }
 
-weak_ptr<IVMClass> CLuaVM::loadGameVMClass(class CCodeAsset* codeAsset)
+weak_ptr<IVMClass> CLuaVM::loadGameVMClass(const class CCodeAsset* codeAsset)
 {
 	shared_ptr<CLuaVMClass> newClass(nullptr);
 

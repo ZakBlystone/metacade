@@ -115,7 +115,7 @@ EImagePixelFormat CImageAsset::getPixelFormat() const
 
 uint8* CImageAsset::getPixels() const
 {
-	return nullptr;
+	return _pixels;
 }
 
 uint32 CImageAsset::getID() const
