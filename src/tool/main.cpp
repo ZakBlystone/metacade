@@ -84,27 +84,47 @@ void buildImage(CImageAsset* asset, const CString& file)
 	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
 }
 
-int start(int argc, char *argv[])
+bool buildImage2(CImageAsset* asset, IMetaData* params)
 {
-	ilInit();
+	ILuint test = ilGenImage();
+	ilBindImage(test);
+	if ( !ilLoadImage(*params->getValue("file")) ) return false;
 
-	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
-	IRuntime *system;
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
-	if ( Arcade::create(&system) && system->initialize(native.get()) )
+	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);
+	int height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
+	
+	uint8* data = (uint8*) ilGetData();
+	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
+	return true;
+}
+
+class CCompiler : public IAssetCompiler
+{
+	virtual bool compile(IAsset* asset, IMetaData* buildParameters) override
 	{
-		cout << "Initialized" << endl;
-	}
-	else
-	{
-		return onError("Failed to init arcade runtime");;
-	}
+		switch(asset->getType())
+		{
+		case ASSET_NONE:
+		break;
+		case ASSET_CODE:
+		break;
+		case ASSET_TEXTURE:
+			return buildImage2((CImageAsset*) asset, buildParameters);
+		break;
+		case ASSET_SOUND:
+		break;
+		default:
+		break;
+		}
 
-	std::cout << "Loading Packages..." << std::endl;
+		return false;
+	}
+};
+void testPackageStuff(IRuntime *system)
+{
 	IPackageManager* packmanager = system->getPackageManager();
-	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
-
-
 	if(true)
 	{
 		CPackageBuilder* builder = packmanager->createPackageBuilder("MyPackage");
@@ -143,7 +163,6 @@ int start(int argc, char *argv[])
 			//CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
 		}
 
-		//packmanager->unloadAllPackages();
 		if ( builder->save() )
 		{
 			std::cout << "Saved OK" << std::endl;
@@ -152,11 +171,6 @@ int start(int argc, char *argv[])
 		{
 			std::cout << "Failed to save!" << std::endl;
 		}
-
-		/*if ( !packmanager->findAndPreloadPackages() )
-		{
-			std::cout << "Failed to load packages" << std::endl;
-		}*/
 
 		packmanager->deletePackageBuilder(builder);
 	}
@@ -209,6 +223,56 @@ int start(int argc, char *argv[])
 		IPackage* pkg = packmanager->getPackage(i);
 		pkg->releaseAssets();
 	}
+}
+
+int start(int argc, char *argv[])
+{
+	ilInit();
+
+	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
+	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
+	IRuntime *system;
+
+	if ( Arcade::create(&system) && system->initialize(native.get()) )
+	{
+		cout << "Initialized" << endl;
+	}
+	else
+	{
+		return onError("Failed to init arcade runtime");;
+	}
+
+	std::cout << "Loading Packages..." << std::endl;
+	IPackageManager* packmanager = system->getPackageManager();
+	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
+
+	CPackageBuilder* builder = packmanager->createPackageBuilder("Default");
+	builder->load();
+
+	builder->setAssetCompiler(assetCompiler.get());
+	builder->getMetaData()->setKeyValuePair("name", "Another Package Test");
+	builder->getMetaData()->setKeyValuePair("game", "My Test");
+	builder->getMetaData()->setKeyValuePair("author", "Zak");
+
+	if ( !builder->setAndBuildMainScript("default.lua") )
+	{
+		std::cout << "Failed to build" << std::endl;
+	}
+	else
+	{
+		std::cout << "Build OK" << std::endl;
+	}
+
+	if ( builder->save() )
+	{
+		std::cout << "Saved OK" << std::endl;
+	}
+	else
+	{
+		std::cout << "Failed to save!" << std::endl;
+	}
+
+	packmanager->deletePackageBuilder(builder);
 
 	//if ( true ) return 0;
 

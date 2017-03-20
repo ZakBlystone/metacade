@@ -24,16 +24,59 @@ packagebuilder.cpp:
 */
 
 #include "engine_private.h"
+#include "../script/lua/lua_private.h"
 
 CPackageBuilder::CPackageBuilder(class CPackage* package)
 	: CRuntimeObject(package)
 	, _package(package)
+	, _compiler(nullptr)
 {
 }
 
 Arcade::CPackageBuilder::~CPackageBuilder()
 {
 	delete _package;
+}
+
+bool Arcade::CPackageBuilder::setAndBuildMainScript(const CString& scriptPath)
+{
+	shared_ptr<CLuaVM> vm = make_shared<CLuaVM>(); //getLuaVM();
+	if ( vm == nullptr ) return false;
+
+	IFileObject* scriptFile = openFile( getRuntime()->getPackageManager()->getRootDirectory() + "/" + scriptPath, FILE_READ);
+	if (!scriptFile) return false;
+
+	uint32 scriptSize = scriptFile->getSize();
+	char* scriptBuffer = new char[scriptSize];
+	if (!scriptFile->read(scriptBuffer, scriptSize)) return false;
+
+	closeFIle(scriptFile);
+
+	vm->init();
+
+	CCodeAsset* mainScript = addNamedAsset<CCodeAsset>("main.lua");
+	mainScript->setCodeBuffer(scriptBuffer, scriptSize);
+
+	weak_ptr<IVMClass> klass = vm->loadGameVMClass(mainScript);
+	shared_ptr<IVMClass> locked = klass.lock();
+	if ( locked != nullptr )
+	{
+		locked->buildAssets(this);
+	}
+
+	vm->shutdown();
+
+	return true;
+}
+
+IAssetCompiler* CPackageBuilder::getAssetCompiler()
+{
+	return _compiler;
+}
+
+void CPackageBuilder::setAssetCompiler(IAssetCompiler* compiler)
+{
+	_compiler = compiler;
 }
 
 IMetaData* CPackageBuilder::getMetaData()

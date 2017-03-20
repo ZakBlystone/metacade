@@ -45,6 +45,7 @@ public:
 	virtual bool init() override;
 	virtual void shutdown() override;
 	virtual bool isRunning() override;
+	virtual weak_ptr<IVMClass> loadGameVMClass(class CCodeAsset* codeAsset) override;
 	virtual weak_ptr<IVMClass> loadGameVMClass() override;
 	virtual bool includeGameScript() override;
 	virtual bool validateGameScript() override;
@@ -61,7 +62,7 @@ private:
 
 	lua_State *_L;
 	unsigned int _memUsage;
-	map<string, shared_ptr<CLuaVMClass>> _loadedClasses;
+	map<CString, shared_ptr<CLuaVMClass>> _loadedClasses;
 };
 
 

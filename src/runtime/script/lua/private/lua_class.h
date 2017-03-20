@@ -40,12 +40,15 @@ public:
 	virtual ~CLuaVMClass();
 
 	virtual bool reload() override;
-	virtual shared_ptr<CMetaData> getMetaData() override;
+	virtual void buildAssets(CPackageBuilder* builder) override;
+
 	virtual class IVMHost* getHost() override;
+	virtual shared_ptr<CMetaData> getMetaData() override;
 	virtual shared_ptr<IVMInstance> createVMInstance() override;
 
 	bool pushLuaFunction(string functionName) const;
 	bool loadFromFile(string filename);
+	bool loadFromAsset(CCodeAsset* asset);
 
 	shared_ptr<CLuaVM> getLuaHost() const
 	{
@@ -54,7 +57,8 @@ public:
 
 private:
 
-	static int testMetaSet(lua_State *L);
+	static int metaFunctionCreate(lua_State *L);
+	static int metaTextureCreate(lua_State *L);
 
 	friend class CLuaVM;
 	friend class CLuaVMInstance;
@@ -64,6 +68,8 @@ private:
 	string _lastLoadFile;
 	shared_ptr<CLuaVM> _host;
 	map<string, shared_ptr<LuaVMReference>> _functions;
+
+	map<CString, CString> _textureLoadArgs;
 };
 
 }

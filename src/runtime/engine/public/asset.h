@@ -31,6 +31,7 @@ namespace Arcade
 enum EAssetType
 {
 	ASSET_NONE,
+	ASSET_ANY,
 	ASSET_CODE,
 	ASSET_TEXTURE,
 	ASSET_SOUND,

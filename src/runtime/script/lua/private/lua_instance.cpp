@@ -69,11 +69,6 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 
 }
 
-void Arcade::CLuaVMInstance::precacheAssets(CPackageBuilder* builder)
-{
-
-}
-
 void Arcade::CLuaVMInstance::think(float seconds, float deltaSeconds)
 {
 	if ( _klass.expired() ) return;

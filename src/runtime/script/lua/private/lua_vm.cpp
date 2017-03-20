@@ -169,9 +169,32 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 	return false;
 }
 
+weak_ptr<IVMClass> CLuaVM::loadGameVMClass(class CCodeAsset* codeAsset)
+{
+	shared_ptr<CLuaVMClass> newClass(nullptr);
+
+	auto found = _loadedClasses.find(codeAsset->getName());
+	if ( found != _loadedClasses.end() )
+	{
+		return (*found).second;
+	}
+	else
+	{
+		newClass = make_shared<CLuaVMClass>(shared_from_this());
+		_loadedClasses.insert(make_pair(codeAsset->getName(), newClass));
+
+		if ( newClass->loadFromAsset(codeAsset) )
+		{
+			return newClass;
+		}
+	}
+
+	return newClass;
+}
+
 weak_ptr<IVMClass> CLuaVM::loadGameVMClass()
 {
-	string filename("E:/Projects/metacade/bin/Release/default.lua");
+	CString filename("E:/Projects/metacade/bin/Release/default.lua");
 
 	shared_ptr<CLuaVMClass> newClass(nullptr);
 
@@ -185,7 +208,7 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass()
 		newClass = make_shared<CLuaVMClass>(shared_from_this());
 		_loadedClasses.insert(make_pair(filename, newClass));
 
-		if ( newClass->loadFromFile(filename) )
+		if ( newClass->loadFromFile(*filename) )
 		{
 			return newClass;
 		}

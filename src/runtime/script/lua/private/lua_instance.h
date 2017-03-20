@@ -41,7 +41,6 @@ public:
 	virtual class IVMClass* getClass() override;
 	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
 	virtual void postInputEvent(const class CInputEvent& input) override;
-	virtual void precacheAssets(CPackageBuilder* builder) override;
 	virtual void think(float seconds, float deltaSeconds) override;
 	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
 	virtual void reset() override;

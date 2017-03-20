@@ -999,6 +999,7 @@ namespace Arcade
 enum EAssetType
 {
 	ASSET_NONE,
+	ASSET_ANY,
 	ASSET_CODE,
 	ASSET_TEXTURE,
 	ASSET_SOUND,
@@ -1063,6 +1064,11 @@ T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return 
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade
 {
+class IAssetCompiler
+{
+public:
+	virtual bool compile(IAsset* asset, class IMetaData* buildParameters) = 0;
+};
 class METACADE_API CPackageBuilder : public CRuntimeObject
 {
 public:
@@ -1084,6 +1090,9 @@ public:
 		addAsset(newAsset);
 		return newAsset;
 	}
+	bool setAndBuildMainScript(const CString& scriptPath);
+	void setAssetCompiler(IAssetCompiler* compiler);
+	IAssetCompiler* getAssetCompiler();
 	void removeAsset(class IAsset* asset);
 	IMetaData* getMetaData();
 	class IAsset* findAssetByName(const CString& name);
@@ -1094,6 +1103,7 @@ private:
 	friend class CPackageManager;
 	void addAsset(class IAsset* asset);
 	CPackageBuilder(class CPackage* package);
+	IAssetCompiler* _compiler;
 	class CPackage* _package;
 };
 }

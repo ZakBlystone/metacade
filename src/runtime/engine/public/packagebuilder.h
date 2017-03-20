@@ -28,6 +28,12 @@ packagebuilder.h:
 namespace Arcade
 {
 
+class IAssetCompiler
+{
+public:
+	virtual bool compile(IAsset* asset, class IMetaData* buildParameters) = 0;
+};
+
 class METACADE_API CPackageBuilder : public CRuntimeObject
 {
 public:
@@ -53,6 +59,11 @@ public:
 		return newAsset;
 	}
 
+	bool setAndBuildMainScript(const CString& scriptPath);
+
+	void setAssetCompiler(IAssetCompiler* compiler);
+	IAssetCompiler* getAssetCompiler();
+
 	void removeAsset(class IAsset* asset);
 
 	IMetaData* getMetaData();
@@ -69,6 +80,9 @@ private:
 	void addAsset(class IAsset* asset);
 
 	CPackageBuilder(class CPackage* package);
+
+	IAssetCompiler* _compiler;
+
 	class CPackage* _package;
 };
 
