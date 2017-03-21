@@ -244,7 +244,7 @@ int start(int argc, char *argv[])
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = system->getPackageManager();
-	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");
+	packmanager->setRootDirectory(".");
 
 	CPackageBuilder* builder = packmanager->createPackageBuilder("Default");
 	builder->load();
@@ -274,71 +274,13 @@ int start(int argc, char *argv[])
 
 	packmanager->deletePackageBuilder(builder);
 
-	//if ( true ) return 0;
-
-	/*CPackage* package = packmanager->createPackage();
-
-	{
-		CCodeAsset* code = package->addAsset<CCodeAsset>();
-		code->setCodeBuffer("Some code");
-		std::cout << code->getUniqueID().tostring() << std::endl;
-	}
-	{
-		CCodeAsset* code = package->addAsset<CCodeAsset>();
-		code->setCodeBuffer("Some more code");
-		std::cout << code->getUniqueID().tostring() << std::endl;
-	}
-
-	
-	{
-		IFileObject* packTest = native->getFileSystem()->openFile("pack2.mpkg", FILE_WRITE);
-		if ( packTest != nullptr )
-		{
-			package->save(packTest);
-			native->getFileSystem()->closeFile(packTest);
-		}
-	}*/
-
-	/*{
-		std::cout << "Num Assets: " << package->getNumAssets() << std::endl;
-
-		for ( uint32 i=0; i<package->getNumAssets(); ++i )
-		{
-			std::cout << package->getAsset(i)->getUniqueID().tostring() << std::endl;
-			if ( package->getAsset(i)->getType() == ASSET_CODE )
-			{
-				CCodeAsset* code = (CCodeAsset* ) package->getAsset(i);
-				std::cout << code->getCodeLength() << ": " << code->getCodeBuffer() << std::endl;
-			}
-		}
-	}*/
-
-	//packmanager->deletePackage(package);
-
-	/*std::map<CGUID, uint32> mapped;
-
-	while(1)
-	{
-		CGUID x = CGUID::generate();
-
-		if ( mapped.find(x) != mapped.end() )
-		{
-			std::cout << "COLLISION: " << mapped.size() << std::endl;
-			return 1;
-		}
-		
-		if ( mapped.size() % 10000 == 0)
-		{
-			std::cout << mapped.size() << ": " << x.tostring() << std::endl;
-		}
-
-		mapped.insert(std::make_pair(x, (uint32)mapped.size()));
-	}*/
-
 	if ( initOpenGLAndWindow() ) return 1;
 
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(800, 600);
+
+	float width = 800.f;
+	float height = 600.f;
 
 	packmanager->findAndPreloadPackages();
 
@@ -377,7 +319,11 @@ int start(int argc, char *argv[])
 			if ( evt.type == SDL_WINDOWEVENT )
 			{
 				if ( evt.window.event == SDL_WINDOWEVENT_RESIZED )
+				{
 					renderer->reshape(evt.window.data1, evt.window.data2);
+					width = evt.window.data1;
+					height = evt.window.data2;
+				}
 			}
 
 			if ( evt.type == SDL_KEYDOWN )
@@ -424,7 +370,7 @@ int start(int argc, char *argv[])
 
 		if ( !paused )
 		{
-			gameInstance->render(renderer.get(), CVec2(400, 300));
+			gameInstance->render(renderer.get(), CVec2(width, height));
 		}
 
 		SDL_GL_SwapWindow(window);
