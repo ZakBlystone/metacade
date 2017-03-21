@@ -104,6 +104,33 @@ public:
 		return 0;
 	}
 
+	MODULE_FUNCTION_DEF(quad)
+	{
+		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
+		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
+
+		CRenderQuad quad;
+
+		for ( uint32 i=0; i<4; ++i )
+		{
+			quad._verts[i]._position.x = (float)luaL_checknumber(L, i*4 + 2);
+			quad._verts[i]._position.y = (float)luaL_checknumber(L, i*4 + 3);
+			quad._verts[i]._texcoord.x = (float)luaL_checknumber(L, i*4 + 4);
+			quad._verts[i]._texcoord.y = (float)luaL_checknumber(L, i*4 + 5);
+			quad._verts[i]._color = instance->_currentColor;
+		}
+
+		uint32 t = (uint32)luaL_optnumber(L, 18, 0);
+
+		CRenderState defState;
+		defState._material._baseTexture = t;
+
+		CRenderElement& el = instance->_renderer->addRenderElement();
+		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState, instance->_layer);
+
+		return 0;
+	}
+
 	MODULE_FUNCTION_DEF(size)
 	{
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
@@ -127,6 +154,7 @@ public:
 	MODULE_FUNCTION(color)
 	MODULE_FUNCTION(rect)
 	MODULE_FUNCTION(sprite)
+	MODULE_FUNCTION(quad)
 	MODULE_FUNCTION(size)
 	MODULE_FUNCTION(layer)
 	END_DEFINE_MODULE()
