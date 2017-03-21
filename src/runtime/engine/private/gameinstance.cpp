@@ -108,9 +108,12 @@ void CGameInstance::initializeRenderer(IRenderer* renderer)
 	ITextureProvider* provider = renderer->getTextureProvider();
 	if ( provider == nullptr ) return;
 
+	vector<ITexture* > *textureList = getTextureList(renderer, true);
+	if ( textureList == nullptr ) return;
+
 	ITexture* base = provider->loadTexture(renderer, _defaultWhiteImage.get());
 	if ( base == nullptr ) return;
-	_loadedTextures.push_back(base);
+	textureList->push_back(base);
 
 	shared_ptr<CGameClass> klass = _klass.lock();
 	if ( klass == nullptr ) return;
@@ -127,8 +130,7 @@ void CGameInstance::initializeRenderer(IRenderer* renderer)
 		if ( loaded != nullptr )
 		{
 			log(LOG_MESSAGE, "Load Texture: %s[%i] (%ix%i)", *image->getName(), loaded->getID(), loaded->getWidth(), loaded->getHeight());
-
-			_loadedTextures.push_back(loaded);
+			textureList->push_back(loaded);
 		}
 	}
 }
@@ -138,15 +140,36 @@ void CGameInstance::finishRenderer(IRenderer* renderer)
 	ITextureProvider* provider = renderer->getTextureProvider();
 	if ( provider == nullptr ) return;
 
-	for ( ITexture* tex : _loadedTextures )
+	vector<ITexture* > *textureList = getTextureList(renderer);
+	if ( textureList == nullptr ) return;
+
+	for ( ITexture* tex : *textureList )
 	{
 		provider->freeTexture(renderer, tex);
 	}
 
-	_loadedTextures.clear();
+	delete textureList;
+	_loadedTextures.erase(_loadedTextures.find(renderer));
+
+	//_loadedTextures.clear();
 }
 
 bool CGameInstance::callFunction(CFunctionCall call)
 {
 	return _vmInstance->callFunction(call);
+}
+
+vector<ITexture*>* CGameInstance::getTextureList(IRenderer* renderer, bool newOnly)
+{
+	auto found = _loadedTextures.find(renderer);
+	if ( found != _loadedTextures.end() )
+	{
+		if ( newOnly ) return nullptr;
+
+		return (*found).second;
+	}
+
+	vector<ITexture*>* textures = new vector<ITexture*>();
+	_loadedTextures.insert(make_pair(renderer, textures));
+	return textures;
 }

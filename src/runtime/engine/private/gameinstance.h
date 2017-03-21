@@ -50,7 +50,9 @@ private:
 	shared_ptr<CElementRenderer> _elementRenderer;
 
 	shared_ptr<IImage> _defaultWhiteImage;
-	vector<ITexture* > _loadedTextures;
+	map<IRenderer*, vector<ITexture* >*> _loadedTextures;
+
+	vector<ITexture*>* getTextureList(IRenderer* renderer, bool newOnly = false);
 
 	float _lastTime;
 };
