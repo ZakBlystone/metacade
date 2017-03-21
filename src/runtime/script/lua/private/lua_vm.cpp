@@ -73,7 +73,7 @@ bool CLuaVM::init()
 	if ( _L != nullptr ) return true;
 
 	_memUsage = 0;
-	_L = lua_newstate(l_alloc, &_memUsage);
+	_L = luaL_newstate(); //lua_newstate(l_alloc, &_memUsage);
 
 	luaJIT_setmode(_L, -1, LUAJIT_MODE_DEBUG | LUAJIT_MODE_ON);
 	luaJIT_setmode(_L, -1, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
