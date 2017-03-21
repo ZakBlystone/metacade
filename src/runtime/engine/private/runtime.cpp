@@ -73,7 +73,7 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	//if ( !_renderTest->init() ) return false;
 
-	filesystemTest();
+	//filesystemTest();
 
 	/*CSHA1 sha;
 	CSHA1::Generator gen;
