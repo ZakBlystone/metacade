@@ -19,38 +19,59 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-glrender.h:
+compiler.cpp: Compiles IAssets
 ===============================================================================
 */
 
-#pragma once
-
-//#include "render/render_public.h"
 #include "metacade_amal.h"
-#include <map>
-#include <algorithm>
 
 using namespace Arcade;
 
-class CRendererGL : public IRenderer, ITextureProvider
+#include "IL/il.h"
+#include "compiler.h"
+
+static bool buildImage(CImageAsset* asset, IMetaData* params)
 {
-public:
-	CRendererGL();
-	~CRendererGL();
+	ILuint test = ilGenImage();
+	ilBindImage(test);
+	if ( !ilLoadImage(*params->getValue("file")) ) return false;
 
-	void reshape(int32 width, int32 height);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
-	virtual void render(class IDrawBuffer* buffer) override;
-	virtual class ITextureProvider* getTextureProvider() override;
+	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);
+	int height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
+	
+	uint8* data = (uint8*) ilGetData();
+	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
+	return true;
+}
 
-	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) override;
-	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) override;
+CCompiler::CCompiler()
+{
+	ilInit();
+}
 
-	//void renderGUI(struct ImDrawData* drawData);
+CCompiler::~CCompiler()
+{
+	ilShutDown();
+}
 
-private:
-	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);
-	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
+bool CCompiler::compile(IAsset* asset, IMetaData* buildParameters)
+{
+	switch (asset->getType())
+	{
+	case ASSET_NONE:
+	break;
+	case ASSET_CODE:
+	break;
+	case ASSET_TEXTURE:
+	return buildImage((CImageAsset*)asset, buildParameters);
+	break;
+	case ASSET_SOUND:
+	break;
+	default:
+	break;
+	}
 
-	std::map<uint32, ITexture*> _textureRemap;
-};
+	return false;
+}

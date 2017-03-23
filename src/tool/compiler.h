@@ -19,38 +19,17 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-glrender.h:
+compiler.h: Compiles IAssets
 ===============================================================================
 */
 
 #pragma once
 
-//#include "render/render_public.h"
-#include "metacade_amal.h"
-#include <map>
-#include <algorithm>
-
-using namespace Arcade;
-
-class CRendererGL : public IRenderer, ITextureProvider
+class CCompiler : public IAssetCompiler
 {
 public:
-	CRendererGL();
-	~CRendererGL();
+	CCompiler();
+	~CCompiler();
 
-	void reshape(int32 width, int32 height);
-
-	virtual void render(class IDrawBuffer* buffer) override;
-	virtual class ITextureProvider* getTextureProvider() override;
-
-	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) override;
-	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) override;
-
-	//void renderGUI(struct ImDrawData* drawData);
-
-private:
-	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);
-	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
-
-	std::map<uint32, ITexture*> _textureRemap;
+	virtual bool compile(IAsset* asset, IMetaData* buildParameters) override;
 };

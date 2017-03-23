@@ -19,11 +19,15 @@ using namespace Arcade;
 #include "SDL.h"
 #include "GL/glew.h"
 #include "GL/glew.c"
-#include "IL/il.h"
 
+#include "compiler.h"
 #include "glrender.h"
 #include "native.h"
+#include "imgui.h"
+#include "imgui_impl_sdl_gl3.h"
 #include <fstream>
+
+#define C_ARRAYSIZE(_ARR)      ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
 int onError(const char *error)
 {
@@ -49,15 +53,17 @@ void checkError(int line)
 static SDL_Window *window = NULL;
 static SDL_GLContext glContext;
 static shared_ptr<CRendererGL> renderer;
+static IPackage* loadedPackage = nullptr;
+static IGameClass* loadedGameClass = nullptr;
 
-int initOpenGLAndWindow()
+static int initOpenGLAndWindow()
 {
 	SDL_Init(SDL_INIT_EVERYTHING | SDL_INIT_EVENTS);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); //double buffering
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);  //24-bit depth buffer
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); //4x multi-sampling for pretty lines
 
-	window = SDL_CreateWindow("Arcade", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Arcade", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!window) return onError("Failed To Init SDL_Window");
 
 
@@ -67,168 +73,111 @@ int initOpenGLAndWindow()
 	SDL_GL_SetSwapInterval(1);
 
 	glewInit();
+
+	ImGui_ImplSdlGL3_Init(window);
+
 	return 0;
 }
 
-void buildImage(CImageAsset* asset, const CString& file)
+static void immediateUI(int32 width, int32 height)
 {
-	ILuint test = ilGenImage();
-	ilBindImage(test);
-	ilLoadImage(*file);
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	static bool bNewPackageDialog = false;
 
-	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);
-	int height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
-	
-	uint8* data = (uint8*) ilGetData();
-	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
-}
-
-bool buildImage2(CImageAsset* asset, IMetaData* params)
-{
-	ILuint test = ilGenImage();
-	ilBindImage(test);
-	if ( !ilLoadImage(*params->getValue("file")) ) return false;
-
-	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-
-	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);
-	int height = (int) ilGetInteger(IL_IMAGE_HEIGHT);
-	
-	uint8* data = (uint8*) ilGetData();
-	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
-	return true;
-}
-
-class CCompiler : public IAssetCompiler
-{
-	virtual bool compile(IAsset* asset, IMetaData* buildParameters) override
+	if ( ImGui::BeginMainMenuBar() )
 	{
-		switch(asset->getType())
+		if ( ImGui::BeginMenu("File") )
 		{
-		case ASSET_NONE:
-		break;
-		case ASSET_CODE:
-		break;
-		case ASSET_TEXTURE:
-			return buildImage2((CImageAsset*) asset, buildParameters);
-		break;
-		case ASSET_SOUND:
-		break;
-		default:
-		break;
-		}
+			if ( ImGui::MenuItem("New Package") ) 
+				bNewPackageDialog = true;
 
-		return false;
-	}
-};
-void testPackageStuff(IRuntime *system)
-{
-	IPackageManager* packmanager = system->getPackageManager();
-	if(true)
-	{
-		CPackageBuilder* builder = packmanager->createPackageBuilder("MyPackage");
-		builder->load();
-
-		builder->getMetaData()->setKeyValuePair("name", "Another Package Test");
-		builder->getMetaData()->setKeyValuePair("game", "My Test");
-		builder->getMetaData()->setKeyValuePair("author", "Zak");
-
-		{
-			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("main.lua");
-			code->setCodeBuffer("This is some code contained within a package, Yeah");
-		}
-
-		{
-			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("aux.lua");
-			code->setCodeBuffer("Some other code that isn't main");
-		}
-
-		{
-			CCodeAsset* code = builder->addNamedAsset<CCodeAsset>("aux2.lua");
-			code->setCodeBuffer("Whatever, here's more");
-		}
-
-		{
-			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test");
-			buildImage(image, "E:/Temp/starblur.png");
-		}
-
-		{
-			CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
-			buildImage(image, "E:/Temp/chair_icon0.png");
-		}
-
-		{
-			//CImageAsset* image = builder->addNamedAsset<CImageAsset>("test2");
-		}
-
-		if ( builder->save() )
-		{
-			std::cout << "Saved OK" << std::endl;
-		}
-		else
-		{
-			std::cout << "Failed to save!" << std::endl;
-		}
-
-		packmanager->deletePackageBuilder(builder);
-	}
-
-
-	//if ( true ) return 0;
-
-
-	if ( !packmanager->findAndPreloadPackages() )
-	{
-		std::cout << "Failed to load packages" << std::endl;
-	}
-
-	for ( uint32 i=0; i<packmanager->getNumPackages(); ++i )
-	{
-		IPackage* pkg = packmanager->getPackage(i);
-		std::cout << "Num Assets: " << pkg->getNumAssets() << std::endl;
-
-		for ( uint32 j=0; j < pkg->getMetaData()->getNumKeys(); ++j )
-		{
-			std::cout << "\t" << *pkg->getMetaData()->getKey(j) << ": " << *pkg->getMetaData()->getValue(j) << std::endl;
-		}
-
-		if ( pkg->loadAssets() )
-		{
-			std::cout << "Loaded Assets" << std::endl;
-		}
-
-		for ( uint32 j=0; j < pkg->getNumAssets(); ++j )
-		{
-			IAsset* asset = pkg->getAsset(j);
-
-			std::cout << asset->getUniqueID().tostring() << "(" << *asset->getName() << "): ";
-
-			if ( asset->getType() == ASSET_CODE )
+			if ( ImGui::MenuItem("Open Package") )
 			{
-				CCodeAsset* code = (CCodeAsset* ) asset;
-				std::cout << "[" << code->getCodeLength() << "]: " << (code->getCodeLength() ? code->getCodeBuffer() : "<no code>") << std::endl;
+			
 			}
-			else if ( asset->getType() == ASSET_TEXTURE )
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+
+	if ( bNewPackageDialog )
+	{
+		bNewPackageDialog = false;
+		ImGui::OpenPopup("NewPackage");
+	}
+
+	if ( ImGui::BeginPopupModal("NewPackage") )
+	{
+		static char packageName[64] = "unnamedPackage";
+
+		ImGui::PushItemWidth(200);
+		ImGui::Text("Name this package:");
+
+		if ( ImGui::InputText("", packageName, C_ARRAYSIZE(packageName)
+			, ImGuiInputTextFlags_EnterReturnsTrue 
+			| ImGuiInputTextFlags_AutoSelectAll) )
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::PopItemWidth();
+
+
+		if ( ImGui::Button("Create") )
+			ImGui::CloseCurrentPopup();
+
+		ImGui::SameLine();
+
+		if ( ImGui::Button("Cancel") )
+			ImGui::CloseCurrentPopup();
+
+		
+
+		ImGui::EndPopup();
+	}
+
+	int32 sizeX = width / 2;
+	int32 sizeY = height;
+	int32 posX = width - sizeX;
+
+	ImGui::SetNextWindowPos(ImVec2(posX,20.f));
+	ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY - 20));
+
+	if ( ImGui::Begin("ArcadeTool", nullptr
+		, ImGuiWindowFlags_NoMove 
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoSavedSettings
+		| ImGuiWindowFlags_NoTitleBar)
+		)
+	{
+		if ( loadedPackage )
+		{
+			ImGui::Text("%s:", *loadedPackage->getPackageName());
+			ImGui::Separator();
+
+			const IMetaData* data = loadedPackage->getMetaData();
+			for ( uint32 i=0; i<data->getNumKeys(); ++i )
 			{
-				CImageAsset* image = (CImageAsset* ) asset;
-				std::cout << "[" << image->getID() << "]: " << image->getWidth() << "x" << image->getHeight() << std::endl;
+				ImGui::Text("%s: %s", *data->getKey(i), *data->getValue(i));
+			}
+			ImGui::Separator();
+
+			for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
+			{
+				IAsset* asset = loadedPackage->getAsset(i);
+				ImGui::Button("|");
+				ImGui::SameLine();
+				ImGui::Text("%s { %s }", *asset->getName(), asset->getUniqueID().tostring());
 			}
 		}
+
+		ImGui::End();
 	}
 
-	for ( uint32 i=0; i<packmanager->getNumPackages(); ++i )
-	{
-		IPackage* pkg = packmanager->getPackage(i);
-		pkg->releaseAssets();
-	}
+	//ImGui::End();
 }
 
-int start(int argc, char *argv[])
+static int start(int argc, char *argv[])
 {
-	ilInit();
-
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
 	IRuntime *system;
@@ -277,10 +226,10 @@ int start(int argc, char *argv[])
 	if ( initOpenGLAndWindow() ) return 1;
 
 	renderer = make_shared<CRendererGL>();
-	renderer->reshape(800, 600);
+	renderer->reshape(1280, 720);
 
-	float width = 800.f;
-	float height = 600.f;
+	float width = 1280.f;
+	float height = 720.f;
 
 	packmanager->findAndPreloadPackages();
 
@@ -298,6 +247,9 @@ int start(int argc, char *argv[])
 		return onError("Couldn't create game instance");
 	}
 
+	loadedPackage = defaultPackage;
+	loadedGameClass = gameClass;
+
 	gameInstance->initializeRenderer(renderer.get());
 
 	bool paused = false;
@@ -310,6 +262,8 @@ int start(int argc, char *argv[])
 		SDL_Event evt;
 		while (SDL_PollEvent(&evt))
 		{
+			ImGui_ImplSdlGL3_ProcessEvent(&evt);
+
 			if ( evt.type == SDL_QUIT ) 
 			{
 				running = false;
@@ -325,53 +279,25 @@ int start(int argc, char *argv[])
 					height = evt.window.data2;
 				}
 			}
-
-			if ( evt.type == SDL_KEYDOWN )
-			{
-				bool pressed = evt.key.state == SDL_PRESSED;
-				if ( pressed && evt.key.keysym.scancode == SDL_SCANCODE_R )
-				{
-					//rendertest->reloadVM();
-				}
-			}
-
-			if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
-			{
-				if ( evt.key.keysym.scancode == SDL_SCANCODE_E )
-				{
-					bool wasPaused = paused;
-					paused = evt.key.state == SDL_PRESSED;
-					bool changed = wasPaused != paused;
-
-					if ( changed )
-					{
-					if ( paused )
-					{
-						gameInstance->finishRenderer(renderer.get());
-					}
-					else
-					{
-						gameInstance->initializeRenderer(renderer.get());
-					}
-					}
-				}
-			}
 		}
+
+		ImGui_ImplSdlGL3_NewFrame(window);
 
 		float time = (float)(SDL_GetTicks()) / 1000.f;
 		if (lastTime == 0) lastTime = time;
 		deltaSeconds = time - lastTime;
 		lastTime = time;
 
-		//glClearColor(0.1f, 0.1f, 0.2f, 1.0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		gameInstance->think(time);
 
 		if ( !paused )
 		{
-			gameInstance->render(renderer.get(), CVec2(width, height));
+			gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
 		}
+
+		immediateUI(width, height);
+
+		ImGui::Render();
 
 		SDL_GL_SwapWindow(window);
 
@@ -381,9 +307,13 @@ int start(int argc, char *argv[])
 	gameInstance->finishRenderer(renderer.get());
 	gameClass->deleteInstance(gameInstance);
 
-	ilShutDown();
-
 	Arcade::destroy(system);
+
+	ImGui_ImplSdlGL3_Shutdown();
+
+    SDL_GL_DeleteContext(glContext);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
 	return 0;
 }
