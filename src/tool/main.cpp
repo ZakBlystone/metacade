@@ -23,6 +23,7 @@ using namespace Arcade;
 #include "compiler.h"
 #include "glrender.h"
 #include "native.h"
+#include "projectmanager.h"
 #include "imgui.h"
 #include "imgui_impl_sdl_gl3.h"
 #include <fstream>
@@ -106,7 +107,9 @@ static void immediateUI(int32 width, int32 height)
 		ImGui::OpenPopup("NewPackage");
 	}
 
-	if ( ImGui::BeginPopupModal("NewPackage") )
+	if ( ImGui::BeginPopupModal("NewPackage"
+			, nullptr
+			, ImGuiWindowFlags_NoResize ) )
 	{
 		static char packageName[64] = "unnamedPackage";
 
@@ -180,7 +183,12 @@ static int start(int argc, char *argv[])
 {
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "../../projects");
 	IRuntime *system;
+
+	//PROJECT STUFF
+	vector<CProject> projects;
+	projectManager->enumerateProjectFolders(projects);
 
 	if ( Arcade::create(&system) && system->initialize(native.get()) )
 	{
