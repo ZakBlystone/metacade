@@ -99,29 +99,45 @@ CString CString::sub(uint32 offset, uint32 len) const
 	return output;
 }
 
-CString CString::operator+(const CString &rhs) const
+CString CString::operator/(const CString& other) const
 {
-	CString output( length() + rhs.length() );
+	if ( _length == 0 ) return CString("/") + other;
+
+	if ( _string[_length-1] == '/' )
+	{
+		return (*this) + other;
+	}
+	return (*this) + "/" + other;
+}
+
+CString CString::operator/(const char* other) const
+{
+	return (*this) / CString(other);
+}
+
+CString CString::operator+(const CString &other) const
+{
+	CString output( length() + other.length() );
 	memcpy(output._string, _string, length());
-	memcpy(output._string+length(), rhs._string, rhs.length()+1);
+	memcpy(output._string+length(), other._string, other.length()+1);
 
 	return output;
 }
 
-CString CString::operator+(const char *rhs) const
+CString CString::operator+(const char *other) const
 {
-	return (*this) + CString(rhs);
+	return (*this) + CString(other);
 }
 
-CString &CString::operator=(const CString &rhs)
+CString &CString::operator=(const CString &other)
 {
-	if ( &rhs == this ) return *this;
+	if ( &other == this ) return *this;
 
 	reset();
 
-	_refs = rhs._refs;
-	_string = rhs._string;
-	_length = rhs._length;
+	_refs = other._refs;
+	_string = other._string;
+	_length = other._length;
 
 	if (_refs) (*_refs)++;
 

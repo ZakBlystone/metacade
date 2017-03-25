@@ -44,6 +44,8 @@ public:
 	CString lower() const;
 	CString upper() const;
 
+	CString operator/(const CString& other) const;
+	CString operator/(const char* other) const;
 	CString operator+(const CString& other) const;
 	CString operator+(const char* other) const;
 	CString &operator=(const CString& other);
