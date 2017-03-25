@@ -38,6 +38,13 @@ public:
 
 	uint32 length() const;
 	bool empty() const;
+	bool startsWith(const CString& string) const;
+	bool endsWith(const CString& string) const;
+	bool contains(const CString& string) const;
+
+	//returns -1 if not found
+	int32 find(const CString& string) const;
+
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;

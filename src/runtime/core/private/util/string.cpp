@@ -71,6 +71,40 @@ bool CString::empty() const
 	return _length == 0;
 }
 
+bool CString::startsWith(const CString& string) const
+{
+	return sub(0, string.length()) == string;
+}
+
+bool CString::endsWith(const CString& string) const
+{
+	return sub(length() - string.length(), string.length()) == string;
+}
+
+bool CString::contains(const CString& string) const
+{
+	return find(string) != -1;
+}
+
+int32 CString::find(const CString& string) const
+{
+	if ( string.length() > _length ) return -1;
+
+	uint32 search = 0;
+	do
+	{
+		if ( sub(search, string.length()) == string )
+		{
+			return search;
+		}
+
+		++search;
+	}
+	while ( search <= _length - string.length() );
+
+	return -1;
+}
+
 CString CString::chopLeft(uint32 len) const
 {
 	if ( len >= length() ) return CString();
