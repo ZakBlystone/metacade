@@ -32,26 +32,6 @@ CRenderBuffer::CRenderBuffer()
 
 }
 
-CVertex2D& CRenderBuffer::addVertex(const CVertex2D &vertex)
-{
-	static CVertex2D novertex;
-	if ( _numVerts >= MAX_VERTICES ) return novertex;
-
-	//memcpy(_svert + _numVerts, &vertex, sizeof(CVertex2D));
-	_svert[_numVerts] = vertex;
-	return _svert[_numVerts++];
-}
-
-uint16& CRenderBuffer::addIndex(const uint16 index /*= 0*/)
-{
-	static uint16 noindex = 0;
-	if ( _numIndices >= MAX_INDICES ) return noindex;
-
-	//memcpy(_sindex + _numIndices, &index, sizeof(uint16));
-	_sindex[_numIndices] = index;
-	return _sindex[_numIndices++];
-}
-
 const CVertex2D* CRenderBuffer::getVertices() const
 {
 	return _svert;

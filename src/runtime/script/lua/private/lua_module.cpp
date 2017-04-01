@@ -62,24 +62,15 @@ LuaModule *LuaModule::push(lua_State *L)
 
 LuaModule *LuaModule::get(lua_State *L, const char *classname, int idx)
 {
-	LuaModule *classz;
-	auto iter = __modules.find(classname);
-	if (iter == __modules.end())
-	{
-		//Runtime::LogPrint(LOG_ERROR, "Attempted to access unloaded module: %s", classname);
-		return nullptr;
-	}
-
-	classz = (*iter).second;
-	if (classz == nullptr)
-	{
-		//Runtime::LogPrint(LOG_ERROR, "module %s was null", classname);
-		return nullptr;
-	}
-
 	LuaModule *m = NULL;
 	luaL_checktype(L, idx, LUA_TUSERDATA);
-	m = (LuaModule *)luaL_checkudata(L, idx, classz->__getName());
+
+	m = (LuaModule *)lua_touserdata(L, idx);
+
+	if ( strcmp(m->__getClass(), classname) )
+	{
+		return nullptr;
+	}
 
 	m->__get(L);
 

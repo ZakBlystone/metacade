@@ -42,12 +42,12 @@ struct METACADE_API CColor
 		uint8 rgba[4];
 	};
 
-	CColor();
-	CColor(uint32 irgba);
+	inline CColor();
+	inline CColor(uint32 irgba);
 
-	CColor(uint8 color[4]);
-	CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
-	CColor(float fr, float fg, float fb, float fa = 1.0f);
+	inline CColor(uint8 color[4]);
+	inline CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
+	inline CColor(float fr, float fg, float fb, float fa = 1.0f);
 
 	uint32 asInt() const;
 
@@ -82,9 +82,9 @@ struct METACADE_API CFloatColor
 		float rgba[4];
 	};
 
-	CFloatColor();
-	CFloatColor(const CColor &color);
-	CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
+	inline CFloatColor();
+	inline CFloatColor(const CColor &color);
+	inline CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
 
 	CFloatColor operator+(const CFloatColor& other) const;
 	CFloatColor operator+(float brt) const;

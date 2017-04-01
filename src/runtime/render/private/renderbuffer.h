@@ -36,8 +36,17 @@ class CRenderBuffer : public IRenderBuffer
 public:
 	CRenderBuffer();
 
-	CVertex2D& addVertex(const CVertex2D &vertex);
-	uint16& addIndex(const uint16 index = 0);
+	inline void addVertex(const CVertex2D &vertex)
+	{
+		if ( _numVerts >= MAX_VERTICES ) return;
+		_svert[_numVerts++] = vertex;
+	}
+
+	inline void addIndex(const uint16 index = 0)
+	{
+		if ( _numIndices >= MAX_INDICES ) return;
+		_sindex[_numIndices++] = index;
+	}
 
 	virtual const CVertex2D* getVertices() const;
 	virtual const uint16 getNumVertices() const;

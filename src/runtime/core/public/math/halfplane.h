@@ -33,13 +33,28 @@ namespace Arcade
 class METACADE_API CHalfPlane : public CVec3
 {
 public:
-	CHalfPlane();
-	CHalfPlane(const CVec2& dir, float distance);
-	CHalfPlane(const CVec2& dir, const CVec2& origin);
+	inline CHalfPlane();
+	inline CHalfPlane(const CVec2& dir, float distance);
+	inline CHalfPlane(const CVec2& dir, const CVec2& origin);
 
 	inline float distance(const CVec2& point) const;
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
-	inline EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
+
+	template<bool CheckOn = false>
+	inline EPointClassify classifyPoint(const CVec2& point) const
+	{
+		if ( distance(point) <= -EPSILON ) return PLANE_BEHIND;
+		return PLANE_INFRONT;
+	}
 };
+
+template<>
+inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
+{
+	float dist = distance(point);
+	if ( dist <= -EPSILON ) return PLANE_BEHIND;
+	if ( dist <= EPSILON ) return PLANE_ON;
+	return PLANE_INFRONT;
+}
 
 }

@@ -158,16 +158,17 @@ struct VLL
 
 	void reset()
 	{
-		while(root != nullptr)
-		{
-			VLLN* next = root->next;
-			root->next = freelist;
-			freelist = root;
-			root = next;
-		}
+		if ( root == nullptr ) return;
+
+		VLLN* end = root;
+		while(end->next) end = end->next;
+
+		end->next = freelist;
+		freelist = root;
+		root = nullptr;
 	}
 
-	void free(VLLN* node)
+	inline void free(VLLN* node)
 	{
 		if ( node == root ) root = root->next;
 
@@ -185,54 +186,47 @@ struct VLL
 		return newNode;
 	}
 
-	VLLN* forward(VLLN* node)
+	inline VLLN* forward(VLLN* node)
 	{
 		if ( node->next != nullptr ) return node->next;
 		return root;
 	}
 
-	VLLN* alloc()
+	inline VLLN* alloc()
 	{
-		if ( freelist != nullptr )
-		{
-			VLLN* ret = freelist;
-			freelist = freelist->next;
+		if ( freelist == nullptr ) return nullptr;
+		VLLN* ret = freelist;
+		freelist = freelist->next;
 
-			return ret;
-		}
-		return nullptr;
+		return ret;
 	}
 
-	VLLN* append()
+	inline VLLN* append()
 	{
 		VLLN* ret = alloc();
 		if ( ret == nullptr ) return nullptr;
 
 		ret->next = root;
-		root = ret;	
+		root = ret;
 		return ret;
 	}
 
-	VLLN* first() { return root; }
+	inline VLLN* first() { return root; }
 };
 
 static EPointClassify clipPolygonAgainstPlane(const CHalfPlane& plane, VLL& list)
 {
-	float frac;
-	uint32 i;
-	uint32 num_behind = 0;
-	uint32 num_infront = 0;
-
 	VLLN* node = list.first();
 	if ( node == nullptr ) return PLANE_INFRONT;
 
-	i=0;
+	uint32 num_behind = 0;
+	uint32 num_infront = 0;
+
 	while(node)
 	{
-		node->pc = plane.clasifyPoint(node->vert._position);
+		node->pc = plane.classifyPoint(node->vert._position);
 		node->pc == PLANE_BEHIND ? ++num_behind : ++num_infront;
 		node = node->next;
-		++i;
 	}
 
 	if ( num_behind == 0 ) return PLANE_INFRONT;
@@ -258,11 +252,7 @@ static EPointClassify clipPolygonAgainstPlane(const CHalfPlane& plane, VLL& list
 				continue;
 			}
 
-			node->next = nullptr;
-			if ( after != list.root && next != list.root )
-			{
-				node->next = after;
-			}
+			node->next = after != list.root && next != list.root ? after : nullptr;
 
 			VLLN* link = next->next;
 			list.free(next);
@@ -271,17 +261,20 @@ static EPointClassify clipPolygonAgainstPlane(const CHalfPlane& plane, VLL& list
 		}
 		else if ( p0 == PLANE_INFRONT && p1 == PLANE_BEHIND )
 		{
+			float frac;
 			plane.intersection(v0->_position, v1->_position, frac);
 
 			if ( node == list.root ) node = list.insert(node);
 
-			node->vert = v0->interpolateTo(*v1, frac);
+			CVertex2D::interpolateTo(*v0, *v1, node->vert, frac);
 		}
 		else if ( p0 == PLANE_BEHIND && p1 == PLANE_INFRONT )
 		{
+			float frac;
 			plane.intersection(v1->_position, v0->_position, frac);
 			node = list.insert(node);
-			node->vert = v1->interpolateTo(*v0, frac);
+			
+			CVertex2D::interpolateTo(*v1, *v0, node->vert, frac);
 			node->pc = PLANE_INFRONT;
 			continue;
 		}
@@ -302,8 +295,6 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 		return;
 	}
 
-	CRenderBuffer* buffer = _renderBuffer.get();
-
 	vertList.reset();
 	for ( int32 i=num-1; i>=0; --i )
 	{
@@ -311,22 +302,23 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 	}
 
 	bool clipped = false;
-	bool visible = true;
 	for ( int32 i=0; i<clip.getNumPlanes(); ++i )
 	{
-		if ( visible )
-		{
-			EPointClassify pc = clipPolygonAgainstPlane(clip.getHalfPlane(i), vertList);
-			if ( pc == PLANE_INTERSECT ) clipped = true;
-			if ( pc == PLANE_INFRONT ) visible = false;
-		}
+		EPointClassify pc = clipPolygonAgainstPlane(clip.getHalfPlane(i), vertList);
+		if ( pc == PLANE_INTERSECT ) clipped = true;
+		if ( pc == PLANE_INFRONT ) return;
 	}
 
-	if ( !visible ) return;
+	if ( !clipped )
+	{
+		writePolygonToBufferAsTris(verts, num);
+		return;
+	}
 
 	VLLN* node = vertList.first();
 	if ( node == nullptr ) return;
 
+	CRenderBuffer* buffer = _renderBuffer.get();
 	uint32 size = 0;
 	uint32 mark = buffer->getNumVertices();
 	while(node)
@@ -357,9 +349,3 @@ Arcade::CVec2 Arcade::CElementRenderer::getViewSize() const
 {
 	return _viewSize;
 }
-
-Arcade::CClipShape Arcade::CElementRenderer::getViewportClip() const
-{
-	return _viewClip;
-}
-

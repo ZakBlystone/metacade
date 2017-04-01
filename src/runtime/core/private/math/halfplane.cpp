@@ -25,19 +25,19 @@ halfplane.cpp: Vec3 with plane characteristics
 
 #include "core_private.h"
 
-CHalfPlane::CHalfPlane(const CVec2& dir, float distance)
+inline CHalfPlane::CHalfPlane(const CVec2& dir, float distance)
 	: CVec3(dir.x, dir.y, distance)
 {
 
 }
 
-CHalfPlane::CHalfPlane(const CVec2& dir, const CVec2& origin)
+inline CHalfPlane::CHalfPlane(const CVec2& dir, const CVec2& origin)
 	: CVec3(dir.x, dir.y, origin.dot(dir))
 {
 
 }
 
-CHalfPlane::CHalfPlane()
+inline CHalfPlane::CHalfPlane()
 {
 
 }
@@ -51,11 +51,10 @@ inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& 
 {
 	float d1 = distance(start);
 	float d2 = distance(end);
-	float dist = fabs(d1) + fabs(d2);
 
 	if ( d1 > EPSILON && d2 < -EPSILON )
 	{
-		fraction = (d1 / dist);
+		fraction = (d1 / (d1 - d2));
 		return PLANE_INTERSECT;
 	}
 
@@ -66,13 +65,5 @@ inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& 
 		return PLANE_BEHIND;
 	}
 
-	return PLANE_INFRONT;
-}
-
-inline EPointClassify CHalfPlane::clasifyPoint(const CVec2& point, bool checkOn /*= false*/) const
-{
-	float dist = distance(point);
-	if ( dist <= -EPSILON ) return PLANE_BEHIND;
-	if ( checkOn && dist <= EPSILON ) return PLANE_ON;
 	return PLANE_INFRONT;
 }

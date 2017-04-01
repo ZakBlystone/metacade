@@ -44,7 +44,7 @@ public:
 	void setViewportClip(const CClipShape& clip);
 
 	CVec2 getViewSize() const;
-	CClipShape getViewportClip() const;
+	inline const CClipShape &getViewportClip() const { return _viewClip; }
 
 	void endFrame();
 

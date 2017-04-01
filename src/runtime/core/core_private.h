@@ -23,22 +23,6 @@ core_private.h: Headers and macros private to this module
 ===============================================================================
 */
 
-#define EPSILON 0.00001f
-
-#ifndef M_PI
-#define M_PI       3.14159265358979323846f
-#endif
-
-#define M_FPI	   3.1415926f
-
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
 #include "core_public.h"
 
 using namespace Arcade;

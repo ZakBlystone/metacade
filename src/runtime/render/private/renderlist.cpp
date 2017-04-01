@@ -28,43 +28,49 @@ renderlist.cpp:
 CRenderList::CRenderList()
 {
 	_elements.reserve(8192);
-}
-
-void CRenderList::appendRenderElement(const CRenderElement& element)
-{
-	_elements.push_back(element);
+	_elements.resize(8192);
+	_count = 0;
 }
 
 CRenderElement& CRenderList::emplaceRenderElement()
 {
-	_elements.emplace_back();
-	return _elements.back();
+	if ( _count == _elements.size() )
+		_elements.resize(_count * 2);
+
+	return _elements[_count++];
+	//_elements.emplace_back();
+	//return _elements.back();
 }
 
 void CRenderList::clear()
 {
-	_elements.clear();
+	//_elements.clear();
+	//_elements.resize(8192);
+	_count = 0;
 }
 
 CRenderElement& CRenderList::top()
 {
-	return _elements.back();
+	return _elements[_count-1];
+	//return _elements.back();
 }
 
 void CRenderList::pop()
 {
-	_elements.pop_back();
+	_count--;
+	//_elements.pop_back();
 }
 
 bool CRenderList::empty()
 {
-	return _elements.empty();
+	return _count == 0;
+	//return _elements.empty();
 }
 
 void CRenderList::sort()
 {
-	std::reverse(_elements.begin(), _elements.end());
-	std::sort(_elements.begin(), _elements.end(), [](const CRenderElement &a, const CRenderElement &b)
+	std::reverse(_elements.begin(), _elements.begin() + _count);
+	std::sort(_elements.begin(), _elements.begin() + _count, [](const CRenderElement &a, const CRenderElement &b)
 	{
 		int32 layerA = a.getLayer();
 		int32 layerB = b.getLayer();

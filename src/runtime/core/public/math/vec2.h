@@ -44,14 +44,14 @@ public:
 	};
 
 	//Constructor
-	CVec2();
-	CVec2(float x, float y);
-	CVec2(const CVec2 &other);
+	inline CVec2();
+	inline CVec2(float x, float y);
+	inline CVec2(const CVec2 &other);
 
 	//Accessors and Mutators
-	void set(float x, float y);
-	void set(float xy[2]);
-	void set(const CVec2 &other);
+	inline void set(float x, float y);
+	inline void set(float xy[2]);
+	inline void set(const CVec2 &other);
 	float getX() const;
 	float getY() const;
 	void get(float *ptr) const;
@@ -70,6 +70,9 @@ public:
 	CVec2 vmin(const CVec2 &b) const;
 	CVec2 vmax(const CVec2 &b) const;
 	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
+
+	static inline void interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction);
+
 	CVec2 &normalize();
 
 	//Operator Overloads

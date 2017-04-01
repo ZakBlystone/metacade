@@ -36,7 +36,6 @@ class CRenderList
 public:
 	CRenderList();
 
-	void appendRenderElement(const CRenderElement& element);
 	CRenderElement& emplaceRenderElement();
 
 	void clear();
@@ -49,6 +48,7 @@ public:
 
 private:
 	vector<CRenderElement> _elements;
+	uint32 _count;
 };
 
 }

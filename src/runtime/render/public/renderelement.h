@@ -77,7 +77,7 @@ struct CRenderQuad
 struct CClipShape
 {
 public:
-	CClipShape() 
+	inline CClipShape() 
 		: _numPlanes(0)
 	{}
 	

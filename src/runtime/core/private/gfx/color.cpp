@@ -25,7 +25,7 @@ color.cpp: 32-bit color representation and floating-point counterpart
 
 #include "core_private.h"
 
-CColor::CColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
+inline CColor::CColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
 {
 	fr = fr > 1.0f ? 1.0f : (fr < 0.0f ? 0.0f : fr);
 	fg = fg > 1.0f ? 1.0f : (fg < 0.0f ? 0.0f : fg);
@@ -38,17 +38,17 @@ CColor::CColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
 	a = (uint8)(fa * 255.0f);
 }
 
-CColor::CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca /*= 0xFF*/) : r(cr), g(cg), b(cb), a(ca)
+inline CColor::CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca /*= 0xFF*/) : r(cr), g(cg), b(cb), a(ca)
 {
 
 }
 
-CColor::CColor(uint8 color[4]) : r(color[0]), g(color[1]), b(color[2]), a(color[3])
+inline CColor::CColor(uint8 color[4]) : r(color[0]), g(color[1]), b(color[2]), a(color[3])
 {
 
 }
 
-CColor::CColor(uint32 irgba)
+inline CColor::CColor(uint32 irgba)
 {
 	r = (irgba >> 24) & 0xFF;
 	g = (irgba >> 16) & 0xFF;
@@ -56,7 +56,7 @@ CColor::CColor(uint32 irgba)
 	a = (irgba)& 0xFF;
 }
 
-CColor::CColor() : r(0), g(0), b(0), a(0xFF)
+inline CColor::CColor() : r(0), g(0), b(0), a(0xFF)
 {
 
 }
@@ -67,12 +67,12 @@ uint32 CColor::asInt() const
 }
 
 //CFloatColor
-CFloatColor::CFloatColor() : r(0.f), g(0.f), b(0.f), a(1.f)
+inline CFloatColor::CFloatColor() : r(0.f), g(0.f), b(0.f), a(1.f)
 {
 
 }
 
-CFloatColor::CFloatColor(const CColor& color)
+inline CFloatColor::CFloatColor(const CColor& color)
 {
 	static const float scale = 1.0f / 255.f;
 	r = (float)(color.r) * scale;
@@ -81,7 +81,7 @@ CFloatColor::CFloatColor(const CColor& color)
 	a = (float)(color.a) * scale;
 }
 
-CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
+inline CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
 {
 	r = fr > 1.0f ? 1.0f : (fr < 0.0f ? 0.0f : fr);
 	g = fg > 1.0f ? 1.0f : (fg < 0.0f ? 0.0f : fg);

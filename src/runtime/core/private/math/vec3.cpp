@@ -79,52 +79,52 @@ CVec3 CVec3::interpolateTo(const CVec3 &other, float fraction) const
 	return (*this) + dir * fraction;
 }
 
-CVec3::CVec3(const CVec3 &other)
+inline CVec3::CVec3(const CVec3 &other)
 {
 	set(other.x, other.y, other.z);
 }
 
-CVec3::CVec3(float x, float y, float z)
+inline CVec3::CVec3(float x, float y, float z)
 {
 	set(x, y, z);
 }
 
-CVec3::CVec3(float s)
+inline CVec3::CVec3(float s)
 {
 	set(s, s, s);
 }
 
-CVec3::CVec3()
+inline CVec3::CVec3()
 {
 	//set(0, 0, 0);
 }
 
-void CVec3::set(const CVec3 &other)
+inline void CVec3::set(const CVec3 &other)
 {
 	set(other.x, other.y, other.z);
 }
 
-void CVec3::set(float xyz[3])
+inline void CVec3::set(float xyz[3])
 {
 	set(xyz[0], xyz[1], xyz[2]);
 }
 
-void CVec3::set(float vx, float vy, float vz)
+inline void CVec3::set(float vx, float vy, float vz)
 {
 	x = vx; y = vy; z = vz;
 }
 
-float CVec3::getX() const
+inline float CVec3::getX() const
 {
 	return x;
 }
 
-float CVec3::getY() const
+inline float CVec3::getY() const
 {
 	return y;
 }
 
-float CVec3::getZ() const
+inline float CVec3::getZ() const
 {
 	return z;
 }

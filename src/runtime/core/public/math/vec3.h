@@ -44,10 +44,10 @@ public:
 	};
 
 	//Constructor
-	CVec3();
-	CVec3(float s);
-	CVec3(float x, float y, float z);
-	CVec3(const CVec3 &other);
+	inline CVec3();
+	inline CVec3(float s);
+	inline CVec3(float x, float y, float z);
+	inline CVec3(const CVec3 &other);
 
 	//Accessors and Mutators
 	inline void set(float vx, float vy, float vz);

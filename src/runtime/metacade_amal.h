@@ -105,6 +105,17 @@ enum EMessageType
 };
 }
 //src/runtime/core/core_public.h
+#define EPSILON 0.00001f
+#ifndef M_PI
+#define M_PI       3.14159265358979323846f
+#endif
+#define M_FPI	   3.1415926f
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
 //src/runtime/core/public/math/matrix3.h
 namespace Arcade
 {
@@ -199,13 +210,13 @@ public:
 		float _xy[2];
 	};
 	//Constructor
-	CVec2();
-	CVec2(float x, float y);
-	CVec2(const CVec2 &other);
+	inline CVec2();
+	inline CVec2(float x, float y);
+	inline CVec2(const CVec2 &other);
 	//Accessors and Mutators
-	void set(float x, float y);
-	void set(float xy[2]);
-	void set(const CVec2 &other);
+	inline void set(float x, float y);
+	inline void set(float xy[2]);
+	inline void set(const CVec2 &other);
 	float getX() const;
 	float getY() const;
 	void get(float *ptr) const;
@@ -223,6 +234,7 @@ public:
 	CVec2 vmin(const CVec2 &b) const;
 	CVec2 vmax(const CVec2 &b) const;
 	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
+	static inline void interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction);
 	CVec2 &normalize();
 	//Operator Overloads
 	 
@@ -265,10 +277,10 @@ public:
 		float _xyz[3];
 	};
 	//Constructor
-	CVec3();
-	CVec3(float s);
-	CVec3(float x, float y, float z);
-	CVec3(const CVec3 &other);
+	inline CVec3();
+	inline CVec3(float s);
+	inline CVec3(float x, float y, float z);
+	inline CVec3(const CVec3 &other);
 	//Accessors and Mutators
 	inline void set(float vx, float vy, float vz);
 	inline void set(float xyz[3]);
@@ -318,13 +330,26 @@ namespace Arcade
 class METACADE_API CHalfPlane : public CVec3
 {
 public:
-	CHalfPlane();
-	CHalfPlane(const CVec2& dir, float distance);
-	CHalfPlane(const CVec2& dir, const CVec2& origin);
+	inline CHalfPlane();
+	inline CHalfPlane(const CVec2& dir, float distance);
+	inline CHalfPlane(const CVec2& dir, const CVec2& origin);
 	inline float distance(const CVec2& point) const;
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
-	inline EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
+	template<bool CheckOn = false>
+	inline EPointClassify classifyPoint(const CVec2& point) const
+	{
+		if ( distance(point) <= -EPSILON ) return PLANE_BEHIND;
+		return PLANE_INFRONT;
+	}
 };
+template<>
+inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
+{
+	float dist = distance(point);
+	if ( dist <= -EPSILON ) return PLANE_BEHIND;
+	if ( dist <= EPSILON ) return PLANE_ON;
+	return PLANE_INFRONT;
+}
 }
 //src/runtime/core/public/gfx/color.h
 namespace Arcade
@@ -340,11 +365,11 @@ struct METACADE_API CColor
 		};
 		uint8 rgba[4];
 	};
-	CColor();
-	CColor(uint32 irgba);
-	CColor(uint8 color[4]);
-	CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
-	CColor(float fr, float fg, float fb, float fa = 1.0f);
+	inline CColor();
+	inline CColor(uint32 irgba);
+	inline CColor(uint8 color[4]);
+	inline CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
+	inline CColor(float fr, float fg, float fb, float fa = 1.0f);
 	uint32 asInt() const;
 	 
 };
@@ -358,9 +383,9 @@ struct METACADE_API CFloatColor
 		};
 		float rgba[4];
 	};
-	CFloatColor();
-	CFloatColor(const CColor &color);
-	CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
+	inline CFloatColor();
+	inline CFloatColor(const CColor &color);
+	inline CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
 	CFloatColor operator+(const CFloatColor& other) const;
 	CFloatColor operator+(float brt) const;
 	CFloatColor operator-(const CFloatColor& other) const;
@@ -396,13 +421,14 @@ struct METACADE_API CVertex3D
 };
 struct METACADE_API CVertex2D
 {
-	CVertex2D();
-	CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));
-	CVertex2D(float x, float y,
+	inline CVertex2D();
+	inline CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));
+	inline CVertex2D(float x, float y,
 			float s, float t,
 			const CColor &col = CColor(0xFFFFFFFF));
-	CVertex2D(const CVertex3D &other);
-	CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
+	inline CVertex2D(const CVertex3D &other);
+	inline CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
+	static void interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D& result, float fraction);
 	CVertex3D to3D() const;
 	CVec2 _position;
 	CVec2 _texcoord;
@@ -759,7 +785,7 @@ struct CRenderQuad
 struct CClipShape
 {
 public:
-	CClipShape() 
+	inline CClipShape() 
 		: _numPlanes(0)
 	{}
 	bool add(const CHalfPlane& plane)

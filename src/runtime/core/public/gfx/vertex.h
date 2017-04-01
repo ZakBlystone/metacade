@@ -50,15 +50,17 @@ struct METACADE_API CVertex3D
 
 struct METACADE_API CVertex2D
 {
-	CVertex2D();
-	CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));
-	CVertex2D(float x, float y,
+	inline CVertex2D();
+	inline CVertex2D(const CVec2 &pos, const CVec2 &tc, const CColor &col = CColor(0x000000FF));
+	inline CVertex2D(float x, float y,
 			float s, float t,
 			const CColor &col = CColor(0xFFFFFFFF));
 
-	CVertex2D(const CVertex3D &other);
+	inline CVertex2D(const CVertex3D &other);
 
-	CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
+	inline CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
+	static void interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D& result, float fraction);
+
 	CVertex3D to3D() const;
 
 	CVec2 _position;

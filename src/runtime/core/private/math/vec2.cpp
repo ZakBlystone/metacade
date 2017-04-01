@@ -25,32 +25,32 @@ vec2.cpp:
 
 #include "core_private.h"
 
-CVec2::CVec2()
+inline CVec2::CVec2()
 {
 	//set(0, 0);
 }
 
-CVec2::CVec2(float x, float y)
+inline CVec2::CVec2(float x, float y)
 {
 	set(x, y);
 }
 
-CVec2::CVec2(const CVec2 &other)
+inline CVec2::CVec2(const CVec2 &other)
 {
 	set(other.x, other.y);
 }
 
-void CVec2::set(const CVec2 &other)
+inline void CVec2::set(const CVec2 &other)
 {
 	set(other.x, other.y);
 }
 
-void CVec2::set(float xy[2])
+inline void CVec2::set(float xy[2])
 {
 	set(xy[0], xy[1]);
 }
 
-void CVec2::set(float x, float y)
+inline void CVec2::set(float x, float y)
 {
 	_xy[0] = x; _xy[1] = y;
 }
@@ -256,6 +256,12 @@ CVec2 CVec2::interpolateTo(const CVec2 &other, float fraction) const
 		this->x + (other.x - this->x) * fraction,
 		this->y + (other.y - this->y) * fraction
 	);
+}
+
+void CVec2::interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction)
+{
+	result.x = B.x + (B.x - A.x) * fraction;
+	result.y = B.y + (B.y - A.y) * fraction;
 }
 
 CVec2& CVec2::normalize()
