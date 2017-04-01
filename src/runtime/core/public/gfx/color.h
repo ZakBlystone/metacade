@@ -97,7 +97,7 @@ struct METACADE_API CFloatColor
 	CFloatColor& operator-=(const CFloatColor& other);
 	CFloatColor& operator-=(float brt);
 
-	CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
+	inline CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
 
 	operator CColor() const;
 };

@@ -42,12 +42,12 @@ CHalfPlane::CHalfPlane()
 
 }
 
-float CHalfPlane::distance(const CVec2& point) const
+inline float CHalfPlane::distance(const CVec2& point) const
 {
 	return (point.x * this->x + point.y * this->y) - this->z;
 }
 
-EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const
+inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const
 {
 	float d1 = distance(start);
 	float d2 = distance(end);
@@ -69,7 +69,7 @@ EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, fl
 	return PLANE_INFRONT;
 }
 
-EPointClassify CHalfPlane::clasifyPoint(const CVec2& point, bool checkOn /*= false*/) const
+inline EPointClassify CHalfPlane::clasifyPoint(const CVec2& point, bool checkOn /*= false*/) const
 {
 	float dist = distance(point);
 	if ( dist <= -EPSILON ) return PLANE_BEHIND;

@@ -74,10 +74,11 @@ CFloatColor::CFloatColor() : r(0.f), g(0.f), b(0.f), a(1.f)
 
 CFloatColor::CFloatColor(const CColor& color)
 {
-	r = (float)(color.r) / 255.0f;
-	g = (float)(color.g) / 255.0f;
-	b = (float)(color.b) / 255.0f;
-	a = (float)(color.a) / 255.0f;
+	static const float scale = 1.0f / 255.f;
+	r = (float)(color.r) * scale;
+	g = (float)(color.g) * scale;
+	b = (float)(color.b) * scale;
+	a = (float)(color.a) * scale;
 }
 
 CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*/)

@@ -252,10 +252,10 @@ bool CVec2::operator!=(const CVec2 &other) const
 
 CVec2 CVec2::interpolateTo(const CVec2 &other, float fraction) const
 {
-	static CVec2 dir;
-	dir.set(other);
-	dir -= *(this);
-	return (*this) + dir * fraction;
+	return CVec2(
+		this->x + (other.x - this->x) * fraction,
+		this->y + (other.y - this->y) * fraction
+	);
 }
 
 CVec2& CVec2::normalize()

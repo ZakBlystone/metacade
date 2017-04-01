@@ -183,7 +183,7 @@ static int start(int argc, char *argv[])
 {
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
-	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "../../projects");
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
 	IRuntime *system;
 
 	//PROJECT STUFF
@@ -201,7 +201,7 @@ static int start(int argc, char *argv[])
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = system->getPackageManager();
-	packmanager->setRootDirectory(".");
+	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");//".");
 
 	CPackageBuilder* builder = packmanager->createPackageBuilder("Default");
 	builder->load();
@@ -300,7 +300,10 @@ static int start(int argc, char *argv[])
 
 		if ( !paused )
 		{
-			gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
+			for ( uint32 i=0; i<300; ++i )
+			{
+				gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
+			}
 		}
 
 		immediateUI(width, height);

@@ -75,8 +75,10 @@ bool CLuaVM::init()
 	_memUsage = 0;
 	_L = luaL_newstate(); //lua_newstate(l_alloc, &_memUsage);
 
-	luaJIT_setmode(_L, -1, LUAJIT_MODE_DEBUG | LUAJIT_MODE_ON);
-	luaJIT_setmode(_L, -1, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
+	luaJIT_setmode(_L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
+
+	//luaJIT_setmode(_L, -1, LUAJIT_MODE_DEBUG | LUAJIT_MODE_ON);
+	//luaJIT_setmode(_L, -1, LUAJIT_MODE_WRAPCFUNC | LUAJIT_MODE_ON);
 
 	luaopen_base(_L);
 	luaopen_bit(_L);

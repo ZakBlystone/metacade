@@ -76,6 +76,7 @@ void CGameInstance::postInputEvent(const CInputEvent& input)
 
 void CGameInstance::think(float time)
 {
+	time /= 2.f;
 	float DT = time - _lastTime;
 	if ( DT > 1.f ) DT = 1.f;
 	_lastTime = time;
@@ -88,11 +89,26 @@ void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targe
 	_elementRenderer->setViewSize(viewportSize);
 	_elementRenderer->beginFrame();
 
+	float frac = 0.7f; //(sinf(_lastTime) + 1.f) / 2.f;
+
 	CClipShape viewClip;
 	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
 	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
 	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportSize.x,0)));
 	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportSize.y)));
+
+	/*float cx = viewportSize.x / 2.f + cosf(_lastTime) * 200.f;
+	float cy = viewportSize.y / 2.f + sinf(_lastTime) * 200.f;
+	viewClip.add(CHalfPlane(CVec2(cosf(_lastTime),sinf(_lastTime)).normalize(), CVec2(cx,cy)));
+
+	CRenderQuad Q = CRenderQuad().makeBox(CVec2(-1.f,-1000.f), CVec2(1.f, 1000.f), 0xFFFFFFFF);
+	CMatrix3 xform;
+	xform.rotate(-_lastTime);
+	xform.translate(CVec2(cx,cy));
+	Q.transform(xform);*/
+
+
+	//_elementRenderer->addRenderElement().makeQuad(Q, CClipShape(), CRenderState(), 1);
 
 	_elementRenderer->setViewportClip(viewClip);
 

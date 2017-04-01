@@ -110,6 +110,7 @@ void CElementRenderer::writeRenderElementToBuffer(const CRenderElement& element)
 		break;
 		case RET_QUAD:
 			writeClippedPolygonToBufferAsTris(element.getQuad()._verts, 4, element.getClipShape());
+			//writePolygonToBufferAsTris(element.getQuad()._verts, 4);
 		break;
 	}
 }
@@ -132,16 +133,182 @@ void CElementRenderer::writePolygonToBufferAsTris(const CVertex2D* verts, uint32
 	}
 }
 
+struct VLLN
+{
+	VLLN() : next(nullptr)
+	{}
+
+	CVertex2D vert;
+	EPointClassify pc;
+	struct VLLN* next;
+};
+
+struct VLL
+{
+	VLLN freenodes[MAX_VERTICES];
+	VLLN *root, *freelist;
+
+	VLL()
+		: freelist(freenodes)
+		, root(nullptr)
+	{
+		for ( uint32 i=0; i<MAX_VERTICES-1; ++i )
+			freenodes[i].next = &freenodes[i+1];
+	}
+
+	void reset()
+	{
+		while(root != nullptr)
+		{
+			VLLN* next = root->next;
+			root->next = freelist;
+			freelist = root;
+			root = next;
+		}
+	}
+
+	void free(VLLN* node)
+	{
+		if ( node == root ) root = root->next;
+
+		node->next = freelist;
+		freelist = node;
+	}
+
+	VLLN* insert(VLLN* after)
+	{
+		VLLN* newNode = alloc();
+		if ( newNode == nullptr ) return nullptr;
+
+		newNode->next = after->next;
+		after->next = newNode;
+		return newNode;
+	}
+
+	VLLN* forward(VLLN* node)
+	{
+		if ( node->next != nullptr ) return node->next;
+		return root;
+	}
+
+	VLLN* alloc()
+	{
+		if ( freelist != nullptr )
+		{
+			VLLN* ret = freelist;
+			freelist = freelist->next;
+
+			return ret;
+		}
+		return nullptr;
+	}
+
+	VLLN* append()
+	{
+		VLLN* ret = alloc();
+		if ( ret == nullptr ) return nullptr;
+
+		ret->next = root;
+		root = ret;	
+		return ret;
+	}
+
+	VLLN* first() { return root; }
+};
+
+static EPointClassify clipPolygonAgainstPlane(const CHalfPlane& plane, VLL& list)
+{
+	float frac;
+	uint32 i;
+	uint32 num_behind = 0;
+	uint32 num_infront = 0;
+
+	VLLN* node = list.first();
+	if ( node == nullptr ) return PLANE_INFRONT;
+
+	i=0;
+	while(node)
+	{
+		node->pc = plane.clasifyPoint(node->vert._position);
+		node->pc == PLANE_BEHIND ? ++num_behind : ++num_infront;
+		node = node->next;
+		++i;
+	}
+
+	if ( num_behind == 0 ) return PLANE_INFRONT;
+	if ( num_infront == 0 ) return PLANE_BEHIND;
+
+	node = list.first();
+	while(node)
+	{
+		VLLN* next = list.forward(node);
+
+		const CVertex2D *v0 = &node->vert;
+		const CVertex2D *v1 = &next->vert;
+
+		EPointClassify &p0 = node->pc;
+		EPointClassify &p1 = next->pc;
+
+		if ( p0 == PLANE_INFRONT && p1 == PLANE_INFRONT ) 
+		{
+			VLLN* after = list.forward(next);
+			if ( after != node && after->pc == PLANE_BEHIND )
+			{
+				node = node->next;
+				continue;
+			}
+
+			node->next = nullptr;
+			if ( after != list.root && next != list.root )
+			{
+				node->next = after;
+			}
+
+			VLLN* link = next->next;
+			list.free(next);
+
+			continue;
+		}
+		else if ( p0 == PLANE_INFRONT && p1 == PLANE_BEHIND )
+		{
+			plane.intersection(v0->_position, v1->_position, frac);
+
+			if ( node == list.root ) node = list.insert(node);
+
+			node->vert = v0->interpolateTo(*v1, frac);
+		}
+		else if ( p0 == PLANE_BEHIND && p1 == PLANE_INFRONT )
+		{
+			plane.intersection(v1->_position, v0->_position, frac);
+			node = list.insert(node);
+			node->vert = v1->interpolateTo(*v0, frac);
+			node->pc = PLANE_INFRONT;
+			continue;
+		}
+
+		node = node->next;
+	}
+
+	return PLANE_INTERSECT;
+}
+
 void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts, uint32 num, const CClipShape& clip)
 {
+	static VLL vertList;
+
 	if ( clip.getNumPlanes() == 0 )
 	{
 		writePolygonToBufferAsTris(verts, num);
 		return;
 	}
 
-	vector<CVertex2D> vlist(num);
-	memcpy(vlist.data(), verts, num * sizeof(CVertex2D));
+	CRenderBuffer* buffer = _renderBuffer.get();
+
+	vertList.reset();
+	for ( int32 i=num-1; i>=0; --i )
+	{
+		vertList.append()->vert = verts[i];
+	}
 
 	bool clipped = false;
 	bool visible = true;
@@ -149,7 +316,7 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 	{
 		if ( visible )
 		{
-			EPointClassify pc = CVertexClipper::clipPolygonAgainstPlane(vlist, clip.getHalfPlane(i));
+			EPointClassify pc = clipPolygonAgainstPlane(clip.getHalfPlane(i), vertList);
 			if ( pc == PLANE_INTERSECT ) clipped = true;
 			if ( pc == PLANE_INFRONT ) visible = false;
 		}
@@ -157,7 +324,23 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 
 	if ( !visible ) return;
 
-	writePolygonToBufferAsTris(vlist.data(), (uint32) vlist.size());
+	VLLN* node = vertList.first();
+	if ( node == nullptr ) return;
+
+	uint32 size = 0;
+	uint32 mark = buffer->getNumVertices();
+	while(node)
+	{
+		buffer->addVertex(node->vert);
+		node = node->next;
+		++size;
+	}
+	for ( uint32 i=1; i<size-1; ++i )
+	{
+		buffer->addIndex(mark);
+		buffer->addIndex(mark + i);
+		buffer->addIndex(mark + i + 1);
+	}
 }
 
 void Arcade::CElementRenderer::setViewSize(const CVec2& size)

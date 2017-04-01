@@ -222,7 +222,7 @@ public:
 	bool inBox(const CVec2 &min, const CVec2 &max) const;
 	CVec2 vmin(const CVec2 &b) const;
 	CVec2 vmax(const CVec2 &b) const;
-	CVec2 interpolateTo(const CVec2 &other, float fraction) const;
+	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
 	CVec2 &normalize();
 	//Operator Overloads
 	 
@@ -321,9 +321,9 @@ public:
 	CHalfPlane();
 	CHalfPlane(const CVec2& dir, float distance);
 	CHalfPlane(const CVec2& dir, const CVec2& origin);
-	float distance(const CVec2& point) const;
-	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
-	EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
+	inline float distance(const CVec2& point) const;
+	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
+	inline EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
 };
 }
 //src/runtime/core/public/gfx/color.h
@@ -370,7 +370,7 @@ struct METACADE_API CFloatColor
 	CFloatColor& operator+=(float brt);
 	CFloatColor& operator-=(const CFloatColor& other);
 	CFloatColor& operator-=(float brt);
-	CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
+	inline CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
 	operator CColor() const;
 };
 }
@@ -556,11 +556,18 @@ public:
 	~CString();
 	uint32 length() const;
 	bool empty() const;
+	bool startsWith(const CString& string) const;
+	bool endsWith(const CString& string) const;
+	bool contains(const CString& string) const;
+	//returns -1 if not found
+	int32 find(const CString& string) const;
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;
 	CString lower() const;
 	CString upper() const;
+	CString operator/(const CString& other) const;
+	CString operator/(const char* other) const;
 	CString operator+(const CString& other) const;
 	CString operator+(const char* other) const;
 	CString &operator=(const CString& other);

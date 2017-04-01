@@ -26,49 +26,59 @@ renderbuffer.cpp:
 #include "render_private.h"
 
 CRenderBuffer::CRenderBuffer()
+	: _numVerts(0)
+	, _numIndices(0)
 {
-	_vertices.reserve(8192);
-	_indices.reserve(16384);
+
 }
 
 CVertex2D& CRenderBuffer::addVertex(const CVertex2D &vertex)
 {
 	static CVertex2D novertex;
-	if ( _vertices.size() >= MAX_VERTICES ) return novertex;
+	if ( _numVerts >= MAX_VERTICES ) return novertex;
 
-	_vertices.emplace_back(vertex); return _vertices.back();
+	//memcpy(_svert + _numVerts, &vertex, sizeof(CVertex2D));
+	_svert[_numVerts] = vertex;
+	return _svert[_numVerts++];
 }
 
 uint16& CRenderBuffer::addIndex(const uint16 index /*= 0*/)
 {
 	static uint16 noindex = 0;
-	if ( _indices.size() >= MAX_INDICES ) return noindex;
+	if ( _numIndices >= MAX_INDICES ) return noindex;
 
-	_indices.emplace_back(index); return _indices.back();
+	//memcpy(_sindex + _numIndices, &index, sizeof(uint16));
+	_sindex[_numIndices] = index;
+	return _sindex[_numIndices++];
 }
 
 const CVertex2D* CRenderBuffer::getVertices() const
 {
-	return _vertices.data();
+	return _svert;
 }
 
 const uint16 CRenderBuffer::getNumVertices() const
 {
-	return (uint16)_vertices.size();
+	return _numVerts;
 }
 
 const uint16* CRenderBuffer::getIndices() const
 {
-	return _indices.data();
+	return _sindex;
 }
 
 const uint32 CRenderBuffer::getNumIndices() const
 {
-	return (uint32)_indices.size();
+	return _numIndices;
+}
+
+void CRenderBuffer::setNumVertices(uint32 num)
+{
+	_numVerts = num;
 }
 
 void CRenderBuffer::clear()
 {
-	_vertices.clear();
-	_indices.clear();
+	_numVerts = 0;
+	_numIndices = 0;
 }

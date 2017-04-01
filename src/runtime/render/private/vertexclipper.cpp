@@ -25,8 +25,12 @@ vertexclipper.cpp:
 
 #include "render_private.h"
 
+EPointClassify CVertexClipper::classifiedPoints[MAX_VERTICES];
+
+/*
 EPointClassify CVertexClipper::clipPolygonAgainstPlane(vector<CVertex2D>& list, const CHalfPlane& plane)
 {
+	static EPointClassify classifiedPoints[MAX_VERTICES];
 	float frac;
 	uint32 size = (uint32) list.size();
 	uint32 i, j;
@@ -34,7 +38,10 @@ EPointClassify CVertexClipper::clipPolygonAgainstPlane(vector<CVertex2D>& list, 
 	uint32 num_infront = 0;
 
 	for ( i=0; i<size; ++i )
-		plane.clasifyPoint(list[i]._position) == PLANE_BEHIND ? ++num_behind : ++num_infront;
+	{
+		classifiedPoints[i] = plane.clasifyPoint(list[i]._position);
+		classifiedPoints[i] == PLANE_BEHIND ? ++num_behind : ++num_infront;
+	}
 
 	if ( num_behind == 0 ) return PLANE_INFRONT;
 	if ( num_infront == 0 ) return PLANE_BEHIND;
@@ -46,8 +53,8 @@ EPointClassify CVertexClipper::clipPolygonAgainstPlane(vector<CVertex2D>& list, 
 		CVertex2D &v0 = list[i];
 		CVertex2D &v1 = list[j];
 
-		EPointClassify p0 = plane.clasifyPoint(v0._position);
-		EPointClassify p1 = plane.clasifyPoint(v1._position);
+		EPointClassify &p0 = classifiedPoints[i];
+		EPointClassify &p1 = classifiedPoints[j];
 
 		if ( p0 == PLANE_INFRONT && p1 == PLANE_INFRONT ) {}
 		else if ( p0 == PLANE_INFRONT && p1 == PLANE_BEHIND )
@@ -71,3 +78,4 @@ EPointClassify CVertexClipper::clipPolygonAgainstPlane(vector<CVertex2D>& list, 
 	return PLANE_INTERSECT;
 }
 
+*/

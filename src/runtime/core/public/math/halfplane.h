@@ -37,9 +37,9 @@ public:
 	CHalfPlane(const CVec2& dir, float distance);
 	CHalfPlane(const CVec2& dir, const CVec2& origin);
 
-	float distance(const CVec2& point) const;
-	EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
-	EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
+	inline float distance(const CVec2& point) const;
+	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
+	inline EPointClassify clasifyPoint(const CVec2& point, bool checkOn = false) const;
 };
 
 }

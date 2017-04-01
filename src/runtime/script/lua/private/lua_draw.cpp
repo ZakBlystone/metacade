@@ -26,6 +26,8 @@ lua_draw.cpp:
 #include "lua_private.h"
 #include "render/render_private.h"
 
+//#define DRAW_PASSTHROUGH 1
+
 class CLuaDrawModule : public LuaDrawModulePublic
 {
 public:
@@ -38,6 +40,9 @@ public:
 
 	MODULE_FUNCTION_DEF(color)
 	{
+		#ifdef DRAW_PASSTHROUGH 
+		return 0; 
+		#endif
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
@@ -51,6 +56,9 @@ public:
 
 	MODULE_FUNCTION_DEF(rect)
 	{
+		#ifdef DRAW_PASSTHROUGH 
+		return 0; 
+		#endif
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
@@ -75,6 +83,9 @@ public:
 
 	MODULE_FUNCTION_DEF(sprite)
 	{
+		#ifdef DRAW_PASSTHROUGH 
+		return 0; 
+		#endif
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
@@ -106,6 +117,9 @@ public:
 
 	MODULE_FUNCTION_DEF(quad)
 	{
+		#ifdef DRAW_PASSTHROUGH 
+		return 0; 
+		#endif
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 
@@ -143,6 +157,9 @@ public:
 
 	MODULE_FUNCTION_DEF(layer)
 	{
+		#ifdef DRAW_PASSTHROUGH 
+		return 0; 
+		#endif
 		CLuaDrawModule *instance = GET_OBJECT(CLuaDrawModule, L, 1);
 		if ( instance == nullptr || instance->_renderer == nullptr ) return 0;
 

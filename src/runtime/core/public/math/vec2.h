@@ -69,7 +69,7 @@ public:
 	bool inBox(const CVec2 &min, const CVec2 &max) const;
 	CVec2 vmin(const CVec2 &b) const;
 	CVec2 vmax(const CVec2 &b) const;
-	CVec2 interpolateTo(const CVec2 &other, float fraction) const;
+	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
 	CVec2 &normalize();
 
 	//Operator Overloads

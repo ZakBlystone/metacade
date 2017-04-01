@@ -45,12 +45,17 @@ public:
 	virtual const uint16* getIndices() const;
 	virtual const uint32 getNumIndices() const;
 
+	void setNumVertices(uint32 num);
+
 	void clear();
 
 private:
 
-	vector<CVertex2D> _vertices;
-	vector<uint16> _indices;
+	CVertex2D _svert[MAX_VERTICES];
+	uint16 _sindex[MAX_INDICES];
+
+	uint32 _numVerts;
+	uint32 _numIndices;
 };
 
 }
