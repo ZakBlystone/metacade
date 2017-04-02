@@ -30,13 +30,8 @@ lua_draw.h:
 namespace Arcade
 {
 
-class LuaDrawModulePublic : public LuaModule
-{
-public:
-	shared_ptr<CElementRenderer> _renderer;
-};
-
-void pushRenderer(lua_State *L, shared_ptr<CElementRenderer> renderer);
+void beginLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer);
+void endLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer);
 
 extern void OpenLuaDrawModule(lua_State *L);
 

@@ -91,13 +91,14 @@ void Arcade::CLuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 	{
 		lua_State *L = getLuaHost()->_L;
 
-		pushRenderer(L, renderer);
-		lua_setglobal(L, "_r");
+		beginLuaDraw(L, renderer);
+		//lua_setglobal(L, "_r");
 
 		pcall(0);
 
-		lua_pushnil(L);
-		lua_setglobal(L, "_r");
+		endLuaDraw(L, renderer);
+		//lua_pushnil(L);
+		//lua_setglobal(L, "_r");
 	}
 }
 
