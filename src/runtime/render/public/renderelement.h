@@ -79,15 +79,15 @@ public:
 		: _numPlanes(0)
 	{}
 	
-	bool add(const CHalfPlane& plane)
+	inline bool add(const CHalfPlane& plane)
 	{
 		if ( _numPlanes >= MAX_CLIPPING_PLANES - 1 ) return false;
 		_planes[_numPlanes++] = plane;
 		return true;
 	}
 
-	const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
-	int32 getNumPlanes() const { return _numPlanes; }
+	inline const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
+	inline int32 getNumPlanes() const { return _numPlanes; }
 
 private:
 	CHalfPlane _planes[MAX_CLIPPING_PLANES];
