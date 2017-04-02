@@ -41,6 +41,16 @@ CRenderElement& CRenderElement::makeQuad(const CRenderQuad& quad, const CClipSha
 	return *this;
 }
 
+
+CRenderQuad& CRenderElement::makeQuad2(const CClipShape& clip, const CRenderState& state, int32 layer /*= 0*/)
+{
+	_type = RET_QUAD;
+	_clip = clip;
+	_renderState = state;
+	_layer = layer;
+	return _quad;
+}
+
 ERenderElementType CRenderElement::getType() const
 {
 	return _type;

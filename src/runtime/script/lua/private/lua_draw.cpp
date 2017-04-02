@@ -72,11 +72,14 @@ public:
 
 		defState._material._baseTexture = t;
 
-		CRenderQuad quad;
-		quad.makeBox(CVec2(x,y), CVec2(x+w,y+h), instance->_currentColor);
+		//CRenderQuad quad;
+		//quad.makeBox(CVec2(x,y), CVec2(x+w,y+h), instance->_currentColor);
 
 		CRenderElement& el = instance->_renderer->addRenderElement();
-		el.makeQuad(quad, instance->_renderer->getViewportClip(), defState, instance->_layer);
+		//el.makeQuad(quad, instance->_renderer->getViewportClip(), defState, instance->_layer);
+
+		el.makeQuad2(instance->_renderer->getViewportClip(), defState, instance->_layer)
+			.makeBox(CVec2(x,y), CVec2(x+w,y+h), instance->_currentColor);
 
 		return 0;
 	}

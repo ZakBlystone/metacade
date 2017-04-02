@@ -36,7 +36,7 @@ struct CRenderQuad
 {
 	CVertex2D _verts[4];
 
-	CRenderQuad& makeBox(const CVec2 &mins, const CVec2 &maxs, const CColor &color)
+	inline void makeBox(const CVec2 &mins, const CVec2 &maxs, const CColor &color)
 	{
 		_verts[0]._position.set(mins);
 		_verts[1]._position.set(maxs.x, mins.y);
@@ -52,8 +52,6 @@ struct CRenderQuad
 		_verts[1]._color = color;
 		_verts[2]._color = color;
 		_verts[3]._color = color;
-
-		return (*this);
 	}
 
 	void transform(const CMatrix3 &matrix)
@@ -102,6 +100,8 @@ public:
 	CRenderElement();
 
 	CRenderElement& makeQuad(const CRenderQuad& quad, const CClipShape& clip, const CRenderState& renderState, int32 layer = 0);
+	
+	CRenderQuad& makeQuad2(const CClipShape& clip, const CRenderState& state, int32 layer = 0);
 
 	ERenderElementType getType() const;
 	const CRenderQuad& getQuad() const;
