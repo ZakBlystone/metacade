@@ -126,20 +126,16 @@ bool CVec2::inBox(const CVec2 &min, const CVec2 &max) const
 	return true;
 }
 
-CVec2 CVec2::vmin(const CVec2 &b) const
+inline void CVec2::vmin(const CVec2 &b)
 {
-	CVec2 out(*this);
-	out.x = min(out.x, b.x);
-	out.y = min(out.y, b.y);
-	return out;
+	x = min(x, b.x);
+	y = min(y, b.y);
 }
 
-CVec2 CVec2::vmax(const CVec2 &b) const
+inline void CVec2::vmax(const CVec2 &b)
 {
-	CVec2 out(*this);
-	out.x = max(out.x, b.x);
-	out.y = max(out.y, b.y);
-	return out;
+	x = max(x, b.x);
+	y = max(y, b.y);
 }
 
 CVec2& CVec2::operator+=(const CVec2 &other)

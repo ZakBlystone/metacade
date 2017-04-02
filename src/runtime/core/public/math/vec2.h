@@ -67,8 +67,8 @@ public:
 	float angleTo(const CVec2 &other) const;
 	bool inRect(const CVec2 &pos, const CVec2 &size) const;
 	bool inBox(const CVec2 &min, const CVec2 &max) const;
-	CVec2 vmin(const CVec2 &b) const;
-	CVec2 vmax(const CVec2 &b) const;
+	inline void vmin(const CVec2 &b);
+	inline void vmax(const CVec2 &b);
 	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
 
 	static inline void interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction);
