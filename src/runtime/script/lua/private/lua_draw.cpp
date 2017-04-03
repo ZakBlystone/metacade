@@ -73,13 +73,16 @@ MODULE_FUNCTION_DEF(draw_color)
 	gData._currentColor.b = (float)luaL_checknumber(L, 3);
 	gData._currentColor.a = (float)luaL_optnumber(L, 4, 1.f);
 
+	if ( lua_gettop(L) > 4 )
+	{
+		gData._material._blend = (EBlendMode) luaL_checkinteger(L, 5);
+	}
+
 	return 0;
 }
 
 MODULE_FUNCTION_DEF(draw_rect)
 {
-	static CVec2 mins, maxs;
-
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
@@ -89,6 +92,10 @@ MODULE_FUNCTION_DEF(draw_rect)
 	float w = (float)luaL_checknumber(L, 3);
 	float h = (float)luaL_checknumber(L, 4);
 	uint32 t = (uint32)luaL_optnumber(L, 5, 0);
+	float u0 = (float)luaL_optnumber(L, 6, 0);
+	float v0 = (float)luaL_optnumber(L, 7, 0);
+	float u1 = (float)luaL_optnumber(L, 8, 1);
+	float v1 = (float)luaL_optnumber(L, 9, 1);
 
 	float hw = w * .5f;
 	float hh = h * .5f;
@@ -116,22 +123,40 @@ MODULE_FUNCTION_DEF(draw_rect)
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
 	gData._material._baseTexture = t;
 
-	mins.x = x;
-	mins.y = y;
-	maxs.x = x+w;
-	maxs.y = y+h;
-
+	CVertex2D* verts = nullptr;
 	if ( ccheck == 0 )
 	{
 		static CClipShape empty;
-
-		el.makeQuad2(empty, gData, gData._layer)
-			.makeBox(mins, maxs, gData._currentColor);
-		return 0;
+		verts = el.makeQuad2(empty, gData, gData._layer)._verts;
 	}
-	
-	el.makeQuad2(gData._viewClip, gData, gData._layer)
-		.makeBox(mins, maxs, gData._currentColor);
+	else
+	{	
+		verts = el.makeQuad2(gData._viewClip, gData, gData._layer)._verts;
+	}
+
+	verts[0]._position.x = x;
+	verts[0]._position.y = y;
+	verts[0]._texcoord.x = u0;
+	verts[0]._texcoord.y = v0;
+	verts[0]._color = gData._currentColor;
+
+	verts[1]._position.x = x+w;
+	verts[1]._position.y = y;
+	verts[1]._texcoord.x = u1;
+	verts[1]._texcoord.y = v0;
+	verts[1]._color = gData._currentColor;
+
+	verts[2]._position.x = x+w;
+	verts[2]._position.y = y+h;
+	verts[2]._texcoord.x = u1;
+	verts[2]._texcoord.y = v1;
+	verts[2]._color = gData._currentColor;
+
+	verts[3]._position.x = x;
+	verts[3]._position.y = y+h;
+	verts[3]._texcoord.x = u0;
+	verts[3]._texcoord.y = v1;
+	verts[3]._color = gData._currentColor;
 
 	return 0;
 }
