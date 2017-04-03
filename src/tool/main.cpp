@@ -179,10 +179,46 @@ static void immediateUI(int32 width, int32 height)
 	//ImGui::End();
 }
 
+static bool buildGamePackage(IPackageManager* packmanager)
+{
+	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
+
+	CPackageBuilder* builder = packmanager->createPackageBuilder("glyphtest");
+	builder->load();
+
+	builder->setAssetCompiler(assetCompiler.get());
+	builder->getMetaData()->setKeyValuePair("name", "<unnamed package>");
+	builder->getMetaData()->setKeyValuePair("game", "<unnamed game>");
+	builder->getMetaData()->setKeyValuePair("author", "anonymous");
+
+	bool success = false;
+	if ( !builder->setAndBuildMainScript("glyphtest.lua") )
+	{
+		std::cout << "Failed to build" << std::endl;
+	}
+	else
+	{
+		std::cout << "Build OK" << std::endl;
+		success = true;
+	}
+
+	if ( builder->save() )
+	{
+		std::cout << "Saved OK" << std::endl;
+	}
+	else
+	{
+		std::cout << "Failed to save!" << std::endl;
+		success = false;
+	}
+
+	packmanager->deletePackageBuilder(builder);
+	return success;
+}
+
 static int start(int argc, char *argv[])
 {
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
-	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
 	IRuntime *system;
 
@@ -203,33 +239,7 @@ static int start(int argc, char *argv[])
 	IPackageManager* packmanager = system->getPackageManager();
 	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");//".");
 
-	CPackageBuilder* builder = packmanager->createPackageBuilder("Default");
-	builder->load();
-
-	builder->setAssetCompiler(assetCompiler.get());
-	builder->getMetaData()->setKeyValuePair("name", "<unnamed package>");
-	builder->getMetaData()->setKeyValuePair("game", "<unnamed game>");
-	builder->getMetaData()->setKeyValuePair("author", "anonymous");
-
-	if ( !builder->setAndBuildMainScript("default.lua") )
-	{
-		std::cout << "Failed to build" << std::endl;
-	}
-	else
-	{
-		std::cout << "Build OK" << std::endl;
-	}
-
-	if ( builder->save() )
-	{
-		std::cout << "Saved OK" << std::endl;
-	}
-	else
-	{
-		std::cout << "Failed to save!" << std::endl;
-	}
-
-	packmanager->deletePackageBuilder(builder);
+	buildGamePackage(packmanager);
 
 	if ( initOpenGLAndWindow() ) return 1;
 
@@ -241,7 +251,7 @@ static int start(int argc, char *argv[])
 
 	packmanager->findAndPreloadPackages();
 
-	IPackage* defaultPackage = packmanager->getPackageByName("default");
+	IPackage* defaultPackage = packmanager->getPackageByName("glyphtest");
 	IGameClass* gameClass = system->getGameClassForPackage(defaultPackage);
 
 	if ( gameClass == nullptr )
@@ -287,6 +297,26 @@ static int start(int argc, char *argv[])
 					height = evt.window.data2;
 				}
 			}
+
+			if ( evt.type == SDL_KEYDOWN )
+			{
+				if ( evt.key.keysym.sym == SDLK_r )
+				{
+					if ( gameInstance != nullptr )
+					{
+						gameInstance->finishRenderer(renderer.get());
+						gameClass->deleteInstance(gameInstance);
+					}
+
+					if ( !buildGamePackage(packmanager) ) continue;
+
+					gameInstance = nullptr;
+					if ( gameClass->createInstance(&gameInstance) )
+					{
+						gameInstance->initializeRenderer(renderer.get());
+					}
+				}
+			}
 		}
 
 		ImGui_ImplSdlGL3_NewFrame(window);
@@ -296,13 +326,15 @@ static int start(int argc, char *argv[])
 		deltaSeconds = time - lastTime;
 		lastTime = time;
 
-		gameInstance->think(time);
+		if ( gameInstance != nullptr ) 
+			gameInstance->think(time);
 
 		if ( !paused )
 		{
-			for ( uint32 i=0; i<300; ++i )
+			//for ( uint32 i=0; i<300; ++i )
 			{
-				gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
+				if ( gameInstance != nullptr ) 
+					gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
 			}
 		}
 
@@ -315,8 +347,11 @@ static int start(int argc, char *argv[])
 		Sleep(5);
 	}
 
-	gameInstance->finishRenderer(renderer.get());
-	gameClass->deleteInstance(gameInstance);
+	if ( gameInstance != nullptr )
+		gameInstance->finishRenderer(renderer.get());
+
+	if ( gameClass != nullptr )
+		gameClass->deleteInstance(gameInstance);
 
 	Arcade::destroy(system);
 
