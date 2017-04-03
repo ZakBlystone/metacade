@@ -86,7 +86,7 @@ bool CPackageManager::findAndPreloadPackages()
 		}
 		else
 		{
-			log(LOG_MESSAGE, "Loaded package: %s", *filepath);
+			log(LOG_MESSAGE, "Loaded package: %s [%s]", *filepath, *newPackage->getPackageName());
 		}
 	}
 

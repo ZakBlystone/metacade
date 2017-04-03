@@ -160,6 +160,8 @@ bool CPackage::loadAssets()
 
 	if ( !_map->hasLoadedAssets() )
 	{
+		load(); //force refresh of asset list in case changed.
+
 		shared_ptr<CAssetMap::CAssetLoadHandle> loaded = _map->loadAssets(file);
 		if ( loaded == nullptr )
 		{
