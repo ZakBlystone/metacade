@@ -223,8 +223,8 @@ public:
 		glGenTextures(1, &_nativeid);
 		glBindTexture(GL_TEXTURE_2D, _nativeid);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width,_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imagesource->getPixels());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	virtual ~CTextureGL()
@@ -292,9 +292,8 @@ void CRendererGL::freeTexture(class IRenderer* renderContext, ITexture* texture)
 	if ( tex->isDead() )
 	{
 		_textureRemap.erase(_textureRemap.find(tex->getID()));
+		delete texture;
 	}
-
-	delete texture;
 }
 
 void CRendererGL::renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch)
