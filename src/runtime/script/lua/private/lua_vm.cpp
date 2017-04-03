@@ -178,6 +178,8 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(const class CCodeAsset* codeAsset)
 	auto found = _loadedClasses.find(codeAsset->getName());
 	if ( found != _loadedClasses.end() )
 	{
+		(*found).second->loadFromAsset(codeAsset);
+
 		return (*found).second;
 	}
 	else
