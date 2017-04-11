@@ -64,7 +64,7 @@ CString CPackageManager::getRootDirectory() const
 
 bool CPackageManager::findAndPreloadPackages()
 {
-	_references.clear();
+	//_references.clear();
 
 	CFileCollection files;
 	if (!listFilesInDirectory(&files, *(_rootPath+"/"), "mpkg"))
@@ -75,6 +75,13 @@ bool CPackageManager::findAndPreloadPackages()
 	for ( uint32 i=0; i<files.numFiles(); ++i )
 	{
 		CString filepath = files.getFile(i);
+		shared_ptr<CPackage> found = findLoadedPackageFile(filepath);
+		if ( found != nullptr ) 
+		{
+			found->load(true);
+			continue;
+		}
+
 		log(LOG_MESSAGE, "Try load package %s", *filepath);
 
 		shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this, filepath));
@@ -115,7 +122,42 @@ IPackage* CPackageManager::getPackageByName(const CString& name) const
 	return nullptr;
 }
 
+IPackage* Arcade::CPackageManager::getPackageByID(const CGUID& id) const
+{
+	for ( auto package : _references )
+	{
+		if ( package->getPackageID() == id )
+		{
+			return package.get();
+		}
+	}
+	return nullptr;
+}
+
+shared_ptr<CPackage> CPackageManager::findLoadedPackageFile(const CString& filePath) const
+{
+	for ( auto package : _references )
+	{
+		if ( package->_filepath == filePath ) return package;
+	}
+	return nullptr;
+}
+
+
+shared_ptr<CPackage> CPackageManager::getSharedPackageByID(const CGUID& id) const
+{
+	for ( auto package : _references )
+	{
+		if ( package->getPackageID() == id )
+		{
+			return package;
+		}
+	}
+	return nullptr;
+}
+
 void CPackageManager::unloadAllPackages()
 {
 	_references.clear();
 }
+

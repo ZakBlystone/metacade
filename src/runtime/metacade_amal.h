@@ -231,8 +231,8 @@ public:
 	float angleTo(const CVec2 &other) const;
 	bool inRect(const CVec2 &pos, const CVec2 &size) const;
 	bool inBox(const CVec2 &min, const CVec2 &max) const;
-	CVec2 vmin(const CVec2 &b) const;
-	CVec2 vmax(const CVec2 &b) const;
+	inline void vmin(const CVec2 &b);
+	inline void vmax(const CVec2 &b);
 	inline CVec2 interpolateTo(const CVec2 &other, float fraction) const;
 	static inline void interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction);
 	CVec2 &normalize();
@@ -364,6 +364,7 @@ struct METACADE_API CColor
 			uint8 r,g,b,a;
 		};
 		uint8 rgba[4];
+		uint32 irgba;
 	};
 	inline CColor();
 	inline CColor(uint32 irgba);
@@ -382,6 +383,7 @@ struct METACADE_API CFloatColor
 			float r,g,b,a;
 		};
 		float rgba[4];
+		uint32 iRGBA;
 	};
 	inline CFloatColor();
 	inline CFloatColor(const CColor &color);
@@ -556,7 +558,6 @@ public:
 	static CGUID generate();
 	void reset();
 	const char* tostring() const;
-private:
 	union
 	{
 		struct
@@ -787,14 +788,14 @@ public:
 	inline CClipShape() 
 		: _numPlanes(0)
 	{}
-	bool add(const CHalfPlane& plane)
+	inline bool add(const CHalfPlane& plane)
 	{
 		if ( _numPlanes >= MAX_CLIPPING_PLANES - 1 ) return false;
 		_planes[_numPlanes++] = plane;
 		return true;
 	}
-	const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
-	int32 getNumPlanes() const { return _numPlanes; }
+	inline const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
+	inline int32 getNumPlanes() const { return _numPlanes; }
 private:
 	CHalfPlane _planes[MAX_CLIPPING_PLANES];
 	int32 _numPlanes;
@@ -887,6 +888,8 @@ public:
 	virtual void initializeRenderer(class IRenderer* renderer) = 0;
 	virtual void finishRenderer(class IRenderer* renderer) = 0;
 	virtual bool callFunction(CFunctionCall call) = 0;
+	virtual void initializeTextures(class ITextureProvider* provider) = 0;
+	virtual void finishTextures(class ITextureProvider* provider) = 0;
 };
 }
 //src/runtime/engine/public/iruntime.h
@@ -1024,6 +1027,7 @@ public:
 	virtual uint32 getNumPackages() const = 0;
 	virtual IPackage* getPackage(uint32 index) const = 0;
 	virtual IPackage* getPackageByName(const CString& name) const = 0;
+	virtual IPackage* getPackageByID(const CGUID& id) const = 0;
 	virtual void unloadAllPackages() = 0;
 };
 }

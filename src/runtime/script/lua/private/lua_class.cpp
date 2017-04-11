@@ -30,6 +30,7 @@ lua_class.cpp:
 Arcade::CLuaVMClass::CLuaVMClass(shared_ptr<CLuaVM> host)
 	: _host(host)
 	, _metaData(make_shared<CMetaData>())
+	, CRuntimeObject(host.get())
 {
 
 }
@@ -129,6 +130,15 @@ int CLuaVMClass::metaFunctionCreate(lua_State *L)
 		lua_getglobal(L, "_G");
 		lua_setfenv(L, 3);
 
+		/*if(luaJIT_setmode(L, 3, LUAJIT_MODE_ALLSUBFUNC | LUAJIT_MODE_ON))
+		{
+			klass->log(LOG_MESSAGE, "JIT Enable for function: %s", key);
+		}
+		else
+		{
+			klass->log(LOG_ERROR, "FAILED to JIT Enable for function: %s", key);
+		}*/
+
 		auto entry = make_pair(std::string(key), make_shared<LuaVMReference>(klass->_host, 3));
 		klass->_functions.insert(entry);
 	}
@@ -184,6 +194,7 @@ bool Arcade::CLuaVMClass::pushLuaFunction(string functionName) const
 		(*found).second->push();
 		return true;
 	}
+
 	return false;
 }
 
@@ -211,9 +222,9 @@ bool CLuaVMClass::loadFromAsset(const CCodeAsset* asset)
 	lua_State *L = _host->getState();
 	_functions.clear();
 
-	if (luaL_loadbuffer(L, asset->getCodeBuffer(), asset->getCodeLength(), "main"))
+	if (luaL_loadbuffer(L, asset->getCodeBuffer(), asset->getCodeLength(), *asset->getName()))
 	{
-		std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
+		std::cout << "Lua: " << *asset->getName() << " : " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L, 1);
 		return false;	
 	}
@@ -237,7 +248,7 @@ bool CLuaVMClass::loadFromAsset(const CCodeAsset* asset)
 	lua_setfenv(L, -2);
 
 	if (lua_pcall(L, 0, 0, 0)) {
-		std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
+		std::cout << "Lua: " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L, 1);
 		return false;
 	}
@@ -264,9 +275,9 @@ bool Arcade::CLuaVMClass::loadFromFile(string filename)
 		char *buffer = new char[size];
 		input.read(buffer, size);
 
-		if (luaL_loadbuffer(L, buffer, size, "main"))
+		if (luaL_loadbuffer(L, buffer, size, filename.c_str()))
 		{
-			std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
+			std::cout << "Lua: " << lua_tostring(L, -1) << std::endl;
 			lua_pop(L, 1);
 			return false;	
 		}
@@ -290,7 +301,7 @@ bool Arcade::CLuaVMClass::loadFromFile(string filename)
 		lua_setfenv(L, -2);
 
 		if (lua_pcall(L, 0, 0, 0)) {
-			std::cout << "Lua: main: " << lua_tostring(L, -1) << std::endl;
+			std::cout << "Lua: " << lua_tostring(L, -1) << std::endl;
 			lua_pop(L, 1);
 			return false;
 		}

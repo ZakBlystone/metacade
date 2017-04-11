@@ -92,7 +92,7 @@ bool CPackage::save()
 	return _map->save(file);
 }
 
-bool CPackage::load()
+bool CPackage::load(bool metaOnly /*= false*/)
 {
 	CPackHeader header;
 	CFileHandle file = openPackageFile(FILE_READ);
@@ -116,6 +116,8 @@ bool CPackage::load()
 	_uniqueID = header.id;
 
 	if ( !_meta->load(file) ) return false;
+
+	if ( metaOnly ) return true;
 
 	return _map->load(file);
 }

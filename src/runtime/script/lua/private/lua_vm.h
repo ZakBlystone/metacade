@@ -36,17 +36,16 @@ lua_vm.h:
 namespace Arcade
 {
 
-class CLuaVM : public IVMHost, public enable_shared_from_this<CLuaVM>
+class CLuaVM : public IVMHost, public CRuntimeObject, public enable_shared_from_this<CLuaVM>
 {
 public:
-	CLuaVM();
+	CLuaVM(CRuntimeObject* outer);
 	virtual ~CLuaVM();
 	virtual ELanguage getLanguage() override;
 	virtual bool init() override;
 	virtual void shutdown() override;
 	virtual bool isRunning() override;
 	virtual weak_ptr<IVMClass> loadGameVMClass(const class CCodeAsset* codeAsset) override;
-	virtual weak_ptr<IVMClass> loadGameVMClass() override;
 	virtual bool includeGameScript() override;
 	virtual bool validateGameScript() override;
 
@@ -62,7 +61,7 @@ private:
 
 	lua_State *_L;
 	unsigned int _memUsage;
-	map<CString, shared_ptr<CLuaVMClass>> _loadedClasses;
+	map<CGUID, shared_ptr<CLuaVMClass>> _loadedClasses;
 };
 
 

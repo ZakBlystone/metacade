@@ -134,12 +134,14 @@ void CGameInstance::initializeRenderer(IRenderer* renderer)
 	shared_ptr<CGameClass> klass = _klass.lock();
 	if ( klass == nullptr ) return;
 	
-	IPackage* pkg = klass->getPackage();
-	if ( pkg == nullptr ) return;
+	weak_ptr<CPackage> pkg = klass->getPackage();
+	if ( pkg.expired() ) return;
 
-	for ( uint32 i=0; i<pkg->getNumAssets(); ++i )
+	shared_ptr<CPackage> lockedpkg = pkg.lock();
+
+	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
 	{
-		CImageAsset* image = castAsset<CImageAsset>(pkg->getAsset(i));
+		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
 		if ( image == nullptr ) continue;
 
 		ITexture* loaded = provider->loadTexture(renderer, image);	
@@ -188,4 +190,41 @@ vector<ITexture*>* CGameInstance::getTextureList(IRenderer* renderer, bool newOn
 	vector<ITexture*>* textures = new vector<ITexture*>();
 	_loadedTextures.insert(make_pair(renderer, textures));
 	return textures;
+}
+
+void Arcade::CGameInstance::initializeTextures(class ITextureProvider* provider)
+{
+	ITexture* base = provider->loadTexture(nullptr, _defaultWhiteImage.get());
+	if ( base == nullptr ) return;
+	_mainLoadedTextures.push_back(base);
+
+	shared_ptr<CGameClass> klass = _klass.lock();
+	if ( klass == nullptr ) return;
+	
+	weak_ptr<CPackage> pkg = klass->getPackage();
+	if ( pkg.expired() ) return;
+
+	shared_ptr<CPackage> lockedpkg = pkg.lock();
+	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
+	{
+		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
+		if ( image == nullptr ) continue;
+
+		ITexture* loaded = provider->loadTexture(nullptr, image);	
+		if ( loaded != nullptr )
+		{
+			log(LOG_MESSAGE, "Load Texture: %s[%i] (%ix%i)", *image->getName(), loaded->getID(), loaded->getWidth(), loaded->getHeight());
+			_mainLoadedTextures.push_back(loaded);
+		}
+	}
+}
+
+void Arcade::CGameInstance::finishTextures(class ITextureProvider* provider)
+{
+	for ( ITexture* texture : _mainLoadedTextures )
+	{
+		provider->freeTexture(nullptr, texture);
+	}
+
+	_mainLoadedTextures.clear();
 }

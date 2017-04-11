@@ -46,7 +46,7 @@ public:
 	virtual const IAsset* findAssetByName(const CString& name) const;
 
 	bool save();
-	bool load();
+	bool load(bool metaOnly = false);
 	bool exists();
 
 	bool hasPackageFlag(EPackageFlags flag);

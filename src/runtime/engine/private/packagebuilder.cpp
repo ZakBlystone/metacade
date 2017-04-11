@@ -40,7 +40,7 @@ Arcade::CPackageBuilder::~CPackageBuilder()
 
 bool Arcade::CPackageBuilder::setAndBuildMainScript(const CString& scriptPath)
 {
-	shared_ptr<CLuaVM> vm = make_shared<CLuaVM>(); //getLuaVM();
+	shared_ptr<CLuaVM> vm = make_shared<CLuaVM>(this); //getLuaVM();
 	if ( vm == nullptr ) return false;
 
 	IFileObject* scriptFile = openFile( getRuntime()->getPackageManager()->getRootDirectory() + "/" + scriptPath, FILE_READ);

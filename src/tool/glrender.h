@@ -39,6 +39,7 @@ public:
 	~CRendererGL();
 
 	void reshape(int32 width, int32 height);
+	void clear();
 
 	virtual void render(class IDrawBuffer* buffer) override;
 	virtual class ITextureProvider* getTextureProvider() override;

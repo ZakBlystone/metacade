@@ -25,7 +25,7 @@ gameclass.cpp:
 
 #include "engine_private.h"
 
-CGameClass::CGameClass(IPackage* package, CRuntimeObject* outer)
+CGameClass::CGameClass( weak_ptr<CPackage> package, class CRuntimeObject* outer)
 	: CRuntimeObject(outer)
 	, _package(package)
 	, _instanceCount(0)
@@ -68,13 +68,16 @@ void CGameClass::deleteInstance(IGameInstance* instance)
 
 bool CGameClass::init()
 {
-	if ( !_package->loadAssets() )
+	if ( _package.expired() ) return false;
+	shared_ptr<CPackage> locked = _package.lock();
+
+	if ( !locked->loadAssets() )
 	{
 		log(LOG_ERROR, "Failed to load assets from package");
 		return false;
 	}
 
-	const IAsset* mainScriptAsset = _package->findAssetByName("main.lua"); //entry point
+	const IAsset* mainScriptAsset = locked->findAssetByName("main.lua"); //entry point
 	if ( mainScriptAsset == nullptr || mainScriptAsset->getType() != ASSET_CODE )
 	{
 		log(LOG_ERROR, "Failed to load 'main.lua'");
@@ -93,10 +96,13 @@ bool CGameClass::init()
 
 void CGameClass::release()
 {
-	_package->releaseAssets();
+	if ( _package.expired() ) return;
+	shared_ptr<CPackage> locked = _package.lock();
+
+	locked->releaseAssets();
 }
 
-IPackage* CGameClass::getPackage()
+weak_ptr<CPackage> CGameClass::getPackage()
 {
 	return _package;
 }

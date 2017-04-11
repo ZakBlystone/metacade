@@ -34,18 +34,18 @@ public:
 	virtual bool createInstance(IGameInstance** instance) override;
 	virtual void deleteInstance(IGameInstance* instance) override;
 
-	IPackage* getPackage();
+	weak_ptr<CPackage> getPackage();
 
 private:
 	friend class CRuntime;
 
-	CGameClass(class IPackage* package, class CRuntimeObject* outer);
+	CGameClass( weak_ptr<CPackage> package, class CRuntimeObject* outer);
 
 	bool init();
 	void release();
 
-	IPackage* _package;
 	int32 _instanceCount;
+	weak_ptr<CPackage> _package;
 	weak_ptr<IVMClass> _vmKlass;
 };
 

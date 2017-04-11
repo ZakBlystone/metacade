@@ -40,6 +40,9 @@ public:
 	virtual void finishRenderer(IRenderer* renderer) override;
 	virtual bool callFunction(CFunctionCall call) override;
 
+	virtual void initializeTextures(class ITextureProvider* provider) override;
+	virtual void finishTextures(class ITextureProvider* provider) override;
+
 private:
 	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
 
@@ -53,6 +56,8 @@ private:
 	map<IRenderer*, vector<ITexture* >*> _loadedTextures;
 
 	vector<ITexture*>* getTextureList(IRenderer* renderer, bool newOnly = false);
+
+	vector<ITexture*> _mainLoadedTextures;
 
 	float _lastTime;
 };

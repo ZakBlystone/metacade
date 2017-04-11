@@ -45,7 +45,6 @@ public:
 
 	const char* tostring() const;
 
-private:
 	union
 	{
 		struct

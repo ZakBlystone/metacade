@@ -43,11 +43,16 @@ public:
 	virtual uint32 getNumPackages() const override;
 	virtual IPackage* getPackage(uint32 index) const override;
 	virtual IPackage* getPackageByName(const CString& name) const override;
+	virtual IPackage* getPackageByID(const CGUID& id) const override;
 
 	virtual void unloadAllPackages();
 
 private:
 	friend class CPackageBuilder;
+	friend class CRuntime;
+
+	shared_ptr<CPackage> getSharedPackageByID(const CGUID& id) const;
+	shared_ptr<CPackage> findLoadedPackageFile(const CString& filePath) const;
 
 	CString _rootPath;
 	vector<shared_ptr<CPackage>> _references;

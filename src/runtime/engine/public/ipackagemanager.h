@@ -64,6 +64,7 @@ public:
 	virtual uint32 getNumPackages() const = 0;
 	virtual IPackage* getPackage(uint32 index) const = 0;
 	virtual IPackage* getPackageByName(const CString& name) const = 0;
+	virtual IPackage* getPackageByID(const CGUID& id) const = 0;
 
 	virtual void unloadAllPackages() = 0;
 };

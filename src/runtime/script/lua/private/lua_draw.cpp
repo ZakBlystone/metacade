@@ -31,7 +31,7 @@ lua_draw.cpp:
 struct CDrawData : public CRenderState
 {
 	CClipShape _viewClip;
-	CFloatColor _currentColor;
+	CColor _currentColor;
 	CElementRenderer *_renderer;
 	int32 _layer;
 
@@ -68,10 +68,13 @@ MODULE_FUNCTION_DEF(draw_color)
 	return 0; 
 	#endif
 
-	gData._currentColor.r = (float)luaL_checknumber(L, 1);
-	gData._currentColor.g = (float)luaL_checknumber(L, 2);
-	gData._currentColor.b = (float)luaL_checknumber(L, 3);
-	gData._currentColor.a = (float)luaL_optnumber(L, 4, 1.f);
+	static CFloatColor col;
+	col.r = (float)luaL_checknumber(L, 1);
+	col.g = (float)luaL_checknumber(L, 2);
+	col.b = (float)luaL_checknumber(L, 3);
+	col.a = (float)luaL_optnumber(L, 4, 1.f);
+
+	gData._currentColor = col;
 
 	if ( lua_gettop(L) > 4 )
 	{
@@ -138,25 +141,25 @@ MODULE_FUNCTION_DEF(draw_rect)
 	verts[0]._position.y = y;
 	verts[0]._texcoord.x = u0;
 	verts[0]._texcoord.y = v0;
-	verts[0]._color = gData._currentColor;
+	verts[0]._color.irgba = gData._currentColor.irgba;
 
 	verts[1]._position.x = x+w;
 	verts[1]._position.y = y;
 	verts[1]._texcoord.x = u1;
 	verts[1]._texcoord.y = v0;
-	verts[1]._color = gData._currentColor;
+	verts[1]._color.irgba = gData._currentColor.irgba;
 
 	verts[2]._position.x = x+w;
 	verts[2]._position.y = y+h;
 	verts[2]._texcoord.x = u1;
 	verts[2]._texcoord.y = v1;
-	verts[2]._color = gData._currentColor;
+	verts[2]._color.irgba = gData._currentColor.irgba;
 
 	verts[3]._position.x = x;
 	verts[3]._position.y = y+h;
 	verts[3]._texcoord.x = u0;
 	verts[3]._texcoord.y = v1;
-	verts[3]._color = gData._currentColor;
+	verts[3]._color.irgba = gData._currentColor.irgba;
 
 	return 0;
 }
@@ -206,7 +209,7 @@ MODULE_FUNCTION_DEF(draw_quad)
 		quad._verts[i]._position.y = (float)luaL_checknumber(L, i*4 + 2);
 		quad._verts[i]._texcoord.x = (float)luaL_checknumber(L, i*4 + 3);
 		quad._verts[i]._texcoord.y = (float)luaL_checknumber(L, i*4 + 4);
-		quad._verts[i]._color = gData._currentColor;
+		quad._verts[i]._color.irgba = gData._currentColor.irgba;
 	}
 
 	gData._material._baseTexture = (uint32)luaL_optnumber(L, 17, 0);

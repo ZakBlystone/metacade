@@ -46,6 +46,9 @@ public:
 	virtual void initializeRenderer(class IRenderer* renderer) = 0;
 	virtual void finishRenderer(class IRenderer* renderer) = 0;
 	virtual bool callFunction(CFunctionCall call) = 0;
+
+	virtual void initializeTextures(class ITextureProvider* provider) = 0;
+	virtual void finishTextures(class ITextureProvider* provider) = 0;
 };
 
 }

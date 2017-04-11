@@ -40,6 +40,7 @@ struct METACADE_API CColor
 			uint8 r,g,b,a;
 		};
 		uint8 rgba[4];
+		uint32 irgba;
 	};
 
 	inline CColor();
@@ -80,6 +81,7 @@ struct METACADE_API CFloatColor
 			float r,g,b,a;
 		};
 		float rgba[4];
+		uint32 iRGBA;
 	};
 
 	inline CFloatColor();

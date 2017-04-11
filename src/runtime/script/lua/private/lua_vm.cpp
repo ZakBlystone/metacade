@@ -51,9 +51,10 @@ static int l_print(lua_State *S)
 	return 0;
 }
 
-CLuaVM::CLuaVM()
+CLuaVM::CLuaVM(CRuntimeObject* outer)
 	: _L(nullptr)
 	, _memUsage(0)
+	, CRuntimeObject(outer)
 {
 
 }
@@ -75,7 +76,16 @@ bool CLuaVM::init()
 	_memUsage = 0;
 	_L = luaL_newstate(); //lua_newstate(l_alloc, &_memUsage);
 
-	luaJIT_setmode(_L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON);
+	luaopen_jit(_L);
+
+	if (luaJIT_setmode(_L, 0, LUAJIT_MODE_ENGINE | LUAJIT_MODE_ON) )
+	{
+		log(LOG_MESSAGE, "LuaJIT ready");
+	}
+	else
+	{
+		log(LOG_ERROR, "Failed to enable LuaJIT");
+	}
 
 	//luaJIT_setmode(_L, -1, LUAJIT_MODE_DEBUG | LUAJIT_MODE_ON);
 	//luaJIT_setmode(_L, -1, LUAJIT_MODE_WRAPCFUNC | LUAJIT_MODE_ON);
@@ -114,6 +124,7 @@ bool Arcade::CLuaVM::pcall(int nargs)
 	{
 		std::cout << "Lua: " << lua_tostring(_L, -1) << std::endl;
 		lua_pop(_L, 1);
+		exit(0);
 		return false;
 	}
 	return true;
@@ -175,7 +186,7 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(const class CCodeAsset* codeAsset)
 {
 	shared_ptr<CLuaVMClass> newClass(nullptr);
 
-	auto found = _loadedClasses.find(codeAsset->getName());
+	auto found = _loadedClasses.find(codeAsset->getUniqueID());
 	if ( found != _loadedClasses.end() )
 	{
 		(*found).second->loadFromAsset(codeAsset);
@@ -185,34 +196,9 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(const class CCodeAsset* codeAsset)
 	else
 	{
 		newClass = make_shared<CLuaVMClass>(shared_from_this());
-		_loadedClasses.insert(make_pair(codeAsset->getName(), newClass));
+		_loadedClasses.insert(make_pair(codeAsset->getUniqueID(), newClass));
 
 		if ( newClass->loadFromAsset(codeAsset) )
-		{
-			return newClass;
-		}
-	}
-
-	return newClass;
-}
-
-weak_ptr<IVMClass> CLuaVM::loadGameVMClass()
-{
-	CString filename("E:/Projects/metacade/bin/Release/default.lua");
-
-	shared_ptr<CLuaVMClass> newClass(nullptr);
-
-	auto found = _loadedClasses.find(filename);
-	if ( found != _loadedClasses.end() )
-	{
-		return (*found).second;
-	}
-	else
-	{
-		newClass = make_shared<CLuaVMClass>(shared_from_this());
-		_loadedClasses.insert(make_pair(filename, newClass));
-
-		if ( newClass->loadFromFile(*filename) )
 		{
 			return newClass;
 		}

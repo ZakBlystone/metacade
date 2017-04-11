@@ -179,11 +179,13 @@ static void immediateUI(int32 width, int32 height)
 	//ImGui::End();
 }
 
+static const CString testPackage = "foohy";
+
 static bool buildGamePackage(IPackageManager* packmanager)
 {
 	shared_ptr<CCompiler> assetCompiler = make_shared<CCompiler>();
 
-	CPackageBuilder* builder = packmanager->createPackageBuilder("glyphtest");
+	CPackageBuilder* builder = packmanager->createPackageBuilder(testPackage);
 	builder->load();
 
 	builder->setAssetCompiler(assetCompiler.get());
@@ -192,7 +194,7 @@ static bool buildGamePackage(IPackageManager* packmanager)
 	builder->getMetaData()->setKeyValuePair("author", "anonymous");
 
 	bool success = false;
-	if ( !builder->setAndBuildMainScript("glyphtest.lua") )
+	if ( !builder->setAndBuildMainScript("foohy.lua") )
 	{
 		std::cout << "Failed to build" << std::endl;
 	}
@@ -251,8 +253,9 @@ static int start(int argc, char *argv[])
 
 	packmanager->findAndPreloadPackages();
 
-	IPackage* defaultPackage = packmanager->getPackageByName("glyphtest");
+	IPackage* defaultPackage = packmanager->getPackageByName(testPackage); //glyphtest
 	IGameClass* gameClass = system->getGameClassForPackage(defaultPackage);
+	IGameClass* gameClass2 = system->getGameClassForPackage( packmanager->getPackageByName("glyphtest") );
 
 	if ( gameClass == nullptr )
 	{
@@ -265,10 +268,17 @@ static int start(int argc, char *argv[])
 		return onError("Couldn't create game instance");
 	}
 
+	IGameInstance* gameInstance2 = nullptr;
+	if ( !gameClass2->createInstance(&gameInstance2) )
+	{
+		return onError("Couldn't create other game instance");
+	}
+
 	loadedPackage = defaultPackage;
 	loadedGameClass = gameClass;
 
 	gameInstance->initializeRenderer(renderer.get());
+	gameInstance2->initializeRenderer(renderer.get());
 
 	bool paused = false;
 	bool running = true;
@@ -308,7 +318,8 @@ static int start(int argc, char *argv[])
 						gameClass->deleteInstance(gameInstance);
 					}
 
-					if ( !buildGamePackage(packmanager) ) continue;
+					//if ( !buildGamePackage(packmanager) ) continue;
+					gameClass = system->getGameClassForPackage(packmanager->getPackageByName("glyphtest"));
 
 					gameInstance = nullptr;
 					if ( gameClass->createInstance(&gameInstance) )
@@ -320,6 +331,8 @@ static int start(int argc, char *argv[])
 		}
 
 		ImGui_ImplSdlGL3_NewFrame(window);
+
+		renderer->clear();
 
 		float time = (float)(SDL_GetTicks()) / 1000.f;
 		if (lastTime == 0) lastTime = time;
@@ -336,6 +349,12 @@ static int start(int argc, char *argv[])
 				if ( gameInstance != nullptr ) 
 					gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
 			}
+
+			if ( gameInstance2 != nullptr )
+			{
+				gameInstance2->think(time);
+				gameInstance2->render(renderer.get(), CVec2(120,120));
+			}
 		}
 
 		immediateUI(width, height);
@@ -349,6 +368,9 @@ static int start(int argc, char *argv[])
 
 	if ( gameInstance != nullptr )
 		gameInstance->finishRenderer(renderer.get());
+
+	if ( gameInstance2 != nullptr )
+		gameInstance2->finishRenderer(renderer.get());
 
 	if ( gameClass != nullptr )
 		gameClass->deleteInstance(gameInstance);

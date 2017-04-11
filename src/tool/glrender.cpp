@@ -162,6 +162,11 @@ void CRendererGL::reshape(int32 width, int32 height)
 	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, g_Projection.get());
 }
 
+void CRendererGL::clear()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void CRendererGL::render(class IDrawBuffer* buffer)
 {
 	const IRenderBuffer *renderBuffer = buffer->getRenderBuffer();
@@ -173,7 +178,6 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 	const CVertex2D* vertices = renderBuffer->getVertices();
 	const uint16* indices = renderBuffer->getIndices();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBindBuffer(GL_ARRAY_BUFFER, g_VBO);
 	glBufferData(GL_ARRAY_BUFFER, renderBuffer->getNumVertices() * sizeof(CVertex2D), vertices, GL_STREAM_DRAW);
 

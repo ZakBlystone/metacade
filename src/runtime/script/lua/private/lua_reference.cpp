@@ -30,6 +30,8 @@ Arcade::LuaVMReference::LuaVMReference(shared_ptr<class CLuaVM> host, int idx)
 {
 	lua_State *L = host->_L;
 	
+	if ( L == nullptr ) return;
+
 	lua_pushvalue(L, idx);
 	_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 }

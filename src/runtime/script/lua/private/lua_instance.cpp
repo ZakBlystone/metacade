@@ -44,7 +44,10 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 
 	lua_pop(L, 1);
 
-	if ( getLuaClass()->pushLuaFunction("init") ) pcall(0);
+	if ( getLuaClass()->pushLuaFunction("init") ) 
+	{
+		pcall(0);
+	}
 }
 
 Arcade::CLuaVMInstance::~CLuaVMInstance()

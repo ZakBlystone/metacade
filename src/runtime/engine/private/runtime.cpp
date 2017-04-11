@@ -53,7 +53,7 @@ CRuntime::CRuntime()
 	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
 	, _textureIndices(make_shared<CIndexAllocator>(this))
-	, _luaVM(make_shared<CLuaVM>())
+	, _luaVM(make_shared<CLuaVM>(this))
 {
 }
 
@@ -239,7 +239,10 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 		return (*existing).second.get();
 	}
 
-	shared_ptr<CGameClass> newClass = shared_ptr<CGameClass>( new CGameClass(package, this) );
+	weak_ptr<CPackage> pkg = _packageManager->getSharedPackageByID(packageID);
+	if ( pkg.expired() ) return nullptr;
+
+	shared_ptr<CGameClass> newClass = shared_ptr<CGameClass>( new CGameClass(pkg, this) );
 
 	_classes.insert(make_pair(packageID, newClass));
 
