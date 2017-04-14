@@ -38,7 +38,7 @@ public:
 	virtual void render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) override;
 	virtual void initializeRenderer(IRenderer* renderer) override;
 	virtual void finishRenderer(IRenderer* renderer) override;
-	virtual bool callFunction(CFunctionCall call) override;
+	virtual bool callFunction(const CFunctionCall& call) override;
 
 	virtual void initializeTextures(class ITextureProvider* provider) override;
 	virtual void finishTextures(class ITextureProvider* provider) override;

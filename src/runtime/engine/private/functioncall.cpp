@@ -32,6 +32,18 @@ CFunctionCall::CFunctionCall(const CString& func)
 
 }
 
+Arcade::CFunctionCall::CFunctionCall()
+	: _func("null")
+	, _args(new vector<CVariant>())
+{
+
+}
+
+void CFunctionCall::setFunction(const CString& func)
+{
+	_func = func;
+}
+
 CFunctionCall::~CFunctionCall()
 {
 	if (_counter.unique()) delete ((vector<CVariant>*)(_args));

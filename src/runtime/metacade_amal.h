@@ -848,6 +848,7 @@ namespace Arcade
 class METACADE_API CFunctionCall
 {
 public:
+	CFunctionCall();
 	CFunctionCall(const CString& func);
 	~CFunctionCall();
 	template<typename...Args>
@@ -862,8 +863,9 @@ public:
 	uint32 numArgs() const;
 	CVariant getArg(uint32 i) const;
 	CString getFunction() const;
-private:
+	void setFunction(const CString& func);
 	void addArg(const CVariant& v);
+private:
 	CString _func;
 	CReferenceCounter _counter;
 	void* _args;
@@ -887,7 +889,7 @@ public:
 	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
 	virtual void initializeRenderer(class IRenderer* renderer) = 0;
 	virtual void finishRenderer(class IRenderer* renderer) = 0;
-	virtual bool callFunction(CFunctionCall call) = 0;
+	virtual bool callFunction(const CFunctionCall& call) = 0;
 	virtual void initializeTextures(class ITextureProvider* provider) = 0;
 	virtual void finishTextures(class ITextureProvider* provider) = 0;
 };

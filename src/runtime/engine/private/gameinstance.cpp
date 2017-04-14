@@ -76,7 +76,7 @@ void CGameInstance::postInputEvent(const CInputEvent& input)
 
 void CGameInstance::think(float time)
 {
-	time /= 2.f;
+	//time /= 2.f;
 	float DT = time - _lastTime;
 	if ( DT > 1.f ) DT = 1.f;
 	_lastTime = time;
@@ -172,7 +172,7 @@ void CGameInstance::finishRenderer(IRenderer* renderer)
 	//_loadedTextures.clear();
 }
 
-bool CGameInstance::callFunction(CFunctionCall call)
+bool CGameInstance::callFunction(const CFunctionCall& call)
 {
 	return _vmInstance->callFunction(call);
 }

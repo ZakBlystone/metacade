@@ -110,7 +110,7 @@ void Arcade::CLuaVMInstance::reset()
 	callFunction(CFunctionCall("reset"));
 }
 
-bool CLuaVMInstance::callFunction(CFunctionCall call)
+bool CLuaVMInstance::callFunction(const CFunctionCall& call)
 {
 	if ( _klass.expired() ) return false;
 

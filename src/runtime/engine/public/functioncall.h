@@ -31,6 +31,7 @@ namespace Arcade
 class METACADE_API CFunctionCall
 {
 public:
+	CFunctionCall();
 	CFunctionCall(const CString& func);
 	~CFunctionCall();
 
@@ -48,10 +49,11 @@ public:
 	CVariant getArg(uint32 i) const;
 
 	CString getFunction() const;
-
-private:
+	void setFunction(const CString& func);
 
 	void addArg(const CVariant& v);
+
+private:
 
 	CString _func;
 	CReferenceCounter _counter;

@@ -43,7 +43,7 @@ public:
 	virtual void render(shared_ptr<class CElementRenderer> renderer) = 0;
 
 	virtual void reset() = 0;
-	virtual bool callFunction(CFunctionCall call) = 0;
+	virtual bool callFunction(const CFunctionCall& call) = 0;
 };
 
 }

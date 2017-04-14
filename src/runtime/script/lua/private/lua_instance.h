@@ -45,7 +45,7 @@ public:
 	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
 	virtual void reset() override;
 
-	virtual bool callFunction(CFunctionCall call) override;
+	virtual bool callFunction(const CFunctionCall& call) override;
 
 	class CLuaVM* getLuaHost() const;
 	class CLuaVMClass* getLuaClass() const;
