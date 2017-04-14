@@ -32,6 +32,7 @@ class CPackageManager : public IPackageManager, public CRuntimeObject
 {
 public:
 	CPackageManager(CRuntimeObject* outer);
+	~CPackageManager();
 
 	virtual CPackageBuilder* createPackageBuilder(const CString& packageName = "unnamed");
 	virtual void deletePackageBuilder(CPackageBuilder* builder);

@@ -1,4 +1,9 @@
 //#include "metacade_public.h"
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -350,11 +355,11 @@ static int start(int argc, char *argv[])
 					gameInstance->render(renderer.get(), CVec2(width/2, height - 20));
 			}
 
-			if ( gameInstance2 != nullptr )
+			/*if ( gameInstance2 != nullptr )
 			{
 				gameInstance2->think(time);
 				gameInstance2->render(renderer.get(), CVec2(120,120));
-			}
+			}*/
 		}
 
 		immediateUI(width, height);
@@ -382,6 +387,8 @@ static int start(int argc, char *argv[])
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+	_CrtDumpMemoryLeaks();
 
 	return 0;
 }

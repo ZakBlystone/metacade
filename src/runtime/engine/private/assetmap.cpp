@@ -163,10 +163,20 @@ bool CAssetMap::load(IFileObject* file)
 		case Arcade::ASSET_NONE:
 		break;
 		case Arcade::ASSET_CODE:
-			asset = make_shared<CCodeAsset>(this);
+			asset = shared_ptr<CCodeAsset>(construct<CCodeAsset>(this), [this](CCodeAsset* Del)
+			{
+				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
+				if ( Del ) Del->release();
+				destroy(Del);
+			});
 		break;
 		case Arcade::ASSET_TEXTURE:
-			asset = make_shared<CImageAsset>(this);
+			asset = shared_ptr<CImageAsset>(construct<CImageAsset>(this), [this](CImageAsset* Del)
+			{
+				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
+				if ( Del ) Del->release();
+				destroy(Del);
+			});
 		break;
 		case Arcade::ASSET_SOUND:
 		break;

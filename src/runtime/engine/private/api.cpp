@@ -36,6 +36,6 @@ void Arcade::destroy(IRuntime* runtime)
 {
 	if ( runtime != nullptr )
 	{
-		delete runtime;
+		delete (CRuntime*)(runtime);
 	}
 }

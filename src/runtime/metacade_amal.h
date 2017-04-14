@@ -1042,11 +1042,22 @@ public:
 	CRuntimeObject(class IRuntime* runtime);
 	CRuntimeObject(CRuntimeObject* outer);
 protected:
+	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
+	{
+		return new(zalloc(sizeof(T))) T(args...);
+	}
+	template<typename T>
+	void destroy(T* obj)
+	{
+		if ( obj == nullptr ) return;
+		obj->~T();
+		zfree(obj);
+	}
 	void log(EMessageType type, const char* message, ...);
-	void* alloc(unsigned int size);
-	void* realloc(void* pointer, unsigned int size);
-	void free(void* pointer);
-	void free(const void* pointer);
+	void* zalloc(unsigned int size);
+	void* zrealloc(void* pointer, unsigned int size);
+	void zfree(void* pointer);
+	void zfree(const void* pointer);
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);

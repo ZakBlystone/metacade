@@ -36,7 +36,7 @@ class CRuntime : public IRuntime, public CRuntimeObject
 {
 public:
 	CRuntime();
-	virtual ~CRuntime();
+	~CRuntime();
 
 	virtual bool initialize(IRuntimeEnvironment* env);
 	virtual IPackageManager* getPackageManager();

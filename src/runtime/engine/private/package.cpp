@@ -55,7 +55,7 @@ CPackage::CPackage(CRuntimeObject* outer, const CString& filepath)
 
 CPackage::~CPackage()
 {
-
+	std::cout << "DESTRUCT PACKAGE: " << *_filepath << std::endl;
 }
 
 uint32 CPackage::getNumAssets() const

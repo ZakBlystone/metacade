@@ -63,7 +63,7 @@ void CGameClass::deleteInstance(IGameInstance* instance)
 		release();
 	}
 
-	delete instance;
+	delete (CGameInstance*)(instance);
 }
 
 bool CGameClass::init()

@@ -31,6 +31,11 @@ CPackageManager::CPackageManager(CRuntimeObject* outer)
 {
 }
 
+Arcade::CPackageManager::~CPackageManager()
+{
+	std::cout << "Destruct PACKAGE MANAGER" << std::endl;
+}
+
 CPackageBuilder* CPackageManager::createPackageBuilder(const CString& packageName)
 {
 	CString path = getRootDirectory() + "/" + packageName + ".mpkg";

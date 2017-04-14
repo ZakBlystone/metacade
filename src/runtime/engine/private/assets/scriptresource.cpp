@@ -37,7 +37,7 @@ bool CCodeAsset::load(IFileObject* file)
 {
 	if ( !file->read(&_codeLength, sizeof(uint32)) ) return false;
 	
-	_code = (char*) realloc(_code, _codeLength + 1);
+	_code = (char*) zrealloc(_code, _codeLength + 1);
 	if ( _code == nullptr ) return false;
 
 	_code[_codeLength] = 0;
@@ -74,7 +74,7 @@ uint32 CCodeAsset::getCodeLength() const
 
 void CCodeAsset::setCodeBuffer(const char* buffer, uint32 size)
 {
-	_code = (char*) realloc(_code, size);
+	_code = (char*) zrealloc(_code, size);
 	_codeLength = size;
 
 	memcpy(_code, buffer, size);
@@ -87,6 +87,6 @@ void CCodeAsset::setCodeBuffer(const char* buffer)
 
 void CCodeAsset::release()
 {
-	if ( _code ) free(_code);
+	if ( _code ) zfree(_code);
 	_code = nullptr;
 }

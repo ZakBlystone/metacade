@@ -59,7 +59,7 @@ CRuntime::CRuntime()
 
 CRuntime::~CRuntime()
 {
-
+	std::cout << "Destruct RUNTIME" << std::endl;
 }
 
 bool CRuntime::initialize(IRuntimeEnvironment* env)
