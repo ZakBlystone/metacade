@@ -1,0 +1,40 @@
+Project:
+  ☐ Add a .gitignore
+
+Runtime:
+ General:
+   ☐ Fix memory leaks
+   ☐ Fix virtual destructors
+   ☐ Allocate memory using CRuntimeObject wherever possible
+   ☐ Design Input system
+   ☐ Plan out entity management (should it be in VM, or on runtime)
+
+ VM:
+   ☐ VM classes should use CRuntimeObject
+   ☐ VM function call threading to prevent lockups
+
+ Assets:
+   ☐ Texture asset interface (texture->page)
+   ☐ Asset -> Variable interface (lua)
+   ☐ Better name conformance on asset types 
+
+
+Tool:
+ General:
+   ☐ Cleanup Tool code
+   ☐ Design target system (target defines host parameters and capabilities)
+   ☐ Function to make folder paths for new projects
+
+ Projects:
+   ☐ JSON loading
+   ☐ Project Creation
+   ☐ Project Compilation
+   ☐ Project Save / Load
+
+ UI:
+   ☐ Project Asset List
+   ☐ Asset Importer Dialogs
+   ☐ Project Dialogs
+     ☐ Load
+     ☐ Save
+     ☐ Create
