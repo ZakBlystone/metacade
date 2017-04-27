@@ -31,10 +31,10 @@ Tool:
    ☐ Function to make folder paths for new projects
 
  Projects:
-   ☐ JSON loading
+   ✔ JSON loading @done (17-04-27 03:10)
    ☐ Project Creation
    ☐ Project Compilation
-   ☐ Project Save / Load
+   ✔ Project Save / Load @done (17-04-27 03:10)
 
  UI:
    ☐ Project Asset List

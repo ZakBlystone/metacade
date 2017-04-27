@@ -49,7 +49,7 @@ bool CProjectManager::enumerateProjectFiles(const CString& folder, vector<CProje
 		if (!(f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			CString filename = CString(f.cFileName);
-			CString projectFilePath = _projectDirectory / filename;
+			CString projectFilePath = folder / filename;
 
 			if ( filename.endsWith(".mproject") )
 			{
@@ -59,16 +59,43 @@ bool CProjectManager::enumerateProjectFiles(const CString& folder, vector<CProje
 			IFileObject* file = _native->getFileSystem()->openFile(projectFilePath, FILE_READ);
 			if ( file != nullptr )
 			{
-				CProject project;
+				CProject project(projectFilePath, folder);
 				if ( project.load(file) )
 				{
+					std::cout << " -loaded" << std::endl;
 					projects.push_back(project);
+				}
+				else
+				{
+					std::cout << " -failed to load" << std::endl;
 				}
 
 				_native->getFileSystem()->closeFile(file);
+			}
+			else
+			{
+				std::cout << " -failed to open" << std::endl;
 			}
 		}
 	} while (FindNextFile(h, &f));
 
 	return true;
+}
+
+bool CProjectManager::saveProject(const CProject& project)
+{
+	IFileObject* file = _native->getFileSystem()->openFile(project.getProjectPath(), FILE_WRITE);
+	bool ok = project.save(file);
+
+	_native->getFileSystem()->closeFile(file);
+	return ok;
+}
+
+bool CProjectManager::saveProjectAs(const CProject& project, const CString& newFile)
+{
+	IFileObject* file = _native->getFileSystem()->openFile(_projectDirectory / newFile, FILE_WRITE);
+	bool ok = project.save(file);
+
+	_native->getFileSystem()->closeFile(file);
+	return ok;
 }

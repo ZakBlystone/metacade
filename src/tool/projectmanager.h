@@ -16,6 +16,9 @@ public:
 	bool enumerateProjectFolders(vector<CProject>& projects);
 	bool enumerateProjectFiles(const CString& folder, vector<CProject>& projects);
 
+	bool saveProject(const CProject& project);
+	bool saveProjectAs(const CProject& project, const CString& newFile);
+
 private:
 	CString _projectDirectory;
 	shared_ptr<NativeEnv> _native;
