@@ -2,12 +2,17 @@ Project:
   ☐ Add a .gitignore
 
 Runtime:
+ Core:
+   ☐ CVariant Array support
+   ☐ Figure out reverse mechanisim for game instances so hot-reloading will work
+
  General:
    ☐ Fix memory leaks
    ☐ Fix virtual destructors
    ☐ Allocate memory using CRuntimeObject wherever possible
    ☐ Design Input system
    ☐ Plan out entity management (should it be in VM, or on runtime)
+   ☐ Metadata CVariant support
 
  VM:
    ☐ VM classes should use CRuntimeObject
@@ -34,7 +39,17 @@ Tool:
  UI:
    ☐ Project Asset List
    ☐ Asset Importer Dialogs
+     ☐ Code
+     ☐ Font
+     ☐ Texture
+     ☐ Sound
+
    ☐ Project Dialogs
      ☐ Load
      ☐ Save
      ☐ Create
+
+ Compilation:
+   ☐ Font importer
+   ☐ Font packer
+   ☐ Sound importer
