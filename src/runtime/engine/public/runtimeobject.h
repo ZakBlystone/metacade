@@ -28,6 +28,7 @@ runtimemanaged.h: Localizes runtime functionality to object
 namespace Arcade
 {
 
+//Ideally, this shouldn't be exported, it's just quicker than making interfaces for everything
 class METACADE_API CRuntimeObject
 {
 public:
@@ -36,6 +37,7 @@ public:
 
 protected:
 
+#ifdef ENGINE_PRIVATE
 	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
 	{
 		return new(zalloc(sizeof(T))) T(args...);
@@ -47,6 +49,14 @@ protected:
 		if ( obj == nullptr ) return;
 		obj->~T();
 		zfree(obj);
+	}
+
+	//not great, but only compiles when you use it, so whatever I'll fix it later
+	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
+	{
+		return shared_ptr<T>
+			( this->construct<T>( args... )
+			, [this](T* ptr) { this->destroy(ptr); });
 	}
 
 	void log(EMessageType type, const char* message, ...);
@@ -65,6 +75,7 @@ protected:
 	class CIndex allocateImageIndex();
 
 	class IVMHost* getLuaVM();
+#endif
 
 private:
 	class IRuntime* _runtime;

@@ -23,6 +23,8 @@ engine_private.h:
 ===============================================================================
 */
 
+#define ENGINE_PRIVATE 1
+
 #include "core_private.h"
 #include "engine_public.h"
 
