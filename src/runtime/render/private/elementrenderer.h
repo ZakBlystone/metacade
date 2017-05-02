@@ -25,7 +25,6 @@ elementrenderer.h:
 
 #pragma once
 
-#include "metacade_private.h"
 #include "private/renderlist.h"
 
 namespace Arcade

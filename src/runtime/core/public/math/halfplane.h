@@ -25,8 +25,6 @@ halfplane.h: Vec3 with plane characteristics
 
 #pragma once
 
-#include "metacade_private.h"
-
 namespace Arcade
 {
 

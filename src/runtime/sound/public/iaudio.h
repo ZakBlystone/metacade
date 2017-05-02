@@ -23,9 +23,8 @@ iaudio.h:
 ===============================================================================
 */
 
-#pragma once
 
-#include "metacade_types.h"
+#pragma once
 
 namespace Arcade
 {

@@ -25,8 +25,6 @@ matrix3.h: 3x3 matrix
 
 #pragma once
 
-#include "metacade_private.h"
-
 namespace Arcade
 {
 

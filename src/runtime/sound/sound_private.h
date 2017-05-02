@@ -23,6 +23,10 @@ sound_private.h:
 ===============================================================================
 */
 
-#include "sound/public/iaudio.h"
+#include "engine_private.h"
+#include "sound_public.h"
+
+#include "private/channel.h"
+#include "private/mixer.h"
 
 using namespace Arcade;

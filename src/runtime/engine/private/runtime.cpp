@@ -52,7 +52,7 @@ CRuntime::CRuntime()
 	: CRuntimeObject((IRuntime*) this)
 	, _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
-	, _textureIndices(make_shared<CIndexAllocator>(this))
+	, _textureIndices(make_shared<CIndexAllocator>())
 	, _luaVM(make_shared<CLuaVM>(this))
 {
 }

@@ -23,8 +23,6 @@ vec2.h:
 ===============================================================================
 */
 
-#include "metacade_private.h"
-
 #pragma once
 
 namespace Arcade

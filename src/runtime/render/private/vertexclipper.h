@@ -25,7 +25,6 @@ vertexclipper.h:
 
 #pragma once
 
-#include "metacade_private.h"
 #include "core/core_public.h"
 
 namespace Arcade

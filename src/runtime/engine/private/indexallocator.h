@@ -30,7 +30,7 @@ indexallocator.h:
 namespace Arcade
 {
 
-class CIndexAllocator : public CRuntimeObject, public enable_shared_from_this<CIndexAllocator>
+class CIndexAllocator : public enable_shared_from_this<CIndexAllocator>
 {
 public:
 	class CIndexLock
@@ -65,10 +65,6 @@ public:
 		uint32 _index;
 		weak_ptr<CIndexAllocator> _allocator;
 	};
-
-	CIndexAllocator(CRuntimeObject* outer)
-		: CRuntimeObject(outer)
-	{}
 
 	class CIndex getIndex();
 

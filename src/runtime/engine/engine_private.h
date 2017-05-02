@@ -23,6 +23,7 @@ engine_private.h:
 ===============================================================================
 */
 
+#include "core_private.h"
 #include "engine_public.h"
 
 #include "public/ivminstance.h"

@@ -24,6 +24,7 @@ engine_public.h:
 */
 
 #include "core/core_public.h"
+#include "sound/sound_public.h"
 
 #include "public/functioncall.h"
 #include "public/igame.h"
@@ -42,3 +43,4 @@ engine_public.h:
 
 #include "public/assets/scriptresource.h"
 #include "public/assets/imageresource.h"
+#include "public/assets/soundresource.h"

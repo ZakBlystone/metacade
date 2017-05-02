@@ -23,6 +23,7 @@ core_private.h: Headers and macros private to this module
 ===============================================================================
 */
 
+#include "metacade_private.h"
 #include "core_public.h"
 
 using namespace Arcade;

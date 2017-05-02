@@ -19,33 +19,42 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-drawbuffer.h:
+channel.h:
 ===============================================================================
 */
 
 #pragma once
 
-#include "render/private/renderbuffer.h"
+#include "engine/private/indexallocator.h"
 
 namespace Arcade
 {
 
-class CDrawBuffer : public IDrawBuffer
+class CChannelState
+{
+	bool _loop;
+	float _time;
+	float _pitch;
+	float _volume;
+};
+
+class CSoundChannel : public ISoundChannel
 {
 public:
-	CDrawBuffer(shared_ptr<CRenderBuffer> renderBuffer);
 
-	void addRenderBatch(CRenderBatch batch);
-	void clearRenderBatches();
+	void generatePCM(uint8* buffer, uint32 offset, uint32 size);
+	void update();
 
-	virtual const CRenderBatch* getRenderBatches() const override;
-	virtual uint32 getNumRenderBatches() const override;
-	virtual const IRenderBuffer* getRenderBuffer() const override;
+	uint32 getIndex() const;
 
 private:
+	CSoundChannel(shared_ptr<class ISoundSample> sample, shared_ptr<class CSoundMixer> mixer);
 
-	shared_ptr<CRenderBuffer> _renderBuffer;
-	vector<CRenderBatch> _renderBatches;
+	friend class CSoundMixer;
+
+	weak_ptr<class ISoundSample> _sample;
+	weak_ptr<class CSoundMixer> _mixer;
+	CIndex _index;
 };
 
 }

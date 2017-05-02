@@ -25,7 +25,6 @@ renderlist.h:
 
 #pragma once
 
-#include "metacade_private.h"
 #include "public/renderelement.h"
 
 namespace Arcade

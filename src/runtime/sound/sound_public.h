@@ -23,4 +23,9 @@ sound_public.h:
 ===============================================================================
 */
 
-#include "sound/public/iaudio.h"
+#include "metacade_types.h"
+
+#include "public/sample.h"
+#include "public/iaudio.h"
+#include "public/ichannel.h"
+#include "public/imixer.h"

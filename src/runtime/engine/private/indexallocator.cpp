@@ -41,7 +41,7 @@ void CIndexAllocator::lock(uint32 &index)
 	}
 	_indices.insert(make_pair(index, true));
 
-	log(LOG_MESSAGE, "---LOCK INDEX: %i", index);
+	//log(LOG_MESSAGE, "---LOCK INDEX: %i", index);
 }
 
 void CIndexAllocator::unlock(uint32 index)
@@ -52,5 +52,5 @@ void CIndexAllocator::unlock(uint32 index)
 		_indices.erase(found);
 	}
 
-	log(LOG_MESSAGE, "---UNLOCK INDEX: %i", index);
+	//log(LOG_MESSAGE, "---UNLOCK INDEX: %i", index);
 }

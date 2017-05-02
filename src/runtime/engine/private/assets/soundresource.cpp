@@ -22,3 +22,41 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 soundresource.cpp:
 ===============================================================================
 */
+
+#include "engine/engine_private.h"
+
+Arcade::CSoundAsset::CSoundAsset(CRuntimeObject* outer) 
+	: CAsset(outer)
+{
+
+}
+
+bool Arcade::CSoundAsset::load(IFileObject* file)
+{
+	return false;
+}
+
+bool Arcade::CSoundAsset::save(IFileObject* file)
+{
+	return false;
+}
+
+bool Arcade::CSoundAsset::validate() const
+{
+	return false;
+}
+
+void Arcade::CSoundAsset::release()
+{
+
+}
+
+void Arcade::CSoundAsset::getSampleInfo(CSampleInfo& info)
+{
+
+}
+
+uint8* Arcade::CSoundAsset::getPCMSamples()
+{
+	return nullptr;
+}

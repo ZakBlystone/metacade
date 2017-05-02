@@ -22,3 +22,36 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 soundresource.h:
 ===============================================================================
 */
+
+#pragma once
+
+namespace Arcade
+{
+
+class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
+{
+public:
+	CSoundAsset(CRuntimeObject* outer);
+
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+
+	/*
+	const char* getCodeBuffer() const;
+	uint32 getCodeLength() const;
+
+	void setCodeBuffer(const char* buffer, uint32 size);
+	void setCodeBuffer(const char* buffer);
+
+	char* _code;
+	uint32 _codeLength;
+	*/
+
+	virtual void getSampleInfo(CSampleInfo& info) override;
+	virtual uint8* getPCMSamples() override;
+
+};
+
+}

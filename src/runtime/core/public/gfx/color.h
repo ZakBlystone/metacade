@@ -23,8 +23,6 @@ color.h: 32-bit color representation and floating-point counterpart
 ===============================================================================
 */
 
-#include "metacade_private.h"
-
 #pragma once
 
 namespace Arcade

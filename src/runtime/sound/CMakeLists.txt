@@ -1,3 +1,5 @@
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/sound)
+
 file (GLOB_RECURSE SOUND_SOURCES 
 	"*.h"
 	"*.cpp")

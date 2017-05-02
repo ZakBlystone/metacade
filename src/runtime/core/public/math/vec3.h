@@ -25,8 +25,6 @@ vec3.h:
 
 #pragma once
 
-#include "metacade_private.h"
-
 namespace Arcade
 {
 

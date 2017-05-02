@@ -650,6 +650,45 @@ private:
 	uint8 _digest[20];
 };
 }
+//src/runtime/sound/sound_public.h
+//src/runtime/sound/public/sample.h
+namespace Arcade
+{
+struct CSampleInfo
+{
+	int32 numFrames;
+	int32 numChannels;
+	int32 sampleRate;
+	int32 width;
+};
+class ISoundSample
+{
+public:
+	virtual void getSampleInfo(CSampleInfo& info) = 0;
+	virtual uint8* getPCMSamples() = 0;
+};
+}
+//src/runtime/sound/public/iaudio.h
+namespace Arcade
+{
+class IAudioSystem
+{
+};
+}
+//src/runtime/sound/public/ichannel.h
+namespace Arcade
+{
+class ISoundChannel
+{
+};
+}
+//src/runtime/sound/public/imixer.h
+namespace Arcade
+{
+class ISoundMixer
+{
+};
+}
 //src/runtime/render/render_public.h
 #define MAX_TEXTURE_BITS 10
 #define MAX_TEXTURES 1024
@@ -1235,5 +1274,21 @@ private:
 	int32 _width;
 	int32 _height;
 	uint8* _pixels;
+};
+}
+//src/runtime/engine/public/assets/soundresource.h
+namespace Arcade
+{
+class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
+{
+public:
+	CSoundAsset(CRuntimeObject* outer);
+	virtual bool load(IFileObject* file) override;
+	virtual bool save(IFileObject* file) override;
+	virtual bool validate() const override;
+	virtual void release() override;
+	 
+	virtual void getSampleInfo(CSampleInfo& info) override;
+	virtual uint8* getPCMSamples() override;
 };
 }
