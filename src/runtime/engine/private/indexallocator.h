@@ -80,7 +80,7 @@ private:
 class CIndex
 {
 public:
-	uint32 get()
+	uint32 get() const
 	{
 		if ( _lock == nullptr ) return INDEX_NONE;
 		return _lock->get();
