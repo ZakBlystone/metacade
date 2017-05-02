@@ -28,6 +28,12 @@ ichannel.h:
 namespace Arcade
 {
 
+enum EChannelID
+{
+	CHANNEL_ANY = -1,
+	CHANNEL_INVALID = 0xFFFFFFFF
+};
+
 class ISoundChannel
 {
 

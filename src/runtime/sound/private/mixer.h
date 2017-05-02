@@ -28,18 +28,28 @@ mixer.h:
 namespace Arcade
 {
 
-class CSoundMixer : public ISoundMixer, public CRuntimeObject
+class CSoundMixer : public ISoundMixer, public CRuntimeObject, public enable_shared_from_this<CSoundMixer>
 {
 public:
 	CSoundMixer(CRuntimeObject* outer);
 
-private:
-	friend class CSoundChannel;
+	//returns channel index
+	uint32 playSound(shared_ptr<ISoundSample> sample, int32 channel = EChannelID::CHANNEL_ANY);
 
+	uint32 createPersistentChannel();
+	void freePersistentChannel(uint32 channel);
+
+
+private:
 	CIndex lockChannelIndex();
 
-	vector<shared_ptr<CSoundChannel>> _channels;
+	shared_ptr<CSoundChannel> createChannelObject(EChannelMode mode = CHANNELMODE_DEFAULT);
+	shared_ptr<CSoundChannel> addChannel(uint32& index, EChannelMode mode = CHANNELMODE_DEFAULT);
+
+	map<uint32, shared_ptr<CSoundChannel>> _channels;
 	shared_ptr<CIndexAllocator> _channelIndices;
+
+	uint32 _maxChannels;
 };
 
 }

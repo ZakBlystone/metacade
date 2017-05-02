@@ -38,23 +38,35 @@ class CChannelState
 	float _volume;
 };
 
+enum EChannelMode
+{
+	CHANNELMODE_DEFAULT = 0,
+	CHANNELMODE_PERSISTENT,
+};
+
 class CSoundChannel : public ISoundChannel
 {
 public:
+
+	void play(shared_ptr<class ISoundSample> sample);
 
 	void generatePCM(uint8* buffer, uint32 offset, uint32 size);
 	void update();
 
 	uint32 getIndex() const;
 
+	EChannelMode getMode() const;
+
 private:
-	CSoundChannel(shared_ptr<class ISoundSample> sample, shared_ptr<class CSoundMixer> mixer);
+	CSoundChannel(shared_ptr<class CSoundMixer> mixer, CIndex index, EChannelMode mode = CHANNELMODE_DEFAULT);
 
 	friend class CSoundMixer;
+	friend class CRuntimeObject;
 
 	weak_ptr<class ISoundSample> _sample;
 	weak_ptr<class CSoundMixer> _mixer;
 	CIndex _index;
+	EChannelMode _mode;
 };
 
 }

@@ -25,10 +25,35 @@ channel.cpp:
 
 #include "sound_private.h"
 
-CSoundChannel::CSoundChannel(shared_ptr<ISoundSample> sample, shared_ptr<CSoundMixer> mixer)
-	: _sample(sample)
-	, _mixer(mixer)
-	, _index( mixer->lockChannelIndex() )
+CSoundChannel::CSoundChannel(shared_ptr<CSoundMixer> mixer, CIndex index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
+	: _mixer(mixer)
+	, _index(index)
+	, _mode(mode)
 {
 
+}
+
+void Arcade::CSoundChannel::play(shared_ptr<class ISoundSample> sample)
+{
+
+}
+
+EChannelMode CSoundChannel::getMode() const
+{
+	return _mode;
+}
+
+void CSoundChannel::generatePCM(uint8* buffer, uint32 offset, uint32 size)
+{
+
+}
+
+void CSoundChannel::update()
+{
+
+}
+
+uint32 CSoundChannel::getIndex() const
+{
+	return _index.get();
 }

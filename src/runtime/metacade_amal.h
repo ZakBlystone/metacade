@@ -678,6 +678,11 @@ class IAudioSystem
 //src/runtime/sound/public/ichannel.h
 namespace Arcade
 {
+enum EChannelID
+{
+	CHANNEL_ANY = -1,
+	CHANNEL_INVALID = 0xFFFFFFFF
+};
 class ISoundChannel
 {
 };
@@ -1075,12 +1080,14 @@ public:
 //src/runtime/engine/public/runtimeobject.h
 namespace Arcade
 {
+//Ideally, this shouldn't be exported, it's just quicker than making interfaces for everything
 class METACADE_API CRuntimeObject
 {
 public:
 	CRuntimeObject(class IRuntime* runtime);
 	CRuntimeObject(CRuntimeObject* outer);
 protected:
+#ifdef ENGINE_PRIVATE
 	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
 	{
 		return new(zalloc(sizeof(T))) T(args...);
@@ -1091,6 +1098,13 @@ protected:
 		if ( obj == nullptr ) return;
 		obj->~T();
 		zfree(obj);
+	}
+	//not great, but only compiles when you use it, so whatever I'll fix it later
+	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
+	{
+		return shared_ptr<T>
+			( this->construct<T>( args... )
+			, [this](T* ptr) { this->destroy(ptr); });
 	}
 	void log(EMessageType type, const char* message, ...);
 	void* zalloc(unsigned int size);
@@ -1103,6 +1117,7 @@ protected:
 	class IRuntime* getRuntime();
 	class CIndex allocateImageIndex();
 	class IVMHost* getLuaVM();
+#endif
 private:
 	class IRuntime* _runtime;
 };
