@@ -144,9 +144,11 @@ static bool buildSound(CSoundAsset* sound, IMetaData* params)
 	}
 
 	CSampleInfo info;
+	memset(&info, 0, sizeof(CSampleInfo));
+
+	info.numChannels = sndFormat.channels;
 	info.numFrames = (waveSize / (bitCount >> 3)) / info.numChannels;
 	info.width = bitCount;
-	info.numChannels = sndFormat.channels;
 	info.sampleRate = sndFormat.freq;
 
 	sound->setSampleInfo(info);
