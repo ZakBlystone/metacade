@@ -44,6 +44,7 @@ using std::list;
 using std::make_shared;
 using std::make_pair;
 using std::enable_shared_from_this;
+using std::dynamic_pointer_cast;
 using std::sort;
 using std::map;
 using std::forward;
