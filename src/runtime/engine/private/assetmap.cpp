@@ -179,6 +179,12 @@ bool CAssetMap::load(IFileObject* file)
 			});
 		break;
 		case Arcade::ASSET_SOUND:
+			asset = shared_ptr<CSoundAsset>(construct<CSoundAsset>(this), [this](CSoundAsset* Del)
+			{
+				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
+				if ( Del ) Del->release();
+				destroy(Del);
+			});
 		break;
 		default:
 		break;
