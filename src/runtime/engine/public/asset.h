@@ -109,4 +109,20 @@ T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return 
 template<typename T>
 const T* castAsset(const IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
 
+
+class CAssetRef : public CRuntimeObject
+{
+public:
+	const IAsset* get() const;
+	const IPackage* getPackage() const;
+
+	CGUID getAssetID() const;
+	CGUID getPackageID() const;
+
+private:
+	CAssetRef(CRuntimeObject* object, CGUID packageID, CGUID assetID);
+
+	CGUID _asset, _package;
+};
+
 }

@@ -22,3 +22,34 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 asset.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+
+
+CAssetRef::CAssetRef(CRuntimeObject* object, CGUID packageID, CGUID assetID)
+	: CRuntimeObject(object)
+	, _asset(assetID)
+	, _package(packageID)
+{
+
+}
+
+const IAsset* CAssetRef::get() const
+{
+	return getPackage()->findAssetByID(_asset);
+}
+
+const IPackage* CAssetRef::getPackage() const
+{
+	return getRuntime()->getPackageManager()->getPackageByID(_package);
+}
+
+CGUID CAssetRef::getAssetID() const
+{
+	return _asset;
+}
+
+CGUID CAssetRef::getPackageID() const
+{
+	return _package;
+}
