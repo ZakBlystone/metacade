@@ -70,7 +70,7 @@ protected:
 
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 
-	class IRuntime* getRuntime();
+	class IRuntime* getRuntime() const;
 
 	class CIndex allocateImageIndex();
 
