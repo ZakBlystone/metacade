@@ -656,7 +656,7 @@ namespace Arcade
 {
 struct CSampleInfo
 {
-	int32 numFrames;
+	uint32 numFrames;
 	int32 numChannels;
 	int32 sampleRate;
 	int32 width;
@@ -683,6 +683,11 @@ enum EChannelID
 	CHANNEL_ANY = -1,
 	CHANNEL_INVALID = 0xFFFFFFFF
 };
+enum EChannelMode
+{
+	CHANNELMODE_DEFAULT = 0,
+	CHANNELMODE_PERSISTENT,
+};
 class ISoundChannel
 {
 };
@@ -692,6 +697,11 @@ namespace Arcade
 {
 class ISoundMixer
 {
+public:
+	virtual uint32 playSound(
+		const class CAssetRef &sound, 
+		int32 channel = EChannelID::CHANNEL_ANY,
+		EChannelMode mode = EChannelMode::CHANNELMODE_DEFAULT) = 0;
 };
 }
 //src/runtime/render/render_public.h
@@ -951,6 +961,7 @@ public:
 	virtual void reloadVM() = 0;
 	virtual void callFunction(CFunctionCall call) = 0;
 };
+class IMetaData;
 class IRuntime
 {
 public:
@@ -958,6 +969,8 @@ public:
 	virtual class IPackageManager* getPackageManager() = 0;
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
+	virtual IMetaData* createMetaData() = 0;
+	virtual void deleteMetaData(IMetaData* data) = 0;
 	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
 };
 }
@@ -1055,12 +1068,12 @@ public:
 	virtual CString getPackageName() const = 0;
 	virtual CGUID getPackageID() const = 0;
 	virtual uint32 getNumAssets() const = 0;
-	virtual class IAsset* getAsset(uint32 index) const = 0;
+	virtual CAssetRef getAsset(uint32 index) const = 0;
 	virtual const IMetaData* getMetaData() const = 0;
 	virtual bool loadAssets() = 0;
 	virtual void releaseAssets() = 0;
-	virtual const class IAsset* findAssetByID(const CGUID& id) const = 0;
-	virtual const class IAsset* findAssetByName(const CString& name) const = 0;
+	virtual CAssetRef findAssetByID(const CGUID& id) const = 0;
+	virtual CAssetRef findAssetByName(const CString& name) const = 0;
 };
 class IPackageManager
 {
@@ -1107,14 +1120,14 @@ protected:
 			, [this](T* ptr) { this->destroy(ptr); });
 	}
 	void log(EMessageType type, const char* message, ...);
-	void* zalloc(unsigned int size);
-	void* zrealloc(void* pointer, unsigned int size);
+	void* zalloc(uint32 size);
+	void* zrealloc(void* pointer, uint32 size);
 	void zfree(void* pointer);
 	void zfree(const void* pointer);
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
-	class IRuntime* getRuntime();
+	class IRuntime* getRuntime() const;
 	class CIndex allocateImageIndex();
 	class IVMHost* getLuaVM();
 #endif
@@ -1187,10 +1200,29 @@ private:
 	CString _name;
 	bool _loaded;
 };
+class METACADE_API CAssetRef : public CRuntimeObject
+{
+public:
+	CAssetRef();
+	EAssetType getType() const;
+	IAsset* get() const;
+	IPackage* getPackage() const;
+	CGUID getAssetID() const;
+	CGUID getPackageID() const;
+	IAsset* operator*() const;
+private:
+	friend class CPackage;
+	CAssetRef(class CPackage* package, IAsset* asset);
+	CGUID _asset, _package;
+	EAssetType _type;
+};
 template<typename T>
-T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
-template<typename T>
-const T* castAsset(const IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
+T* castAsset(const CAssetRef& ref) 
+{ 
+	IAsset* asset = ref.get(); 
+	if (!asset || !((T*)(asset))->checkType()) return nullptr; 
+	return (T*)asset; 
+}
 }
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade
@@ -1298,12 +1330,19 @@ class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
 {
 public:
 	CSoundAsset(CRuntimeObject* outer);
+	virtual ~CSoundAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
 	virtual bool validate() const override;
 	virtual void release() override;
+	void setWaveData(uint8* waveData, uint32 waveSize);
+	void setSampleInfo(const CSampleInfo& info);
 	 
 	virtual void getSampleInfo(CSampleInfo& info) override;
 	virtual uint8* getPCMSamples() override;
+private:
+	uint8* _waveData;
+	uint32 _waveSize;
+	CSampleInfo _sampleInfo;
 };
 }

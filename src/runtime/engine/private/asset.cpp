@@ -25,22 +25,40 @@ asset.cpp:
 
 #include "engine_private.h"
 
-
-CAssetRef::CAssetRef(CRuntimeObject* object, CGUID packageID, CGUID assetID)
-	: CRuntimeObject(object)
-	, _asset(assetID)
-	, _package(packageID)
+CAssetRef::CAssetRef()
+	: CRuntimeObject((CRuntimeObject*) nullptr)
 {
 
 }
 
-const IAsset* CAssetRef::get() const
+CAssetRef::CAssetRef(class CPackage* package, IAsset* asset)
+	: CRuntimeObject(package)
 {
-	return getPackage()->findAssetByID(_asset);
+	if ( package == nullptr || asset == nullptr ) return;
+	
+	_package = package->getPackageID();
+	_asset = asset->getUniqueID();
+	_type = asset->getType();
 }
 
-const IPackage* CAssetRef::getPackage() const
+EAssetType CAssetRef::getType() const
 {
+	return _type;
+}
+
+IAsset* CAssetRef::get() const
+{
+	CPackage* pkg = (CPackage*) getPackage();
+	if ( pkg == nullptr ) return nullptr;
+
+	return pkg->getAssetMap()->findAssetByID(_asset).get();
+}
+
+IPackage* CAssetRef::getPackage() const
+{
+	IRuntime* runtime = getRuntime();
+	if ( runtime == nullptr ) return nullptr;
+
 	return getRuntime()->getPackageManager()->getPackageByID(_package);
 }
 
@@ -52,4 +70,9 @@ CGUID CAssetRef::getAssetID() const
 CGUID CAssetRef::getPackageID() const
 {
 	return _package;
+}
+
+IAsset* CAssetRef::operator*() const
+{
+	return get();
 }

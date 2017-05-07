@@ -102,27 +102,37 @@ private:
 	bool _loaded;
 };
 
-
-template<typename T>
-T* castAsset(IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
-
-template<typename T>
-const T* castAsset(const IAsset* asset) { if (!asset || !((T*)(asset))->checkType()) return nullptr; return (T*)asset; }
-
-
-class CAssetRef : public CRuntimeObject
+class METACADE_API CAssetRef : public CRuntimeObject
 {
 public:
-	const IAsset* get() const;
-	const IPackage* getPackage() const;
+	CAssetRef();
+
+	EAssetType getType() const;
+
+	IAsset* get() const;
+	IPackage* getPackage() const;
 
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
 
+	IAsset* operator*() const;
+
 private:
-	CAssetRef(CRuntimeObject* object, CGUID packageID, CGUID assetID);
+	friend class CPackage;
+
+	CAssetRef(class CPackage* package, IAsset* asset);
 
 	CGUID _asset, _package;
+	EAssetType _type;
 };
+
+
+template<typename T>
+T* castAsset(const CAssetRef& ref) 
+{ 
+	IAsset* asset = ref.get(); 
+	if (!asset || !((T*)(asset))->checkType()) return nullptr; 
+	return (T*)asset; 
+}
 
 }

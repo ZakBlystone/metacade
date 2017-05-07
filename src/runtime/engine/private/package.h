@@ -36,14 +36,14 @@ public:
 	virtual CString getPackageName() const;
 	virtual CGUID getPackageID() const;
 	virtual uint32 getNumAssets() const;
-	virtual class IAsset* getAsset(uint32 index) const;
+	virtual CAssetRef getAsset(uint32 index) const;
 	virtual const IMetaData* getMetaData() const;
 
 	virtual bool loadAssets();
 	virtual void releaseAssets();
 
-	virtual const IAsset* findAssetByID(const CGUID& id) const;
-	virtual const IAsset* findAssetByName(const CString& name) const;
+	virtual CAssetRef findAssetByID(const CGUID& id) const;
+	virtual CAssetRef findAssetByName(const CString& name) const;
 
 	bool save();
 	bool load(bool metaOnly = false);

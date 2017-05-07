@@ -32,7 +32,7 @@ CRuntimeObject::CRuntimeObject(IRuntime* runtime)
 }
 
 CRuntimeObject::CRuntimeObject(CRuntimeObject* outer)
-	: _runtime(outer->_runtime)
+	: _runtime(outer != nullptr ? outer->_runtime : nullptr)
 {
 }
 

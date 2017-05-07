@@ -77,14 +77,14 @@ bool CGameClass::init()
 		return false;
 	}
 
-	const IAsset* mainScriptAsset = locked->findAssetByName("main.lua"); //entry point
-	if ( mainScriptAsset == nullptr || mainScriptAsset->getType() != ASSET_CODE )
+	CCodeAsset* code = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );
+	if ( code == nullptr )
 	{
 		log(LOG_ERROR, "Failed to load 'main.lua'");
 		return false;
 	}
 
-	_vmKlass = getLuaVM()->loadGameVMClass(castAsset<CCodeAsset>(mainScriptAsset));
+	_vmKlass = getLuaVM()->loadGameVMClass(code);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");

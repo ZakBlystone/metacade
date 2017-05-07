@@ -63,9 +63,9 @@ uint32 CPackage::getNumAssets() const
 	return _map->getNumAssets();
 }
 
-IAsset* CPackage::getAsset(uint32 index) const
+CAssetRef CPackage::getAsset(uint32 index) const
 {
-	return _map->getAsset(index).get();
+	return CAssetRef((CPackage*) this, _map->getAsset(index).get());
 }
 
 bool CPackage::save()
@@ -201,14 +201,14 @@ CFileHandle CPackage::openPackageFile(EFileIOMode mode)
 	return CFileHandle(_filepath, mode, this);
 }
 
-const IAsset* CPackage::findAssetByID(const CGUID& id) const
+CAssetRef CPackage::findAssetByID(const CGUID& id) const
 {
 	auto found = _map->findAssetByID(id);
-	return found.get();
+	return CAssetRef((CPackage*) this, found.get());
 }
 
-const IAsset* CPackage::findAssetByName(const CString& name) const
+CAssetRef CPackage::findAssetByName(const CString& name) const
 {
 	auto found = _map->findAssetByName(name);
-	return found.get();
+	return CAssetRef((CPackage*) this, found.get());
 }
