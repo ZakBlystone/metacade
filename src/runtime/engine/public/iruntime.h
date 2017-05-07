@@ -40,6 +40,7 @@ public:
 	virtual void callFunction(CFunctionCall call) = 0;
 };
 
+class IMetaData;
 class IRuntime
 {
 public:
@@ -48,6 +49,9 @@ public:
 
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
+
+	virtual IMetaData* createMetaData() = 0;
+	virtual void deleteMetaData(IMetaData* data) = 0;
 
 	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
 };

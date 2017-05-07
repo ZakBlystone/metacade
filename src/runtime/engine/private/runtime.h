@@ -44,6 +44,9 @@ public:
 	virtual IRenderTest* createRenderTest();
 	virtual void deleteRenderTest(IRenderTest* test);
 
+	virtual IMetaData* createMetaData();
+	virtual void deleteMetaData(IMetaData* data);
+
 	virtual IGameClass* getGameClassForPackage(IPackage* package);
 
 	IAllocator* getAllocator();

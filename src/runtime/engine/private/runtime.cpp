@@ -223,6 +223,16 @@ void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
 	delete test;
 }
 
+IMetaData* CRuntime::createMetaData()
+{
+	return construct<CMetaData>();
+}
+
+void CRuntime::deleteMetaData(IMetaData* data)
+{
+	destroy<CMetaData>((CMetaData*)data);
+}
+
 IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 {
 	if ( package == nullptr ) 
