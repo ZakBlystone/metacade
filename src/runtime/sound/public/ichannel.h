@@ -34,6 +34,12 @@ enum EChannelID
 	CHANNEL_INVALID = 0xFFFFFFFF
 };
 
+enum EChannelMode
+{
+	CHANNELMODE_DEFAULT = 0,
+	CHANNELMODE_PERSISTENT,
+};
+
 class ISoundChannel
 {
 

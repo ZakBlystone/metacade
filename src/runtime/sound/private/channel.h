@@ -38,12 +38,6 @@ class CChannelState
 	float _volume;
 };
 
-enum EChannelMode
-{
-	CHANNELMODE_DEFAULT = 0,
-	CHANNELMODE_PERSISTENT,
-};
-
 class CSoundChannel : public ISoundChannel
 {
 public:
