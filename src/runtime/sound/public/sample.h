@@ -30,7 +30,7 @@ namespace Arcade
 
 struct CSampleInfo
 {
-	int32 numFrames;
+	uint32 numFrames;
 	int32 numChannels;
 	int32 sampleRate;
 	int32 width;

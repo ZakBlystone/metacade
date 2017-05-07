@@ -32,11 +32,15 @@ class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
 {
 public:
 	CSoundAsset(CRuntimeObject* outer);
+	virtual ~CSoundAsset();
 
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
 	virtual bool validate() const override;
 	virtual void release() override;
+
+	void setWaveData(uint8* waveData, uint32 waveSize);
+	void setSampleInfo(const CSampleInfo& info);
 
 	/*
 	const char* getCodeBuffer() const;
@@ -52,6 +56,10 @@ public:
 	virtual void getSampleInfo(CSampleInfo& info) override;
 	virtual uint8* getPCMSamples() override;
 
+private:
+	uint8* _waveData;
+	uint32 _waveSize;
+	CSampleInfo _sampleInfo;
 };
 
 }

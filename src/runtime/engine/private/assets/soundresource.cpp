@@ -27,36 +27,84 @@ soundresource.cpp:
 
 Arcade::CSoundAsset::CSoundAsset(CRuntimeObject* outer) 
 	: CAsset(outer)
+	, _waveData(nullptr)
+	, _waveSize(0)
 {
 
+}
+
+Arcade::CSoundAsset::~CSoundAsset()
+{
+	release();
 }
 
 bool Arcade::CSoundAsset::load(IFileObject* file)
 {
-	return false;
+	if ( !file->read(&_sampleInfo, sizeof(CSampleInfo)) ) return false;
+	if ( !file->read(&_waveSize, sizeof(uint32)) ) return false;
+	
+	if ( _waveData != nullptr )
+		release();
+
+	_waveData = (uint8*) zalloc(_waveSize);
+
+	if ( !file->read(_waveData, _waveSize) ) return false;
+
+	return true;
 }
 
 bool Arcade::CSoundAsset::save(IFileObject* file)
-{
-	return false;
+{	
+	if ( !file->write(&_sampleInfo, sizeof(CSampleInfo)) ) return false;
+	if ( !file->write(&_waveSize, sizeof(uint32)) ) return false;
+	
+	if ( _waveData == nullptr ) return false;
+
+	if ( !file->write(_waveData, _waveSize) ) return false;
+
+	return true;
 }
 
 bool Arcade::CSoundAsset::validate() const
 {
-	return false;
+	return true;
 }
 
 void Arcade::CSoundAsset::release()
 {
+	if ( _waveData != nullptr )
+	{
+		zfree(_waveData);
+		_waveData = nullptr;
+	}
+}
 
+void Arcade::CSoundAsset::setWaveData(uint8* waveData, uint32 waveSize)
+{
+	if ( waveSize == 0 ) return;
+
+	if ( _waveData != nullptr )
+	{
+		release();
+	}
+
+	_waveSize = waveSize;
+	_waveData = (uint8*) zalloc(_waveSize);
+
+	memcpy(_waveData, waveData, waveSize * sizeof(uint8));
+}
+
+void Arcade::CSoundAsset::setSampleInfo(const CSampleInfo& info)
+{
+	_sampleInfo = info;
 }
 
 void Arcade::CSoundAsset::getSampleInfo(CSampleInfo& info)
 {
-
+	info = _sampleInfo;
 }
 
 uint8* Arcade::CSoundAsset::getPCMSamples()
 {
-	return nullptr;
+	return _waveData;
 }
