@@ -60,8 +60,8 @@ protected:
 	}
 
 	void log(EMessageType type, const char* message, ...);
-	void* zalloc(unsigned int size);
-	void* zrealloc(void* pointer, unsigned int size);
+	void* zalloc(uint32 size);
+	void* zrealloc(void* pointer, uint32 size);
 	void zfree(void* pointer);
 	void zfree(const void* pointer);
 

@@ -55,14 +55,14 @@ void CRuntimeObject::log(EMessageType type, const char* message, ...)
 	va_end(args);
 }
 
-void* CRuntimeObject::zalloc(unsigned int size)
+void* CRuntimeObject::zalloc(uint32 size)
 {
 	CRuntime *runtime = (CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
 	return allocator->memrealloc(nullptr, size);
 }
 
-void* CRuntimeObject::zrealloc(void* pointer, unsigned int size)
+void* CRuntimeObject::zrealloc(void* pointer, uint32 size)
 {
 	CRuntime *runtime = (CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
