@@ -25,12 +25,21 @@ mixer.cpp:
 
 #include "sound_private.h"
 
-Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer) 
+Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings /*= CMixerInitSettings()*/) 
 	: CRuntimeObject(outer)
 	, _channelIndices(make_shared<CIndexAllocator>())
-	, _maxChannels(32)
+	, _settings(settings)
+	, _available(0)
 {
+	_mixBuffer = shared_ptr<float>( 
+		(float*) zalloc( _settings.bufferSize * sizeof(float) * _settings.getChannelCount() ),
+		[this](float* del) { this->zfree(del); }
+	);
 
+	_outBuffer = shared_ptr<uint8>( 
+		(uint8*) zalloc( _settings.bufferSize * sizeof(uint8) * _settings.getBytesPerFrame() ),
+		[this](uint8* del) { this->zfree(del); }
+	);
 }
 
 uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= EChannelID::CHANNEL_ANY*/)
@@ -56,6 +65,78 @@ uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= 
 	return EChannelID::CHANNEL_INVALID;
 }
 
+void CSoundMixer::update()
+{
+	float* buffer = _mixBuffer.get();
+	int16* outbuf = (int16*) _outBuffer.get();
+
+	uint32 realSize = _settings.bufferSize * _settings.getChannelCount();
+
+	for ( uint32 i=0; i<realSize; ++i )
+	{
+		buffer[i] = 0.f;
+	}
+
+	for ( auto it = _channels.cbegin(); it != _channels.cend(); )
+	{
+		if ( !(*it).second->generatePCM( buffer, 0, realSize ) )
+		{
+			it = _channels.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for ( uint32 i=0; i<realSize; ++i )
+	{
+		outbuf[i] = (int16)(buffer[i]);
+	}
+}
+
+uint8* CSoundMixer::getPCMSamples()
+{
+	return _outBuffer.get();
+}
+
+uint32 CSoundMixer::availablePCMData()
+{
+	return _available;
+}
+
+void CSoundMixer::setChannelPitch(int32 channel, float pitch)
+{
+	auto iter = _channels.find(channel);
+	if ( iter != _channels.end() )
+	{
+		(*iter).second->getState()._pitch = pitch;
+	}
+}
+
+void CSoundMixer::setChannelLooping(int32 channel, bool loop)
+{
+	auto iter = _channels.find(channel);
+	if ( iter != _channels.end() )
+	{
+		(*iter).second->getState()._loop = loop;
+	}
+}
+
+void CSoundMixer::setChannelVolume(int32 channel, float volume)
+{
+	auto iter = _channels.find(channel);
+	if ( iter != _channels.end() )
+	{
+		(*iter).second->getState()._volume = volume;
+	}
+}
+
+const CMixerSettings& CSoundMixer::getSettings() const
+{
+	return _settings;
+}
+
 uint32 CSoundMixer::createPersistentChannel()
 {
 	uint32 newIndex;
@@ -63,7 +144,7 @@ uint32 CSoundMixer::createPersistentChannel()
 	return newIndex;
 }
 
-void CSoundMixer::freePersistentChannel(uint32 channel)
+void CSoundMixer::destroyPersistentChannel(uint32 channel)
 {
 	auto iter = _channels.find(channel);
 	if ( iter != _channels.end() )
@@ -74,7 +155,7 @@ void CSoundMixer::freePersistentChannel(uint32 channel)
 
 shared_ptr<CSoundChannel> CSoundMixer::createChannelObject(EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
 {
-	return makeShared<CSoundChannel>( shared_from_this(), lockChannelIndex(), mode );
+	return makeShared<CSoundChannel>( this, lockChannelIndex(), mode );
 }
 
 shared_ptr<CSoundChannel> CSoundMixer::addChannel(uint32& index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
@@ -82,9 +163,9 @@ shared_ptr<CSoundChannel> CSoundMixer::addChannel(uint32& index, EChannelMode mo
 	shared_ptr<CSoundChannel> channelObject = nullptr;
 	index = EChannelID::CHANNEL_INVALID;
 
-	if ( _channels.size() >= _maxChannels ) 
+	if ( _channels.size() >= _settings.maxChannels ) 
 	{
-		log(LOG_WARN, "Failed to create channel numChannels >= MAX_CHANNELS(%i)", _maxChannels);
+		log(LOG_WARN, "Failed to create channel numChannels >= %i", _settings.maxChannels);
 		return channelObject;
 	}
 

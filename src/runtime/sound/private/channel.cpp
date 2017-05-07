@@ -25,7 +25,7 @@ channel.cpp:
 
 #include "sound_private.h"
 
-CSoundChannel::CSoundChannel(shared_ptr<CSoundMixer> mixer, CIndex index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
+CSoundChannel::CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
 	: _mixer(mixer)
 	, _index(index)
 	, _mode(mode)
@@ -35,7 +35,19 @@ CSoundChannel::CSoundChannel(shared_ptr<CSoundMixer> mixer, CIndex index, EChann
 
 void Arcade::CSoundChannel::play(shared_ptr<class ISoundSample> sample)
 {
+	if ( sample == nullptr ) return;
 
+	sample->getSampleInfo(_sampleInfo);
+
+	_rate = (float) _sampleInfo.sampleRate;
+	if ( _rate <= 0.f ) return;
+
+	_sample = sample;
+	_invRate = 1.f / _rate;
+	_stride = _sampleInfo.numChannels * _sampleInfo.width;
+
+	_state._time = 0.f;
+	_state._duration = (float)(_sampleInfo.numFrames) * _invRate;
 }
 
 EChannelMode CSoundChannel::getMode() const
@@ -43,9 +55,9 @@ EChannelMode CSoundChannel::getMode() const
 	return _mode;
 }
 
-void CSoundChannel::generatePCM(uint8* buffer, uint32 offset, uint32 size)
+Arcade::CChannelState& Arcade::CSoundChannel::getState()
 {
-
+	return _state;
 }
 
 void CSoundChannel::update()
@@ -56,4 +68,89 @@ void CSoundChannel::update()
 uint32 CSoundChannel::getIndex() const
 {
 	return _index.get();
+}
+
+bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISoundSample* sample, const CMixerSettings& mixerSettings)
+{
+	//playhead
+	float time = _rate * _state._time;
+	uint32 index = (uint32) floorf(time);
+	float frac = time - (float)(index);
+
+	//out of bounds
+	if ( index + 1 > _sampleInfo.numFrames && !_state._loop )
+		return false;
+
+	//interpolation points
+	uint32 frame = index;
+	uint32 nextFrame = index + 1;
+
+	if ( frame > _sampleInfo.numFrames )
+		return false;
+
+	//interpolate back to first sample if looping
+	if ( nextFrame >= _sampleInfo.numFrames )
+		nextFrame = 0;
+	
+	//sample locations
+	int32 sampleIndex = frame * _sampleInfo.numChannels;
+	int32 nextSampleIndex = frame * _sampleInfo.numChannels;
+
+	float vol = _state._volume;
+
+	//interpolation
+	if ( _sampleInfo.width == 16 )
+	{
+		int16* sampleData = reinterpret_cast<int16*>(sample->getPCMSamples());
+		if ( _sampleInfo.numChannels == 1 )
+		{
+			float A = (float)(sampleData[sampleIndex]);
+			float B = (float)(sampleData[nextSampleIndex]);
+			float lerped = A + (B - A) * frac;
+			buffer[offset] += lerped * vol;
+			buffer[offset+1] += lerped * vol;
+		}
+		else if ( _sampleInfo.numChannels = 2 )
+		{
+			float AL = (float)(sampleData[sampleIndex]);
+			float AR = (float)(sampleData[sampleIndex+1]);
+			float BL = (float)(sampleData[nextSampleIndex]);
+			float BR = (float)(sampleData[nextSampleIndex+1]);
+			float lerpedL = AL + (BL - AL) * frac;
+			float lerpedR = AR + (BR - AR) * frac;
+			buffer[offset] += lerpedL * vol;
+			buffer[offset+1] += lerpedR * vol;		
+		}
+	}
+
+	return true;
+}
+
+bool CSoundChannel::generatePCM(float* buffer, uint32 offset, uint32 size)
+{
+	shared_ptr<ISoundSample> sample = _sample.lock();
+	if ( _mixer == nullptr || sample == nullptr ) return false;
+
+	const CMixerSettings& settings = _mixer->getSettings();
+	ISoundSample* sampleptr = sample.get();
+
+	int32 channelCount = settings.getChannelCount();
+
+	float rateFactor = _invRate * _state._pitch * (_rate / settings.sampleRate);
+	bool generatedSample = false;
+
+	for ( uint32 i=offset; i<offset + size; i+=channelCount )
+	{
+		generatedSample |= generateSinglePCMSample(buffer, i, sampleptr, settings);
+		if ( !generatedSample ) return false;
+
+		_state._time += rateFactor;
+
+		if ( _state._loop && _state._time >= _state._duration )
+		{
+			_state._time = 0.f;
+		}
+	}
+
+	return generatedSample;
 }

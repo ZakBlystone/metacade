@@ -47,6 +47,9 @@ public:
 	virtual IMetaData* createMetaData();
 	virtual void deleteMetaData(IMetaData* data);
 
+	virtual ISoundMixer* createSoundMixer(CMixerSettings settings);
+	virtual void deleteSoundMixer(ISoundMixer* mixer);
+
 	virtual IGameClass* getGameClassForPackage(IPackage* package);
 
 	IAllocator* getAllocator();

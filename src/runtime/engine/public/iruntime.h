@@ -53,6 +53,9 @@ public:
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;
 
+	virtual ISoundMixer* createSoundMixer(CMixerSettings settings) = 0;
+	virtual void deleteSoundMixer(ISoundMixer* mixer) = 0;
+
 	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
 };
 

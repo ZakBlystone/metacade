@@ -24,6 +24,7 @@ runtime.cpp:
 */
 
 #include "engine_private.h"
+#include "sound_private.h"
 #include "script/lua/lua_private.h"
 
 class CDefaultAllocator : public IAllocator
@@ -231,6 +232,16 @@ IMetaData* CRuntime::createMetaData()
 void CRuntime::deleteMetaData(IMetaData* data)
 {
 	destroy<CMetaData>((CMetaData*)data);
+}
+
+ISoundMixer* CRuntime::createSoundMixer(CMixerSettings settings)
+{
+	return construct<CSoundMixer>(this, settings);
+}
+
+void CRuntime::deleteSoundMixer(ISoundMixer* mixer)
+{
+	return destroy<CSoundMixer>((CSoundMixer*)mixer);
 }
 
 IGameClass* CRuntime::getGameClassForPackage(IPackage* package)

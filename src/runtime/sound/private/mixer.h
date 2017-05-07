@@ -28,18 +28,29 @@ mixer.h:
 namespace Arcade
 {
 
-class CSoundMixer : public ISoundMixer, public CRuntimeObject, public enable_shared_from_this<CSoundMixer>
+class CSoundMixer : public ISoundMixer, public CRuntimeObject
 {
 public:
-	CSoundMixer(CRuntimeObject* outer);
+	CSoundMixer(CRuntimeObject* outer, CMixerSettings settings = CMixerSettings());
 
 	//returns channel index
 	uint32 playSoundSample(shared_ptr<ISoundSample> sample, int32 channel = EChannelID::CHANNEL_ANY);
 
-	uint32 createPersistentChannel();
-	void freePersistentChannel(uint32 channel);
+	virtual uint32 createPersistentChannel();
+	virtual void destroyPersistentChannel(uint32 channel);
 
 	virtual uint32 playSound(const CAssetRef& sound, int32 channel = EChannelID::CHANNEL_ANY) override;
+
+	virtual void update();
+
+	virtual uint8* getPCMSamples();
+	virtual uint32 availablePCMData();
+
+	virtual void setChannelPitch(int32 channel, float pitch);
+	virtual void setChannelLooping(int32 channel, bool loop);
+	virtual void setChannelVolume(int32 channel, float volume);
+
+	const CMixerSettings& getSettings() const;
 
 private:
 	CIndex lockChannelIndex();
@@ -50,7 +61,11 @@ private:
 	map<uint32, shared_ptr<CSoundChannel>> _channels;
 	shared_ptr<CIndexAllocator> _channelIndices;
 
-	uint32 _maxChannels;
+	CMixerSettings _settings;
+	uint32 _available;
+
+	shared_ptr<float> _mixBuffer;
+	shared_ptr<uint8> _outBuffer;
 };
 
 }
