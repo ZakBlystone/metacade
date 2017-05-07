@@ -31,10 +31,7 @@ namespace Arcade
 class ISoundMixer
 {
 public:
-	virtual uint32 playSound(
-		const class CAssetRef &sound, 
-		int32 channel = EChannelID::CHANNEL_ANY,
-		EChannelMode mode = EChannelMode::CHANNELMODE_DEFAULT) = 0;
+	virtual uint32 playSound(const class CAssetRef &sound, int32 channel = EChannelID::CHANNEL_ANY) = 0;
 };
 
 }

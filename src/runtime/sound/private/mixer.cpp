@@ -33,10 +33,7 @@ Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer)
 
 }
 
-uint32 Arcade::CSoundMixer::playSound(
-	const CAssetRef& sound, 
-	int32 channel /*= EChannelID::CHANNEL_ANY*/,
-	EChannelMode mode /*= EChannelMode::CHANNELMODE_DEFAULT*/)
+uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
 	CPackage* pkg = (CPackage*) (sound.getPackage());
 	if ( pkg != nullptr )
@@ -53,7 +50,7 @@ uint32 Arcade::CSoundMixer::playSound(
 			return EChannelID::CHANNEL_INVALID;
 		}
 
-		return playSoundSample(dynamic_pointer_cast<ISoundSample>( asset ), channel, mode);
+		return playSoundSample(dynamic_pointer_cast<ISoundSample>( asset ), channel);
 	}
 
 	return EChannelID::CHANNEL_INVALID;
@@ -99,17 +96,14 @@ shared_ptr<CSoundChannel> CSoundMixer::addChannel(uint32& index, EChannelMode mo
 	return channelObject;
 }
 
-uint32 CSoundMixer::playSoundSample(
-	shared_ptr<ISoundSample> sample, 
-	int32 channel /*= EChannelID::CHANNEL_ANY*/, 
-	EChannelMode mode /*= EChannelMode::CHANNELMODE_DEFAULT*/)
+uint32 CSoundMixer::playSoundSample(shared_ptr<ISoundSample> sample, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
 	shared_ptr<CSoundChannel> channelObject = nullptr;
 	uint32 newIndex = EChannelID::CHANNEL_INVALID;
 
 	if ( channel == -1 )
 	{
-		channelObject = addChannel(newIndex, mode);
+		channelObject = addChannel(newIndex);
 	}
 	else
 	{

@@ -34,18 +34,12 @@ public:
 	CSoundMixer(CRuntimeObject* outer);
 
 	//returns channel index
-	uint32 playSoundSample(
-		shared_ptr<ISoundSample> sample, 
-		int32 channel = EChannelID::CHANNEL_ANY, 
-		EChannelMode mode = EChannelMode::CHANNELMODE_DEFAULT);
+	uint32 playSoundSample(shared_ptr<ISoundSample> sample, int32 channel = EChannelID::CHANNEL_ANY);
 
 	uint32 createPersistentChannel();
 	void freePersistentChannel(uint32 channel);
 
-	virtual uint32 playSound(
-		const CAssetRef& sound, 
-		int32 channel = EChannelID::CHANNEL_ANY,
-		EChannelMode mode = EChannelMode::CHANNELMODE_DEFAULT) override;
+	virtual uint32 playSound(const CAssetRef& sound, int32 channel = EChannelID::CHANNEL_ANY) override;
 
 private:
 	CIndex lockChannelIndex();
