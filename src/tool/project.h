@@ -33,6 +33,8 @@ public:
 	void makeDirty();
 	bool isDirty() const;
 
+	IPackage* buildPackage(IRuntime* runtime);
+
 private:
 	friend class CProjectManager;
 

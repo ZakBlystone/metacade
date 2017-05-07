@@ -55,6 +55,10 @@ bool CProjectManager::enumerateProjectFiles(const CString& folder, vector<CProje
 			{
 				std::cout << "PROJECT FILE: " << *projectFilePath << std::endl;
 			}
+			else
+			{
+				continue;
+			}
 
 			IFileObject* file = _native->getFileSystem()->openFile(projectFilePath, FILE_READ);
 			if ( file != nullptr )

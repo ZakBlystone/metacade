@@ -5,6 +5,11 @@ using namespace Arcade;
 using nlohmann::json;
 
 #include "project.h"
+#include "compiler.h"
+#include <memory>
+
+using std::shared_ptr;
+using std::make_shared;
 
 CProject::CProject(const CString& filepath, const CString& rootpath)
 	: _dirty(false)
@@ -101,6 +106,70 @@ void CProject::makeDirty()
 bool CProject::isDirty() const
 {
 	return _dirty;
+}
+
+IPackage* CProject::buildPackage(IRuntime* runtime)
+{
+	IPackageManager* manager = runtime->getPackageManager();
+	CPackageBuilder* builder = manager->createPackageBuilder(getProjectName());
+	shared_ptr<CCompiler> compiler = make_shared<CCompiler>();
+	
+	builder->load();
+
+	for ( auto entry : _meta )
+	{
+		builder->getMetaData()->setKeyValuePair( entry.first, entry.second );
+	}
+
+	for ( int32 i=0; i<numAssetDefs(ASSET_TEXTURE); ++i )
+	{
+		CAssetFileDef def = getAssetDef(ASSET_TEXTURE, i);
+		CImageAsset* asset = builder->addNamedAsset<CImageAsset>(def._name);
+		
+		IMetaData* meta = runtime->createMetaData();
+		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
+		meta->setKeyValuePair("file", _rootpath / def._path);
+
+		bool success = compiler->compile(asset, meta);
+		if ( !success )
+		{
+			std::cout << "ERROR: Failed to compile asset: " << *def._path << std::endl;
+			builder->removeAsset(asset);
+		}
+
+		runtime->deleteMetaData(meta);
+	}
+
+	for ( int32 i=0; i<numAssetDefs(ASSET_SOUND); ++i )
+	{
+		CAssetFileDef def = getAssetDef(ASSET_SOUND, i);
+		CSoundAsset* asset = builder->addNamedAsset<CSoundAsset>(def._name);
+		
+		IMetaData* meta = runtime->createMetaData();
+		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
+		meta->setKeyValuePair("file", _rootpath / def._path);
+
+		bool success = compiler->compile(asset, meta);
+		if ( !success )
+		{
+			std::cout << "ERROR: Failed to compile asset: " << *def._path << std::endl;
+			builder->removeAsset(asset);
+		}
+
+		runtime->deleteMetaData(meta);
+	}
+
+	if ( !builder->save() )
+		return nullptr;
+
+	manager->deletePackageBuilder(builder);
+
+	if ( manager->findAndPreloadPackages() )
+	{
+		return manager->getPackageByName( getProjectName() );
+	}
+
+	return nullptr;
 }
 
 bool CProject::load(IFileObject* file)
