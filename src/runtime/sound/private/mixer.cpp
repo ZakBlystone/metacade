@@ -91,7 +91,7 @@ void CSoundMixer::update()
 
 	for ( uint32 i=0; i<realSize; ++i )
 	{
-		outbuf[i] = (int16)(buffer[i]);
+		outbuf[i] = (int16)( min(max(buffer[i], -32678.f),32767.f) );
 	}
 }
 
