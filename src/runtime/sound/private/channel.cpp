@@ -107,8 +107,15 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 			float A = (float)(sampleData[sampleIndex]);
 			float B = (float)(sampleData[nextSampleIndex]);
 			float lerped = A + (B - A) * frac;
-			buffer[offset] += lerped * vol;
-			buffer[offset+1] += lerped * vol;
+			if ( mixerSettings.flags & MIXF_STEREO )
+			{
+				buffer[offset] += lerped * vol;
+				buffer[offset+1] += lerped * vol;
+			}
+			else
+			{
+				buffer[offset] += lerped * vol;	
+			}
 		}
 		else if ( _sampleInfo.numChannels = 2 )
 		{
@@ -118,8 +125,15 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 			float BR = (float)(sampleData[nextSampleIndex+1]);
 			float lerpedL = AL + (BL - AL) * frac;
 			float lerpedR = AR + (BR - AR) * frac;
-			buffer[offset] += lerpedL * vol;
-			buffer[offset+1] += lerpedR * vol;		
+			if ( mixerSettings.flags & MIXF_STEREO )
+			{
+				buffer[offset] += lerpedL * vol;
+				buffer[offset+1] += lerpedR * vol;
+			}
+			else
+			{
+				buffer[offset] += (lerpedR + lerpedL) * .5f * vol;
+			}
 		}
 	}
 
