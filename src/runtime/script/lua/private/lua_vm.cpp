@@ -124,7 +124,7 @@ bool Arcade::CLuaVM::pcall(int nargs)
 	{
 		std::cout << "Lua: " << lua_tostring(_L, -1) << std::endl;
 		lua_pop(_L, 1);
-		exit(0);
+		//exit(0);
 		return false;
 	}
 	return true;
