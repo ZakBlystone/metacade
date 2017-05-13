@@ -31,6 +31,7 @@ using namespace Arcade;
 #include "compiler.h"
 #include "SDL.h"
 #include <iostream>
+#include <fstream>
 
 static const uint8 bitReversalTable[] = 
 {
@@ -159,6 +160,23 @@ static bool buildSound(CSoundAsset* sound, IMetaData* params)
 	return true;
 }
 
+static bool buildCode(CCodeAsset* code, IMetaData* params)
+{
+	std::ifstream input(*params->getValue("file"), std::ios::binary | std::ios::ate);
+
+	if ( !input.is_open() ) return false;
+
+	uint32 size = (uint32) input.tellg();
+	input.seekg(std::ios::beg);
+
+	uint8* buffer = new uint8[size];
+	input.read((char*)buffer, size);
+
+	code->setCodeBuffer((const char*)buffer, size);
+
+	return code->validate();
+}
+
 CCompiler::CCompiler()
 {
 	ilInit();
@@ -176,6 +194,7 @@ bool CCompiler::compile(IAsset* asset, IMetaData* buildParameters)
 	case ASSET_NONE:
 	break;
 	case ASSET_CODE:
+	return buildCode((CCodeAsset*)asset, buildParameters);
 	break;
 	case ASSET_TEXTURE:
 	return buildImage((CImageAsset*)asset, buildParameters);
