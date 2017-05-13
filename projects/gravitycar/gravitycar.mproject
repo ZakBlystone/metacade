@@ -5,16 +5,14 @@
 		"author": "Foohy",
 		"description": "Vroooooom"
 	},
-	"assets": {
-		"textures": {
-			"brick": "C:/Brick.png",
-			"ass": "C:/Ass.png",
-			"foohy": "C:/Awesome/jokes.png"
-		},
-		"sounds": {
-			"ding": "../Ding.wav",
-			"winner": "../WinnerWinnerChickenDinner.ogg",
-			"die": "../death.flac"
-		}
+	"textures": {
+		"brick": "C:/Brick.png",
+		"ass": "C:/Ass.png",
+		"foohy": "C:/Awesome/jokes.png"
+	},
+	"sounds": {
+		"ding": "../Ding.wav",
+		"winner": "../WinnerWinnerChickenDinner.ogg",
+		"die": "../death.flac"
 	}
 }
