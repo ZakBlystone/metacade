@@ -18,6 +18,7 @@ CProject::CProject(const CString& filepath, const CString& rootpath)
 {
 	_assets.insert(make_pair(ASSET_SOUND, std::vector<CAssetFileDef>()));
 	_assets.insert(make_pair(ASSET_TEXTURE, std::vector<CAssetFileDef>()));
+	_assets.insert(make_pair(ASSET_CODE, std::vector<CAssetFileDef>()));
 }
 
 CString CProject::getProjectName() const
@@ -124,7 +125,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 	for ( int32 i=0; i<numAssetDefs(ASSET_TEXTURE); ++i )
 	{
 		CAssetFileDef def = getAssetDef(ASSET_TEXTURE, i);
-		CImageAsset* asset = builder->addNamedAsset<CImageAsset>(def._name);
+		CImageAsset* asset = builder->addNamedAsset<CImageAsset>(def._name + ".tex");
 		
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
@@ -143,7 +144,26 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 	for ( int32 i=0; i<numAssetDefs(ASSET_SOUND); ++i )
 	{
 		CAssetFileDef def = getAssetDef(ASSET_SOUND, i);
-		CSoundAsset* asset = builder->addNamedAsset<CSoundAsset>(def._name);
+		CSoundAsset* asset = builder->addNamedAsset<CSoundAsset>(def._name + ".snd");
+		
+		IMetaData* meta = runtime->createMetaData();
+		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
+		meta->setKeyValuePair("file", _rootpath / def._path);
+
+		bool success = compiler->compile(asset, meta);
+		if ( !success )
+		{
+			std::cout << "ERROR: Failed to compile asset: " << *def._path << std::endl;
+			builder->removeAsset(asset);
+		}
+
+		runtime->deleteMetaData(meta);
+	}
+
+	for ( int32 i=0; i<numAssetDefs(ASSET_CODE); ++i )
+	{
+		CAssetFileDef def = getAssetDef(ASSET_CODE, i);
+		CCodeAsset* asset = builder->addNamedAsset<CCodeAsset>(def._name + ".lua");
 		
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
@@ -186,10 +206,8 @@ bool CProject::load(IFileObject* file)
 		auto data = json::parse( std::string((const char*) mem.get(), size) );
 		if ( !data.is_object() ) return false;
 
-		auto meta = data["meta"];
-		auto assets = data["assets"];
-
 		{
+			auto meta = data["meta"];
 			for ( json::iterator it = meta.begin(); it != meta.end(); ++it )
 			{
 				std::string k = it.key();
@@ -199,7 +217,7 @@ bool CProject::load(IFileObject* file)
 		}
 
 		{
-			auto textures = assets["textures"];
+			auto textures = data["textures"];
 			for ( json::iterator it = textures.begin(); it != textures.end(); ++it )
 			{
 				std::string k = it.key();
@@ -209,12 +227,22 @@ bool CProject::load(IFileObject* file)
 		}
 
 		{
-			auto sounds = assets["sounds"];
+			auto sounds = data["sounds"];
 			for ( json::iterator it = sounds.begin(); it != sounds.end(); ++it )
 			{
 				std::string k = it.key();
 				std::string v = it.value();
 				addAssetDef(ASSET_SOUND, k.c_str(), v.c_str());
+			}
+		}
+
+		{
+			auto scripts = data["scripts"];
+			for ( json::iterator it = scripts.begin(); it != scripts.end(); ++it )
+			{
+				std::string k = it.key();
+				std::string v = it.value();
+				addAssetDef(ASSET_CODE, k.c_str(), v.c_str());
 			}
 		}
 	}
@@ -239,20 +267,26 @@ bool CProject::save(IFileObject* file) const
 		out["meta"] = json::object();
 
 
-		out["assets"] = json::object();
-		out["assets"]["textures"] = json::object();
-		out["assets"]["sounds"] = json::object();
+		out["textures"] = json::object();
+		out["sounds"] = json::object();
+		out["scripts"] = json::object();
 
 		for ( int32 i=0; i<numAssetDefs(ASSET_SOUND); ++i )
 		{
 			CAssetFileDef def = getAssetDef(ASSET_SOUND, i);
-			out["assets"]["sounds"][ std::string(*def._name) ] = *def._path;
+			out["sounds"][ std::string(*def._name) ] = *def._path;
 		}
 
 		for ( int32 i=0; i<numAssetDefs(ASSET_TEXTURE); ++i )
 		{
 			CAssetFileDef def = getAssetDef(ASSET_TEXTURE, i);
-			out["assets"]["textures"][ std::string(*def._name) ] = *def._path;
+			out["textures"][ std::string(*def._name) ] = *def._path;
+		}
+
+		for ( int32 i=0; i<numAssetDefs(ASSET_CODE); ++i )
+		{
+			CAssetFileDef def = getAssetDef(ASSET_CODE, i);
+			out["scripts"][ std::string(*def._name) ] = *def._path;
 		}
 
 		for ( auto it = _meta.begin(); it != _meta.end(); ++it )
