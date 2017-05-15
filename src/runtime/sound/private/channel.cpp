@@ -102,6 +102,8 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	if ( _sampleInfo.width == 16 )
 	{
 		int16* sampleData = reinterpret_cast<int16*>(sample->getPCMSamples());
+		if ( sampleData == nullptr ) return false;
+
 		if ( _sampleInfo.numChannels == 1 )
 		{
 			float A = (float)(sampleData[sampleIndex]);
