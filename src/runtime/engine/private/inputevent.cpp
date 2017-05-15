@@ -22,3 +22,10 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 inputevent.cpp:
 ===============================================================================
 */
+
+#include "engine_private.h"
+
+CInputEvent::CInputEvent()
+{
+
+}

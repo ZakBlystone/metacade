@@ -26,6 +26,8 @@ engine_public.h:
 #include "core/core_public.h"
 #include "sound/sound_public.h"
 
+#include "public/inputevent.h"
+#include "public/inputstate.h"
 #include "public/functioncall.h"
 #include "public/igame.h"
 #include "public/iruntime.h"
