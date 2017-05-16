@@ -38,17 +38,23 @@ enum EMouseButton
 	MOUSE_BUTTON_MAX,
 };
 
+enum EFocusElement
+{
+	FOCUS_KEYBOARD,
+	FOCUS_MOUSE,
+	FOCUS_MAX,
+};
+
 enum EInputStateFlags
 {
 	INPUTSTATE_NONE,
 	INPUTSTATE_MOUSEBUTTONS = 1 << 0,
-	INPUTSTATE_MOUSEMOVED = 1 << 1,
+	INPUTSTATE_MOUSEPOSITION = 1 << 1,
 	INPUTSTATE_KEYBOARD = 1 << 2,
-	INPUTSTATE_MOUSEFOCUS = 1 << 3,
-	INPUTSTATE_KEYBOARDFOCUS = 1 << 4,
+	INPUTSTATE_FOCUS = 1 << 3,
 };
 
-class CInputState
+class METACADE_API CInputState
 {
 public:
 	CInputState();
@@ -60,7 +66,58 @@ public:
 	void setMouseButton(EMouseButton button, bool pressed);
 	void setKey(uint8 keyboardScancode, bool pressed);
 
-	CInputEvent getDiff(const CInputState& previous) const;
+	template<typename Predicate>
+	void generateEvents(const CInputState& previous, Predicate func) const
+	{
+		//mouse buttons
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_MOUSEBUTTONS )
+		{
+			for ( int32 i=0; i<EMouseButton::MOUSE_BUTTON_MAX; ++i )
+			{
+				bool oldState = previous._mouseButtons & (1 << i) != 0;
+				bool newState = _mouseButtons & (1 << i) != 0;
+				if ( oldState != newState )
+				{
+					func( CInputEvent::generateMouseButtonEvent( i, newState ) );
+				}
+			}
+		}
+
+		//mouse position
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_MOUSEPOSITION )
+		{
+			if ( previous._mouseX != _mouseX || previous._mouseY != _mouseY )
+			{
+				func( CInputEvent::generateMouseMovementEvent( previous._mouseX, previous._mouseY, _mouseX, _mouseY ) );
+			}
+		}
+
+		//keys
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_KEYBOARD )
+		{
+			for ( int32 i=0; i<0xFF; ++i )
+			{
+				if ( previous._keyboard[i] != _keyboard[i] )
+				{
+					func( CInputEvent::generateKeyEvent( i, _keyboard[i] == 1 ) );
+				}
+			}
+		}
+
+		//focus
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_FOCUS )
+		{
+			for ( int32 i=0; i<EFocusElement::FOCUS_MAX; ++i )
+			{
+				bool oldState = previous._focus & (1 << i) != 0;
+				bool newState = _focus & (1 << i) != 0;
+				if ( oldState != newState )
+				{
+					func( CInputEvent::generateFocusEvent( i, newState ) );
+				}
+			}
+		}
+	}
 
 	uint8 getStateFlags() const;
 
@@ -68,8 +125,7 @@ private:
 	uint8 _keyboard[0xFF]; //state of all keys
 	uint8 _stateFlags;
 	uint8 _mouseButtons;
-	bool _keyboardFocus;
-	bool _mouseFocus;
+	uint8 _focus;
 	float _mouseX;
 	float _mouseY;
 };

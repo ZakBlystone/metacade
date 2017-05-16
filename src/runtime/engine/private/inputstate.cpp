@@ -28,8 +28,7 @@ inputstate.cpp:
 CInputState::CInputState()
 	: _stateFlags(INPUTSTATE_NONE)
 	, _mouseButtons(0)
-	, _keyboardFocus(false)
-	, _mouseFocus(false)
+	, _focus(0)
 	, _mouseX(0.f)
 	, _mouseY(0.f)
 {
@@ -39,29 +38,44 @@ CInputState::CInputState()
 void CInputState::clear()
 {
 	memset(_keyboard, 0, sizeof(uint8) * 0xFF);
+	_stateFlags = 0;
 	_mouseButtons = 0;
-	_keyboardFocus = false;
-	_mouseFocus = false;
+	_focus = 0;
 	_mouseX = 0.f;
 	_mouseY = 0.f;
-	_stateFlags = 0;
 }
 
 void CInputState::setKeyboardIsFocused(bool focused)
 {
-	_stateFlags |= EInputStateFlags::INPUTSTATE_KEYBOARDFOCUS;
-	_keyboardFocus = focused;
+	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
+
+	if ( focused )
+	{
+		_focus |= (1 << EFocusElement::FOCUS_KEYBOARD);
+	}
+	else
+	{
+		_focus &= ~(1 << EFocusElement::FOCUS_KEYBOARD);
+	}
 }
 
 void CInputState::setMouseIsFocused(bool focused)
 {
-	_stateFlags |= EInputStateFlags::INPUTSTATE_MOUSEFOCUS;
-	_mouseFocus = focused;
+	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
+
+	if ( focused )
+	{
+		_focus |= (1 << EFocusElement::FOCUS_MOUSE);
+	}
+	else
+	{
+		_focus &= ~(1 << EFocusElement::FOCUS_MOUSE);
+	}
 }
 
 void CInputState::setMousePosition(float x, float y)
 {
-	_stateFlags |= EInputStateFlags::INPUTSTATE_MOUSEMOVED;
+	_stateFlags |= EInputStateFlags::INPUTSTATE_MOUSEPOSITION;
 	_mouseX = x;
 	_mouseY = y;
 }
@@ -92,11 +106,6 @@ void CInputState::setKey(uint8 keyboardScancode, bool pressed)
 	{
 		_keyboard[keyboardScancode] = 0;
 	}
-}
-
-CInputEvent CInputState::getDiff(const CInputState& previous) const
-{
-	return CInputEvent();
 }
 
 uint8 CInputState::getStateFlags() const

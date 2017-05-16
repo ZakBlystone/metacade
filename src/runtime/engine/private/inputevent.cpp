@@ -29,3 +29,23 @@ CInputEvent::CInputEvent()
 {
 
 }
+
+CInputEvent CInputEvent::generateKeyEvent(uint8 keycode, bool wasPressed)
+{
+	return CInputEvent();
+}
+
+CInputEvent CInputEvent::generateMouseButtonEvent(uint8 button, bool wasPressed)
+{
+	return CInputEvent();
+}
+
+CInputEvent CInputEvent::generateMouseMovementEvent(float oldX, float oldY, float x, float y)
+{
+	return CInputEvent();
+}
+
+CInputEvent CInputEvent::generateFocusEvent(EFocusElement element, bool hasFocus)
+{
+	return CInputEvent();
+}
