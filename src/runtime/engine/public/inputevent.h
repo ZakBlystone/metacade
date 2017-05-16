@@ -28,28 +28,45 @@ inputevent.h:
 namespace Arcade
 {
 
-enum EInputEvents
+enum EInputEventType
 {
+	INPUTEVENT_NONE,
 	INPUTEVENT_MOUSEPRESSED,
 	INPUTEVENT_MOUSERELEASED,
 	INPUTEVENT_MOUSEMOVED,
 	INPUTEVENT_KEYPRESSED,
 	INPUTEVENT_KEYRELEASED,
-	INPUTEVENT_MOUSEFOCUSCHANGED,
-	INPUTEVENT_KEYBOARDFOCUSCHANGED,
+	INPUTEVENT_FOCUSGAINED,
+	INPUTEVENT_FOCUSLOST,
 };
 
 class METACADE_API CInputEvent
 {
 public:
 	static CInputEvent generateKeyEvent(uint8 keycode, bool wasPressed);
-	static CInputEvent generateMouseButtonEvent(uint8 button, bool wasPressed);
+	static CInputEvent generateMouseButtonEvent(EMouseButton button, bool wasPressed);
 	static CInputEvent generateMouseMovementEvent(float oldX, float oldY, float x, float y);
 	static CInputEvent generateFocusEvent(EFocusElement element, bool hasFocus);
+
+	EInputEventType getEventType() const;
+
+	EFocusElement getFocusElement() const;
+	EMouseButton getMouseButton() const;
+	uint8 getKeycode() const;
+	float getMouseX() const;
+	float getMouseY() const;
+	float getMouseDeltaX() const;
+	float getMouseDeltaY() const;
 
 private:
 	CInputEvent();
 
+	EInputEventType _eventType;
+	EFocusElement _focusElement;
+	EMouseButton _mouseButton;
+	uint8 _keycode;
+	float _mouseX;
+	float _mouseY;
 	float _mouseDeltaX;
 	float _mouseDeltaY;
 };

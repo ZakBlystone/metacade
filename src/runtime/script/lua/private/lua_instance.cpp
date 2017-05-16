@@ -69,7 +69,39 @@ void Arcade::CLuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
 
 void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 {
-
+	bool success = false;
+	switch ( input.getEventType() )
+	{
+	case INPUTEVENT_NONE:
+	break;
+	case INPUTEVENT_MOUSEPRESSED:
+		success = callFunction(CFunctionCall("onMousePressed", (int32) input.getMouseButton()));
+	break;
+	case INPUTEVENT_MOUSERELEASED:
+		success = callFunction(CFunctionCall("onMouseReleased", (int32) input.getMouseButton()));
+	break;
+	case INPUTEVENT_MOUSEMOVED:
+		success = callFunction(CFunctionCall("onMouseMoved"
+			, input.getMouseX()
+			, input.getMouseY()
+			, input.getMouseDeltaX()
+			, input.getMouseDeltaY()));
+	break;
+	case INPUTEVENT_KEYPRESSED:
+		success = callFunction(CFunctionCall("onKeyPressed", (int32) input.getKeycode()));
+	break;
+	case INPUTEVENT_KEYRELEASED:
+		success = callFunction(CFunctionCall("onKeyReleased", (int32) input.getKeycode()));
+	break;
+	case INPUTEVENT_FOCUSGAINED:
+		success = callFunction(CFunctionCall("onFocusGained", (int32) input.getFocusElement()));
+	break;
+	case INPUTEVENT_FOCUSLOST:
+		success = callFunction(CFunctionCall("onFocusLost", (int32) input.getFocusElement()));
+	break;
+	default:
+	break;
+	}
 }
 
 void Arcade::CLuaVMInstance::think(float seconds, float deltaSeconds)

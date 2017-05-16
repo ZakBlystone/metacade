@@ -34,6 +34,8 @@ public:
 	virtual class IGameClass* getClass() override;
 
 	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void postInputState(const class CInputState& input) override;
+
 	virtual void think(float time) override;
 	virtual void render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) override;
 	virtual void initializeRenderer(IRenderer* renderer) override;
@@ -42,6 +44,7 @@ public:
 
 	virtual void initializeTextures(class ITextureProvider* provider) override;
 	virtual void finishTextures(class ITextureProvider* provider) override;
+
 
 private:
 	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
@@ -58,6 +61,8 @@ private:
 	vector<ITexture*>* getTextureList(IRenderer* renderer, bool newOnly = false);
 
 	vector<ITexture*> _mainLoadedTextures;
+
+	CInputState _inputState;
 
 	float _lastTime;
 };

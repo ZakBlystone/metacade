@@ -926,6 +926,152 @@ private:
 };
 }
 //src/runtime/engine/engine_public.h
+//src/runtime/engine/public/inputstate.h
+namespace Arcade
+{
+enum EMouseButton
+{
+	MOUSE_BUTTON_LEFT,
+	MOUSE_BUTTON_RIGHT,
+	MOUSE_BUTTON_MIDDLE,
+	MOUSE_BUTTON_X1,
+	MOUSE_BUTTON_X2,
+	MOUSE_BUTTON_MAX,
+};
+enum EFocusElement
+{
+	FOCUS_KEYBOARD,
+	FOCUS_MOUSE,
+	FOCUS_MAX,
+};
+enum EInputStateFlags
+{
+	INPUTSTATE_NONE,
+	INPUTSTATE_MOUSEBUTTONS = 1 << 0,
+	INPUTSTATE_MOUSEPOSITION = 1 << 1,
+	INPUTSTATE_KEYBOARD = 1 << 2,
+	INPUTSTATE_FOCUS = 1 << 3,
+	INPUTSTATE_ALL = (1 << 4) - 1,
+};
+class METACADE_API CInputState
+{
+public:
+	CInputState();
+	void clear();
+	void setKeyboardIsFocused(bool focused);
+	void setMouseIsFocused(bool focused);
+	void setMousePosition(float x, float y);
+	void setMouseButton(EMouseButton button, bool pressed);
+	void setKey(uint8 keycode, bool pressed);
+	bool getKeyboardIsFocused() const;
+	bool getMouseIsFocused() const;
+	void getMousePosition(float &x, float &y) const;
+	bool getMouseButtonIsDown(EMouseButton button) const;
+	bool getKeyIsDown(uint8 keycode) const;
+	void applyEvent(const class CInputEvent& eventData);
+	template<typename Predicate>
+	void generateEvents(const CInputState& previous, Predicate func) const
+	{
+		//mouse buttons
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_MOUSEBUTTONS )
+		{
+			for ( int32 i=0; i<EMouseButton::MOUSE_BUTTON_MAX; ++i )
+			{
+				bool oldState = (previous._mouseButtons & (1 << i)) != 0;
+				bool newState = (_mouseButtons & (1 << i)) != 0;
+				if ( oldState != newState )
+				{
+					func( CInputEvent::generateMouseButtonEvent( (EMouseButton) i, newState ) );
+				}
+			}
+		}
+		//mouse position
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_MOUSEPOSITION )
+		{
+			if ( previous._mouseX != _mouseX || previous._mouseY != _mouseY )
+			{
+				func( CInputEvent::generateMouseMovementEvent( previous._mouseX, previous._mouseY, _mouseX, _mouseY ) );
+			}
+		}
+		//keys
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_KEYBOARD )
+		{
+			for ( int32 i=0; i<0xFF; ++i )
+			{
+				if ( previous._keyboard[i] != _keyboard[i] )
+				{
+					func( CInputEvent::generateKeyEvent( i, _keyboard[i] == 1 ) );
+				}
+			}
+		}
+		//focus
+		if ( _stateFlags & EInputStateFlags::INPUTSTATE_FOCUS )
+		{
+			for ( int32 i=0; i<EFocusElement::FOCUS_MAX; ++i )
+			{
+				bool oldState = (previous._focus & (1 << i)) != 0;
+				bool newState = (_focus & (1 << i)) != 0;
+				if ( oldState != newState )
+				{
+					func( CInputEvent::generateFocusEvent( (EFocusElement) i, newState ) );
+				}
+			}
+		}
+	}
+	uint8 getStateFlags() const;
+	void setStateFlags(uint8 state);
+private:
+	void setFocusElement(EFocusElement focusElement, bool focused);
+	bool getFocusElement(EFocusElement focusElement) const;
+	uint8 _keyboard[0xFF]; //state of all keys
+	uint8 _stateFlags;
+	uint8 _mouseButtons;
+	uint8 _focus;
+	float _mouseX;
+	float _mouseY;
+};
+}
+//src/runtime/engine/public/inputevent.h
+namespace Arcade
+{
+enum EInputEventType
+{
+	INPUTEVENT_NONE,
+	INPUTEVENT_MOUSEPRESSED,
+	INPUTEVENT_MOUSERELEASED,
+	INPUTEVENT_MOUSEMOVED,
+	INPUTEVENT_KEYPRESSED,
+	INPUTEVENT_KEYRELEASED,
+	INPUTEVENT_FOCUSGAINED,
+	INPUTEVENT_FOCUSLOST,
+};
+class METACADE_API CInputEvent
+{
+public:
+	static CInputEvent generateKeyEvent(uint8 keycode, bool wasPressed);
+	static CInputEvent generateMouseButtonEvent(EMouseButton button, bool wasPressed);
+	static CInputEvent generateMouseMovementEvent(float oldX, float oldY, float x, float y);
+	static CInputEvent generateFocusEvent(EFocusElement element, bool hasFocus);
+	EInputEventType getEventType() const;
+	EFocusElement getFocusElement() const;
+	EMouseButton getMouseButton() const;
+	uint8 getKeycode() const;
+	float getMouseX() const;
+	float getMouseY() const;
+	float getMouseDeltaX() const;
+	float getMouseDeltaY() const;
+private:
+	CInputEvent();
+	EInputEventType _eventType;
+	EFocusElement _focusElement;
+	EMouseButton _mouseButton;
+	uint8 _keycode;
+	float _mouseX;
+	float _mouseY;
+	float _mouseDeltaX;
+	float _mouseDeltaY;
+};
+}
 //src/runtime/engine/public/functioncall.h
 namespace Arcade
 {
@@ -969,6 +1115,7 @@ class IGameInstance
 public:
 	virtual class IGameClass* getClass() = 0;
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
+	virtual void postInputState(const class CInputState& input) = 0;
 	virtual void think(float time) = 0;
 	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
 	virtual void initializeRenderer(class IRenderer* renderer) = 0;

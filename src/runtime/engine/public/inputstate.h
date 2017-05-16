@@ -52,6 +52,7 @@ enum EInputStateFlags
 	INPUTSTATE_MOUSEPOSITION = 1 << 1,
 	INPUTSTATE_KEYBOARD = 1 << 2,
 	INPUTSTATE_FOCUS = 1 << 3,
+	INPUTSTATE_ALL = (1 << 4) - 1,
 };
 
 class METACADE_API CInputState
@@ -64,7 +65,15 @@ public:
 	void setMouseIsFocused(bool focused);
 	void setMousePosition(float x, float y);
 	void setMouseButton(EMouseButton button, bool pressed);
-	void setKey(uint8 keyboardScancode, bool pressed);
+	void setKey(uint8 keycode, bool pressed);
+
+	bool getKeyboardIsFocused() const;
+	bool getMouseIsFocused() const;
+	void getMousePosition(float &x, float &y) const;
+	bool getMouseButtonIsDown(EMouseButton button) const;
+	bool getKeyIsDown(uint8 keycode) const;
+
+	void applyEvent(const class CInputEvent& eventData);
 
 	template<typename Predicate>
 	void generateEvents(const CInputState& previous, Predicate func) const
@@ -74,11 +83,11 @@ public:
 		{
 			for ( int32 i=0; i<EMouseButton::MOUSE_BUTTON_MAX; ++i )
 			{
-				bool oldState = previous._mouseButtons & (1 << i) != 0;
-				bool newState = _mouseButtons & (1 << i) != 0;
+				bool oldState = (previous._mouseButtons & (1 << i)) != 0;
+				bool newState = (_mouseButtons & (1 << i)) != 0;
 				if ( oldState != newState )
 				{
-					func( CInputEvent::generateMouseButtonEvent( i, newState ) );
+					func( CInputEvent::generateMouseButtonEvent( (EMouseButton) i, newState ) );
 				}
 			}
 		}
@@ -109,19 +118,23 @@ public:
 		{
 			for ( int32 i=0; i<EFocusElement::FOCUS_MAX; ++i )
 			{
-				bool oldState = previous._focus & (1 << i) != 0;
-				bool newState = _focus & (1 << i) != 0;
+				bool oldState = (previous._focus & (1 << i)) != 0;
+				bool newState = (_focus & (1 << i)) != 0;
 				if ( oldState != newState )
 				{
-					func( CInputEvent::generateFocusEvent( i, newState ) );
+					func( CInputEvent::generateFocusEvent( (EFocusElement) i, newState ) );
 				}
 			}
 		}
 	}
 
 	uint8 getStateFlags() const;
+	void setStateFlags(uint8 state);
 
 private:
+	void setFocusElement(EFocusElement focusElement, bool focused);
+	bool getFocusElement(EFocusElement focusElement) const;
+
 	uint8 _keyboard[0xFF]; //state of all keys
 	uint8 _stateFlags;
 	uint8 _mouseButtons;

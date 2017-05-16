@@ -71,7 +71,18 @@ class IGameClass* CGameInstance::getClass()
 
 void CGameInstance::postInputEvent(const CInputEvent& input)
 {
+	_vmInstance->postInputEvent(input);
+	_inputState.applyEvent(input);
+}
 
+void CGameInstance::postInputState(const CInputState& input)
+{
+	input.generateEvents(_inputState, [this](const CInputEvent& eventData)
+	{
+		_vmInstance->postInputEvent(eventData);
+	});
+	
+	_inputState = input;
 }
 
 void CGameInstance::think(float time)

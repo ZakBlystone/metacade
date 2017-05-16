@@ -47,30 +47,12 @@ void CInputState::clear()
 
 void CInputState::setKeyboardIsFocused(bool focused)
 {
-	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
-
-	if ( focused )
-	{
-		_focus |= (1 << EFocusElement::FOCUS_KEYBOARD);
-	}
-	else
-	{
-		_focus &= ~(1 << EFocusElement::FOCUS_KEYBOARD);
-	}
+	setFocusElement(EFocusElement::FOCUS_KEYBOARD, focused);
 }
 
 void CInputState::setMouseIsFocused(bool focused)
 {
-	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
-
-	if ( focused )
-	{
-		_focus |= (1 << EFocusElement::FOCUS_MOUSE);
-	}
-	else
-	{
-		_focus &= ~(1 << EFocusElement::FOCUS_MOUSE);
-	}
+	setFocusElement(EFocusElement::FOCUS_MOUSE, focused);
 }
 
 void CInputState::setMousePosition(float x, float y)
@@ -94,21 +76,104 @@ void CInputState::setMouseButton(EMouseButton button, bool pressed)
 	}
 }
 
-void CInputState::setKey(uint8 keyboardScancode, bool pressed)
+void CInputState::setKey(uint8 keycode, bool pressed)
 {
 	_stateFlags |= EInputStateFlags::INPUTSTATE_KEYBOARD;
 
 	if ( pressed )
 	{
-		_keyboard[keyboardScancode] = 1;
+		_keyboard[keycode] = 1;
 	}
 	else
 	{
-		_keyboard[keyboardScancode] = 0;
+		_keyboard[keycode] = 0;
 	}
 }
+
+bool CInputState::getKeyboardIsFocused() const
+{
+	return getFocusElement(EFocusElement::FOCUS_KEYBOARD);
+}
+
+bool CInputState::getMouseIsFocused() const
+{
+	return getFocusElement(EFocusElement::FOCUS_MOUSE);
+}
+
+void CInputState::getMousePosition(float &x, float &y) const
+{
+	x = _mouseX;
+	y = _mouseY;
+}
+
+bool CInputState::getMouseButtonIsDown(EMouseButton button) const
+{
+	return (_mouseButtons & (1 << button)) != 0;
+}
+
+bool CInputState::getKeyIsDown(uint8 keycode) const
+{
+	return _keyboard[keycode] != 0;
+}
+
 
 uint8 CInputState::getStateFlags() const
 {
 	return _stateFlags;
+}
+
+void CInputState::setStateFlags(uint8 state)
+{
+	_stateFlags = state;
+}
+
+void CInputState::applyEvent(const CInputEvent& eventData)
+{
+	switch ( eventData.getEventType() )
+	{
+	case EInputEventType::INPUTEVENT_NONE:
+	break;
+	case EInputEventType::INPUTEVENT_MOUSEPRESSED:
+		setMouseButton( eventData.getMouseButton(), true );
+	break;
+	case EInputEventType::INPUTEVENT_MOUSERELEASED:
+		setMouseButton( eventData.getMouseButton(), false );
+	break;
+	case EInputEventType::INPUTEVENT_MOUSEMOVED:
+		setMousePosition( eventData.getMouseX(), eventData.getMouseY() );
+	break;
+	case EInputEventType::INPUTEVENT_KEYPRESSED:
+		setKey( eventData.getKeycode(), true );
+	break;
+	case EInputEventType::INPUTEVENT_KEYRELEASED:
+		setKey( eventData.getKeycode(), false );
+	break;
+	case EInputEventType::INPUTEVENT_FOCUSGAINED:
+		setFocusElement( eventData.getFocusElement(), true );
+	break;
+	case EInputEventType::INPUTEVENT_FOCUSLOST:
+		setFocusElement( eventData.getFocusElement(), false );
+	break;
+	default:
+	break;
+	}
+}
+
+void CInputState::setFocusElement(EFocusElement focusElement, bool focused)
+{
+	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
+
+	if ( focused )
+	{
+		_focus |= (1 << focusElement);
+	}
+	else
+	{
+		_focus &= ~(1 << focusElement);
+	}
+}
+
+bool CInputState::getFocusElement(EFocusElement focusElement) const
+{
+	return (_focus & (1 << focusElement)) != 0;
 }

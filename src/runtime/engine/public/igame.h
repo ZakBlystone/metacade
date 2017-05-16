@@ -41,6 +41,7 @@ public:
 	virtual class IGameClass* getClass() = 0;
 
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
+	virtual void postInputState(const class CInputState& input) = 0;
 	virtual void think(float time) = 0;
 	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
 	virtual void initializeRenderer(class IRenderer* renderer) = 0;
