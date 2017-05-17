@@ -68,11 +68,11 @@ void CInputState::setMouseButton(EMouseButton button, bool pressed)
 	
 	if ( pressed )
 	{
-		_mouseButtons |= (1 << button);
+		_mouseButtons |= (1 << (int32) button);
 	}
 	else
 	{
-		_mouseButtons &= ~(1 << button);
+		_mouseButtons &= ~(1 << (int32) button);
 	}
 }
 
@@ -108,7 +108,7 @@ void CInputState::getMousePosition(float &x, float &y) const
 
 bool CInputState::getMouseButtonIsDown(EMouseButton button) const
 {
-	return (_mouseButtons & (1 << button)) != 0;
+	return (_mouseButtons & (1 << (int32) button)) != 0;
 }
 
 bool CInputState::getKeyIsDown(uint8 keycode) const
@@ -159,21 +159,49 @@ void CInputState::applyEvent(const CInputEvent& eventData)
 	}
 }
 
+void CInputState::merge(const CInputState& other)
+{
+	//mouse buttons
+	if ( other._stateFlags & EInputStateFlags::INPUTSTATE_MOUSEBUTTONS )
+	{
+		_mouseButtons = other._mouseButtons;
+	}
+
+	//mouse position
+	if ( other._stateFlags & EInputStateFlags::INPUTSTATE_MOUSEPOSITION )
+	{
+		_mouseX = other._mouseX;
+		_mouseY = other._mouseY;
+	}
+
+	//keys
+	if ( other._stateFlags & EInputStateFlags::INPUTSTATE_KEYBOARD )
+	{
+		memcpy(_keyboard, other._keyboard, sizeof(uint8) * 0xFF);
+	}
+
+	//focus
+	if ( other._stateFlags & EInputStateFlags::INPUTSTATE_FOCUS )
+	{
+		_focus = other._focus;
+	}
+}
+
 void CInputState::setFocusElement(EFocusElement focusElement, bool focused)
 {
 	_stateFlags |= EInputStateFlags::INPUTSTATE_FOCUS;
 
 	if ( focused )
 	{
-		_focus |= (1 << focusElement);
+		_focus |= (1 << (int32) focusElement);
 	}
 	else
 	{
-		_focus &= ~(1 << focusElement);
+		_focus &= ~(1 << (int32) focusElement);
 	}
 }
 
 bool CInputState::getFocusElement(EFocusElement focusElement) const
 {
-	return (_focus & (1 << focusElement)) != 0;
+	return (_focus & (1 << (int32) focusElement)) != 0;
 }

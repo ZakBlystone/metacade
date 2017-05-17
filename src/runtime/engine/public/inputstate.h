@@ -72,8 +72,13 @@ public:
 	void getMousePosition(float &x, float &y) const;
 	bool getMouseButtonIsDown(EMouseButton button) const;
 	bool getKeyIsDown(uint8 keycode) const;
+	uint8 getMouseButtonBits() const
+	{
+		return _mouseButtons;
+	}
 
 	void applyEvent(const class CInputEvent& eventData);
+	void merge(const CInputState& other);
 
 	template<typename Predicate>
 	void generateEvents(const CInputState& previous, Predicate func) const
