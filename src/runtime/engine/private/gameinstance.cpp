@@ -82,7 +82,7 @@ void CGameInstance::postInputState(const CInputState& input)
 		_vmInstance->postInputEvent(eventData);
 	});
 	
-	_inputState = input;
+	_inputState.merge(input);
 }
 
 void CGameInstance::think(float time)
