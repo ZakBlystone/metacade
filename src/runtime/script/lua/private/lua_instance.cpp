@@ -70,15 +70,27 @@ void Arcade::CLuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
 void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 {
 	bool success = false;
+	float mouseX;
+	float mouseY;
+
+	_state.applyEvent(input);
+	_state.getMousePosition(mouseX, mouseY);
+
 	switch ( input.getEventType() )
 	{
 	case INPUTEVENT_NONE:
 	break;
 	case INPUTEVENT_MOUSEPRESSED:
-		success = callFunction(CFunctionCall("onMousePressed", (int32) input.getMouseButton()));
+		success = callFunction(CFunctionCall("onMousePressed"
+			, mouseX
+			, mouseY
+			, (int32) input.getMouseButton()));
 	break;
 	case INPUTEVENT_MOUSERELEASED:
-		success = callFunction(CFunctionCall("onMouseReleased", (int32) input.getMouseButton()));
+		success = callFunction(CFunctionCall("onMouseReleased"
+			, mouseX
+			, mouseY
+			, (int32) input.getMouseButton()));
 	break;
 	case INPUTEVENT_MOUSEMOVED:
 		success = callFunction(CFunctionCall("onMouseMoved"
