@@ -10,24 +10,31 @@ Runtime:
    ☐ Fix memory leaks
    ☐ Fix virtual destructors
    ☐ Allocate memory using CRuntimeObject wherever possible
-   ☐ Design Input system
+   ✔ Design Input system @done (17-05-18 05:36)
    ☐ Plan out entity management (should it be in VM, or on runtime)
    ☐ Metadata CVariant support
 
  VM:
-   ☐ VM classes should use CRuntimeObject
+   ✔ VM classes should use CRuntimeObject @done (17-05-18 05:41)
    ☐ VM function call threading to prevent lockups
+   ☐ Seriously clean up the VM code
+   ☐ Add error handling
 
  Assets:
    ☐ Texture asset interface (texture->page)
    ☐ Asset -> Variable interface (lua)
    ☐ Better name conformance on asset types 
 
+ Rendering:
+   ☐ Fix clipping algorithm (probably just revert back to old version)
+
+ Input:
+   ☐ Figure out Keymaps
 
 Tool:
  General:
    ☐ Cleanup Tool code
-   ☐ Design target system (target defines host parameters and capabilities)
+   ✘ Design target system (target defines host parameters and capabilities) @cancelled (17-05-18 05:38)
    ☐ Function to make folder paths for new projects
 
  Projects:
@@ -52,4 +59,4 @@ Tool:
  Compilation:
    ☐ Font importer
    ☐ Font packer
-   ☐ Sound importer
+   ✔ Sound importer @done (17-05-07 00:09)
