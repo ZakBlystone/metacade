@@ -42,7 +42,7 @@ static void copyTable(lua_State* L, int32 order = 0)
 
 			lua_rawset(L, -6); //-1 v, -2 k, -3 src, -4 dst
 		}
-		else if ( lua_type(L, -2) != LUA_TSTRING || strcmp(lua_tostring(L, -2), "_G") )
+		else if ( order < 4 && ( lua_type(L, -2) != LUA_TSTRING || strcmp(lua_tostring(L, -2), "_G") ) )
 		{
 			//for ( int32 i=0; i<order; ++i ) std::cout << "\t";
 			//std::cout << "---" << lua_tostring(L, -2) << std::endl;
@@ -62,6 +62,17 @@ static void copyTable(lua_State* L, int32 order = 0)
 	lua_pop(L, 1); //-1 dst
 }
 
+static const char* G_blacklist[] =
+{
+	"setfenv",
+	"getfenv",
+	"dofile",
+	"load",
+	"loadstring",
+	"loadfile",
+	0,
+};
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -77,6 +88,15 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_pushstring(L, "game");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);
+
+	const char** ptr = G_blacklist;
+	while (*ptr)
+	{
+		lua_pushstring(L, *ptr);
+		lua_pushnil(L);
+		lua_settable(L, -3);
+		++ptr;
+	}
 
 	_object = make_shared<LuaVMReference>(getLuaClass()->_host, -1);
 
