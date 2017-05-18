@@ -1303,6 +1303,13 @@ protected:
 			( this->construct<T>( args... )
 			, [this](T* ptr) { this->destroy(ptr); });
 	}
+	template<typename T>
+	T* castAsset(const CAssetRef& ref) 
+	{ 
+		IAsset* asset = ref.get(_runtime); 
+		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
+		return (T*)asset; 
+	}
 	void log(EMessageType type, const char* message, ...);
 	void* zalloc(uint32 size);
 	void* zrealloc(void* pointer, uint32 size);
@@ -1384,29 +1391,21 @@ private:
 	CString _name;
 	bool _loaded;
 };
-class METACADE_API CAssetRef : public CRuntimeObject
+class METACADE_API CAssetRef
 {
 public:
 	CAssetRef();
 	EAssetType getType() const;
-	IAsset* get() const;
-	IPackage* getPackage() const;
+	IAsset* get(IRuntime* runtime) const;
+	IPackage* getPackage(IRuntime* runtime) const;
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
-	IAsset* operator*() const;
 private:
 	friend class CPackage;
 	CAssetRef(class CPackage* package, IAsset* asset);
 	CGUID _asset, _package;
 	EAssetType _type;
 };
-template<typename T>
-T* castAsset(const CAssetRef& ref) 
-{ 
-	IAsset* asset = ref.get(); 
-	if (!asset || !((T*)(asset))->checkType()) return nullptr; 
-	return (T*)asset; 
-}
 }
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade

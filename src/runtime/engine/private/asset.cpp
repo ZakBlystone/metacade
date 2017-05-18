@@ -26,13 +26,11 @@ asset.cpp:
 #include "engine_private.h"
 
 CAssetRef::CAssetRef()
-	: CRuntimeObject((CRuntimeObject*) nullptr)
 {
 
 }
 
 CAssetRef::CAssetRef(class CPackage* package, IAsset* asset)
-	: CRuntimeObject(package)
 {
 	if ( package == nullptr || asset == nullptr ) return;
 	
@@ -46,20 +44,19 @@ EAssetType CAssetRef::getType() const
 	return _type;
 }
 
-IAsset* CAssetRef::get() const
+IAsset* CAssetRef::get(IRuntime* runtime) const
 {
-	CPackage* pkg = (CPackage*) getPackage();
+	CPackage* pkg = (CPackage*) getPackage(runtime);
 	if ( pkg == nullptr ) return nullptr;
 
 	return pkg->getAssetMap()->findAssetByID(_asset).get();
 }
 
-IPackage* CAssetRef::getPackage() const
+IPackage* CAssetRef::getPackage(IRuntime* runtime) const
 {
-	IRuntime* runtime = getRuntime();
 	if ( runtime == nullptr ) return nullptr;
 
-	return getRuntime()->getPackageManager()->getPackageByID(_package);
+	return runtime->getPackageManager()->getPackageByID(_package);
 }
 
 CGUID CAssetRef::getAssetID() const
@@ -70,9 +67,4 @@ CGUID CAssetRef::getAssetID() const
 CGUID CAssetRef::getPackageID() const
 {
 	return _package;
-}
-
-IAsset* CAssetRef::operator*() const
-{
-	return get();
 }

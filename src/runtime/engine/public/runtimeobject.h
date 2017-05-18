@@ -59,6 +59,14 @@ protected:
 			, [this](T* ptr) { this->destroy(ptr); });
 	}
 
+	template<typename T>
+	T* castAsset(const CAssetRef& ref) 
+	{ 
+		IAsset* asset = ref.get(_runtime); 
+		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
+		return (T*)asset; 
+	}
+
 	void log(EMessageType type, const char* message, ...);
 	void* zalloc(uint32 size);
 	void* zrealloc(void* pointer, uint32 size);

@@ -102,20 +102,18 @@ private:
 	bool _loaded;
 };
 
-class METACADE_API CAssetRef : public CRuntimeObject
+class METACADE_API CAssetRef
 {
 public:
 	CAssetRef();
 
 	EAssetType getType() const;
 
-	IAsset* get() const;
-	IPackage* getPackage() const;
+	IAsset* get(IRuntime* runtime) const;
+	IPackage* getPackage(IRuntime* runtime) const;
 
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
-
-	IAsset* operator*() const;
 
 private:
 	friend class CPackage;
@@ -125,14 +123,5 @@ private:
 	CGUID _asset, _package;
 	EAssetType _type;
 };
-
-
-template<typename T>
-T* castAsset(const CAssetRef& ref) 
-{ 
-	IAsset* asset = ref.get(); 
-	if (!asset || !((T*)(asset))->checkType()) return nullptr; 
-	return (T*)asset; 
-}
 
 }

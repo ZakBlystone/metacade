@@ -44,7 +44,7 @@ Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings 
 
 uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
-	CPackage* pkg = (CPackage*) (sound.getPackage());
+	CPackage* pkg = (CPackage*) (sound.getPackage(getRuntime()));
 	if ( pkg != nullptr )
 	{
 		shared_ptr<IAsset> asset = pkg->getAssetMap()->findAssetByID(sound.getAssetID());

@@ -61,6 +61,7 @@ static SDL_GLContext glContext;
 static SDL_AudioSpec sndFormat;
 static SDL_AudioDeviceID sndDevice;
 static shared_ptr<CRendererGL> renderer;
+static IRuntime* runtime = nullptr;
 static IPackage* loadedPackage = nullptr;
 static IGameClass* loadedGameClass = nullptr;
 static ISoundMixer* mixer = nullptr;
@@ -227,7 +228,7 @@ static void immediateUI(int32 width, int32 height)
 
 			for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
 			{
-				IAsset* asset = *loadedPackage->getAsset(i);
+				IAsset* asset = loadedPackage->getAsset(i).get(runtime);
 				ImGui::Button("|");
 				ImGui::SameLine();
 				ImGui::Text("%s { %s }", *asset->getName(), asset->getUniqueID().tostring());
@@ -244,10 +245,9 @@ static int start(int argc, char *argv[])
 {
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
-	IRuntime* system = nullptr;
 	IGameInstance* instance = nullptr;
 
-	if ( Arcade::create(&system) && system->initialize(native.get()) )
+	if ( Arcade::create(&runtime) && runtime->initialize(native.get()) )
 	{
 		cout << "Initialized" << endl;
 	}
@@ -260,10 +260,10 @@ static int start(int argc, char *argv[])
 	mixerSettings.bufferSize = 512;
 	mixerSettings.sampleRate = 44100;
 	mixerSettings.maxChannels = 64;
-	mixer = system->createSoundMixer(mixerSettings);
+	mixer = runtime->createSoundMixer(mixerSettings);
 
 	std::cout << "Loading Packages..." << std::endl;
-	IPackageManager* packmanager = system->getPackageManager();
+	IPackageManager* packmanager = runtime->getPackageManager();
 	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");//".");
 
 	//PROJECT STUFF
@@ -273,7 +273,7 @@ static int start(int argc, char *argv[])
 
 	std::cout << *projects[1].getProjectName() << std::endl;
 
-	IPackage* pkg = projects[1].buildPackage(system);
+	IPackage* pkg = projects[1].buildPackage(runtime);
 	loadedPackage = pkg;
 
 	if ( pkg != nullptr && pkg->loadAssets() )
@@ -303,7 +303,7 @@ static int start(int argc, char *argv[])
 
 
 	{
-		loadedGameClass = system->getGameClassForPackage(pkg);
+		loadedGameClass = runtime->getGameClassForPackage(pkg);
 
 		uint32 preInstance = SDL_GetTicks();
 
@@ -392,8 +392,8 @@ static int start(int argc, char *argv[])
 
 					//if ( !buildGamePackage(packmanager) ) continue;
 					//loadedGameClass = system->getGameClassForPackage(packmanager->getPackageByName("glyphtest"));
-					loadedPackage = projects[1].buildPackage(system);
-					loadedGameClass = system->getGameClassForPackage(loadedPackage);
+					loadedPackage = projects[1].buildPackage(runtime);
+					loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
 					instance = nullptr;
 					if ( loadedGameClass->createInstance(&instance) )
@@ -446,9 +446,9 @@ static int start(int argc, char *argv[])
 
 	shudownSound();
 
-	system->deleteSoundMixer(mixer);
+	runtime->deleteSoundMixer(mixer);
 
-	Arcade::destroy(system);
+	Arcade::destroy(runtime);
 
 	ImGui_ImplSdlGL3_Shutdown();
 
