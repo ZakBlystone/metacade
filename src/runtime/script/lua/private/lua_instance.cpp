@@ -76,6 +76,7 @@ static const char* G_blacklist[] =
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
+	, CRuntimeObject(klass.lock().get())
 {
 	if ( _klass.expired() ) return;
 

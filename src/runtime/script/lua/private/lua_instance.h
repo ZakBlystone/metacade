@@ -31,7 +31,7 @@ lua_instance.h:
 namespace Arcade
 {
 
-class CLuaVMInstance : public IVMInstance
+class CLuaVMInstance : public IVMInstance, public CRuntimeObject
 {
 
 public:
