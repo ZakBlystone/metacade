@@ -186,26 +186,19 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 {
 	shared_ptr<CLuaVMClass> newClass(nullptr);
 
-	CCodeAsset* luaMain = castAsset<CCodeAsset>( gamePackage->findAssetByName("main.lua") );
-	if ( luaMain == nullptr )
-	{
-		log(LOG_ERROR, "Failed to load 'main.lua'");
-		return newClass;
-	}
-
-	auto found = _loadedClasses.find(luaMain->getUniqueID());
+	auto found = _loadedClasses.find(gamePackage->getPackageID());
 	if ( found != _loadedClasses.end() )
 	{
-		(*found).second->loadFromAsset(luaMain);
+		(*found).second->loadFromPackage(gamePackage);
 
 		return (*found).second;
 	}
 	else
 	{
 		newClass = make_shared<CLuaVMClass>(shared_from_this());
-		_loadedClasses.insert(make_pair(luaMain->getUniqueID(), newClass));
+		_loadedClasses.insert(make_pair(gamePackage->getPackageID(), newClass));
 
-		if ( newClass->loadFromAsset(luaMain) )
+		if ( newClass->loadFromPackage(gamePackage) )
 		{
 			return newClass;
 		}

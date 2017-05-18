@@ -217,14 +217,21 @@ void CLuaVMClass::createMetaTable(const char* name, lua_CFunction target)
 	//DONE TABLE
 }
 
-bool CLuaVMClass::loadFromAsset(const CCodeAsset* asset)
+bool CLuaVMClass::loadFromPackage(shared_ptr<CPackage> package)
 {
 	lua_State *L = _host->getState();
 	_functions.clear();
 
-	if (luaL_loadbuffer(L, asset->getCodeBuffer(), asset->getCodeLength(), *asset->getName()))
+	CCodeAsset* luaMain = castAsset<CCodeAsset>( package->findAssetByName("main.lua") );
+	if ( luaMain == nullptr )
 	{
-		std::cout << "Lua: " << *asset->getName() << " : " << lua_tostring(L, -1) << std::endl;
+		log(LOG_ERROR, "Failed to load 'main.lua'");
+		return false;
+	}
+
+	if (luaL_loadbuffer(L, luaMain->getCodeBuffer(), luaMain->getCodeLength(), *luaMain->getName()))
+	{
+		std::cout << "Lua: " << *luaMain->getName() << " : " << lua_tostring(L, -1) << std::endl;
 		lua_pop(L, 1);
 		return false;	
 	}
