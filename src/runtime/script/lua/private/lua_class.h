@@ -45,8 +45,7 @@ public:
 	virtual shared_ptr<CMetaData> getMetaData() override;
 	virtual shared_ptr<IVMInstance> createVMInstance() override;
 
-	bool pushLuaFunction(string functionName) const;
-	bool loadFromFile(string filename);
+	bool pushLuaFunction(CString functionName) const;
 	bool loadFromPackage(shared_ptr<CPackage> package);
 
 	shared_ptr<CLuaVM> getLuaHost() const
@@ -56,23 +55,15 @@ public:
 
 private:
 
-	static int metaFunctionCreate(lua_State *L);
-	static int metaTextureCreate(lua_State *L);
-	static int metaKeyvalCreate(lua_State *L);
-
-	void createMetaTable(const char* name, lua_CFunction target);
+	static int metaTopLevelCreate(lua_State *L);
 
 	friend class CLuaVM;
 	friend class CLuaVMInstance;
 
 	shared_ptr<CMetaData> _metaData;
-
-	string _lastLoadFile;
 	shared_ptr<CLuaVM> _host;
-	map<string, shared_ptr<LuaVMReference>> _functions;
 
-	map<CString, CString> _textureLoadArgs;
-	//map<CString, CString> _soundLoadArgs;
+	map<CString, shared_ptr<LuaVMReference>> _functions;
 };
 
 }

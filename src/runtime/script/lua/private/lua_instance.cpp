@@ -105,7 +105,7 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 		funcdef.second->push();
 		_object->push();
 		lua_setfenv(L, -2);
-		lua_setfield(L, -2, funcdef.first.c_str());
+		lua_setfield(L, -2, *funcdef.first);
 	}
 
 	lua_pop(L, 1);
