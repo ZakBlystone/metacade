@@ -38,6 +38,7 @@ Arcade::CPackageBuilder::~CPackageBuilder()
 	delete _package;
 }
 
+#if 0
 bool Arcade::CPackageBuilder::setAndBuildMainScript(const CString& scriptPath)
 {
 	shared_ptr<CLuaVM> vm = make_shared<CLuaVM>(this); //getLuaVM();
@@ -68,6 +69,7 @@ bool Arcade::CPackageBuilder::setAndBuildMainScript(const CString& scriptPath)
 
 	return true;
 }
+#endif
 
 IAssetCompiler* CPackageBuilder::getAssetCompiler()
 {

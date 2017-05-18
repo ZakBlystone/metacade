@@ -45,7 +45,7 @@ public:
 	virtual bool init() override;
 	virtual void shutdown() override;
 	virtual bool isRunning() override;
-	virtual weak_ptr<IVMClass> loadGameVMClass(const class CCodeAsset* codeAsset) override;
+	virtual weak_ptr<IVMClass> loadGameVMClass(shared_ptr<CPackage> gamePackage) override;
 	virtual bool includeGameScript() override;
 	virtual bool validateGameScript() override;
 

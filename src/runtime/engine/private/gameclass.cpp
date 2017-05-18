@@ -77,14 +77,7 @@ bool CGameClass::init()
 		return false;
 	}
 
-	CCodeAsset* code = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );
-	if ( code == nullptr )
-	{
-		log(LOG_ERROR, "Failed to load 'main.lua'");
-		return false;
-	}
-
-	_vmKlass = getLuaVM()->loadGameVMClass(code);
+	_vmKlass = getLuaVM()->loadGameVMClass(locked);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");

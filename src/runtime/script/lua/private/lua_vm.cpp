@@ -182,23 +182,30 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 	return false;
 }
 
-weak_ptr<IVMClass> CLuaVM::loadGameVMClass(const class CCodeAsset* codeAsset)
+weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 {
 	shared_ptr<CLuaVMClass> newClass(nullptr);
 
-	auto found = _loadedClasses.find(codeAsset->getUniqueID());
+	CCodeAsset* luaMain = castAsset<CCodeAsset>( gamePackage->findAssetByName("main.lua") );
+	if ( luaMain == nullptr )
+	{
+		log(LOG_ERROR, "Failed to load 'main.lua'");
+		return newClass;
+	}
+
+	auto found = _loadedClasses.find(luaMain->getUniqueID());
 	if ( found != _loadedClasses.end() )
 	{
-		(*found).second->loadFromAsset(codeAsset);
+		(*found).second->loadFromAsset(luaMain);
 
 		return (*found).second;
 	}
 	else
 	{
 		newClass = make_shared<CLuaVMClass>(shared_from_this());
-		_loadedClasses.insert(make_pair(codeAsset->getUniqueID(), newClass));
+		_loadedClasses.insert(make_pair(luaMain->getUniqueID(), newClass));
 
-		if ( newClass->loadFromAsset(codeAsset) )
+		if ( newClass->loadFromAsset(luaMain) )
 		{
 			return newClass;
 		}

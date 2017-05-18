@@ -968,7 +968,12 @@ public:
 	void getMousePosition(float &x, float &y) const;
 	bool getMouseButtonIsDown(EMouseButton button) const;
 	bool getKeyIsDown(uint8 keycode) const;
+	uint8 getMouseButtonBits() const
+	{
+		return _mouseButtons;
+	}
 	void applyEvent(const class CInputEvent& eventData);
+	void merge(const CInputState& other);
 	template<typename Predicate>
 	void generateEvents(const CInputState& previous, Predicate func) const
 	{
@@ -1432,7 +1437,9 @@ public:
 		addAsset(newAsset);
 		return newAsset;
 	}
+#if 0
 	bool setAndBuildMainScript(const CString& scriptPath);
+#endif
 	void setAssetCompiler(IAssetCompiler* compiler);
 	IAssetCompiler* getAssetCompiler();
 	void removeAsset(class IAsset* asset);
