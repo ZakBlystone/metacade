@@ -19,19 +19,14 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-lua_private.h:
+lua_draw.cpp:
 ===============================================================================
 */
 
-#include "lua_public.h"
+#include "lua_private.h"
+#include "sound/sound_public.h"
 
-#include "private/lua_assets.h"
-#include "private/lua_class.h"
-#include "private/lua_instance.h"
-#include "private/lua_vm.h"
-#include "private/lua_module.h"
-#include "private/lua_math.h"
-#include "private/lua_draw.h"
-#include "private/lua_sound.h"
+void Arcade::openLuaSoundModule(CLuaVMInstance* instance)
+{
 
-using namespace Arcade;
+}
