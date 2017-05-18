@@ -28,11 +28,11 @@ engine_private.h:
 #include "core_private.h"
 #include "engine_public.h"
 
-#include "public/ivminstance.h"
-#include "public/ivmclass.h"
-#include "public/ivmhost.h"
-
 #include "public/asset.h"
+
+#include "private/ivminstance.h"
+#include "private/ivmclass.h"
+#include "private/ivmhost.h"
 
 #include "private/indexallocator.h"
 #include "private/fileutil.h"
