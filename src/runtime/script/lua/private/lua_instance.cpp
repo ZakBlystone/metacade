@@ -25,6 +25,43 @@ lua_instance.cpp:
 
 #include "lua_private.h"
 
+static void copyTable(lua_State* L, int32 order = 0)
+{
+	lua_pushnil(L); //-1 nil, -2 src, -3 dst
+
+	while (lua_next(L, -2))
+	{
+		//-1 v, -2 k, -3 src, -4 dst
+		if ( lua_type(L, -1) != LUA_TTABLE )
+		{
+			lua_pushvalue(L, -2); //-1 ck, -2 v, -3 k, -4 src, -5 dst
+			lua_pushvalue(L, -2); //-1 cv, -2 ck, -3 v, -4 k, -5 src, -6 dst
+
+			//for ( int32 i=0; i<order; ++i ) std::cout << "\t";
+			//std::cout << lua_tostring(L, -2) << std::endl;
+
+			lua_rawset(L, -6); //-1 v, -2 k, -3 src, -4 dst
+		}
+		else if ( lua_type(L, -2) != LUA_TSTRING || strcmp(lua_tostring(L, -2), "_G") )
+		{
+			//for ( int32 i=0; i<order; ++i ) std::cout << "\t";
+			//std::cout << "---" << lua_tostring(L, -2) << std::endl;
+
+			lua_newtable(L); //-1 t, -2 v, -3 k, -4 src, -5 dst
+			lua_pushvalue(L, -2); //-1 cv, -2 t, -3 v, -4 k, -5 src, -6 dst
+			copyTable(L, order+1); //-1 t, -2 v, -3 k, -4 src, -5 dst
+
+			lua_pushvalue(L, -3); //-1 ck, -2 t, -3 v, -4 k, -5 src, -6 dst
+			lua_pushvalue(L, -2); //-1 t, -2 ck, -3 t, -4 v, -5 k, -6 src, -7 dst
+			lua_rawset(L, -7); //-1 t, -2 v, -3 k, -4 src, -5 dst
+			lua_pop(L, 1); //-1 v, -2 k, -3 src, -4 dst
+		}
+		lua_pop(L, 1); //-1 k, -2 src, -3 dst
+	}
+
+	lua_pop(L, 1); //-1 dst
+}
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -34,11 +71,20 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_State *L = getLuaClass()->_host->_L;
 
 	lua_newtable(L);
+	lua_getglobal(L, "_G");
+	copyTable(L); //copy everything from _G to the local table
+
+	lua_pushstring(L, "game");
+	lua_pushvalue(L, -2);
+	lua_settable(L, -3);
+
 	_object = make_shared<LuaVMReference>(getLuaClass()->_host, -1);
 
 	for ( auto funcdef : getLuaClass()->_functions )
 	{
 		funcdef.second->push();
+		_object->push();
+		lua_setfenv(L, -2);
 		lua_setfield(L, -2, funcdef.first.c_str());
 	}
 
@@ -201,7 +247,5 @@ bool Arcade::CLuaVMInstance::pcall(int nargs)
 {
 	if ( _klass.expired() ) return false;
 
-	getLuaObject()->push();
-	lua_setglobal(getLuaHost()->_L, "game");
 	return getLuaHost()->pcall(nargs);
 }
