@@ -103,17 +103,12 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	for ( auto funcdef : getLuaClass()->_functions )
 	{
 		funcdef.second->push();
-		_object->push();
-		lua_setfenv(L, -2);
 		lua_setfield(L, -2, *funcdef.first);
 	}
 
 	lua_pop(L, 1);
 
-	if ( getLuaClass()->pushLuaFunction("init") ) 
-	{
-		pcall(0);
-	}
+	callFunction(CFunctionCall("init"));
 }
 
 Arcade::CLuaVMInstance::~CLuaVMInstance()
@@ -186,33 +181,20 @@ void Arcade::CLuaVMInstance::think(float seconds, float deltaSeconds)
 {
 	if ( _klass.expired() ) return;
 
-	if ( getLuaClass()->pushLuaFunction("think") )
-	{
-		lua_State *L = getLuaHost()->_L;
-
-		lua_pushnumber(L, seconds);
-		lua_pushnumber(L, deltaSeconds);
-		pcall(2);
-	}
+	callFunction(CFunctionCall("think", seconds, deltaSeconds));
 }
 
 void Arcade::CLuaVMInstance::render(shared_ptr<CElementRenderer> renderer)
 {
 	if ( _klass.expired() ) return;
 
-	if ( getLuaClass()->pushLuaFunction("draw") ) 
-	{
-		lua_State *L = getLuaHost()->_L;
+	lua_State *L = getLuaHost()->_L;
 
-		beginLuaDraw(L, renderer);
-		//lua_setglobal(L, "_r");
+	beginLuaDraw(L, renderer);
 
-		pcall(0);
+	callFunction(CFunctionCall("draw"));
 
-		endLuaDraw(L, renderer);
-		//lua_pushnil(L);
-		//lua_setglobal(L, "_r");
-	}
+	endLuaDraw(L, renderer);
 }
 
 void Arcade::CLuaVMInstance::reset()
@@ -230,6 +212,9 @@ bool CLuaVMInstance::callFunction(const CFunctionCall& call)
 	{
 		return false;
 	}
+
+	_object->push();
+	lua_setfenv(L, -2);
 
 	int top = lua_gettop(L);
 
