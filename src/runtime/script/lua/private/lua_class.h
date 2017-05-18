@@ -40,7 +40,6 @@ public:
 	virtual ~CLuaVMClass();
 
 	virtual bool reload() override;
-	virtual void buildAssets(CPackageBuilder* builder) override;
 
 	virtual class IVMHost* getHost() override;
 	virtual shared_ptr<CMetaData> getMetaData() override;

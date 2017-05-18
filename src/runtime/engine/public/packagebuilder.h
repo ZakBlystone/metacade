@@ -59,10 +59,6 @@ public:
 		return newAsset;
 	}
 
-#if 0
-	bool setAndBuildMainScript(const CString& scriptPath);
-#endif
-
 	void setAssetCompiler(IAssetCompiler* compiler);
 	IAssetCompiler* getAssetCompiler();
 

@@ -49,62 +49,6 @@ bool Arcade::CLuaVMClass::reload()
 	return false;
 }
 
-static bool parseArgs(const CString& str, CMetaData& meta)
-{
-	const char* raw = *str;
-
-	uint32 mark = 0;
-	vector<CString> args;
-
-	for ( uint32 i=0; i<=str.length(); ++i )
-	{
-		if ( raw[i] == ' ' || i == str.length() )
-		{
-			args.push_back(str.sub(mark, i-mark));
-			mark = i+1;
-		}
-	}
-
-	if ( args.size() == 0 ) return true;
-
-	meta.setKeyValuePair("file", args[0]);
-	for ( uint32 i=1; i<args.size(); ++i )
-	{
-		meta.setKeyValuePair(args[i], "1");
-	}
-
-	return true;
-}
-
-void CLuaVMClass::buildAssets(CPackageBuilder* builder)
-{
-	for ( auto texLoadPair : _textureLoadArgs )
-	{
-		CString assetName = (texLoadPair).first;
-		CString args = (texLoadPair).second;
-
-		CImageAsset* image = builder->addNamedAsset<CImageAsset>(assetName + ".tex");
-		CMetaData meta;
-
-		if ( !parseArgs(args, meta) )
-		{
-			std::cout << "Parse Fail" << std::endl;
-			continue;
-		}
-
-		IAssetCompiler* compiler = builder->getAssetCompiler();
-		if ( compiler != nullptr )
-		{
-			compiler->compile(image, &meta);
-		}
-	}
-
-	for ( uint32 i=0; i<_metaData->getNumKeys(); ++i )
-	{
-		builder->getMetaData()->setKeyValuePair(_metaData->getKey(i), _metaData->getValue(i));
-	}
-}
-
 shared_ptr<CMetaData> Arcade::CLuaVMClass::getMetaData()
 {
 	return _metaData;

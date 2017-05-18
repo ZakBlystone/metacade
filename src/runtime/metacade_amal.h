@@ -1437,9 +1437,6 @@ public:
 		addAsset(newAsset);
 		return newAsset;
 	}
-#if 0
-	bool setAndBuildMainScript(const CString& scriptPath);
-#endif
 	void setAssetCompiler(IAssetCompiler* compiler);
 	IAssetCompiler* getAssetCompiler();
 	void removeAsset(class IAsset* asset);
