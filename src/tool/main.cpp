@@ -60,11 +60,12 @@ static SDL_Window *window = NULL;
 static SDL_GLContext glContext;
 static SDL_AudioSpec sndFormat;
 static SDL_AudioDeviceID sndDevice;
+static SDL_mutex* sndMutex;
 static shared_ptr<CRendererGL> renderer;
 static IRuntime* runtime = nullptr;
 static IPackage* loadedPackage = nullptr;
 static IGameClass* loadedGameClass = nullptr;
-static ISoundMixer* mixer = nullptr;
+static IGameInstance* instance = nullptr;
 static CAssetRef testSound;
 static CAssetRef testSound2;
 static CAssetRef testSound3;
@@ -72,18 +73,31 @@ static CAssetRef testSound3;
 static uint32 streamOffset = 0;
 static void sndCallback(void* userdata, uint8* stream, int32 len)
 {
-	if ( mixer == nullptr ) return;
+	SDL_LockMutex(sndMutex);
+
+	ISoundMixer* mixer = nullptr;
+	if ( instance == nullptr || (mixer = instance->getSoundMixer()) == nullptr )
+	{
+		memset(stream, 0, len*sizeof(uint8));
+		SDL_UnlockMutex(sndMutex);
+		return;
+	}
+
 	mixer->update();
 
 	memcpy(stream, mixer->getPCMSamples(), len);
 
 	streamOffset += len;
+
+	SDL_UnlockMutex(sndMutex);
 }
 
 static int initSound()
 {
 	SDL_AudioSpec sndFormatRequest;
 	SDL_memset(&sndFormatRequest, 0, sizeof(sndFormatRequest));
+
+	sndMutex = SDL_CreateMutex();
 
 	sndFormatRequest.freq = 44100;
 	sndFormatRequest.format = AUDIO_S16;
@@ -117,6 +131,7 @@ static int initSound()
 
 static void shudownSound()
 {
+	SDL_DestroyMutex(sndMutex);
 	SDL_CloseAudioDevice(sndDevice);
 }
 
@@ -246,7 +261,6 @@ static int start(int argc, char *argv[])
 {
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
-	IGameInstance* instance = nullptr;
 
 	if ( Arcade::create(&runtime) && runtime->initialize(native.get()) )
 	{
@@ -305,15 +319,14 @@ static int start(int argc, char *argv[])
 		{
 			instance->initializeRenderer(renderer.get());
 			instance->initSoundMixer(mixerSettings);
-			mixer = instance->getSoundMixer();
 
-
-			/*{
+			{
+				ISoundMixer* mixer = instance->getSoundMixer();
 				int32 chan = mixer->playSound(testSound);
 				mixer->setChannelLooping(chan, true);
 				mixer->setChannelVolume(chan, 0.1f);
 				mixer->setChannelPitch(chan, 1.0f);
-			}*/
+			}
 		}
 
 		uint32 instanceCreationTime = SDL_GetTicks() - preInstance;
@@ -359,7 +372,7 @@ static int start(int argc, char *argv[])
 			{
 				CInputState state;
 				state.setMousePosition(evt.motion.x, evt.motion.y - 20);
-				state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 & evt.motion.y > 20 && evt.motion.y < 320);
+				state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
 				instance->postInputState(state);
 			}
 
@@ -379,33 +392,41 @@ static int start(int argc, char *argv[])
 			{
 				if ( evt.key.keysym.sym == SDLK_x )
 				{
+					ISoundMixer* mixer = instance->getSoundMixer();
 					int32 chan = mixer->playSound(testSound2);
 					mixer->setChannelPitch( chan, 1.2f );
 				}
 				if ( evt.key.keysym.sym == SDLK_c )
 				{
+					ISoundMixer* mixer = instance->getSoundMixer();
 					mixer->playSound(testSound3);
 				}
 				if ( evt.key.keysym.sym == SDLK_r )
 				{
+					SDL_LockMutex(sndMutex);
 					if ( instance != nullptr )
 					{
 						instance->finishRenderer(renderer.get());
 						loadedGameClass->deleteInstance(instance);
+						instance = nullptr;
 					}
+					SDL_UnlockMutex(sndMutex);
 
 					//if ( !buildGamePackage(packmanager) ) continue;
 					//loadedGameClass = system->getGameClassForPackage(packmanager->getPackageByName("glyphtest"));
 					loadedPackage = projects[1].buildPackage(runtime);
 					loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
-					instance = nullptr;
+					SDL_LockMutex(sndMutex);
 					if ( loadedGameClass->createInstance(&instance) )
 					{
 						instance->initializeRenderer(renderer.get());
+						instance->initSoundMixer(mixerSettings);
 					}
+					SDL_UnlockMutex(sndMutex);
 
 					{
+						ISoundMixer* mixer = instance->getSoundMixer();
 						int32 chan = mixer->playSound(testSound);
 						mixer->setChannelLooping(chan, true);
 						mixer->setChannelVolume(chan, 0.1f);
