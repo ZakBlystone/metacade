@@ -28,6 +28,19 @@ lua_draw.cpp:
 
 //#define DRAW_PASSTHROUGH 1
 
+static CImageAsset* opttexture(lua_State* L, int idx)
+{
+	if ( lua_gettop(L) >= idx )
+	{
+		IAsset* asset = toAsset(L, idx);
+		if ( asset == nullptr ) return nullptr;
+		if ( asset->getType() != EAssetType::ASSET_TEXTURE ) return nullptr;
+
+		return (CImageAsset*) (asset);
+	}
+	return nullptr;
+}
+
 struct CDrawData : public CRenderState
 {
 	CClipShape _viewClip;
@@ -94,7 +107,8 @@ MODULE_FUNCTION_DEF(draw_rect)
 	float y = (float)luaL_checknumber(L, 2);
 	float w = (float)luaL_checknumber(L, 3);
 	float h = (float)luaL_checknumber(L, 4);
-	uint32 t = (uint32)luaL_optnumber(L, 5, 0);
+	//uint32 t = (uint32)luaL_optnumber(L, 5, 0);
+	CImageAsset* texture = opttexture(L, 5);
 	float u0 = (float)luaL_optnumber(L, 6, 0);
 	float v0 = (float)luaL_optnumber(L, 7, 0);
 	float u1 = (float)luaL_optnumber(L, 8, 1);
@@ -124,7 +138,10 @@ MODULE_FUNCTION_DEF(draw_rect)
 	}
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
-	gData._material._baseTexture = t;
+	//gData._material._baseTexture = t;
+
+	gData._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+
 
 	CVertex2D* verts = nullptr;
 	if ( ccheck == 0 )
@@ -175,12 +192,15 @@ MODULE_FUNCTION_DEF(draw_sprite)
 	float w = (float)luaL_checknumber(L, 3) * .5f;
 	float h = (float)luaL_checknumber(L, 4) * .5f;
 	float r = (float)luaL_optnumber(L, 5, 0);
-	uint32 t = (uint32)luaL_optnumber(L, 6, 0);
+	//uint32 t = (uint32)luaL_optnumber(L, 6, 0);
+	CImageAsset* texture = opttexture(L, 6);
 
 	CMatrix3 xform;
 	CMatrix3::identity(xform);
 
-	gData._material._baseTexture = t;
+	gData._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+
+	//gData._material._baseTexture = t;
 
 	xform.rotate(r);
 	xform.translate(CVec2(x,y));
@@ -212,7 +232,10 @@ MODULE_FUNCTION_DEF(draw_quad)
 		quad._verts[i]._color.irgba = gData._currentColor.irgba;
 	}
 
-	gData._material._baseTexture = (uint32)luaL_optnumber(L, 17, 0);
+	CImageAsset* texture = opttexture(L, 17);
+	gData._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+
+	//gData._material._baseTexture = (uint32)luaL_optnumber(L, 17, 0);
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
 	el.makeQuad(quad, gData._viewClip, gData, gData._layer);

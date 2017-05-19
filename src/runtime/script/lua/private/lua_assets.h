@@ -29,6 +29,7 @@ namespace Arcade
 {
 
 extern CAssetRef* toAssetRef(lua_State* L, int idx);
+extern IAsset* toAsset(lua_State* L, int idx);
 extern void pushAssetRef(lua_State* L, const CAssetRef& ref);
 
 extern void openAssetModules(lua_State* L, IRuntime* runtime);

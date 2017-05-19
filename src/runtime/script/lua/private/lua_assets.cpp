@@ -40,6 +40,15 @@ CAssetRef* Arcade::toAssetRef(lua_State* L, int idx)
 	return ref;
 }
 
+IAsset* Arcade::toAsset(lua_State* L, int idx)
+{
+	CAssetRef* ref = toAssetRef(L, -1);
+	if ( ref == nullptr ) return nullptr;
+
+	IAsset* asset = ref->get(getRuntimePtr(L, -1));
+	return asset;
+}
+
 void Arcade::pushAssetRef(lua_State* L, const CAssetRef& ref)
 {
 	CAssetRef* lref = (CAssetRef*) lua_newuserdata(L, sizeof(CAssetRef));
