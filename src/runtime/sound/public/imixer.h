@@ -62,6 +62,7 @@ class ISoundMixer
 {
 public:
 	virtual uint32 playSound(const class CAssetRef &sound, int32 channel = EChannelID::CHANNEL_ANY) = 0;
+	virtual void stopSound(int32 channel) = 0;
 
 	virtual uint32 createPersistentChannel() = 0;
 	virtual void destroyPersistentChannel(uint32 channel) = 0;

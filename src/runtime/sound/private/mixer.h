@@ -40,6 +40,7 @@ public:
 	virtual void destroyPersistentChannel(uint32 channel);
 
 	virtual uint32 playSound(const CAssetRef& sound, int32 channel = EChannelID::CHANNEL_ANY) override;
+	virtual void stopSound(int32 channel) override;
 
 	virtual void update();
 

@@ -65,6 +65,15 @@ uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= 
 	return EChannelID::CHANNEL_INVALID;
 }
 
+void CSoundMixer::stopSound(int32 channel)
+{
+	auto iter = _channels.find(channel);
+	if ( iter != _channels.end() )
+	{
+		_channels.erase( iter );
+	}
+}
+
 void CSoundMixer::update()
 {
 	float* buffer = _mixBuffer.get();
