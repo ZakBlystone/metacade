@@ -35,10 +35,11 @@ class IVMInstance
 public:
 	virtual class IVMClass* getClass() = 0;
 
-	virtual void setMachineEnvironment(IMachineEnvironment *env) = 0;
+	virtual void setGameInstance(IGameInstance* gameInstance) = 0;
 
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 
+	virtual void init() = 0;
 	virtual void think(float seconds, float deltaSeconds) = 0;
 	virtual void render(shared_ptr<class CElementRenderer> renderer) = 0;
 

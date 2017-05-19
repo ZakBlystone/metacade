@@ -62,7 +62,8 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 	, _lastTime(0.f)
 	, _defaultWhiteImage(make_shared<CWhiteImage>())
 {
-
+	_vmInstance->setGameInstance(this);
+	_vmInstance->init();
 }
 
 class IGameClass* CGameInstance::getClass()

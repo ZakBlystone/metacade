@@ -144,8 +144,6 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	}
 
 	lua_pop(L, 1);
-
-	callFunction(CFunctionCall("init"));
 }
 
 Arcade::CLuaVMInstance::~CLuaVMInstance()
@@ -160,9 +158,14 @@ class IVMClass* Arcade::CLuaVMInstance::getClass()
 	return getLuaClass();
 }
 
-void Arcade::CLuaVMInstance::setMachineEnvironment(IMachineEnvironment *env)
+void Arcade::CLuaVMInstance::setGameInstance(IGameInstance* gameInstance)
 {
+	lua_State* L = getLuaHost()->getState();
 
+	_object->push();
+	lua_pushlightuserdata(L, gameInstance);
+	lua_setfield(L, -2, "__gameinstance");
+	lua_pop(L, 1);
 }
 
 void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
@@ -212,6 +215,11 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 	default:
 	break;
 	}
+}
+
+void Arcade::CLuaVMInstance::init()
+{
+	callFunction(CFunctionCall("init"));
 }
 
 void Arcade::CLuaVMInstance::think(float seconds, float deltaSeconds)

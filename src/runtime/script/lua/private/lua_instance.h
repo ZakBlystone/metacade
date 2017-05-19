@@ -39,8 +39,9 @@ public:
 	virtual ~CLuaVMInstance();
 
 	virtual class IVMClass* getClass() override;
-	virtual void setMachineEnvironment(IMachineEnvironment *env) override;
+	virtual void setGameInstance(IGameInstance* gameInstance) override;
 	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void init() override;
 	virtual void think(float seconds, float deltaSeconds) override;
 	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
 	virtual void reset() override;
