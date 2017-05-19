@@ -186,20 +186,23 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 		success = callFunction(CFunctionCall("onMousePressed"
 			, mouseX
 			, mouseY
-			, (int32) input.getMouseButton()));
+			, (int32) input.getMouseButton()
+			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_MOUSERELEASED:
 		success = callFunction(CFunctionCall("onMouseReleased"
 			, mouseX
 			, mouseY
-			, (int32) input.getMouseButton()));
+			, (int32) input.getMouseButton()
+			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_MOUSEMOVED:
 		success = callFunction(CFunctionCall("onMouseMoved"
 			, input.getMouseX()
 			, input.getMouseY()
 			, input.getMouseDeltaX()
-			, input.getMouseDeltaY()));
+			, input.getMouseDeltaY()
+			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_KEYPRESSED:
 		success = callFunction(CFunctionCall("onKeyPressed", (int32) input.getKeycode()));
