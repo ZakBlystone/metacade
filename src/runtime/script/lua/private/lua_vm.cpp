@@ -101,7 +101,8 @@ bool CLuaVM::init()
 
 	OpenLuaMathModule(_L);
 	OpenLuaDrawModule(_L);
-	openAssetModules(_L);
+	openAssetModule(_L);
+	openLuaSoundModule(_L);
 
 	//check errors
 

@@ -30,6 +30,6 @@ lua_sound.h:
 namespace Arcade
 {
 
-extern void openLuaSoundModule(CLuaVMInstance* instance);
+extern void openLuaSoundModule(lua_State* L);
 
 }

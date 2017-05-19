@@ -26,7 +26,7 @@ lua_sound.cpp:
 #include "lua_private.h"
 #include "sound/sound_public.h"
 
-void Arcade::openLuaSoundModule(CLuaVMInstance* instance)
+void Arcade::openLuaSoundModule(lua_State* L)
 {
 
 }

@@ -82,7 +82,7 @@ static const luaL_Reg assetlib[] = {
 	{nullptr, nullptr}
 };
 
-void Arcade::openAssetModules(lua_State* L)
+void Arcade::openAssetModule(lua_State* L)
 {
 	luaL_newmetatable(L, "__assetmeta");
 	lua_pushstring(L, "__index");
