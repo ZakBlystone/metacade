@@ -1128,6 +1128,8 @@ public:
 	virtual bool callFunction(const CFunctionCall& call) = 0;
 	virtual void initializeTextures(class ITextureProvider* provider) = 0;
 	virtual void finishTextures(class ITextureProvider* provider) = 0;
+	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
+	virtual ISoundMixer* getSoundMixer() = 0;
 };
 }
 //src/runtime/engine/public/iruntime.h

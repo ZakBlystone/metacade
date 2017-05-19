@@ -72,6 +72,7 @@ static CAssetRef testSound3;
 static uint32 streamOffset = 0;
 static void sndCallback(void* userdata, uint8* stream, int32 len)
 {
+	if ( mixer == nullptr ) return;
 	mixer->update();
 
 	memcpy(stream, mixer->getPCMSamples(), len);
@@ -260,7 +261,7 @@ static int start(int argc, char *argv[])
 	mixerSettings.bufferSize = 512;
 	mixerSettings.sampleRate = 44100;
 	mixerSettings.maxChannels = 64;
-	mixer = runtime->createSoundMixer(mixerSettings);
+	//mixer = runtime->createSoundMixer(mixerSettings);
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = runtime->getPackageManager();
@@ -283,13 +284,6 @@ static int start(int argc, char *argv[])
 		testSound3 = pkg->findAssetByName("pop.snd");
 	}
 
-	{
-		int32 chan = mixer->playSound(testSound);
-		mixer->setChannelLooping(chan, true);
-		mixer->setChannelVolume(chan, 0.1f);
-		mixer->setChannelPitch(chan, 1.0f);
-	}
-
 	if ( initOpenGLAndWindow() || initSound() ) return 1;
 
 	/*int8 flip = 0x80;
@@ -310,6 +304,16 @@ static int start(int argc, char *argv[])
 		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance) )
 		{
 			instance->initializeRenderer(renderer.get());
+			instance->initSoundMixer(mixerSettings);
+			mixer = instance->getSoundMixer();
+
+
+			/*{
+				int32 chan = mixer->playSound(testSound);
+				mixer->setChannelLooping(chan, true);
+				mixer->setChannelVolume(chan, 0.1f);
+				mixer->setChannelPitch(chan, 1.0f);
+			}*/
 		}
 
 		uint32 instanceCreationTime = SDL_GetTicks() - preInstance;
@@ -446,7 +450,7 @@ static int start(int argc, char *argv[])
 
 	shudownSound();
 
-	runtime->deleteSoundMixer(mixer);
+	//runtime->deleteSoundMixer(mixer);
 
 	Arcade::destroy(runtime);
 

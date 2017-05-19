@@ -25,6 +25,7 @@ gameinstance.cpp:
 
 #include "engine_private.h"
 #include "render/render_private.h"
+#include "sound/sound_private.h"
 
 class CWhiteImage : public IImage
 {
@@ -238,4 +239,14 @@ void Arcade::CGameInstance::finishTextures(class ITextureProvider* provider)
 	}
 
 	_mainLoadedTextures.clear();
+}
+
+void CGameInstance::initSoundMixer(const CMixerSettings& settings)
+{
+	_mixer = make_shared<CSoundMixer>(this, settings);
+}
+
+ISoundMixer* CGameInstance::getSoundMixer()
+{
+	return _mixer.get();
 }

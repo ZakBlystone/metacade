@@ -45,6 +45,8 @@ public:
 	virtual void initializeTextures(class ITextureProvider* provider) override;
 	virtual void finishTextures(class ITextureProvider* provider) override;
 
+	virtual void initSoundMixer(const CMixerSettings& settings) override;
+	virtual ISoundMixer* getSoundMixer() override;
 
 private:
 	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
@@ -54,6 +56,7 @@ private:
 	weak_ptr<CGameClass> _klass;
 	shared_ptr<IVMInstance> _vmInstance;
 	shared_ptr<CElementRenderer> _elementRenderer;
+	shared_ptr<class CSoundMixer> _mixer;
 
 	shared_ptr<IImage> _defaultWhiteImage;
 	map<IRenderer*, vector<ITexture* >*> _loadedTextures;
