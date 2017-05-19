@@ -94,7 +94,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	
 	//sample locations
 	int32 sampleIndex = frame * _sampleInfo.numChannels;
-	int32 nextSampleIndex = frame * _sampleInfo.numChannels;
+	int32 nextSampleIndex = nextFrame * _sampleInfo.numChannels;
 
 	float vol = _state._volume;
 
