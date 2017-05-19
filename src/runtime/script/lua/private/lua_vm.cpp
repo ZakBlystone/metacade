@@ -96,9 +96,12 @@ bool CLuaVM::init()
 	luaopen_table(_L);
 	luaopen_string(_L);
 
+	lua_pushlightuserdata(_L, getRuntime());
+	lua_setglobal(_L, "__runtime");
+
 	OpenLuaMathModule(_L);
 	OpenLuaDrawModule(_L);
-	openAssetModules(_L, getRuntime());
+	openAssetModules(_L);
 
 	//check errors
 

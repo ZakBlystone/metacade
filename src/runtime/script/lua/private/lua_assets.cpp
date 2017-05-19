@@ -25,13 +25,12 @@ lua_assets.cpp:
 
 #include "lua_private.h"
 
-static IRuntime* getRuntimePtr(lua_State* L, int idx)
+static IRuntime* getRuntimePtr(lua_State* L)
 {
-	if ( !lua_getmetatable(L, idx) ) return nullptr;
-	lua_getfield(L, -1, "__runtime");
-	IRuntime** runtimePtr = (IRuntime**) lua_touserdata(L, -1);
-	lua_pop(L, 2);
-	return runtimePtr != nullptr ? (*runtimePtr) : nullptr;
+	lua_getglobal(L, "__runtime");
+	IRuntime* ptr = (IRuntime*) lua_touserdata(L, -1);
+	lua_pop(L, 1);
+	return ptr;
 }
 
 CAssetRef* Arcade::toAssetRef(lua_State* L, int idx)
@@ -45,7 +44,7 @@ IAsset* Arcade::toAsset(lua_State* L, int idx)
 	CAssetRef* ref = toAssetRef(L, -1);
 	if ( ref == nullptr ) return nullptr;
 
-	IAsset* asset = ref->get(getRuntimePtr(L, -1));
+	IAsset* asset = ref->get(getRuntimePtr(L));
 	return asset;
 }
 
@@ -70,10 +69,8 @@ MODULE_FUNCTION_DEF(asset_gettype)
 
 MODULE_FUNCTION_DEF(asset_getname)
 {
-	CAssetRef* ref = toAssetRef(L, -1);
-	if ( ref == nullptr ) return 0;
-
-	IAsset* asset = ref->get(getRuntimePtr(L, -1));
+	IAsset* asset = toAsset(L, -1);
+	if ( asset == nullptr ) return 0;
 
 	lua_pushstring(L, *asset->getName());
 	return 1;
@@ -85,16 +82,11 @@ static const luaL_Reg assetlib[] = {
 	{nullptr, nullptr}
 };
 
-void Arcade::openAssetModules(lua_State* L, IRuntime* runtime)
+void Arcade::openAssetModules(lua_State* L)
 {
 	luaL_newmetatable(L, "__assetmeta");
 	lua_pushstring(L, "__index");
 	lua_pushvalue(L, -2);
-	lua_rawset(L, -3);
-
-	lua_pushstring(L, "__runtime");
-	IRuntime** runtimePtr = (IRuntime**) lua_newuserdata(L, sizeof(IRuntime*));
-	*runtimePtr = runtime;
 	lua_rawset(L, -3);
 
 	luaL_register(L, NULL, assetlib);
