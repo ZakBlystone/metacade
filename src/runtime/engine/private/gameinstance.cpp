@@ -63,7 +63,6 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 	, _defaultWhiteImage(make_shared<CWhiteImage>())
 {
 	_vmInstance->setGameInstance(this);
-	_vmInstance->init();
 }
 
 class IGameClass* CGameInstance::getClass()
@@ -85,6 +84,11 @@ void CGameInstance::postInputState(const CInputState& input)
 	});
 	
 	_inputState.merge(input);
+}
+
+void Arcade::CGameInstance::init()
+{
+	_vmInstance->init();
 }
 
 void CGameInstance::think(float time)

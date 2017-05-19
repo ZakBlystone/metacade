@@ -36,6 +36,7 @@ public:
 	virtual void postInputEvent(const class CInputEvent& input) override;
 	virtual void postInputState(const class CInputState& input) override;
 
+	virtual void init() override;
 	virtual void think(float time) override;
 	virtual void render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) override;
 	virtual void initializeRenderer(IRenderer* renderer) override;
