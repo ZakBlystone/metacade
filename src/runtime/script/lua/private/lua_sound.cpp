@@ -26,7 +26,90 @@ lua_sound.cpp:
 #include "lua_private.h"
 #include "sound/sound_public.h"
 
+static IGameInstance* getGameInstance(lua_State *L)
+{
+	lua_getglobal(L, "__gameinstance");
+	IGameInstance* instance = (IGameInstance*) lua_touserdata(L, -1);
+	lua_pop(L, 1);
+	return instance;
+}
+
+MODULE_FUNCTION_DEF(sound_playsound)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	CAssetRef* sound = toAssetRef(L, 1);
+	if ( sound == nullptr || sound->getType() != ASSET_SOUND ) return 0;
+
+	int32 targetChannel = luaL_optint(L, 2, EChannelID::CHANNEL_ANY);
+
+	uint32 channel = instance->getSoundMixer()->playSound(*sound, targetChannel);
+	lua_pushinteger(L, channel);
+
+	return 1;
+}
+
+MODULE_FUNCTION_DEF(sound_stopsound)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	int32 channel = (int32) luaL_checkinteger(L, 1);
+
+	//instance->getSoundMixer()->stopSound(channel);
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(sound_setpitch)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	int32 channel = (int32) luaL_checkinteger(L, 1);
+	float pitch = (float) luaL_optnumber(L, 2, 1.f);
+
+	instance->getSoundMixer()->setChannelPitch(channel, pitch);
+	lua_pushinteger(L, channel);
+	return 1;
+}
+
+MODULE_FUNCTION_DEF(sound_setvolume)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	int32 channel = (int32) luaL_checkinteger(L, 1);
+	float volume = (float) luaL_optnumber(L, 2, 1.f);
+
+	instance->getSoundMixer()->setChannelVolume(channel, volume);
+	lua_pushinteger(L, channel);
+	return 1;
+}
+
+MODULE_FUNCTION_DEF(sound_setlooping)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	int32 channel = (int32) luaL_checkinteger(L, 1);
+	bool loop = lua_toboolean(L, 2) == 1 ? true : false;
+
+	instance->getSoundMixer()->setChannelLooping(channel, loop);
+	lua_pushinteger(L, channel);
+	return 1;
+}
+
+static const luaL_Reg soundlib[] = {
+	{"play", sound_playsound},
+	{"stop", sound_stopsound},
+	{"setPitch", sound_setpitch},
+	{"setVolume", sound_setvolume},
+	{"setLooping", sound_setlooping},
+	{nullptr, nullptr}
+};
+
 void Arcade::openLuaSoundModule(lua_State* L)
 {
-
+	luaL_register(L, "sound", soundlib);
 }

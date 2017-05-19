@@ -162,8 +162,9 @@ void Arcade::CLuaVMInstance::setGameInstance(IGameInstance* gameInstance)
 {
 	lua_State* L = getLuaHost()->getState();
 
+	_gameInstance = gameInstance;
 	_object->push();
-	lua_pushlightuserdata(L, gameInstance);
+	lua_pushlightuserdata(L, _gameInstance);
 	lua_setfield(L, -2, "__gameinstance");
 	lua_pop(L, 1);
 }
@@ -259,6 +260,9 @@ bool CLuaVMInstance::callFunction(const CFunctionCall& call)
 	}
 
 	_object->push();
+	lua_getfield(L, -1, "__gameinstance");
+	lua_setglobal(L, "__gameinstance");
+
 	lua_setfenv(L, -2);
 
 	int top = lua_gettop(L);

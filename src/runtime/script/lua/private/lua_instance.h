@@ -60,6 +60,7 @@ private:
 	weak_ptr<class CLuaVMClass> _klass;
 	shared_ptr<LuaVMReference> _object;
 	CInputState _state;
+	IGameInstance* _gameInstance;
 };
 
 }
