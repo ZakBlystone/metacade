@@ -46,12 +46,14 @@ public:
 	virtual shared_ptr<IVMInstance> createVMInstance() override;
 
 	bool pushLuaFunction(CString functionName) const;
-	bool loadFromPackage(shared_ptr<CPackage> package);
+	bool loadFromPackage(weak_ptr<CPackage> package);
 
 	shared_ptr<CLuaVM> getLuaHost() const
 	{
 		return _host;
 	}
+
+	CPackage* getPackage() const;
 
 private:
 
@@ -62,6 +64,7 @@ private:
 
 	shared_ptr<CMetaData> _metaData;
 	shared_ptr<CLuaVM> _host;
+	weak_ptr<CPackage> _package;
 
 	map<CString, shared_ptr<LuaVMReference>> _functions;
 };

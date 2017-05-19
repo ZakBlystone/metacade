@@ -25,7 +25,6 @@ lua_private.h:
 
 #include "lua_public.h"
 
-#include "private/lua_assets.h"
 #include "private/lua_class.h"
 #include "private/lua_instance.h"
 #include "private/lua_vm.h"
@@ -33,5 +32,6 @@ lua_private.h:
 #include "private/lua_math.h"
 #include "private/lua_draw.h"
 #include "private/lua_sound.h"
+#include "private/lua_assets.h"
 
 using namespace Arcade;

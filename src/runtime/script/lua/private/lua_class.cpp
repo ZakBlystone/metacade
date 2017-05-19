@@ -95,12 +95,17 @@ bool Arcade::CLuaVMClass::pushLuaFunction(CString functionName) const
 	return false;
 }
 
-bool CLuaVMClass::loadFromPackage(shared_ptr<CPackage> package)
+bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 {
+	_package = package;
+
+	shared_ptr<CPackage> locked = package.lock();
+	if ( locked == nullptr ) return false;
+
 	lua_State *L = _host->getState();
 	_functions.clear();
 
-	CCodeAsset* luaMain = castAsset<CCodeAsset>( package->findAssetByName("main.lua") );
+	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );
 	if ( luaMain == nullptr )
 	{
 		log(LOG_ERROR, "Failed to load 'main.lua'");
@@ -136,4 +141,9 @@ bool CLuaVMClass::loadFromPackage(shared_ptr<CPackage> package)
 	}
 
 	return true;
+}
+
+CPackage* CLuaVMClass::getPackage() const
+{
+	return _package.lock().get();
 }

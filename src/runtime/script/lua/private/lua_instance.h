@@ -54,6 +54,8 @@ public:
 	bool pcall(int nargs);
 
 private:
+	void createAssetRefTable(EAssetType type, const CString& prefix);
+
 	weak_ptr<class CLuaVMClass> _klass;
 	shared_ptr<LuaVMReference> _object;
 	CInputState _state;

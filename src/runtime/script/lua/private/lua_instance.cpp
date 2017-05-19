@@ -73,6 +73,36 @@ static const char* G_blacklist[] =
 	0,
 };
 
+void CLuaVMInstance::createAssetRefTable(EAssetType type, const CString& prefix)
+{
+	CPackage* pkg = getLuaClass()->getPackage();
+	lua_State* L = getLuaClass()->_host->_L;
+
+	lua_newtable(L);
+
+	for ( uint32 i=0; i<pkg->getNumAssets(); ++i )
+	{
+		CAssetRef ref = pkg->getAsset(i);
+		if ( ref.getType() != type ) continue;
+
+		IAsset* asset = ref.get(getRuntime());
+		if ( asset == nullptr ) continue;
+
+		pushAssetRef(L, ref);
+
+		CString name = asset->getName();
+		int32 dot = name.find(".");
+		if ( dot != -1 )
+		{
+			name = name.sub(0, dot);
+		}
+
+		lua_setfield(L, -2, *name);
+	}
+
+	lua_setfield(L, -2, *prefix);
+}
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -80,7 +110,10 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 {
 	if ( _klass.expired() ) return;
 
-	lua_State *L = getLuaClass()->_host->_L;
+	CPackage* pkg = getLuaClass()->getPackage();
+	lua_State* L = getLuaClass()->_host->_L;
+
+	if ( pkg == nullptr ) return;
 
 	lua_newtable(L);
 	lua_getglobal(L, "_G");
@@ -89,6 +122,9 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_pushstring(L, "game");
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);
+
+	createAssetRefTable(ASSET_TEXTURE, "_t");
+	createAssetRefTable(ASSET_SOUND, "_s");
 
 	const char** ptr = G_blacklist;
 	while (*ptr)
