@@ -99,6 +99,27 @@ bool CLuaVM::init()
 	lua_pushlightuserdata(_L, getRuntime());
 	lua_setglobal(_L, "__runtime");
 
+	lua_newtable(_L);
+
+	for ( int32 i=0; i<EHIDKeyCode::KEY_MAX; ++i )
+	{
+		lua_pushinteger(_L, i);
+		lua_setfield(_L, -2, *CHIDKeyCodes::getKeyName( (EHIDKeyCode)i ));
+	}
+
+	lua_setglobal(_L, "_keys");
+
+	lua_newtable(_L);
+
+	for ( int32 i=0; i<EHIDKeyCode::KEY_MAX; ++i )
+	{
+		lua_pushinteger(_L, i);
+		lua_pushstring(_L, *CHIDKeyCodes::getKeyName( (EHIDKeyCode)i ));
+		lua_rawset(_L, -3);
+	}
+
+	lua_setglobal(_L, "_keynames");
+
 	OpenLuaMathModule(_L);
 	OpenLuaDrawModule(_L);
 	openAssetModule(_L);

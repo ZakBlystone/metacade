@@ -19,31 +19,23 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-engine_public.h:
+hidkeys.cpp:
 ===============================================================================
 */
 
-#include "core/core_public.h"
-#include "sound/sound_public.h"
+#include "engine_private.h"
 
-#include "public/hidkeys.h"
-#include "public/inputstate.h"
-#include "public/inputevent.h"
-#include "public/functioncall.h"
-#include "public/igame.h"
-#include "public/iruntime.h"
-#include "public/ilogger.h"
-#include "public/iallocator.h"
-#include "public/ifilesystem.h"
-#include "public/imetadata.h"
-#include "public/imachineenvironment.h"
-#include "public/iruntimeenvironment.h"
-#include "public/ipackagemanager.h"
-#include "public/runtimeobject.h"
-#include "public/asset.h"
-#include "public/packagebuilder.h"
-#include "public/api.h"
+#define HID_KEYCODE(x) #x,
 
-#include "public/assets/scriptresource.h"
-#include "public/assets/imageresource.h"
-#include "public/assets/soundresource.h"
+static const char* G_keynames[] = 
+{
+	#include "../hidkeys.inl"
+	0,
+};
+
+#undef HID_KEYCODE
+
+CString CHIDKeyCodes::getKeyName(EHIDKeyCode code)
+{
+	return G_keynames[(int32) code];
+}

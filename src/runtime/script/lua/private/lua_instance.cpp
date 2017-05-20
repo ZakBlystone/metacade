@@ -175,6 +175,8 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 	float mouseX;
 	float mouseY;
 
+	CInputState previousState = _state;
+
 	_state.applyEvent(input);
 	_state.getMousePosition(mouseX, mouseY);
 
@@ -205,7 +207,14 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_KEYPRESSED:
-		success = callFunction(CFunctionCall("onKeyPressed", (int32) input.getKeycode()));
+		if ( previousState.getKeyIsDown( input.getKeycode() ))
+		{
+			success = callFunction(CFunctionCall("onKeyRepeat", (int32) input.getKeycode()));
+		}
+		else
+		{
+			success = callFunction(CFunctionCall("onKeyPressed", (int32) input.getKeycode()));
+		}
 	break;
 	case INPUTEVENT_KEYRELEASED:
 		success = callFunction(CFunctionCall("onKeyReleased", (int32) input.getKeycode()));
