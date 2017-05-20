@@ -103,6 +103,22 @@ void CLuaVMInstance::createAssetRefTable(EAssetType type, const CString& prefix)
 	lua_setfield(L, -2, *prefix);
 }
 
+static int metaFunctionIndex(lua_State* L)
+{
+	lua_getfield(L, 1, "__vminstance");
+	CLuaVMInstance* VM = (CLuaVMInstance*) lua_touserdata(L, -1);
+
+	if ( VM == nullptr ) return 0;
+	if ( VM->getLuaClass()->pushLuaFunction( lua_tostring(L, 2) ) )
+	{
+		lua_pushvalue(L, 1);
+		lua_setfenv(L, -2);
+		return 1;
+	}
+
+	return 0;
+}
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -123,8 +139,19 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_pushvalue(L, -2);
 	lua_settable(L, -3);
 
+	lua_pushlightuserdata(L, this);
+	lua_setfield(L, -2, "__vminstance");
+
 	createAssetRefTable(ASSET_TEXTURE, "_t");
 	createAssetRefTable(ASSET_SOUND, "_s");
+
+//meta table for indexing functions
+	lua_newtable(L);
+	lua_pushcfunction(L, metaFunctionIndex);
+	lua_setfield(L, -2, "__index");
+
+	lua_setmetatable(L, -2);
+//
 
 	const char** ptr = G_blacklist;
 	while (*ptr)
@@ -136,12 +163,6 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	}
 
 	_object = make_shared<LuaVMReference>(getLuaClass()->_host, -1);
-
-	for ( auto funcdef : getLuaClass()->_functions )
-	{
-		funcdef.second->push();
-		lua_setfield(L, -2, *funcdef.first);
-	}
 
 	lua_pop(L, 1);
 }
