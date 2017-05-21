@@ -116,6 +116,11 @@ static int metaFunctionIndex(lua_State* L)
 		return 1;
 	}
 
+	/*VM->getLuaClass()->pushLocalTable();
+	lua_pushvalue(L, 2);
+	lua_rawget(L, -2);
+	lua_remove(L, -3);*/
+
 	return 0;
 }
 
@@ -134,6 +139,9 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_newtable(L);
 	lua_getglobal(L, "_G");
 	copyTable(L); //copy everything from _G to the local table
+
+	getLuaClass()->pushLocalTable();
+	copyTable(L); //copy everything from the class locals into the local table
 
 	lua_pushstring(L, "game");
 	lua_pushvalue(L, -2);

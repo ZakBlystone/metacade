@@ -55,7 +55,7 @@ class IVMHost* Arcade::CLuaVMClass::getHost()
 	return _host.get();
 }
 
-int CLuaVMClass::metaTopLevelCreate(lua_State *L)
+int CLuaVMClass::metaTopLevelSet(lua_State *L)
 {
 	lua_getfield(L, 1, "__klass");
 
@@ -72,10 +72,25 @@ int CLuaVMClass::metaTopLevelCreate(lua_State *L)
 	}
 	else
 	{
-		luaL_error(L, "functions only");
+		lua_getfield(L, 1, "__locals");
+		lua_pushvalue(L, 2);
+		lua_pushvalue(L, 3);
+		lua_rawset(L, -3);
 	}
 
+	lua_pop(L, 1);
+
 	return 0;
+}
+
+int Arcade::CLuaVMClass::metaTopLevelGet(lua_State *L)
+{
+	lua_getfield(L, 1, "__locals");
+	lua_pushvalue(L, 2);
+	lua_rawget(L, -2);
+	lua_remove(L, -3);
+
+	return 1;
 }
 
 shared_ptr<IVMInstance> Arcade::CLuaVMClass::createVMInstance()
@@ -93,6 +108,11 @@ bool Arcade::CLuaVMClass::pushLuaFunction(CString functionName) const
 	}
 
 	return false;
+}
+
+void Arcade::CLuaVMClass::pushLocalTable() const
+{
+	_locals->push();
 }
 
 bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
@@ -125,10 +145,14 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	lua_setfield(L, -2, "__klass");
 
 	lua_newtable(L);
-	lua_pushvalue(L, -1);
+	_locals = make_shared<LuaVMReference>(getLuaHost(), -1);
+	lua_setfield(L, -2, "__locals");
+
+	lua_newtable(L);
+	lua_pushcclosure(L, CLuaVMClass::metaTopLevelGet, 0);
 	lua_setfield(L, -2, "__index");
 
-	lua_pushcclosure(L, CLuaVMClass::metaTopLevelCreate, 0);
+	lua_pushcclosure(L, CLuaVMClass::metaTopLevelSet, 0);
 	lua_setfield(L, -2, "__newindex");
 
 	lua_setmetatable(L, -2);

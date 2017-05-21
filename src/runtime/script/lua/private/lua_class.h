@@ -46,6 +46,8 @@ public:
 	virtual shared_ptr<IVMInstance> createVMInstance() override;
 
 	bool pushLuaFunction(CString functionName) const;
+	void pushLocalTable() const;
+
 	bool loadFromPackage(weak_ptr<CPackage> package);
 
 	shared_ptr<CLuaVM> getLuaHost() const
@@ -57,7 +59,8 @@ public:
 
 private:
 
-	static int metaTopLevelCreate(lua_State *L);
+	static int metaTopLevelSet(lua_State *L);
+	static int metaTopLevelGet(lua_State *L);
 
 	friend class CLuaVM;
 	friend class CLuaVMInstance;
@@ -67,6 +70,7 @@ private:
 	weak_ptr<CPackage> _package;
 
 	map<CString, shared_ptr<LuaVMReference>> _functions;
+	shared_ptr<LuaVMReference> _locals;
 };
 
 }
