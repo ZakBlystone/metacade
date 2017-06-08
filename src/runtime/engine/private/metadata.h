@@ -33,16 +33,16 @@ class CMetaData : public IMetaData
 public:
 	virtual uint32 getNumKeys() const;
 	virtual CString getKey(uint32 i) const;
-	virtual CString getValue(uint32 i) const;
-	virtual CString getValue(const CString& key) const;
+	virtual CVariant getValue(uint32 i) const;
+	virtual CVariant getValue(const CString& key) const;
 
-	virtual void setKeyValuePair(const CString& key, const CString& value);
+	virtual void setKeyValuePair(const CString& key, const CVariant& value);
 
 	bool save(IFileObject* file) const;
 	bool load(IFileObject* file);
 
 private:
-	map<CString, CString> _keyvalues;
+	map<CString, CVariant> _keyvalues;
 	vector<CString> _keys;
 };
 

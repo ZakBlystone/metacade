@@ -20,8 +20,8 @@ public:
 	CString getProjectPath() const;
 	CString getRootDirectory() const;
 
-	bool getMetaValue(const CString& key, CString& value) const;
-	void setMetaValue(const CString& key, const CString& value);
+	bool getMetaValue(const CString& key, CVariant& value) const;
+	void setMetaValue(const CString& key, const CVariant& value);
 
 	bool addAssetDef(EAssetType type, const CString& name, const CString& path);
 
@@ -44,6 +44,6 @@ private:
 	bool _dirty;
 	CString _filepath;
 	CString _rootpath;
-	std::map<CString, CString> _meta;
+	std::map<CString, CVariant> _meta;
 	std::map<EAssetType, std::vector<CAssetFileDef>> _assets;
 };

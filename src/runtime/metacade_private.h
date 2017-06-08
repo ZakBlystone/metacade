@@ -33,6 +33,7 @@ metacade_private.h:
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+#include <sstream>
 
 using std::ostream;
 using std::istream;
@@ -48,3 +49,4 @@ using std::dynamic_pointer_cast;
 using std::sort;
 using std::map;
 using std::forward;
+using std::stringstream;

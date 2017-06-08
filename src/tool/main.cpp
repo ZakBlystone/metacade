@@ -238,7 +238,7 @@ static void immediateUI(int32 width, int32 height)
 			const IMetaData* data = loadedPackage->getMetaData();
 			for ( uint32 i=0; i<data->getNumKeys(); ++i )
 			{
-				ImGui::Text("%s: %s", *data->getKey(i), *data->getValue(i));
+				ImGui::Text("%s: %s", *data->getKey(i), *data->getValue(i).toString());
 			}
 			ImGui::Separator();
 
@@ -259,6 +259,12 @@ static void immediateUI(int32 width, int32 height)
 
 static int start(int argc, char *argv[])
 {
+	if ( argc < 2 ) 
+	{
+		std::cout << "Usage: tool <project name>" << std::endl;	
+		return 0;
+	}
+
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
 
@@ -279,16 +285,24 @@ static int start(int argc, char *argv[])
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = runtime->getPackageManager();
-	packmanager->setRootDirectory("E:/Projects/metacade/bin/Release");//".");
+	packmanager->setRootDirectory(".");
 
 	//PROJECT STUFF
 	vector<CProject> projects;
 	projectManager->enumerateProjectFolders(projects);
-	projectManager->saveProjectAs(projects[0], "killer.mproject");
 
-	std::cout << *projects[1].getProjectName() << std::endl;
+	CProject targetProject = projects[0];
+	for ( CProject& p : projects )
+	{
+		if ( p.getProjectName() == CString(argv[1]) )
+			targetProject = p;
+	}
 
-	IPackage* pkg = projects[1].buildPackage(runtime);
+	projectManager->saveProjectAs(targetProject, "killer.mproject");
+
+	std::cout << *targetProject.getProjectName() << std::endl;
+
+	IPackage* pkg = targetProject.buildPackage(runtime);
 	loadedPackage = pkg;
 
 	if ( pkg != nullptr && pkg->loadAssets() )
@@ -319,14 +333,15 @@ static int start(int argc, char *argv[])
 		{
 			instance->initializeRenderer(renderer.get());
 			instance->initSoundMixer(mixerSettings);
+			instance->init();
 
-			{
+			/*{
 				ISoundMixer* mixer = instance->getSoundMixer();
 				int32 chan = mixer->playSound(testSound);
 				mixer->setChannelLooping(chan, true);
 				mixer->setChannelVolume(chan, 0.1f);
 				mixer->setChannelPitch(chan, 1.0f);
-			}
+			}*/
 		}
 
 		uint32 instanceCreationTime = SDL_GetTicks() - preInstance;
@@ -373,7 +388,7 @@ static int start(int argc, char *argv[])
 				CInputState state;
 				state.setMousePosition(evt.motion.x, evt.motion.y - 20);
 				state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
-				instance->postInputState(state);
+				if ( instance != nullptr ) instance->postInputState(state);
 			}
 
 			if ( evt.type == SDL_MOUSEBUTTONDOWN || evt.type == SDL_MOUSEBUTTONUP )
@@ -385,22 +400,16 @@ static int start(int argc, char *argv[])
 				state.setMouseButton(EMouseButton::MOUSE_BUTTON_MIDDLE, (mouseButtons & SDL_BUTTON_MMASK) != 0);
 				state.setMouseButton(EMouseButton::MOUSE_BUTTON_X1, (mouseButtons & SDL_BUTTON_X1MASK) != 0);
 				state.setMouseButton(EMouseButton::MOUSE_BUTTON_X2, (mouseButtons & SDL_BUTTON_X2MASK) != 0);
-				instance->postInputState(state);
+				if ( instance != nullptr ) instance->postInputState(state);
+			}
+
+			if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
+			{
+				if ( instance != nullptr ) instance->postInputEvent(CInputEvent::generateKeyEvent(evt.key.keysym.scancode, evt.type == SDL_KEYDOWN));
 			}
 
 			if ( evt.type == SDL_KEYDOWN )
 			{
-				if ( evt.key.keysym.sym == SDLK_x )
-				{
-					ISoundMixer* mixer = instance->getSoundMixer();
-					int32 chan = mixer->playSound(testSound2);
-					mixer->setChannelPitch( chan, 1.2f );
-				}
-				if ( evt.key.keysym.sym == SDLK_c )
-				{
-					ISoundMixer* mixer = instance->getSoundMixer();
-					mixer->playSound(testSound3);
-				}
 				if ( evt.key.keysym.sym == SDLK_r )
 				{
 					SDL_LockMutex(sndMutex);
@@ -414,7 +423,7 @@ static int start(int argc, char *argv[])
 
 					//if ( !buildGamePackage(packmanager) ) continue;
 					//loadedGameClass = system->getGameClassForPackage(packmanager->getPackageByName("glyphtest"));
-					loadedPackage = projects[1].buildPackage(runtime);
+					loadedPackage = targetProject.buildPackage(runtime);
 					loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
 					SDL_LockMutex(sndMutex);
@@ -422,16 +431,17 @@ static int start(int argc, char *argv[])
 					{
 						instance->initializeRenderer(renderer.get());
 						instance->initSoundMixer(mixerSettings);
+						instance->init();
 					}
 					SDL_UnlockMutex(sndMutex);
 
-					{
+					/*{
 						ISoundMixer* mixer = instance->getSoundMixer();
 						int32 chan = mixer->playSound(testSound);
 						mixer->setChannelLooping(chan, true);
 						mixer->setChannelVolume(chan, 0.1f);
 						mixer->setChannelPitch(chan, 1.0f);
-					}
+					}*/
 				}
 			}
 		}

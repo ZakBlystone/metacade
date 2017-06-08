@@ -57,7 +57,7 @@ static bool buildImage(CImageAsset* asset, IMetaData* params)
 {
 	ILuint test = ilGenImage();
 	ilBindImage(test);
-	if ( !ilLoadImage(*params->getValue("file")) ) return false;
+	if ( !ilLoadImage(*params->getValue("file").toString()) ) return false;
 
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
@@ -75,9 +75,9 @@ static bool buildSound(CSoundAsset* sound, IMetaData* params)
 	uint8* waveBuffer;
 	uint32 waveSize;
 
-	if ( SDL_LoadWAV(*params->getValue("file"), &sndFormat, &waveBuffer, &waveSize) == NULL ) 
+	if ( SDL_LoadWAV(*params->getValue("file").toString(), &sndFormat, &waveBuffer, &waveSize) == NULL ) 
 	{
-		std::cout << "Unable to open file: " << *params->getValue("file") << std::endl;
+		std::cout << "Unable to open file: " << *params->getValue("file").toString() << std::endl;
 		return false;
 	}
 
@@ -162,7 +162,7 @@ static bool buildSound(CSoundAsset* sound, IMetaData* params)
 
 static bool buildCode(CCodeAsset* code, IMetaData* params)
 {
-	std::ifstream input(*params->getValue("file"), std::ios::binary | std::ios::ate);
+	std::ifstream input(*params->getValue("file").toString(), std::ios::binary | std::ios::ate);
 
 	if ( !input.is_open() ) return false;
 

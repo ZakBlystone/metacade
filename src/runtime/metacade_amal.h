@@ -516,6 +516,7 @@ public:
 	void set(double value);
 	void set(float value);
 	void set(const char *value);
+	void set(const class CString& str);
 	EVariantType type() const;
 	const char *getTypeName() const;
 	bool get(bool& value) const;
@@ -535,7 +536,9 @@ public:
 	CVariant& operator = (const T& value)
 	{
 		set(value);
+		return *this;
 	}
+	CString toString() const;
 private:
 	void reset();
 	EVariantType _type;
@@ -1463,9 +1466,9 @@ class IMetaData
 public:
 	virtual uint32 getNumKeys() const = 0;
 	virtual CString getKey(uint32 i) const = 0;
-	virtual CString getValue(uint32 i) const = 0;
-	virtual CString getValue(const CString& key) const = 0;
-	virtual void setKeyValuePair(const CString& key, const CString& value) = 0;
+	virtual CVariant getValue(uint32 i) const = 0;
+	virtual CVariant getValue(const CString& key) const = 0;
+	virtual void setKeyValuePair(const CString& key, const CVariant& value) = 0;
 };
 }
 //src/runtime/engine/public/imachineenvironment.h

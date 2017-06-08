@@ -33,10 +33,10 @@ class IMetaData
 public:
 	virtual uint32 getNumKeys() const = 0;
 	virtual CString getKey(uint32 i) const = 0;
-	virtual CString getValue(uint32 i) const = 0;
-	virtual CString getValue(const CString& key) const = 0;
+	virtual CVariant getValue(uint32 i) const = 0;
+	virtual CVariant getValue(const CString& key) const = 0;
 
-	virtual void setKeyValuePair(const CString& key, const CString& value) = 0;
+	virtual void setKeyValuePair(const CString& key, const CVariant& value) = 0;
 };
 
 }

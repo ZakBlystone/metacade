@@ -11,6 +11,67 @@ using nlohmann::json;
 using std::shared_ptr;
 using std::make_shared;
 
+bool JSONToVariant(json::const_reference ref, CVariant& v)
+{
+	if ( ref.is_number_integer() )
+	{
+		v = (int64) ref;
+		return true;
+	}
+	else if ( ref.is_number_float() )
+	{
+		v = (float) ref;
+		return true;
+	}
+	else if ( ref.is_string() )
+	{
+		std::string str = ref;
+		v = CString(str.c_str());
+		return true;
+	}
+	return false;
+}
+
+bool variantToJSON(json::reference ref, const CVariant& v)
+{
+	switch(v.type())
+	{
+		case VT_BOOLEAN:
+			{
+				bool boolvalue;
+				if ( !v.get(boolvalue) ) return false;
+				ref = boolvalue;
+			}
+		break;
+		case VT_INT:
+			{
+				int64 intvalue;
+				if ( !v.get(intvalue) ) return false;
+				ref = intvalue;
+			}
+		break;
+		case VT_DOUBLE:
+			{
+				double doublevalue;
+				if ( !v.get(doublevalue) ) return false;
+				ref = (float)(doublevalue);
+			}
+		break;
+		case VT_STRING:
+			{
+				CString str;
+				if ( !v.get(str) ) return false;
+				ref = std::string(*str);
+			}
+		break;
+		default:
+			return false;
+		break;	
+	}
+
+	return true;
+}
+
 CProject::CProject(const CString& filepath, const CString& rootpath)
 	: _dirty(false)
 	, _filepath(filepath)
@@ -23,9 +84,9 @@ CProject::CProject(const CString& filepath, const CString& rootpath)
 
 CString CProject::getProjectName() const
 {
-	CString out;
-	if ( getMetaValue("name", out) )
-		return out;
+	CVariant out;
+	if ( getMetaValue("name", out) && out.type() == VT_STRING )
+		return out.toString();
 
 	return getProjectPath();
 }
@@ -40,7 +101,7 @@ CString CProject::getRootDirectory() const
 	return _rootpath;
 }
 
-bool CProject::getMetaValue(const CString &key, CString& value) const
+bool CProject::getMetaValue(const CString &key, CVariant& value) const
 {
 	auto val = _meta.find(key);
 	if ( val == _meta.end() ) return false;
@@ -49,9 +110,9 @@ bool CProject::getMetaValue(const CString &key, CString& value) const
 	return true;
 }
 
-void CProject::setMetaValue(const CString &key, const CString& value)
+void CProject::setMetaValue(const CString &key, const CVariant& value)
 {
-	std::cout << " -> " << *key << " = " << *value << std::endl;
+	std::cout << " -> " << *key << " = " << *value.toString() << std::endl;
 	_meta.insert(std::make_pair(key, value));
 	makeDirty();
 }
@@ -211,8 +272,14 @@ bool CProject::load(IFileObject* file)
 			for ( json::iterator it = meta.begin(); it != meta.end(); ++it )
 			{
 				std::string k = it.key();
-				std::string v = it.value();
-				setMetaValue( k.c_str(), v.c_str() );
+				CVariant v;
+
+				if ( !JSONToVariant(it.value(), v) )
+				{
+					std::cout << "FAILED TO READ METADATA: " << k << std::endl;
+					return false;
+				}
+				setMetaValue( k.c_str(), v );
 			}
 		}
 
@@ -291,7 +358,11 @@ bool CProject::save(IFileObject* file) const
 
 		for ( auto it = _meta.begin(); it != _meta.end(); ++it )
 		{
-			out["meta"][ std::string(*(*it).first) ] = *(*it).second;
+			if ( !variantToJSON(out["meta"][ std::string(*(*it).first) ], (*it).second) )
+			{
+				std::cout << "FAILED TO WRITE VARIANT: " << std::string(*(*it).first) << " = " << *(*it).second.toString() << std::endl;
+				return false;
+			}
 		}
 
 		std::string outstr = out.dump(4);

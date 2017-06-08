@@ -67,6 +67,7 @@ public:
 	void set(double value);
 	void set(float value);
 	void set(const char *value);
+	void set(const class CString& str);
 
 	EVariantType type() const;
 	const char *getTypeName() const;
@@ -90,7 +91,10 @@ public:
 	CVariant& operator = (const T& value)
 	{
 		set(value);
+		return *this;
 	}
+
+	CString toString() const;
 
 private:
 

@@ -129,6 +129,11 @@ void CVariant::set(const char *value)
 	memcpy(_strdata, value, length * sizeof(char));
 }
 
+void Arcade::CVariant::set(const CString& str)
+{
+	set(*str);
+}
+
 const char* CVariant::getTypeName() const
 {
 	return typenames[_type];
@@ -199,4 +204,62 @@ bool CVariant::get(CString& str) const
 
 	str = CString((const char*) _strdata);
 	return true;
+}
+
+CString CVariant::toString() const
+{
+	static const CString VSTR_INVALID("<invalid>");
+	static const CString VSTR_NONE("<empty>");
+	static const CString VSTR_TRUE("True");
+	static const CString VSTR_FALSE("False");
+
+	switch( _type )
+	{
+	case Arcade::VT_NONE:
+		return VSTR_NONE;
+	break;
+	case Arcade::VT_BOOLEAN:
+		{
+			bool boolvalue;
+			if ( get(boolvalue) ) return boolvalue ? VSTR_TRUE : VSTR_FALSE;
+		}
+	break;
+	case Arcade::VT_UINT:
+		{
+			uint64 uintvalue;
+			if ( !get(uintvalue) ) return VSTR_INVALID;
+			stringstream str;
+			str << uintvalue;
+			return str.str().c_str();
+		}
+	break;
+	case Arcade::VT_INT:
+		{
+			int64 intvalue;
+			if ( !get(intvalue) ) return VSTR_INVALID;
+			stringstream str;
+			str << intvalue;
+			return str.str().c_str();
+		}
+	break;
+	case Arcade::VT_DOUBLE:
+		{
+			double doublevalue;
+			if ( !get(doublevalue) ) return VSTR_INVALID;
+			stringstream str;
+			str << doublevalue;
+			return str.str().c_str();
+		}
+	break;
+	case Arcade::VT_STRING:
+		{
+			CString strvalue;
+			if ( get(strvalue) ) return strvalue;
+		}
+	break;
+	default:
+	break;
+	}
+
+	return VSTR_INVALID;
 }

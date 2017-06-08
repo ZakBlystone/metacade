@@ -99,6 +99,9 @@ class CFileUtil
 public:
 	static bool writeString(IFileObject* file, const CString &str);
 	static bool readString(IFileObject* file, CString& str);
+
+	static bool writeVariant(IFileObject* file, const CVariant& value);
+	static bool readVariant(IFileObject* file, CVariant& value);
 };
 
 }

@@ -26,7 +26,11 @@ package.cpp:
 #include "engine_private.h"
 
 #define PACKAGE_FORMAT_MAGIC 0x474B504D
-#define PACKAGE_FORMAT_VERSION 1
+#define PACKAGE_FORMAT_VERSION 2
+
+//Version 2:
+//	CVariants on CMetaData
+
 
 #pragma pack(push, 1)
 
@@ -129,7 +133,7 @@ bool CPackage::exists()
 
 CString CPackage::getPackageName() const
 {
-	return _meta->getValue("name");
+	return _meta->getValue("name").toString();
 }
 
 CGUID CPackage::getPackageID() const

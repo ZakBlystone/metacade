@@ -47,3 +47,100 @@ bool CFileUtil::readString(IFileObject* file, CString& str)
 	delete [] buffer;
 	return true;
 }
+
+bool CFileUtil::writeVariant(IFileObject* file, const CVariant& value)
+{
+	EVariantType type = value.type();
+	if ( !file->write(&type, sizeof(uint8)) ) return false;
+
+	switch(type)
+	{
+		case VT_NONE:
+		break;
+		case VT_BOOLEAN:
+			{
+				bool writebool;
+				if ( !value.get(writebool) || !file->write(&writebool, sizeof(bool)) ) return false;
+			}
+		break;
+		case VT_UINT:
+			{
+				uint64 writeuint;
+				if ( !value.get(writeuint) || !file->write(&writeuint, sizeof(uint64)) ) return false;
+			}
+		break;
+		case VT_INT:
+			{
+				int64 writeint;
+				if ( !value.get(writeint) || !file->write(&writeint, sizeof(int64)) ) return false;
+			}
+		break;
+		case VT_DOUBLE:
+			{
+				double writedouble;
+				if ( !value.get(writedouble) || !file->write(&writedouble, sizeof(double)) ) return false;
+			}
+		break;
+		case VT_STRING:
+			{
+				CString writestr;
+				if ( !value.get(writestr) || !CFileUtil::writeString(file, writestr) ) return false;
+			}
+		break;
+		default:
+		return false;
+	}
+
+	return true;
+}
+
+bool CFileUtil::readVariant(IFileObject* file, CVariant& value)
+{
+	EVariantType type = VT_NONE;
+	if ( !file->read(&type, sizeof(uint8)) ) return false;
+
+	switch(type)
+	{
+		case VT_NONE:
+		break;
+		case VT_BOOLEAN:
+			{
+				bool readbool;
+				if ( !file->read(&readbool, sizeof(bool)) ) return false;
+				value.set(readbool);
+			}
+		break;
+		case VT_UINT:
+			{
+				uint64 readuint;
+				if ( !file->read(&readuint, sizeof(uint64)) ) return false;
+				value.set(readuint);
+			}
+		break;
+		case VT_INT:
+			{
+				int64 readint;
+				if ( !file->read(&readint, sizeof(int64)) ) return false;
+				value.set(readint);
+			}
+		break;
+		case VT_DOUBLE:
+			{
+				double readdouble;
+				if ( !file->read(&readdouble, sizeof(double)) ) return false;
+				value.set(readdouble);
+			}
+		break;
+		case VT_STRING:
+			{
+				CString readstr;
+				if ( !CFileUtil::readString(file, readstr) ) return false;
+				value.set(readstr);
+			}
+		break;
+		default:
+		return false;
+	}
+
+	return true;
+}

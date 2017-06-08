@@ -35,12 +35,12 @@ CString CMetaData::getKey(uint32 i) const
 	return _keys[i];
 }
 
-CString CMetaData::getValue(uint32 i) const
+CVariant CMetaData::getValue(uint32 i) const
 {
 	return getValue(_keys[i]);
 }
 
-void CMetaData::setKeyValuePair(const CString& key, const CString& value)
+void CMetaData::setKeyValuePair(const CString& key, const CVariant& value)
 {
 	CString lowkey = key.lower();
 
@@ -63,7 +63,7 @@ bool CMetaData::save(IFileObject* file) const
 	for ( uint32 i=0; i<size; ++i )
 	{
 		if ( !CFileUtil::writeString(file, getKey(i)) ) return false;
-		if ( !CFileUtil::writeString(file, getValue(i)) ) return false;
+		if ( !CFileUtil::writeVariant(file, getValue(i)) ) return false;
 	}
 
 	return true;
@@ -79,19 +79,20 @@ bool CMetaData::load(IFileObject* file)
 
 	for ( uint32 i=0; i<size; ++i )
 	{
-		CString key, value;
+		CString key;
+		CVariant value;
 		if ( !CFileUtil::readString(file, key) ) return false;
-		if ( !CFileUtil::readString(file, value) ) return false;
+		if ( !CFileUtil::readVariant(file, value) ) return false;
 		setKeyValuePair(key, value);
 	}
 
 	return true;
 }
 
-CString CMetaData::getValue(const CString& key) const
+CVariant CMetaData::getValue(const CString& key) const
 {
 	auto found = _keyvalues.find(key);
-	if ( found == _keyvalues.end() ) return "";
+	if ( found == _keyvalues.end() ) return CVariant();
 
 	return (*found).second;
 }
