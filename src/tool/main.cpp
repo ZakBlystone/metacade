@@ -92,6 +92,8 @@ static void sndCallback(void* userdata, uint8* stream, int32 len)
 	SDL_UnlockMutex(sndMutex);
 }
 
+#define SOUND_DEVICE_SAMPLES 512
+
 static int initSound()
 {
 	SDL_AudioSpec sndFormatRequest;
@@ -102,7 +104,7 @@ static int initSound()
 	sndFormatRequest.freq = 44100;
 	sndFormatRequest.format = AUDIO_S16;
 	sndFormatRequest.channels = 2;
-	sndFormatRequest.samples = 512;
+	sndFormatRequest.samples = SOUND_DEVICE_SAMPLES;
 	sndFormatRequest.callback = sndCallback;
 
 	/*int32 numDevices = SDL_GetNumAudioDevices(0);
@@ -124,6 +126,8 @@ static int initSound()
 			return onError("Unable to get desired sample type (signed 16)");
 		}
 		SDL_PauseAudioDevice(sndDevice, 0);
+
+		std::cout << "SAMPLES AVAILABLE: " << sndFormatRequest.samples << " --> " << sndFormat.samples << std::endl;
 	}
 
 	return 0;
@@ -257,6 +261,22 @@ static void immediateUI(int32 width, int32 height)
 	//ImGui::End();
 }
 
+class CTestFunctionCallbacks : public IHostCallbacks
+{
+public:
+	virtual bool handleHostFunctionCall(const CFunctionCall& call, CVariant& returnValue) override
+	{
+		std::cout << "PROC FUNCTION CALL: " << *call.getFunction() << std::endl;
+		for ( int32 i=0; i<call.numArgs(); ++i )
+		{
+			std::cout << " ->" << *call.getArg(i).toString() << std::endl;
+		}
+
+		returnValue = "Hello lua, have a return value";
+		return true;
+	}
+};
+
 static int start(int argc, char *argv[])
 {
 	if ( argc < 2 ) 
@@ -264,6 +284,8 @@ static int start(int argc, char *argv[])
 		std::cout << "Usage: tool <project name>" << std::endl;	
 		return 0;
 	}
+
+	CTestFunctionCallbacks testCallbacks;
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
@@ -276,12 +298,6 @@ static int start(int argc, char *argv[])
 	{
 		return onError("Failed to init arcade runtime");;
 	}
-
-	CMixerSettings mixerSettings;
-	mixerSettings.bufferSize = 512;
-	mixerSettings.sampleRate = 44100;
-	mixerSettings.maxChannels = 64;
-	//mixer = runtime->createSoundMixer(mixerSettings);
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = runtime->getPackageManager();
@@ -314,15 +330,13 @@ static int start(int argc, char *argv[])
 
 	if ( initOpenGLAndWindow() || initSound() ) return 1;
 
-	/*int8 flip = 0x80;
-	for ( uint8 i = 0; i < 0xFF; ++i )
-	{
-		std::cout << (int32) (*(int8*)(&i) ^ flip) << std::endl;
-	}*/
-
 	renderer = make_shared<CRendererGL>();
 	renderer->reshape(1280, 720);
 
+	CMixerSettings mixerSettings;
+	mixerSettings.bufferSize = SOUND_DEVICE_SAMPLES;
+	mixerSettings.sampleRate = 44100;
+	mixerSettings.maxChannels = 64;
 
 	{
 		loadedGameClass = runtime->getGameClassForPackage(pkg);
@@ -331,17 +345,10 @@ static int start(int argc, char *argv[])
 
 		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance) )
 		{
+			instance->setHostCallbacks(&testCallbacks);
 			instance->initializeRenderer(renderer.get());
 			instance->initSoundMixer(mixerSettings);
 			instance->init();
-
-			/*{
-				ISoundMixer* mixer = instance->getSoundMixer();
-				int32 chan = mixer->playSound(testSound);
-				mixer->setChannelLooping(chan, true);
-				mixer->setChannelVolume(chan, 0.1f);
-				mixer->setChannelPitch(chan, 1.0f);
-			}*/
 		}
 
 		uint32 instanceCreationTime = SDL_GetTicks() - preInstance;

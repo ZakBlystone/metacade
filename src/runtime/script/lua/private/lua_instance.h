@@ -54,6 +54,8 @@ public:
 
 	bool pcall(int nargs);
 
+	bool callHostFunction(const CFunctionCall& call, CVariant& returnValue);
+
 private:
 	void createAssetRefTable(EAssetType type, const CString& prefix);
 

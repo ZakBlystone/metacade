@@ -1367,6 +1367,12 @@ public:
 	virtual bool createInstance(class IGameInstance** instance) = 0;
 	virtual void deleteInstance(class IGameInstance* instance) = 0;
 };
+class IHostCallbacks
+{
+public:
+	virtual bool handleHostFunctionCall(const CFunctionCall& call, CVariant& returnValue) = 0;
+	virtual ~IHostCallbacks() {};
+};
 class IGameInstance
 {
 public:
@@ -1383,6 +1389,7 @@ public:
 	virtual void finishTextures(class ITextureProvider* provider) = 0;
 	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
 	virtual ISoundMixer* getSoundMixer() = 0;
+	virtual void setHostCallbacks(IHostCallbacks* callbacks) = 0;
 };
 }
 //src/runtime/engine/public/iruntime.h

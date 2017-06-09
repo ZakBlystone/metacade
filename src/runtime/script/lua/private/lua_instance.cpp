@@ -124,6 +124,98 @@ static int metaFunctionIndex(lua_State* L)
 	return 0;
 }
 
+static int hostFunction(lua_State* L)
+{
+	CLuaVMInstance* VM = (CLuaVMInstance*) lua_touserdata(L, lua_upvalueindex(1));
+	const char* funcname = lua_tostring(L, lua_upvalueindex(2));
+
+	CFunctionCall call(funcname);
+
+	for ( int32 i=1; i<=lua_gettop(L); ++i )
+	{
+		switch ( lua_type(L, i) )
+		{
+			case LUA_TNIL: call.addArg( CVariant() ); break;
+			case LUA_TBOOLEAN: call.addArg( CVariant( lua_toboolean(L, i) ) ); break;
+			case LUA_TNUMBER: call.addArg( CVariant( lua_tonumber(L, i) ) ); break;
+			case LUA_TSTRING: call.addArg( CVariant( lua_tostring(L, i) ) ); break;
+		}
+	}
+
+	CVariant returnValue;
+	bool success = VM->callHostFunction(call, returnValue);
+
+	if ( !success )
+	{
+		lua_pushfstring(L, "Host does not define function '%s'", funcname);
+		lua_error(L);
+	}
+
+	switch ( returnValue.type() )
+	{
+	case VT_NONE:
+		lua_pushnil(L);
+		return 1;
+	break;
+	case VT_BOOLEAN:
+		{
+			bool boolvalue;
+			if ( !returnValue.get(boolvalue) ) return 0;
+			lua_pushboolean(L, boolvalue);
+			return 1;
+		}
+	break;
+	case VT_UINT:
+		{
+			uint64 uintvalue;
+			if ( !returnValue.get(uintvalue) ) return 0;
+			lua_pushinteger(L, (lua_Integer) uintvalue);
+			return 1;
+		}
+	break;
+	case VT_INT:
+		{
+			int64 intvalue;
+			if ( !returnValue.get(intvalue) ) return 0;
+			lua_pushinteger(L, (lua_Integer) intvalue);
+			return 1;
+		}
+	break;
+	case VT_DOUBLE:
+		{
+			double doublevalue;
+			if ( !returnValue.get(doublevalue) ) return 0;
+			lua_pushnumber(L, (lua_Number) doublevalue);
+			return 1;
+		}
+	break;
+	case VT_STRING:
+		{
+			CString strvalue;
+			if ( !returnValue.get(strvalue) ) return 0;
+			lua_pushstring(L, *strvalue);
+			return 1;
+		}
+	break;
+	default:
+	break;
+	}
+
+	return 0;
+}
+
+static int hostFunctionIndex(lua_State* L)
+{
+	CLuaVMInstance* VM = (CLuaVMInstance*) lua_touserdata(L, lua_upvalueindex(1));
+	const char* funcname = luaL_checkstring(L, 2);
+
+	lua_pushlightuserdata(L, VM);
+	lua_pushstring(L, funcname);
+	lua_pushcclosure(L, hostFunction, 2);
+
+	return 1;
+}
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -159,6 +251,17 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	lua_setfield(L, -2, "__index");
 
 	lua_setmetatable(L, -2);
+//
+
+//meta table for calling host functions
+	lua_newtable(L);
+	lua_newtable(L);
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, hostFunctionIndex, 1);
+	lua_setfield(L, -2, "__index");
+
+	lua_setmetatable(L, -2);
+	lua_setfield(L, -2, "host");
 //
 
 	const char** ptr = G_blacklist;
@@ -343,4 +446,10 @@ bool Arcade::CLuaVMInstance::pcall(int nargs)
 	if ( _klass.expired() ) return false;
 
 	return getLuaHost()->pcall(nargs);
+}
+
+bool CLuaVMInstance::callHostFunction(const CFunctionCall& call, CVariant& returnValue)
+{
+	CGameInstance* instance = (CGameInstance*)(_gameInstance);
+	return instance->callHostFunction(call, returnValue);
 }

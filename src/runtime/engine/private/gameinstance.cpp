@@ -61,6 +61,7 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 	, _elementRenderer(make_shared<CElementRenderer>(this))
 	, _lastTime(0.f)
 	, _defaultWhiteImage(make_shared<CWhiteImage>())
+	, _callbacks(nullptr)
 {
 	_vmInstance->setGameInstance(this);
 }
@@ -254,4 +255,18 @@ void CGameInstance::initSoundMixer(const CMixerSettings& settings)
 ISoundMixer* CGameInstance::getSoundMixer()
 {
 	return _mixer.get();
+}
+
+void CGameInstance::setHostCallbacks(IHostCallbacks* callbacks)
+{
+	_callbacks = callbacks;
+}
+
+bool CGameInstance::callHostFunction(const CFunctionCall& call, CVariant& returnValue)
+{
+	if ( _callbacks != nullptr )
+	{
+		return _callbacks->handleHostFunctionCall(call, returnValue);
+	}
+	return false;
 }

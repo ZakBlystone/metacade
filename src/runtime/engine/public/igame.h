@@ -35,6 +35,13 @@ public:
 	virtual void deleteInstance(class IGameInstance* instance) = 0;
 };
 
+class IHostCallbacks
+{
+public:
+	virtual bool handleHostFunctionCall(const CFunctionCall& call, CVariant& returnValue) = 0;
+	virtual ~IHostCallbacks() {};
+};
+
 class IGameInstance
 {
 public:
@@ -54,6 +61,8 @@ public:
 
 	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
 	virtual ISoundMixer* getSoundMixer() = 0;
+
+	virtual void setHostCallbacks(IHostCallbacks* callbacks) = 0;
 };
 
 }

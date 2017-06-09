@@ -49,6 +49,10 @@ public:
 	virtual void initSoundMixer(const CMixerSettings& settings) override;
 	virtual ISoundMixer* getSoundMixer() override;
 
+	virtual void setHostCallbacks(IHostCallbacks* callbacks) override;
+
+	bool callHostFunction(const CFunctionCall& call, CVariant& returnValue);
+
 private:
 	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
 
@@ -69,6 +73,8 @@ private:
 	CInputState _inputState;
 
 	float _lastTime;
+
+	IHostCallbacks *_callbacks;
 };
 
 }
