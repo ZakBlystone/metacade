@@ -76,7 +76,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	//playhead
 	double time = _rate * _state._time;
 	uint32 index = (uint32) floor(time);
-	float frac = time - (float)(index);
+	float frac = (float)time - (float)(index);
 
 	//out of bounds
 	if ( index + 1 > _sampleInfo.numFrames && !_state._loop )
@@ -97,7 +97,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	int32 sampleIndex = frame * _sampleInfo.numChannels;
 	int32 nextSampleIndex = nextFrame * _sampleInfo.numChannels;
 
-	float vol = (float)_state._volume;
+	float vol = _state._volume;
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )

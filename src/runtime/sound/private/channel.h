@@ -43,9 +43,9 @@ struct CChannelState
 	}
 
 	bool _loop;
+	float _pitch;
+	float _volume;
 	double _time;
-	double _pitch;
-	double _volume;
 	double _duration;
 };
 
