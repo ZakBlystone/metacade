@@ -133,206 +133,89 @@ void CElementRenderer::writePolygonToBufferAsTris(const CVertex2D* verts, uint32
 	}
 }
 
-struct VLLN
-{
-	VLLN() : next(nullptr)
-	{}
-
-	CVertex2D vert;
-	EPointClassify pc;
-	struct VLLN* next;
-};
-
-struct VLL
-{
-	VLLN freenodes[MAX_VERTICES];
-	VLLN *root, *freelist;
-
-	VLL()
-		: freelist(freenodes)
-		, root(nullptr)
-	{
-		for ( uint32 i=0; i<MAX_VERTICES-1; ++i )
-			freenodes[i].next = &freenodes[i+1];
-	}
-
-	void reset()
-	{
-		if ( root == nullptr ) return;
-
-		VLLN* end = root;
-		while(end->next) end = end->next;
-
-		end->next = freelist;
-		freelist = root;
-		root = nullptr;
-	}
-
-	inline void free(VLLN* node)
-	{
-		if ( node == root ) root = root->next;
-
-		node->next = freelist;
-		freelist = node;
-	}
-
-	VLLN* insert(VLLN* after)
-	{
-		VLLN* newNode = alloc();
-		if ( newNode == nullptr ) return nullptr;
-
-		newNode->next = after->next;
-		after->next = newNode;
-		return newNode;
-	}
-
-	inline VLLN* forward(VLLN* node)
-	{
-		if ( node->next != nullptr ) return node->next;
-		return root;
-	}
-
-	inline VLLN* alloc()
-	{
-		if ( freelist == nullptr ) return nullptr;
-		VLLN* ret = freelist;
-		freelist = freelist->next;
-
-		return ret;
-	}
-
-	inline VLLN* append()
-	{
-		VLLN* ret = alloc();
-		if ( ret == nullptr ) return nullptr;
-
-		ret->next = root;
-		root = ret;
-		return ret;
-	}
-
-	inline VLLN* first() { return root; }
-};
-
-static EPointClassify clipPolygonAgainstPlane(const CHalfPlane& plane, VLL& list)
-{
-	VLLN* node = list.first();
-	if ( node == nullptr ) return PLANE_INFRONT;
-
-	uint32 num_behind = 0;
-	uint32 num_infront = 0;
-
-	while(node)
-	{
-		node->pc = plane.classifyPoint(node->vert._position);
-		node->pc == PLANE_BEHIND ? ++num_behind : ++num_infront;
-		node = node->next;
-	}
-
-	if ( num_behind == 0 ) return PLANE_INFRONT;
-	if ( num_infront == 0 ) return PLANE_BEHIND;
-
-	node = list.first();
-	while(node)
-	{
-		VLLN* next = list.forward(node);
-
-		const CVertex2D *v0 = &node->vert;
-		const CVertex2D *v1 = &next->vert;
-
-		EPointClassify &p0 = node->pc;
-		EPointClassify &p1 = next->pc;
-
-		if ( p0 == PLANE_INFRONT && p1 == PLANE_INFRONT ) 
-		{
-			VLLN* after = list.forward(next);
-			if ( after != node && after->pc == PLANE_BEHIND )
-			{
-				node = node->next;
-				continue;
-			}
-
-			node->next = after != list.root && next != list.root ? after : nullptr;
-
-			VLLN* link = next->next;
-			list.free(next);
-
-			continue;
-		}
-		else if ( p0 == PLANE_INFRONT && p1 == PLANE_BEHIND )
-		{
-			float frac;
-			plane.intersection(v0->_position, v1->_position, frac);
-
-			if ( node == list.root ) node = list.insert(node);
-
-			CVertex2D::interpolateTo(*v0, *v1, node->vert, frac);
-		}
-		else if ( p0 == PLANE_BEHIND && p1 == PLANE_INFRONT )
-		{
-			float frac;
-			plane.intersection(v1->_position, v0->_position, frac);
-			node = list.insert(node);
-			
-			CVertex2D::interpolateTo(*v1, *v0, node->vert, frac);
-			node->pc = PLANE_INFRONT;
-			continue;
-		}
-
-		node = node->next;
-	}
-
-	return PLANE_INTERSECT;
-}
-
 void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts, uint32 num, const CClipShape& clip)
 {
-	static VLL vertList;
+	//Minimum of 3 vertices required
+	if ( num < 3 ) return;
 
+	//Check if clipping even needs to be done
 	if ( clip.getNumPlanes() == 0 )
 	{
 		writePolygonToBufferAsTris(verts, num);
 		return;
 	}
 
-	vertList.reset();
-	for ( int32 i=num-1; i>=0; --i )
-	{
-		vertList.append()->vert = verts[i];
-	}
+	//#TODO Optimize memory allocation here, use CRuntimeObject's allocator
+	vector<CVertex2D> outputList, inputList;
+	outputList.reserve(num);
+	outputList.resize(num);
+	memcpy(outputList.data(), verts, num * sizeof(CVertex2D));
 
-	bool clipped = false;
+	//Iterate over each clipping plane
 	for ( int32 i=0; i<clip.getNumPlanes(); ++i )
 	{
-		EPointClassify pc = clipPolygonAgainstPlane(clip.getHalfPlane(i), vertList);
-		if ( pc == PLANE_INTERSECT ) clipped = true;
-		if ( pc == PLANE_INFRONT ) return;
+		const CHalfPlane& plane = clip.getHalfPlane(i);
+		
+		//Move output list into an inputList
+		inputList = std::move(outputList);
+
+		//Exit early if there is nothing left to clip
+		if ( inputList.size() == 0 ) break;
+
+		//Start from the last vertex in the list
+		CVertex2D v0 = inputList.back();
+
+		//Classify first vertex against clipping plane
+		EPointClassify v0P = plane.classifyPoint(v0._position);
+
+		//Iterate over polygon
+		for ( const CVertex2D& v1 : inputList )
+		{
+			//Classify subsequent vertices against clipping plane
+			EPointClassify v1P = plane.classifyPoint(v1._position);
+
+			//Case where a vertex is in behind (inside) the plane
+			if ( v1P == PLANE_BEHIND )
+			{
+				//Case where edge (v0 -> v1) is entering clipping plane from the outside
+				if ( v0P == PLANE_INFRONT )
+				{
+					float frac;
+					plane.intersection(v0._position, v1._position, frac);
+
+					CVertex2D newVertex;
+					CVertex2D::interpolateTo(v0, v1, newVertex, frac );
+
+					//Add interpolated vertex (v0 -> | X | -> v1)
+					outputList.push_back( newVertex );
+				}
+
+				//Add the vertex which is inside the clipping plane.
+				//if the previous case doesn't execute, the whole edge is inside.
+				outputList.push_back(v1);
+			}
+			//Case where edge (v0 -> v1) is leaving clipping plane
+			else if ( v0P == PLANE_BEHIND )
+			{
+				float frac;
+				plane.intersection(v1._position, v0._position, frac);
+
+				CVertex2D newVertex;
+				CVertex2D::interpolateTo(v1, v0, newVertex, frac );
+
+				//Add interpolated vertex (v1 -> | X | -> v0)
+				outputList.push_back( newVertex );
+			}
+
+			//v1 is now v0 for the next iteration
+			v0 = v1;
+			v0P = v1P;
+		}
 	}
 
-	if ( !clipped )
-	{
-		writePolygonToBufferAsTris(verts, num);
-		return;
-	}
+	if ( outputList.empty() ) return;
 
-	VLLN* node = vertList.first();
-	if ( node == nullptr ) return;
-
-	CRenderBuffer* buffer = _renderBuffer.get();
-	uint32 size = 0;
-	uint32 mark = buffer->getNumVertices();
-	while(node)
-	{
-		buffer->addVertex(node->vert);
-		node = node->next;
-		++size;
-	}
-	for ( uint32 i=1; i<size-1; ++i )
-	{
-		buffer->addIndex(mark);
-		buffer->addIndex(mark + i);
-		buffer->addIndex(mark + i + 1);
-	}
+	writePolygonToBufferAsTris(outputList.data(), (uint32) outputList.size());
 }
 
 void Arcade::CElementRenderer::setViewSize(const CVec2& size)
