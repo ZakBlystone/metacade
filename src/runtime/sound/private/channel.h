@@ -34,23 +34,23 @@ struct CChannelState
 {
 	CChannelState()
 		: _loop(false)
-		, _time(0.f)
-		, _pitch(1.f)
-		, _volume(0.5f)
-		, _duration(0.f)
+		, _time(0.0)
+		, _pitch(1.0)
+		, _volume(0.5)
+		, _duration(0.0)
 	{
 	
 	}
 
 	bool _loop;
-	float _time;
-	float _pitch;
-	float _volume;
-	float _duration;
+	double _time;
+	double _pitch;
+	double _volume;
+	double _duration;
 };
 
 class CSoundMixer;
-class CSoundChannel : public ISoundChannel
+class CSoundChannel : public CRuntimeObject, public ISoundChannel
 {
 public:
 

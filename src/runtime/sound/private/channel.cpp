@@ -26,7 +26,8 @@ channel.cpp:
 #include "sound_private.h"
 
 CSoundChannel::CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
-	: _mixer(mixer)
+	: CRuntimeObject(mixer)
+	, _mixer(mixer)
 	, _index(index)
 	, _mode(mode)
 {
@@ -73,8 +74,8 @@ uint32 CSoundChannel::getIndex() const
 bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISoundSample* sample, const CMixerSettings& mixerSettings)
 {
 	//playhead
-	float time = _rate * _state._time;
-	uint32 index = (uint32) floorf(time);
+	double time = _rate * _state._time;
+	uint32 index = (uint32) floor(time);
 	float frac = time - (float)(index);
 
 	//out of bounds
@@ -96,7 +97,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	int32 sampleIndex = frame * _sampleInfo.numChannels;
 	int32 nextSampleIndex = nextFrame * _sampleInfo.numChannels;
 
-	float vol = _state._volume;
+	float vol = (float)_state._volume;
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )
@@ -152,7 +153,7 @@ bool CSoundChannel::generatePCM(float* buffer, uint32 offset, uint32 size)
 
 	int32 channelCount = settings.getChannelCount();
 
-	float rateFactor = _invRate * _state._pitch * (_rate / settings.sampleRate);
+	double rateFactor = _invRate * _state._pitch * (_rate / settings.sampleRate);
 	bool generatedSample = false;
 
 	for ( uint32 i=offset; i<offset + size; i+=channelCount )
