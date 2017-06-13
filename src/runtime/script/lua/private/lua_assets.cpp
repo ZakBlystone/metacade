@@ -35,13 +35,13 @@ static IRuntime* getRuntimePtr(lua_State* L)
 
 CAssetRef* Arcade::toAssetRef(lua_State* L, int idx)
 {
-	CAssetRef* ref = (CAssetRef*) luaL_checkudata(L, -1, "__assetmeta");
+	CAssetRef* ref = (CAssetRef*) luaL_checkudata(L, idx, "__assetmeta");
 	return ref;
 }
 
 IAsset* Arcade::toAsset(lua_State* L, int idx)
 {
-	CAssetRef* ref = toAssetRef(L, -1);
+	CAssetRef* ref = toAssetRef(L, idx);
 	if ( ref == nullptr ) return nullptr;
 
 	IAsset* asset = ref->get(getRuntimePtr(L));
