@@ -35,6 +35,7 @@ class IRenderer
 public:
 	virtual void render(class IDrawBuffer* buffer) = 0;
 	virtual class ITextureProvider* getTextureProvider() = 0;
+	virtual ~IRenderer() {};
 };
 
 }

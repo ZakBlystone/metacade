@@ -39,6 +39,7 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
+	virtual ~IImage() = 0;
 };
 
 }

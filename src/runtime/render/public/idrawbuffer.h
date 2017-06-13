@@ -39,6 +39,7 @@ public:
 	virtual uint32 getNumRenderBatches() const = 0;
 
 	virtual const class IRenderBuffer* getRenderBuffer() const = 0;
+	virtual ~IDrawBuffer() {};
 };
 
 }

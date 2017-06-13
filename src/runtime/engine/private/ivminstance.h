@@ -45,6 +45,7 @@ public:
 
 	virtual void reset() = 0;
 	virtual bool callFunction(const CFunctionCall& call) = 0;
+	virtual ~IVMInstance() {};
 };
 
 }

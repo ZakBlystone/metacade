@@ -676,6 +676,7 @@ namespace Arcade
 {
 class IAudioSystem
 {
+	virtual ~IAudioSystem() {};
 };
 }
 //src/runtime/sound/public/ichannel.h
@@ -693,6 +694,8 @@ enum EChannelMode
 };
 class ISoundChannel
 {
+public:
+	virtual ~ISoundChannel() {};
 };
 }
 //src/runtime/sound/public/imixer.h
@@ -736,6 +739,7 @@ public:
 	virtual void setChannelPitch(int32 channel, float pitch) = 0;
 	virtual void setChannelLooping(int32 channel, bool loop) = 0;
 	virtual void setChannelVolume(int32 channel, float volume) = 0;
+	virtual ~ISoundMixer() {};
 };
 }
 //src/runtime/render/render_public.h
@@ -751,6 +755,7 @@ class ITextureProvider
 public:
 	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) = 0;
 	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) = 0;
+	virtual ~ITextureProvider() {};
 };
 class ITexture
 {
@@ -758,6 +763,7 @@ public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
 	virtual uint16 getID() const = 0;
+	virtual ~ITexture() {};
 };
 }
 //src/runtime/render/public/irenderbuffer.h
@@ -770,6 +776,7 @@ public:
 	virtual const uint16 getNumVertices() const = 0;
 	virtual const uint16* getIndices() const = 0;
 	virtual const uint32 getNumIndices() const = 0;
+	virtual ~IRenderBuffer() {};
 };
 }
 //src/runtime/render/public/idrawbuffer.h
@@ -781,6 +788,7 @@ public:
 	virtual const class CRenderBatch* getRenderBatches() const = 0;
 	virtual uint32 getNumRenderBatches() const = 0;
 	virtual const class IRenderBuffer* getRenderBuffer() const = 0;
+	virtual ~IDrawBuffer() {};
 };
 }
 //src/runtime/render/public/irenderer.h
@@ -791,6 +799,7 @@ class IRenderer
 public:
 	virtual void render(class IDrawBuffer* buffer) = 0;
 	virtual class ITextureProvider* getTextureProvider() = 0;
+	virtual ~IRenderer() {};
 };
 }
 //src/runtime/render/public/iimage.h
@@ -805,6 +814,7 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
+	virtual ~IImage() = 0;
 };
 }
 //src/runtime/render/public/material.h
@@ -1366,6 +1376,7 @@ class IGameClass
 public:
 	virtual bool createInstance(class IGameInstance** instance) = 0;
 	virtual void deleteInstance(class IGameInstance* instance) = 0;
+	virtual ~IGameClass() {};
 };
 class IHostCallbacks
 {
@@ -1390,6 +1401,7 @@ public:
 	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
 	virtual ISoundMixer* getSoundMixer() = 0;
 	virtual void setHostCallbacks(IHostCallbacks* callbacks) = 0;
+	virtual ~IGameInstance() {};
 };
 }
 //src/runtime/engine/public/iruntime.h
@@ -1404,6 +1416,7 @@ public:
 	virtual void end(IRenderer *renderer) = 0;
 	virtual void reloadVM() = 0;
 	virtual void callFunction(CFunctionCall call) = 0;
+	virtual ~IRenderTest() {}
 };
 class IMetaData;
 class IRuntime
@@ -1418,6 +1431,7 @@ public:
 	virtual ISoundMixer* createSoundMixer(CMixerSettings settings) = 0;
 	virtual void deleteSoundMixer(ISoundMixer* mixer) = 0;
 	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
+	virtual ~IRuntime() {}
 };
 }
 //src/runtime/engine/public/ilogger.h
@@ -1427,6 +1441,7 @@ class ILogger
 {
 public:
 	virtual void log(const char* text, EMessageType type) = 0;
+	virtual ~ILogger() {}
 };
 }
 //src/runtime/engine/public/iallocator.h
@@ -1437,6 +1452,7 @@ class IAllocator
 public:
 	virtual void* memrealloc(void* pointer, uint32 size) = 0;
 	virtual void memfree(void* pointer) = 0;
+	virtual ~IAllocator() {}
 };
 }
 //src/runtime/engine/public/ifilesystem.h
@@ -1446,6 +1462,7 @@ class IFileCollection
 {
 public:
 	virtual void add(const CString& filename) = 0;
+	virtual ~IFileCollection() {}
 };
 class IFileObject
 {
@@ -1455,6 +1472,7 @@ public:
 	virtual bool seek(uint32 offset) = 0;
 	virtual uint32 tell() = 0;
 	virtual uint32 getSize() = 0;
+	virtual ~IFileObject() {}
 };
 class IFileSystem
 {
@@ -1463,6 +1481,7 @@ public:
 	virtual void closeFile(IFileObject* file) = 0;
 	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;
+	virtual ~IFileSystem() {}
 };
 }
 //src/runtime/engine/public/imetadata.h
@@ -1476,6 +1495,7 @@ public:
 	virtual CVariant getValue(uint32 i) const = 0;
 	virtual CVariant getValue(const CString& key) const = 0;
 	virtual void setKeyValuePair(const CString& key, const CVariant& value) = 0;
+	virtual ~IMetaData() {};
 };
 }
 //src/runtime/engine/public/imachineenvironment.h
@@ -1486,6 +1506,7 @@ class IMachineEnvironment
 public:
 	virtual class IRenderer* getRenderer() = 0;
 	virtual class IAudioSystem* getAudioSystem() = 0;
+	virtual ~IMachineEnvironment() {};
 };
 }
 //src/runtime/engine/public/iruntimeenvironment.h
@@ -1497,6 +1518,7 @@ public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
 	virtual class ILogger* getLogger() = 0;
+	virtual ~IRuntimeEnvironment() {};
 };
 }
 //src/runtime/engine/public/ipackagemanager.h
@@ -1520,6 +1542,7 @@ public:
 	virtual void releaseAssets() = 0;
 	virtual CAssetRef findAssetByID(const CGUID& id) const = 0;
 	virtual CAssetRef findAssetByName(const CString& name) const = 0;
+	virtual ~IPackage() {}
 };
 class IPackageManager
 {
@@ -1534,6 +1557,7 @@ public:
 	virtual IPackage* getPackageByName(const CString& name) const = 0;
 	virtual IPackage* getPackageByID(const CGUID& id) const = 0;
 	virtual void unloadAllPackages() = 0;
+	virtual ~IPackageManager() {}
 };
 }
 //src/runtime/engine/public/runtimeobject.h
@@ -1611,6 +1635,7 @@ public:
 	virtual bool isLoaded() const = 0;
 	virtual bool isNamedAsset() const = 0;
 	virtual CString getName() const = 0;
+	virtual ~IAsset() = 0;
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;

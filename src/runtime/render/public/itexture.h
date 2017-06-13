@@ -35,6 +35,7 @@ class ITextureProvider
 public:
 	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) = 0;
 	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) = 0;
+	virtual ~ITextureProvider() {};
 };
 
 class ITexture

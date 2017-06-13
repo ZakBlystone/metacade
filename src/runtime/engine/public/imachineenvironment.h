@@ -36,6 +36,7 @@ class IMachineEnvironment
 public:
 	virtual class IRenderer* getRenderer() = 0;
 	virtual class IAudioSystem* getAudioSystem() = 0;
+	virtual ~IMachineEnvironment() {};
 };
 
 }

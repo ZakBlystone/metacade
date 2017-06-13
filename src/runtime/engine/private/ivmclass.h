@@ -38,6 +38,7 @@ public:
 	virtual class IVMHost* getHost() = 0;
 	virtual shared_ptr<class CMetaData> getMetaData() = 0;
 	virtual shared_ptr<class IVMInstance> createVMInstance() = 0;
+	virtual ~IVMClass() {};
 };
 
 }

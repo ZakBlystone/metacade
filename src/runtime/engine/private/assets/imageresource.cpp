@@ -140,3 +140,7 @@ void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 widt
 	_pixels = new uint8[size];
 	memcpy(_pixels, pixels, size);
 }
+
+IImage::~IImage()
+{
+}

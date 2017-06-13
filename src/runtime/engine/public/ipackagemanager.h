@@ -49,6 +49,7 @@ public:
 
 	virtual CAssetRef findAssetByID(const CGUID& id) const = 0;
 	virtual CAssetRef findAssetByName(const CString& name) const = 0;
+	virtual ~IPackage() {}
 };
 
 class IPackageManager
@@ -67,6 +68,7 @@ public:
 	virtual IPackage* getPackageByID(const CGUID& id) const = 0;
 
 	virtual void unloadAllPackages() = 0;
+	virtual ~IPackageManager() {}
 };
 
 }

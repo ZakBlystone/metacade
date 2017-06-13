@@ -33,6 +33,7 @@ class IGameClass
 public:
 	virtual bool createInstance(class IGameInstance** instance) = 0;
 	virtual void deleteInstance(class IGameInstance* instance) = 0;
+	virtual ~IGameClass() {};
 };
 
 class IHostCallbacks
@@ -63,6 +64,7 @@ public:
 	virtual ISoundMixer* getSoundMixer() = 0;
 
 	virtual void setHostCallbacks(IHostCallbacks* callbacks) = 0;
+	virtual ~IGameInstance() {};
 };
 
 }

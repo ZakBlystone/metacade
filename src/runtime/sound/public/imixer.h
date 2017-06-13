@@ -75,6 +75,7 @@ public:
 	virtual void setChannelPitch(int32 channel, float pitch) = 0;
 	virtual void setChannelLooping(int32 channel, bool loop) = 0;
 	virtual void setChannelVolume(int32 channel, float volume) = 0;
+	virtual ~ISoundMixer() {};
 };
 
 }

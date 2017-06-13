@@ -49,6 +49,7 @@ public:
 	virtual bool isLoaded() const = 0;
 	virtual bool isNamedAsset() const = 0;
 	virtual CString getName() const = 0;
+	virtual ~IAsset() = 0;
 
 protected:
 	friend class CPackageBuilder;

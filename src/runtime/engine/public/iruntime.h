@@ -38,6 +38,7 @@ public:
 	virtual void reloadVM() = 0;
 
 	virtual void callFunction(CFunctionCall call) = 0;
+	virtual ~IRenderTest() {}
 };
 
 class IMetaData;
@@ -57,6 +58,7 @@ public:
 	virtual void deleteSoundMixer(ISoundMixer* mixer) = 0;
 
 	virtual class IGameClass* getGameClassForPackage(class IPackage* package) = 0;
+	virtual ~IRuntime() {}
 };
 
 }

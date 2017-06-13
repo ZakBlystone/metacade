@@ -34,6 +34,7 @@ class IFileCollection
 {
 public:
 	virtual void add(const CString& filename) = 0;
+	virtual ~IFileCollection() {}
 };
 
 class IFileObject
@@ -44,6 +45,7 @@ public:
 	virtual bool seek(uint32 offset) = 0;
 	virtual uint32 tell() = 0;
 	virtual uint32 getSize() = 0;
+	virtual ~IFileObject() {}
 };
 
 class IFileSystem
@@ -53,6 +55,7 @@ public:
 	virtual void closeFile(IFileObject* file) = 0;
 	//virtual const char** listFilesInDirectory(const char* dir, const char* extFilter = nullptr) = 0;
 	virtual bool listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter = nullptr) = 0;
+	virtual ~IFileSystem() {}
 };
 
 }

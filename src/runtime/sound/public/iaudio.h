@@ -31,7 +31,7 @@ namespace Arcade
 
 class IAudioSystem
 {
-
+	virtual ~IAudioSystem() {};
 };
 
 }

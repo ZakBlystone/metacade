@@ -37,6 +37,7 @@ public:
 	virtual CVariant getValue(const CString& key) const = 0;
 
 	virtual void setKeyValuePair(const CString& key, const CVariant& value) = 0;
+	virtual ~IMetaData() {};
 };
 
 }

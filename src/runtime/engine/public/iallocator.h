@@ -35,6 +35,7 @@ class IAllocator
 public:
 	virtual void* memrealloc(void* pointer, uint32 size) = 0;
 	virtual void memfree(void* pointer) = 0;
+	virtual ~IAllocator() {}
 };
 
 }

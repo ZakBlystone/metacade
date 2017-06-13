@@ -68,3 +68,8 @@ CGUID CAssetRef::getPackageID() const
 {
 	return _package;
 }
+
+Arcade::IAsset::~IAsset()
+{
+
+}

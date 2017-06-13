@@ -42,7 +42,8 @@ enum EChannelMode
 
 class ISoundChannel
 {
-
+public:
+	virtual ~ISoundChannel() {};
 };
 
 }

@@ -32,6 +32,7 @@ class ILogger
 {
 public:
 	virtual void log(const char* text, EMessageType type) = 0;
+	virtual ~ILogger() {}
 };
 
 }

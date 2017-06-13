@@ -39,6 +39,7 @@ public:
 
 	virtual const uint16* getIndices() const = 0;
 	virtual const uint32 getNumIndices() const = 0;
+	virtual ~IRenderBuffer() {};
 };
 
 }

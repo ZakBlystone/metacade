@@ -43,6 +43,7 @@ public:
 
 	virtual bool includeGameScript() = 0;
 	virtual bool validateGameScript() = 0;
+	virtual ~IVMHost() {};
 };
 
 }
