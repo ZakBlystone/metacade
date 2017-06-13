@@ -194,6 +194,10 @@ MODULE_FUNCTION_DEF(draw_sprite)
 	float r = (float)luaL_optnumber(L, 5, 0);
 	//uint32 t = (uint32)luaL_optnumber(L, 6, 0);
 	CImageAsset* texture = opttexture(L, 6);
+	float u0 = (float)luaL_optnumber(L, 7, 0);
+	float v0 = (float)luaL_optnumber(L, 8, 0);
+	float u1 = (float)luaL_optnumber(L, 9, 1);
+	float v1 = (float)luaL_optnumber(L, 10, 1);
 
 	CMatrix3 xform;
 	CMatrix3::identity(xform);
@@ -208,6 +212,11 @@ MODULE_FUNCTION_DEF(draw_sprite)
 	CRenderQuad quad;
 	quad.makeBox(CVec2(-w,-h), CVec2(w,h), gData._currentColor);
 	quad.transform(xform);
+
+	quad._verts[0]._texcoord.set(u0, v0);
+	quad._verts[1]._texcoord.set(u1, v0);
+	quad._verts[2]._texcoord.set(u1, v1);
+	quad._verts[3]._texcoord.set(u0, v1);
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
 	el.makeQuad(quad, gData._viewClip, gData, gData._layer);
