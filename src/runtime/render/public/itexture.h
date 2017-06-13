@@ -43,6 +43,7 @@ public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
 	virtual uint16 getID() const = 0;
+	virtual ~ITexture() {};
 };
 
 }
