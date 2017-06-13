@@ -436,6 +436,7 @@ static int start(int argc, char *argv[])
 					SDL_LockMutex(sndMutex);
 					if ( loadedGameClass->createInstance(&instance) )
 					{
+						instance->setHostCallbacks(&testCallbacks);
 						instance->initializeRenderer(renderer.get());
 						instance->initSoundMixer(mixerSettings);
 						instance->init();
@@ -489,6 +490,12 @@ static int start(int argc, char *argv[])
 	shudownSound();
 
 	//runtime->deleteSoundMixer(mixer);
+
+	if ( loadedGameClass != nullptr && instance != nullptr )
+	{
+		instance->finishRenderer(renderer.get());
+		loadedGameClass->deleteInstance( instance );
+	}
 
 	Arcade::destroy(runtime);
 
