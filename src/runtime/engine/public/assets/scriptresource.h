@@ -32,6 +32,7 @@ class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
 {
 public:
 	CCodeAsset(CRuntimeObject* outer);
+	~CCodeAsset();
 
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
