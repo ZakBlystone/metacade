@@ -1,8 +1,8 @@
 //#include "metacade_public.h"
 
-#define _CRTDBG_MAP_ALLOC
+//#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <crtdbg.h>
+//#include <crtdbg.h>
 
 #include <iostream>
 #include <memory>
@@ -296,12 +296,13 @@ static int start(int argc, char *argv[])
 	}
 	else
 	{
-		return onError("Failed to init arcade runtime");;
+		return onError("Failed to init arcade runtime");
 	}
 
 	std::cout << "Loading Packages..." << std::endl;
 	IPackageManager* packmanager = runtime->getPackageManager();
 	packmanager->setRootDirectory(".");
+	packmanager->findAndPreloadPackages();
 
 	//PROJECT STUFF
 	vector<CProject> projects;
@@ -360,7 +361,7 @@ static int start(int argc, char *argv[])
 	float width = 1280.f;
 	float height = 720.f;
 
-	packmanager->findAndPreloadPackages();
+	//packmanager->findAndPreloadPackages();
 
 	bool paused = false;
 	bool running = true;
@@ -501,17 +502,24 @@ static int start(int argc, char *argv[])
 
 	ImGui_ImplSdlGL3_Shutdown();
 
+	renderer.reset();
+
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
 
 	SDL_Quit();
 
-	_CrtDumpMemoryLeaks();
+	//_CrtDumpMemoryLeaks();
 
 	return 0;
 }
 
 int SDL_main(int argc, char *argv[])
 {
-	return start(argc, argv);
+	//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Mem", "Take a baseline snapshot", NULL);
+
+	int ret = start(argc, argv);
+
+	//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Mem", "Take final snapshot", NULL);
+	return ret;
 }
