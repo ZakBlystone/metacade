@@ -121,7 +121,7 @@ bool CLuaVM::init()
 
 	lua_setglobal(_L, "_keynames");
 
-	OpenLuaMathModule(_L);
+	//OpenLuaMathModule(_L);
 	OpenLuaDrawModule(_L);
 	openAssetModule(_L);
 	openLuaSoundModule(_L);

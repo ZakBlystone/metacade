@@ -25,6 +25,10 @@ lua_module.h:
 
 #pragma once
 
+#define MODULE_FUNCTION_DEF(f) static int f(lua_State *L)
+
+#if 0
+
 #define DEFINE_MODULE(classname,name) static const char *__name; \
 	static unsigned int __size; \
 	static const char *__class; \
@@ -35,7 +39,6 @@ lua_module.h:
 	virtual void open() {__name = #name; __size = sizeof(*this); __constructor = NULL;
 
 #define MODULE_FUNCTION(f) this->__closures[#f] = f;
-#define MODULE_FUNCTION_DEF(f) static int f(lua_State *L)
 #define MODULE_CONSTRUCTOR(f) this->__constructor = f;
 #define END_DEFINE_MODULE() }
 #define CREATE_MODULE(name) name* m_##name = new name(); \
@@ -88,3 +91,5 @@ public:
 extern void _loadLuaModule(lua_State *L, LuaModule *m, const char *classname, void *userdata);
 
 }
+
+#endif

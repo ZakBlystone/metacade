@@ -27,6 +27,8 @@ lua_math.h:
 
 #include "core/core_public.h"
 
+#if 0
+
 namespace Arcade
 {
 
@@ -38,3 +40,5 @@ extern void lua_pushMatrix3x3(lua_State *L, const CMatrix3& matrix);
 extern void OpenLuaMathModule(lua_State *L);
 
 }
+
+#endif

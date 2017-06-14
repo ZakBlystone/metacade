@@ -25,6 +25,8 @@ lua_module.cpp:
 
 #include "lua_private.h"
 
+#if 0
+
 struct cmp_str
 {
 	bool operator()(char const *a, char const *b) const
@@ -227,3 +229,5 @@ void Arcade::_loadLuaModule(lua_State *L, LuaModule *m, const char *classname, v
 
 	//lua_pop(L,1);
 }
+
+#endif

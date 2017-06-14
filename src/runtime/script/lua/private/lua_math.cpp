@@ -25,6 +25,8 @@ lua_math.cpp:
 
 #include "lua_private.h"
 
+#if 0
+
 const float RAD_2_DEG = 57.29577f;
 const float DEG_2_RAD = 1.f / RAD_2_DEG;
 
@@ -485,3 +487,5 @@ void lua_pushMatrix3x3(lua_State *L, const CMatrix3& matrix)
 		V->Set(matrix.get());
 	}
 }
+
+#endif
