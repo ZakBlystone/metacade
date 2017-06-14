@@ -46,13 +46,13 @@ bool CImageAsset::load(IFileObject* file)
 	if ( !file->read(&_height, sizeof(int32)) ) return false;
 
 	if ( _index == nullptr ) 
-		_index = new CIndex(allocateImageIndex());
+		_index = construct<CIndex>(allocateImageIndex());
 
 	if ( _pixels != nullptr )
 		release();
 
 	uint32 size = _bpc * _width * _height;
-	_pixels = new uint8[size];
+	_pixels = (uint8*) zalloc(size); //new uint8[size];
 
 	if ( !file->read(_pixels, size) ) return false;
 
@@ -82,13 +82,13 @@ void CImageAsset::release()
 {
 	if ( _index != nullptr ) 
 	{
-		delete _index;
+		destroy(_index);
 		_index = nullptr;
 	}
 
-	if ( _pixels == nullptr )
+	if ( _pixels != nullptr )
 	{
-		delete [] _pixels;
+		zfree(_pixels);
 		_pixels = nullptr;
 	}
 }
@@ -134,7 +134,7 @@ void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 widt
 
 	if ( _pixels != nullptr )
 	{
-		delete [] _pixels;
+		zfree(_pixels);
 	}
 
 	_pixels = new uint8[size];

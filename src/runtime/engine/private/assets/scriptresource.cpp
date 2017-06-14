@@ -33,6 +33,11 @@ Arcade::CCodeAsset::CCodeAsset(CRuntimeObject* outer)
 
 }
 
+Arcade::CCodeAsset::~CCodeAsset()
+{
+	release();
+}
+
 bool CCodeAsset::load(IFileObject* file)
 {
 	if ( !file->read(&_codeLength, sizeof(uint32)) ) return false;
