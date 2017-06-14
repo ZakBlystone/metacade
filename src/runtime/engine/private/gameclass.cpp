@@ -45,7 +45,14 @@ bool CGameClass::createInstance(IGameInstance** instance)
 	auto lockedKlass = _vmKlass.lock();
 	if ( lockedKlass == nullptr ) return false;
 
-	*instance = new CGameInstance(shared_from_this(), lockedKlass->createVMInstance());
+	class CEnableGameInstance : public CGameInstance
+	{
+	public:
+		CEnableGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance)
+			: CGameInstance(klass, vmInstance) {}
+	};
+
+	*instance = construct<CEnableGameInstance>(shared_from_this(), lockedKlass->createVMInstance());
 
 	++_instanceCount;
 
@@ -63,7 +70,7 @@ void CGameClass::deleteInstance(IGameInstance* instance)
 		release();
 	}
 
-	delete (CGameInstance*)(instance);
+	destroy(instance);
 }
 
 bool CGameClass::init()

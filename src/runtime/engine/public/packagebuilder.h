@@ -43,7 +43,7 @@ public:
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = new T(this);
+		T* newAsset = construct<T>(this);
 		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
 		return newAsset;
@@ -52,7 +52,7 @@ public:
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
-		T* newAsset = new T(this);
+		T* newAsset = construct<T>(this);
 		newAsset->setName(name);
 		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);

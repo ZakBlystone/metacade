@@ -45,13 +45,13 @@ void CRuntimeObject::log(EMessageType type, const char* message, ...)
 	va_start(args, message);
 	int32 len = _vscprintf(message, args) + 1;
 
-	char* buffer = new char[len];
+	char* buffer = (char*) zalloc(len);
 	vsprintf_s(buffer, len, message, args);
 
 	ILogger* logger = runtime->getLogger();
 	logger->log(buffer, type);
 
-	delete [] buffer;
+	zfree(buffer);
 	va_end(args);
 }
 

@@ -40,7 +40,14 @@ CPackageBuilder* CPackageManager::createPackageBuilder(const CString& packageNam
 {
 	CString path = getRootDirectory() + "/" + packageName + ".mpkg";
 
-	shared_ptr<CPackageBuilder> builder = shared_ptr<CPackageBuilder>( new CPackageBuilder(new CPackage(this, path)) );
+	class CEnablePackageBuilder : public CPackageBuilder
+	{
+	public:
+		CEnablePackageBuilder(class CPackage* package)
+			: CPackageBuilder(package) {}
+	};
+
+	shared_ptr<CEnablePackageBuilder> builder = makeShared<CEnablePackageBuilder>( new CPackage(this, path) );
 	_builders.push_back(builder);
 	return builder.get();
 }
@@ -89,7 +96,14 @@ bool CPackageManager::findAndPreloadPackages()
 
 		log(LOG_MESSAGE, "Try load package %s", *filepath);
 
-		shared_ptr<CPackage> newPackage = shared_ptr<CPackage>(new CPackage(this, filepath));
+		class CEnablePackage : public CPackage
+		{
+		public:
+			CEnablePackage(CRuntimeObject* outer, const CString& filepath)
+				: CPackage(outer, filepath) {}
+		};
+
+		shared_ptr<CEnablePackage> newPackage = makeShared<CEnablePackage>(this, filepath);
 		_references.push_back(newPackage);
 
 		if ( !newPackage->load() )

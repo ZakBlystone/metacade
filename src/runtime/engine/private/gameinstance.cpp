@@ -184,7 +184,7 @@ void CGameInstance::finishRenderer(IRenderer* renderer)
 		provider->freeTexture(renderer, tex);
 	}
 
-	delete textureList;
+	destroy(textureList);
 	_loadedTextures.erase(_loadedTextures.find(renderer));
 
 	//_loadedTextures.clear();
@@ -205,7 +205,7 @@ vector<ITexture*>* CGameInstance::getTextureList(IRenderer* renderer, bool newOn
 		return (*found).second;
 	}
 
-	vector<ITexture*>* textures = new vector<ITexture*>();
+	vector<ITexture*>* textures = construct<vector<ITexture*>>();
 	_loadedTextures.insert(make_pair(renderer, textures));
 	return textures;
 }

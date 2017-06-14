@@ -172,7 +172,7 @@ bool CRuntime::filesystemTest()
 			return false;
 		}
 
-		char* buffer = new char[size+1];
+		char* buffer = (char*) zalloc(size+1);
 		if ( !obj->read(buffer, size) )
 		{
 			log(LOG_ERROR, "Failed to read file contents");
@@ -189,7 +189,7 @@ bool CRuntime::filesystemTest()
 			return false;
 		}
 
-		delete [] buffer;
+		zfree( buffer );
 	}
 
 	{
@@ -213,7 +213,7 @@ shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
 
 Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
 {
-	CRenderTest* test = new CRenderTest(this);
+	CRenderTest* test = construct<CRenderTest>(this);
 	if ( !test->init() ) return nullptr;
 
 	return test;
@@ -221,7 +221,7 @@ Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
 
 void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
 {
-	delete test;
+	destroy( test );
 }
 
 IMetaData* CRuntime::createMetaData()
@@ -263,7 +263,14 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	weak_ptr<CPackage> pkg = _packageManager->getSharedPackageByID(packageID);
 	if ( pkg.expired() ) return nullptr;
 
-	shared_ptr<CGameClass> newClass = shared_ptr<CGameClass>( new CGameClass(pkg, this) );
+	class CEnableGameClass : public CGameClass
+	{
+	public:
+		CEnableGameClass(weak_ptr<CPackage> package, class CRuntimeObject* outer)
+			: CGameClass(package, outer) {}
+	};
+
+	shared_ptr<CEnableGameClass> newClass = makeShared<CEnableGameClass>(pkg, this);
 
 	_classes.insert(make_pair(packageID, newClass));
 

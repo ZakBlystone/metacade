@@ -222,7 +222,7 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 	}
 	else
 	{
-		newClass = make_shared<CLuaVMClass>(shared_from_this());
+		newClass = makeShared<CLuaVMClass>(shared_from_this());
 		_loadedClasses.insert(make_pair(gamePackage->getPackageID(), newClass));
 
 		if ( newClass->loadFromPackage(gamePackage) )

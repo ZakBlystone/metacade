@@ -137,7 +137,7 @@ void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 widt
 		zfree(_pixels);
 	}
 
-	_pixels = new uint8[size];
+	_pixels = (uint8*) zalloc(size);
 	memcpy(_pixels, pixels, size);
 }
 

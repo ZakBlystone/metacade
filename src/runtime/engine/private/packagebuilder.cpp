@@ -68,7 +68,9 @@ void CPackageBuilder::addAsset(IAsset* asset)
 		}
 	}
 
-	map->add(shared_ptr<IAsset>(asset));
+	map->add(shared_ptr<IAsset>(asset, [this](IAsset* Del) {
+		destroy(Del);
+	}));
 }
 
 void CPackageBuilder::removeAsset(class IAsset* asset)

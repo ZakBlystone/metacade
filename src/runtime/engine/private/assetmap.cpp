@@ -227,7 +227,14 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 
 	_assetsLoaded = true;
 
-	return shared_ptr<CAssetLoadHandle>(new CAssetLoadHandle( shared_from_this() ) );
+	class CEnableAssetLoadHandle : public CAssetLoadHandle
+	{
+	public:
+		CEnableAssetLoadHandle(shared_ptr<CAssetMap> map)
+			: CAssetLoadHandle(map) {}
+	};
+
+	return makeShared<CEnableAssetLoadHandle>( shared_from_this() );
 }
 
 bool CAssetMap::hasLoadedAssets() const

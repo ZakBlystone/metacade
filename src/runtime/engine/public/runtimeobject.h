@@ -37,7 +37,6 @@ public:
 
 protected:
 
-#ifdef ENGINE_PRIVATE
 	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
 	{
 		return new(zalloc(sizeof(T))) T(args...);
@@ -50,6 +49,13 @@ protected:
 		obj->~T();
 		zfree(obj);
 	}
+
+	void* zalloc(uint32 size);
+	void* zrealloc(void* pointer, uint32 size);
+	void zfree(void* pointer);
+	void zfree(const void* pointer);
+
+#ifdef ENGINE_PRIVATE
 
 	//not great, but only compiles when you use it, so whatever I'll fix it later
 	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
@@ -68,10 +74,6 @@ protected:
 	}
 
 	void log(EMessageType type, const char* message, ...);
-	void* zalloc(uint32 size);
-	void* zrealloc(void* pointer, uint32 size);
-	void zfree(void* pointer);
-	void zfree(const void* pointer);
 
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);

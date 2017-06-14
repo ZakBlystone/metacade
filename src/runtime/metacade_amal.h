@@ -1599,7 +1599,6 @@ public:
 	CRuntimeObject(class IRuntime* runtime);
 	CRuntimeObject(CRuntimeObject* outer);
 protected:
-#ifdef ENGINE_PRIVATE
 	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
 	{
 		return new(zalloc(sizeof(T))) T(args...);
@@ -1611,6 +1610,11 @@ protected:
 		obj->~T();
 		zfree(obj);
 	}
+	void* zalloc(uint32 size);
+	void* zrealloc(void* pointer, uint32 size);
+	void zfree(void* pointer);
+	void zfree(const void* pointer);
+#ifdef ENGINE_PRIVATE
 	//not great, but only compiles when you use it, so whatever I'll fix it later
 	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
 	{
@@ -1626,10 +1630,6 @@ protected:
 		return (T*)asset; 
 	}
 	void log(EMessageType type, const char* message, ...);
-	void* zalloc(uint32 size);
-	void* zrealloc(void* pointer, uint32 size);
-	void zfree(void* pointer);
-	void zfree(const void* pointer);
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
@@ -1738,7 +1738,7 @@ public:
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = new T(this);
+		T* newAsset = construct<T>(this);
 		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
 		return newAsset;
@@ -1746,7 +1746,7 @@ public:
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
-		T* newAsset = new T(this);
+		T* newAsset = construct<T>(this);
 		newAsset->setName(name);
 		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
@@ -1781,6 +1781,7 @@ class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
 {
 public:
 	CCodeAsset(CRuntimeObject* outer);
+	~CCodeAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
 	virtual bool validate() const override;
