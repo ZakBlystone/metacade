@@ -61,6 +61,7 @@ CLuaVM::CLuaVM(CRuntimeObject* outer)
 
 CLuaVM::~CLuaVM()
 {
+	log(LOG_MESSAGE, "Destruct luaVM");
 	shutdown();
 }
 

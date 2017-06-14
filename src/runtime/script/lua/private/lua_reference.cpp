@@ -25,10 +25,13 @@ lua_reference.cpp:
 
 #include "lua_private.h"
 
-Arcade::LuaVMReference::LuaVMReference(shared_ptr<class CLuaVM> host, int idx)
+Arcade::LuaVMReference::LuaVMReference(weak_ptr<class CLuaVM> host, int idx)
 	: _host(host)
 {
-	lua_State *L = host->_L;
+	shared_ptr<CLuaVM> hostlock = _host.lock();
+	if ( hostlock == nullptr ) return;
+
+	lua_State *L = hostlock->_L;
 	
 	if ( L == nullptr ) return;
 
@@ -38,7 +41,10 @@ Arcade::LuaVMReference::LuaVMReference(shared_ptr<class CLuaVM> host, int idx)
 
 Arcade::LuaVMReference::~LuaVMReference()
 {
-	lua_State *L = _host->_L;
+	shared_ptr<CLuaVM> hostlock = _host.lock();
+	if ( hostlock == nullptr ) return;
+
+	lua_State *L = hostlock->_L;
 
 	if ( L == nullptr ) return;
 
@@ -47,7 +53,10 @@ Arcade::LuaVMReference::~LuaVMReference()
 
 void Arcade::LuaVMReference::push()
 {
-	lua_State *L = _host->_L;
+	shared_ptr<CLuaVM> hostlock = _host.lock();
+	if ( hostlock == nullptr ) return;
+
+	lua_State *L = hostlock->_L;
 
 	if ( L == nullptr ) return;
 

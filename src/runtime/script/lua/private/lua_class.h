@@ -36,7 +36,7 @@ namespace Arcade
 class CLuaVMClass : public IVMClass, public CRuntimeObject, public enable_shared_from_this<CLuaVMClass>
 {
 public:
-	CLuaVMClass(shared_ptr<class CLuaVM> host);
+	CLuaVMClass(weak_ptr<class CLuaVM> host);
 	virtual ~CLuaVMClass();
 
 	virtual bool reload() override;
@@ -50,7 +50,7 @@ public:
 
 	bool loadFromPackage(weak_ptr<CPackage> package);
 
-	shared_ptr<CLuaVM> getLuaHost() const
+	weak_ptr<CLuaVM> getLuaHost() const
 	{
 		return _host;
 	}
@@ -66,7 +66,7 @@ private:
 	friend class CLuaVMInstance;
 
 	shared_ptr<CMetaData> _metaData;
-	shared_ptr<CLuaVM> _host;
+	weak_ptr<CLuaVM> _host;
 	weak_ptr<CPackage> _package;
 
 	map<CString, shared_ptr<LuaVMReference>> _functions;

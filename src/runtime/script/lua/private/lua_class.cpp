@@ -27,17 +27,17 @@ lua_class.cpp:
 
 #include <fstream>
 
-Arcade::CLuaVMClass::CLuaVMClass(shared_ptr<CLuaVM> host)
+Arcade::CLuaVMClass::CLuaVMClass(weak_ptr<CLuaVM> host)
 	: _host(host)
 	, _metaData(make_shared<CMetaData>())
-	, CRuntimeObject(host.get())
+	, CRuntimeObject(host.lock().get())
 {
 
 }
 
 Arcade::CLuaVMClass::~CLuaVMClass()
 {
-
+	log(LOG_MESSAGE, "Destruct luaVMClass");
 }
 
 bool Arcade::CLuaVMClass::reload()
@@ -52,7 +52,7 @@ shared_ptr<CMetaData> Arcade::CLuaVMClass::getMetaData()
 
 class IVMHost* Arcade::CLuaVMClass::getHost()
 {
-	return _host.get();
+	return _host.lock().get();
 }
 
 int CLuaVMClass::metaTopLevelSet(lua_State *L)
@@ -67,7 +67,7 @@ int CLuaVMClass::metaTopLevelSet(lua_State *L)
 	int type = lua_type(L, 3);
 	if ( type == LUA_TFUNCTION )
 	{
-		auto entry = make_pair(CString(key), make_shared<LuaVMReference>(klass->_host, 3));
+		auto entry = make_pair(CString(key), make_shared<LuaVMReference>(klass->getLuaHost(), 3));
 		klass->_functions.insert(entry);
 	}
 	else
@@ -122,7 +122,9 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	shared_ptr<CPackage> locked = package.lock();
 	if ( locked == nullptr ) return false;
 
-	lua_State *L = _host->getState();
+	shared_ptr<CLuaVM> host = getLuaHost().lock();
+
+	lua_State *L = host->getState();
 	_functions.clear();
 
 	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );

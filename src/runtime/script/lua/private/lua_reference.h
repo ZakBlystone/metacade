@@ -37,14 +37,14 @@ namespace Arcade
 class LuaVMReference
 {
 public:
-	LuaVMReference(shared_ptr<class CLuaVM> host, int idx);
+	LuaVMReference(weak_ptr<class CLuaVM> host, int idx);
 	~LuaVMReference();
 
 	void push();
 
 private:
 	int _ref;
-	shared_ptr<CLuaVM> _host;
+	weak_ptr<CLuaVM> _host;
 };
 
 }

@@ -76,7 +76,7 @@ static const char* G_blacklist[] =
 void CLuaVMInstance::createAssetRefTable(EAssetType type, const CString& prefix)
 {
 	CPackage* pkg = getLuaClass()->getPackage();
-	lua_State* L = getLuaClass()->_host->_L;
+	lua_State* L = getLuaHost()->_L;
 
 	lua_newtable(L);
 
@@ -224,7 +224,7 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	if ( _klass.expired() ) return;
 
 	CPackage* pkg = getLuaClass()->getPackage();
-	lua_State* L = getLuaClass()->_host->_L;
+	lua_State* L = getLuaHost()->_L;
 
 	if ( pkg == nullptr ) return;
 
@@ -280,7 +280,7 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 
 Arcade::CLuaVMInstance::~CLuaVMInstance()
 {
-
+	log(LOG_MESSAGE, "Destruct luaVMInstance");
 }
 
 class IVMClass* Arcade::CLuaVMInstance::getClass()
@@ -426,8 +426,9 @@ bool CLuaVMInstance::callFunction(const CFunctionCall& call)
 CLuaVM* Arcade::CLuaVMInstance::getLuaHost() const
 {
 	if ( _klass.expired() ) return nullptr;
+	if ( getLuaClass()->getLuaHost().expired() ) return nullptr;
 
-	return getLuaClass()->getLuaHost().get();
+	return getLuaClass()->getLuaHost().lock().get();
 }
 
 CLuaVMClass* Arcade::CLuaVMInstance::getLuaClass() const
