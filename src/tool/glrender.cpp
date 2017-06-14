@@ -147,6 +147,17 @@ CRendererGL::~CRendererGL()
 	glDeleteProgram(g_DefaultShaderProgram);
 	glDeleteShader(g_VertexShader);
 	glDeleteShader(g_FragmentShader);
+
+	//Ensure all textures are deleted
+	for ( auto entry : _textureRemap )
+	{
+		ITexture* tex = entry.second;
+		if ( tex != nullptr )
+		{
+			std::cout << "DELETED LINGERING TEXTURE ON GL RENDERER" << std::endl;
+			delete tex;
+		}
+	}
 }
 
 void CRendererGL::reshape(int32 width, int32 height)
