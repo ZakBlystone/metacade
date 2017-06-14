@@ -25,19 +25,7 @@ color.cpp: 32-bit color representation and floating-point counterpart
 
 #include "core_private.h"
 
-inline CColor::CColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
-{
-	fr = fr > 1.0f ? 1.0f : (fr < 0.0f ? 0.0f : fr);
-	fg = fg > 1.0f ? 1.0f : (fg < 0.0f ? 0.0f : fg);
-	fb = fb > 1.0f ? 1.0f : (fb < 0.0f ? 0.0f : fb);
-	fa = fa > 1.0f ? 1.0f : (fa < 0.0f ? 0.0f : fa);
-
-	r = (uint8)(fr * 255.0f);
-	g = (uint8)(fg * 255.0f);
-	b = (uint8)(fb * 255.0f);
-	a = (uint8)(fa * 255.0f);
-}
-
+//CColor
 inline CColor::CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca /*= 0xFF*/) : r(cr), g(cg), b(cb), a(ca)
 {
 
@@ -50,6 +38,7 @@ inline CColor::CColor(uint8 color[4]) : r(color[0]), g(color[1]), b(color[2]), a
 
 inline CColor::CColor(uint32 irgba)
 {
+	//Unpack RGBA from uint32 into the [r,g,b,a] union
 	r = (irgba >> 24) & 0xFF;
 	g = (irgba >> 16) & 0xFF;
 	b = (irgba >> 8) & 0xFF;
@@ -63,6 +52,7 @@ inline CColor::CColor() : r(0), g(0), b(0), a(0xFF)
 
 uint32 CColor::asInt() const
 {
+	//Pack RGBA from the [r,g,b,a] union
 	return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
@@ -74,6 +64,7 @@ inline CFloatColor::CFloatColor() : r(0.f), g(0.f), b(0.f), a(1.f)
 
 inline CFloatColor::CFloatColor(const CColor& color)
 {
+	//Divide out maximum unsigned 8-bit color value from each channel, cast to float
 	static const float scale = 1.0f / 255.f;
 	r = (float)(color.r) * scale;
 	g = (float)(color.g) * scale;
@@ -83,6 +74,7 @@ inline CFloatColor::CFloatColor(const CColor& color)
 
 inline CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*/)
 {
+	//Clamp input parameters and copy them into the [r,g,b,a] union
 	r = fr > 1.0f ? 1.0f : (fr < 0.0f ? 0.0f : fr);
 	g = fg > 1.0f ? 1.0f : (fg < 0.0f ? 0.0f : fg);
 	b = fb > 1.0f ? 1.0f : (fb < 0.0f ? 0.0f : fb);
@@ -91,6 +83,7 @@ inline CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*
 
 CFloatColor CFloatColor::operator-(const CFloatColor& other) const
 {
+	//Per-channel subtraction ( this[x] - other[x] )
 	const float *fl0 = this->rgba;
 	const float *fl1 = other.rgba;
 	return CFloatColor(fl0[0] - fl1[0], fl0[1] - fl1[1], fl0[2] - fl1[2], fl0[3] - fl1[3]);
@@ -98,12 +91,14 @@ CFloatColor CFloatColor::operator-(const CFloatColor& other) const
 
 CFloatColor CFloatColor::operator-(float brt) const
 {
+	//Subtract 'brt' from each channel ( this[x] - brt )
 	const float *fl0 = this->rgba;
 	return CFloatColor(fl0[0] - brt, fl0[1] - brt, fl0[2] - brt, fl0[3] - brt);
 }
 
 CFloatColor CFloatColor::operator+(const CFloatColor& other) const
 {
+	//Per-channel addition ( this[x] + other[x] )
 	const float *fl0 = this->rgba;
 	const float *fl1 = other.rgba;
 	return CFloatColor(fl0[0] + fl1[0], fl0[1] + fl1[1], fl0[2] + fl1[2], fl0[3] + fl1[3]);
@@ -111,12 +106,14 @@ CFloatColor CFloatColor::operator+(const CFloatColor& other) const
 
 CFloatColor CFloatColor::operator+(float brt) const
 {
+	//Subtract 'brt' to each channel ( this[x] + brt )
 	const float *fl0 = this->rgba;
 	return CFloatColor(fl0[0] + brt, fl0[1] + brt, fl0[2] + brt, fl0[3] + brt);
 }
 
 CFloatColor CFloatColor::operator*(float frac) const
 {
+	//Scale each channel by 'frac' ( this[x] * frac )
 	const float *fl0 = this->rgba;
 	return CFloatColor(fl0[0] * frac, fl0[1] * frac, fl0[2] * frac, fl0[3] * frac);
 }
@@ -147,6 +144,7 @@ CFloatColor& CFloatColor::operator-=(float brt)
 
 CFloatColor CFloatColor::interpolateTo(const CFloatColor& other, float fraction) const
 {
+	//Linear interpolation between 'this' and 'other'
 	const float *fl0 = this->rgba;
 	const float *fl1 = other.rgba;
 	return CFloatColor(
@@ -158,6 +156,7 @@ CFloatColor CFloatColor::interpolateTo(const CFloatColor& other, float fraction)
 
 CFloatColor::operator CColor() const
 {
+	//Multiply each channel by maximum unsigned 8-bit color value
 	return CColor(
 		(unsigned char)(r * 255.0f),
 		(unsigned char)(g * 255.0f),

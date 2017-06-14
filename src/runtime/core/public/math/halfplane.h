@@ -31,13 +31,25 @@ namespace Arcade
 class METACADE_API CHalfPlane : public CVec3
 {
 public:
+	//Constructs a half-plane, values are uninitialized
 	inline CHalfPlane();
+
+	//Constructs a half-plane from a direction and a distance
 	inline CHalfPlane(const CVec2& dir, float distance);
+
+	//Constructs a half-plane from a direction and a point on the plane (origin)
 	inline CHalfPlane(const CVec2& dir, const CVec2& origin);
 
+	//Calculates the distance between the plane and 'point'
 	inline float distance(const CVec2& point) const;
+
+	//Calculates the intersection of the line [start, end] and the plane
+	//Only returns intersection if start->end faces into the plane from the front
+	//TOI is stored in 'fraction', returns type of intersection
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
 
+	//Returns whether or not 'point' is behind or in front of the plane
+	//Passing template parameter 'true' for 'CheckOn' will cause this to also return if the point is on the plane
 	template<bool CheckOn = false>
 	inline EPointClassify classifyPoint(const CVec2& point) const
 	{
@@ -46,6 +58,7 @@ public:
 	}
 };
 
+//Template specialization for 'classifyPoint' that returns it the point is on the plane as well
 template<>
 inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
 {

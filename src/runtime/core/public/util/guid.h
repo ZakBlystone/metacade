@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-guid.h:
+guid.h: Globally unique identifier implementation
 ===============================================================================
 */
 
@@ -31,20 +31,27 @@ namespace Arcade
 class METACADE_API CGUID
 {
 public:
+	//Construct empty GUID
 	CGUID();
 
+	//Comparison operators
 	bool operator == (const CGUID& other) const;
 	bool operator != (const CGUID& other) const;
 	bool operator < (const CGUID& other) const;
 
+	//Check if GUID is valid (i.e. non-zero)
 	bool isValid() const;
 
+	//Generate a new GUID using the appropriate platform function
 	static CGUID generate();
 
+	//Set GUID to zero
 	void reset();
 
+	//Convert GUID to string using %08X-%08X-%08X-%08X pattern
 	const char* tostring() const;
 
+	//Union to hold 64-bit and 32-bit parts of the GUID
 	union
 	{
 		struct

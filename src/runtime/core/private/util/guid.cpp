@@ -33,6 +33,7 @@ guid.cpp:
 #include <uuid/uuid.h>
 #endif
 
+//Construct zero'd out GUID
 Arcade::CGUID::CGUID()
 	: X(0)
 	, Y(0)
@@ -42,19 +43,28 @@ Arcade::CGUID::CGUID()
 
 bool CGUID::operator==(const CGUID& other) const
 {
+	//XOR each 64-bit component of the two GUIDs, combine and check if 0
 	return ((X ^ other.X) | (Y ^ other.Y)) == 0;
 }
 
 bool CGUID::operator!=(const CGUID& other) const
 {
+	//XOR each 64-bit component of the two GUIDs, combine and check if NOT 0
 	return ((X ^ other.X) | (Y ^ other.Y)) != 0;
 }
 
 bool CGUID::operator<(const CGUID& other) const
 {
+	//Check to see if high 64-bit component of 'this' is less than 'other'
 	if ( X < other.X ) return true;
+
+	//Otherwise, if the high bits of 'this' are greater than 'other', it's not less-than
 	else if ( X > other.X ) return false;
+
+	//High bits are equal, check low bits
 	else if ( Y < other.Y ) return true;
+
+	//Low bits were either greater-than or equal
 	else return false;
 
 	return false;
@@ -62,6 +72,7 @@ bool CGUID::operator<(const CGUID& other) const
 
 bool CGUID::isValid() const
 {
+	//Just check if non-zero
 	return X != 0 && Y != 0;
 }
 
@@ -70,8 +81,10 @@ CGUID CGUID::generate()
 	CGUID out;
 
 #ifdef WINDOWS
+	//On Windows, create the native GUID* on casted CGUID
 	CoCreateGuid((GUID *) &out);
 #elif LINUX
+	//On Linux, create a UUID on casted CGUID
 	uuid_generate((unsigned char *) &out);
 #else
 	//No GUID implementation for this platform
@@ -83,6 +96,7 @@ CGUID CGUID::generate()
 
 void CGUID::reset()
 {
+	//Sets all parts to zero
 	X = Y = 0;
 }
 

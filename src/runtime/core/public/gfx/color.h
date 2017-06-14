@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-color.h: 32-bit color representation and floating-point counterpart
+color.h: 24-bit color representation (w/alpha) and floating-point counterpart
 ===============================================================================
 */
 
@@ -29,6 +29,8 @@ namespace Arcade
 {
 
 struct CFloatColor;
+
+//24-bit color represented in little endian RGBA format [ 0xRRGGBBAA ]
 struct METACADE_API CColor
 {
 	union
@@ -41,13 +43,19 @@ struct METACADE_API CColor
 		uint32 irgba;
 	};
 
+	//Construct an empty CColor object, initializes as opaque black (0x000000FF)
 	inline CColor();
+
+	//Construct from an RGBA packed integer
 	inline CColor(uint32 irgba);
 
+	//Construct from an 8-bit RGBA array
 	inline CColor(uint8 color[4]);
-	inline CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
-	inline CColor(float fr, float fg, float fb, float fa = 1.0f);
 
+	//Construct from four 8-bit values (alpha defaults to opaque)
+	inline CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
+
+	//Converts CColor to a packed RGBA integer
 	uint32 asInt() const;
 
 	/*friend ostream& operator << (ostream& os, const CColor& v)
@@ -70,6 +78,7 @@ struct METACADE_API CColor
 	}*/
 };
 
+//color represented as floating point values per channel
 struct METACADE_API CFloatColor
 {
 	union
@@ -82,10 +91,16 @@ struct METACADE_API CFloatColor
 		uint32 iRGBA;
 	};
 
+	//Construct an empty CFloatColor object, initializes as opaque black (0x000000FF)
 	inline CFloatColor();
+
+	//Construct from a 24-bit CColor
 	inline CFloatColor(const CColor &color);
+
+	//Construct from four floating point values (alpha defaults to opaque)
 	inline CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
 
+	//Arithmetic operators
 	CFloatColor operator+(const CFloatColor& other) const;
 	CFloatColor operator+(float brt) const;
 	CFloatColor operator-(const CFloatColor& other) const;
@@ -97,8 +112,10 @@ struct METACADE_API CFloatColor
 	CFloatColor& operator-=(const CFloatColor& other);
 	CFloatColor& operator-=(float brt);
 
+	//Interpolates between two colors
 	inline CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
 
+	//Conversion operator to convert to 24-bit CColor
 	operator CColor() const;
 };
 

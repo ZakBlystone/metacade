@@ -330,11 +330,20 @@ namespace Arcade
 class METACADE_API CHalfPlane : public CVec3
 {
 public:
+	//Constructs a half-plane, values are uninitialized
 	inline CHalfPlane();
+	//Constructs a half-plane from a direction and a distance
 	inline CHalfPlane(const CVec2& dir, float distance);
+	//Constructs a half-plane from a direction and a point on the plane (origin)
 	inline CHalfPlane(const CVec2& dir, const CVec2& origin);
+	//Calculates the distance between the plane and 'point'
 	inline float distance(const CVec2& point) const;
+	//Calculates the intersection of the line [start, end] and the plane
+	//Only returns intersection if start->end faces into the plane from the front
+	//TOI is stored in 'fraction', returns type of intersection
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
+	//Returns whether or not 'point' is behind or in front of the plane
+	//Passing template parameter 'true' for 'CheckOn' will cause this to also return if the point is on the plane
 	template<bool CheckOn = false>
 	inline EPointClassify classifyPoint(const CVec2& point) const
 	{
@@ -342,6 +351,7 @@ public:
 		return PLANE_INFRONT;
 	}
 };
+//Template specialization for 'classifyPoint' that returns it the point is on the plane as well
 template<>
 inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
 {
@@ -355,6 +365,7 @@ inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
 namespace Arcade
 {
 struct CFloatColor;
+//24-bit color represented in little endian RGBA format [ 0xRRGGBBAA ]
 struct METACADE_API CColor
 {
 	union
@@ -366,14 +377,19 @@ struct METACADE_API CColor
 		uint8 rgba[4];
 		uint32 irgba;
 	};
+	//Construct an empty CColor object, initializes as opaque black (0x000000FF)
 	inline CColor();
+	//Construct from an RGBA packed integer
 	inline CColor(uint32 irgba);
+	//Construct from an 8-bit RGBA array
 	inline CColor(uint8 color[4]);
+	//Construct from four 8-bit values (alpha defaults to opaque)
 	inline CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca = 0xFF);
-	inline CColor(float fr, float fg, float fb, float fa = 1.0f);
+	//Converts CColor to a packed RGBA integer
 	uint32 asInt() const;
 	 
 };
+//color represented as floating point values per channel
 struct METACADE_API CFloatColor
 {
 	union
@@ -385,9 +401,13 @@ struct METACADE_API CFloatColor
 		float rgba[4];
 		uint32 iRGBA;
 	};
+	//Construct an empty CFloatColor object, initializes as opaque black (0x000000FF)
 	inline CFloatColor();
+	//Construct from a 24-bit CColor
 	inline CFloatColor(const CColor &color);
+	//Construct from four floating point values (alpha defaults to opaque)
 	inline CFloatColor(float fr, float fg, float fb, float fa = 1.0f);
+	//Arithmetic operators
 	CFloatColor operator+(const CFloatColor& other) const;
 	CFloatColor operator+(float brt) const;
 	CFloatColor operator-(const CFloatColor& other) const;
@@ -397,7 +417,9 @@ struct METACADE_API CFloatColor
 	CFloatColor& operator+=(float brt);
 	CFloatColor& operator-=(const CFloatColor& other);
 	CFloatColor& operator-=(float brt);
+	//Interpolates between two colors
 	inline CFloatColor interpolateTo(const CFloatColor& other, float fraction) const;
+	//Conversion operator to convert to 24-bit CColor
 	operator CColor() const;
 };
 }
@@ -553,14 +575,21 @@ namespace Arcade
 class METACADE_API CGUID
 {
 public:
+	//Construct empty GUID
 	CGUID();
+	//Comparison operators
 	bool operator == (const CGUID& other) const;
 	bool operator != (const CGUID& other) const;
 	bool operator < (const CGUID& other) const;
+	//Check if GUID is valid (i.e. non-zero)
 	bool isValid() const;
+	//Generate a new GUID using the appropriate platform function
 	static CGUID generate();
+	//Set GUID to zero
 	void reset();
+	//Convert GUID to string using %08X-%08X-%08X-%08X pattern
 	const char* tostring() const;
+	//Union to hold 64-bit and 32-bit parts of the GUID
 	union
 	{
 		struct

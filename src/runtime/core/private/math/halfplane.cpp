@@ -44,14 +44,17 @@ inline CHalfPlane::CHalfPlane()
 
 inline float CHalfPlane::distance(const CVec2& point) const
 {
+	//dot(point, normal) - distance
 	return (point.x * this->x + point.y * this->y) - this->z;
 }
 
 inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const
 {
+	//Calculate the distance to each point of the segment formed by [start, end]
 	float d1 = distance(start);
 	float d2 = distance(end);
 
+	//'end' is behind the plane, 'start' is in front of the plane
 	if ( d1 > EPSILON && d2 < -EPSILON )
 	{
 		fraction = (d1 / (d1 - d2));
@@ -60,6 +63,7 @@ inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& 
 
 	fraction = 0.f;
 
+	//both points are behind the plane, no intersection
 	if ( d1 <= -EPSILON || d2 <= EPSILON )
 	{
 		return PLANE_BEHIND;
