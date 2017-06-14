@@ -241,7 +241,10 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 	}
 
 	if ( !builder->save() )
+	{
+		manager->deletePackageBuilder(builder);
 		return nullptr;
+	}
 
 	manager->deletePackageBuilder(builder);
 
