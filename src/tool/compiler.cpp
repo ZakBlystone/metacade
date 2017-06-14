@@ -66,6 +66,8 @@ static bool buildImage(CImageAsset* asset, IMetaData* params)
 	
 	uint8* data = (uint8*) ilGetData();
 	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
+	ilDeleteImage(test);
+
 	return true;
 }
 
@@ -173,6 +175,7 @@ static bool buildCode(CCodeAsset* code, IMetaData* params)
 	input.read((char*)buffer, size);
 
 	code->setCodeBuffer((const char*)buffer, size);
+	delete [] buffer;
 
 	return code->validate();
 }
