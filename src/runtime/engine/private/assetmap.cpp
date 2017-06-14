@@ -32,6 +32,11 @@ CAssetMap::CAssetMap(CRuntimeObject* outer)
 
 }
 
+CAssetMap::~CAssetMap()
+{
+	releaseAssets();
+}
+
 void CAssetMap::add(shared_ptr<IAsset> asset)
 {
 	_map.insert(make_pair(asset->getUniqueID(), asset));
@@ -160,32 +165,10 @@ bool CAssetMap::load(IFileObject* file)
 		shared_ptr<IAsset> asset = nullptr;
 		switch(locator._type)
 		{
-		case Arcade::ASSET_NONE:
-		break;
-		case Arcade::ASSET_CODE:
-			asset = shared_ptr<CCodeAsset>(construct<CCodeAsset>(this), [this](CCodeAsset* Del)
-			{
-				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
-				if ( Del ) Del->release();
-				destroy(Del);
-			});
-		break;
-		case Arcade::ASSET_TEXTURE:
-			asset = shared_ptr<CImageAsset>(construct<CImageAsset>(this), [this](CImageAsset* Del)
-			{
-				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
-				if ( Del ) Del->release();
-				destroy(Del);
-			});
-		break;
-		case Arcade::ASSET_SOUND:
-			asset = shared_ptr<CSoundAsset>(construct<CSoundAsset>(this), [this](CSoundAsset* Del)
-			{
-				log(LOG_MESSAGE, "Destruct Asset: %s", *Del->getName());
-				if ( Del ) Del->release();
-				destroy(Del);
-			});
-		break;
+		case Arcade::ASSET_NONE: break;
+		case Arcade::ASSET_CODE: asset = shared_ptr<CCodeAsset>(makeShared<CCodeAsset>(this)); break;
+		case Arcade::ASSET_TEXTURE: asset = shared_ptr<CImageAsset>(makeShared<CImageAsset>(this)); break;
+		case Arcade::ASSET_SOUND: asset = shared_ptr<CSoundAsset>(makeShared<CSoundAsset>(this)); break;
 		default:
 		break;
 		}

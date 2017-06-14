@@ -32,6 +32,7 @@ class CAssetMap : public CRuntimeObject, public enable_shared_from_this<CAssetMa
 {
 public:
 	CAssetMap(CRuntimeObject* outer);
+	~CAssetMap();
 
 	class CAssetLoadHandle
 	{
