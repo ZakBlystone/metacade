@@ -135,8 +135,8 @@ static int initSound()
 
 static void shudownSound()
 {
-	SDL_DestroyMutex(sndMutex);
 	SDL_CloseAudioDevice(sndDevice);
+	SDL_DestroyMutex(sndMutex);
 }
 
 static int initOpenGLAndWindow()
