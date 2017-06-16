@@ -61,16 +61,11 @@ static SDL_GLContext glContext;
 static SDL_AudioSpec sndFormat;
 static SDL_AudioDeviceID sndDevice;
 static SDL_mutex* sndMutex;
-static shared_ptr<CRendererGL> renderer;
 static IRuntime* runtime = nullptr;
 static IPackage* loadedPackage = nullptr;
 static IGameClass* loadedGameClass = nullptr;
 static IGameInstance* instance = nullptr;
-static CAssetRef testSound;
-static CAssetRef testSound2;
-static CAssetRef testSound3;
 
-static uint32 streamOffset = 0;
 static void sndCallback(void* userdata, uint8* stream, int32 len)
 {
 	SDL_LockMutex(sndMutex);
@@ -86,8 +81,6 @@ static void sndCallback(void* userdata, uint8* stream, int32 len)
 	mixer->update();
 
 	memcpy(stream, mixer->getPCMSamples(), len);
-
-	streamOffset += len;
 
 	SDL_UnlockMutex(sndMutex);
 }
@@ -261,22 +254,6 @@ static void immediateUI(int32 width, int32 height)
 	//ImGui::End();
 }
 
-class CTestFunctionCallbacks : public IHostCallbacks
-{
-public:
-	virtual bool handleHostFunctionCall(const CFunctionCall& call, CVariant& returnValue) override
-	{
-		std::cout << "PROC FUNCTION CALL: " << *call.getFunction() << std::endl;
-		for ( int32 i=0; i<call.numArgs(); ++i )
-		{
-			std::cout << " ->" << *call.getArg(i).toString() << std::endl;
-		}
-
-		returnValue = "Hello lua, have a return value";
-		return true;
-	}
-};
-
 static int start(int argc, char *argv[])
 {
 	if ( argc < 2 ) 
@@ -284,8 +261,6 @@ static int start(int argc, char *argv[])
 		std::cout << "Usage: tool <project name>" << std::endl;	
 		return 0;
 	}
-
-	CTestFunctionCallbacks testCallbacks;
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
@@ -315,23 +290,14 @@ static int start(int argc, char *argv[])
 			targetProject = p;
 	}
 
-	projectManager->saveProjectAs(targetProject, "killer.mproject");
-
-	std::cout << *targetProject.getProjectName() << std::endl;
+	//projectManager->saveProjectAs(targetProject, "killer.mproject");
 
 	IPackage* pkg = targetProject.buildPackage(runtime);
 	loadedPackage = pkg;
 
-	if ( pkg != nullptr && pkg->loadAssets() )
-	{
-		testSound = pkg->findAssetByName("winmusic.snd");
-		testSound2 = pkg->findAssetByName("chime.snd");
-		testSound3 = pkg->findAssetByName("pop.snd");
-	}
-
 	if ( initOpenGLAndWindow() || initSound() ) return 1;
 
-	renderer = make_shared<CRendererGL>();
+	shared_ptr<CRendererGL> renderer = make_shared<CRendererGL>();
 	renderer->reshape(1280, 720);
 
 	CMixerSettings mixerSettings;
@@ -342,27 +308,17 @@ static int start(int argc, char *argv[])
 	{
 		loadedGameClass = runtime->getGameClassForPackage(pkg);
 
-		uint32 preInstance = SDL_GetTicks();
-
 		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance) )
 		{
-			instance->setHostCallbacks(&testCallbacks);
 			instance->initializeRenderer(renderer.get());
 			instance->initSoundMixer(mixerSettings);
 			instance->init();
 		}
-
-		uint32 instanceCreationTime = SDL_GetTicks() - preInstance;
-
-		std::cout << "INSTANCE CREATION TOOK: " << instanceCreationTime << "ms" << std::endl;
 	}
 
 
 	float width = 1280.f;
 	float height = 720.f;
-
-	//packmanager->findAndPreloadPackages();
-
 	bool paused = false;
 	bool running = true;
 	float lastTime = 0;
@@ -429,28 +385,17 @@ static int start(int argc, char *argv[])
 					}
 					SDL_UnlockMutex(sndMutex);
 
-					//if ( !buildGamePackage(packmanager) ) continue;
-					//loadedGameClass = system->getGameClassForPackage(packmanager->getPackageByName("glyphtest"));
 					loadedPackage = targetProject.buildPackage(runtime);
 					loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
 					SDL_LockMutex(sndMutex);
 					if ( loadedGameClass->createInstance(&instance) )
 					{
-						instance->setHostCallbacks(&testCallbacks);
 						instance->initializeRenderer(renderer.get());
 						instance->initSoundMixer(mixerSettings);
 						instance->init();
 					}
 					SDL_UnlockMutex(sndMutex);
-
-					/*{
-						ISoundMixer* mixer = instance->getSoundMixer();
-						int32 chan = mixer->playSound(testSound);
-						mixer->setChannelLooping(chan, true);
-						mixer->setChannelVolume(chan, 0.1f);
-						mixer->setChannelPitch(chan, 1.0f);
-					}*/
 				}
 			}
 		}
@@ -470,15 +415,6 @@ static int start(int argc, char *argv[])
 			instance->render(renderer.get(), CVec2(400,300));
 		}
 
-		if ( !paused )
-		{
-			/*if ( gameInstance2 != nullptr )
-			{
-				gameInstance2->think(time);
-				gameInstance2->render(renderer.get(), CVec2(120,120));
-			}*/
-		}
-
 		immediateUI(width, height);
 
 		ImGui::Render();
@@ -489,8 +425,6 @@ static int start(int argc, char *argv[])
 	}
 
 	shudownSound();
-
-	//runtime->deleteSoundMixer(mixer);
 
 	if ( loadedGameClass != nullptr && instance != nullptr )
 	{
