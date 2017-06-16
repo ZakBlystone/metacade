@@ -268,5 +268,5 @@ bool CGameInstance::callHostFunction(const CFunctionCall& call, CVariant& return
 	{
 		return _callbacks->handleHostFunctionCall(call, returnValue);
 	}
-	return false;
+	return true;
 }
