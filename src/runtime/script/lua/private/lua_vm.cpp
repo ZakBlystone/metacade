@@ -149,7 +149,7 @@ bool Arcade::CLuaVM::pcall(int nargs)
 {
 	if (lua_pcall(_L, nargs, 0, 0)) 
 	{
-		std::cout << "Lua: " << lua_tostring(_L, -1) << std::endl;
+		log(LOG_WARN, "Lua Error: %s", lua_tostring(_L, -1));
 		lua_pop(_L, 1);
 		//exit(0);
 		return false;
