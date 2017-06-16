@@ -115,12 +115,42 @@ MODULE_FUNCTION_DEF(sound_setlooping)
 	return 1;
 }
 
+MODULE_FUNCTION_DEF(sound_setmasterpitch)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	ISoundMixer* mixer = instance->getSoundMixer();
+	if ( mixer == nullptr ) return 0;
+
+	float pitch = (float) luaL_checknumber(L, 1);
+	mixer->setMasterPitch( pitch );
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(sound_setmastervolume)
+{
+	IGameInstance* instance = getGameInstance(L);
+	if ( instance == nullptr ) return 0;
+
+	ISoundMixer* mixer = instance->getSoundMixer();
+	if ( mixer == nullptr ) return 0;
+
+	float volume = (float) luaL_checknumber(L, 1);
+	mixer->setMasterVolume( volume );
+
+	return 0;
+}
+
 static const luaL_Reg soundlib[] = {
 	{"play", sound_playsound},
 	{"stop", sound_stopsound},
 	{"setPitch", sound_setpitch},
 	{"setVolume", sound_setvolume},
 	{"setLooping", sound_setlooping},
+	{"setMasterPitch", sound_setmasterpitch},
+	{"setMasterVolume", sound_setmastervolume},
 	{nullptr, nullptr}
 };
 

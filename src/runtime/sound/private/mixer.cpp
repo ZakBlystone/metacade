@@ -30,6 +30,8 @@ Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings 
 	, _channelIndices(make_shared<CIndexAllocator>())
 	, _settings(settings)
 	, _available(0)
+	, _pitch(1.f)
+	, _volume(1.f)
 {
 	_mixBuffer = shared_ptr<float>( 
 		(float*) zalloc( _settings.bufferSize * sizeof(float) * _settings.getChannelCount() ),
@@ -139,6 +141,16 @@ void CSoundMixer::setChannelVolume(int32 channel, float volume)
 	{
 		(*iter).second->getState()._volume = volume;
 	}
+}
+
+void CSoundMixer::setMasterPitch(float pitch)
+{
+	_pitch = pitch;
+}
+
+void CSoundMixer::setMasterVolume(float volume)
+{
+	_volume = volume;
 }
 
 const CMixerSettings& CSoundMixer::getSettings() const

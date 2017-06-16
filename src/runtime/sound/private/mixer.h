@@ -51,6 +51,12 @@ public:
 	virtual void setChannelLooping(int32 channel, bool loop);
 	virtual void setChannelVolume(int32 channel, float volume);
 
+	virtual void setMasterPitch(float pitch);
+	virtual void setMasterVolume(float volume);
+
+	float getMasterPitch() const { return _pitch; }
+	float getMasterVolume() const { return _volume; }
+
 	const CMixerSettings& getSettings() const;
 
 private:
@@ -67,6 +73,9 @@ private:
 
 	shared_ptr<float> _mixBuffer;
 	shared_ptr<uint8> _outBuffer;
+
+	float _pitch;
+	float _volume;
 };
 
 }

@@ -97,7 +97,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	int32 sampleIndex = frame * _sampleInfo.numChannels;
 	int32 nextSampleIndex = nextFrame * _sampleInfo.numChannels;
 
-	float vol = _state._volume;
+	float vol = _state._volume * _mixer->getMasterVolume();
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )
@@ -153,7 +153,7 @@ bool CSoundChannel::generatePCM(float* buffer, uint32 offset, uint32 size)
 
 	int32 channelCount = settings.getChannelCount();
 
-	double rateFactor = _invRate * _state._pitch * (_rate / settings.sampleRate);
+	double rateFactor = _invRate * _state._pitch * (_rate / settings.sampleRate) * _mixer->getMasterPitch();
 	bool generatedSample = false;
 
 	for ( uint32 i=offset; i<offset + size; i+=channelCount )
