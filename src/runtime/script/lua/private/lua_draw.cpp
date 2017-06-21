@@ -75,8 +75,13 @@ void Arcade::endLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
 	gData._renderer = nullptr;
 }
 
+#define QUICK_RENDERER_CHECK\
+	if ( gData._renderer == nullptr ) return 0;
+
 MODULE_FUNCTION_DEF(draw_color)
 {
+	QUICK_RENDERER_CHECK
+
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
@@ -99,6 +104,8 @@ MODULE_FUNCTION_DEF(draw_color)
 
 MODULE_FUNCTION_DEF(draw_rect)
 {
+	QUICK_RENDERER_CHECK
+
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
@@ -183,6 +190,8 @@ MODULE_FUNCTION_DEF(draw_rect)
 
 MODULE_FUNCTION_DEF(draw_sprite)
 {
+	QUICK_RENDERER_CHECK
+
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
@@ -226,6 +235,8 @@ MODULE_FUNCTION_DEF(draw_sprite)
 
 MODULE_FUNCTION_DEF(draw_quad)
 {
+	QUICK_RENDERER_CHECK
+
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
@@ -254,6 +265,8 @@ MODULE_FUNCTION_DEF(draw_quad)
 
 MODULE_FUNCTION_DEF(draw_size)
 {
+	QUICK_RENDERER_CHECK
+
 	lua_pushnumber(L, gData.getRenderer()->getViewSize().x);
 	lua_pushnumber(L, gData.getRenderer()->getViewSize().y);
 	return 2;
@@ -261,6 +274,8 @@ MODULE_FUNCTION_DEF(draw_size)
 
 MODULE_FUNCTION_DEF(draw_layer)
 {
+	QUICK_RENDERER_CHECK
+
 	#ifdef DRAW_PASSTHROUGH 
 	return 0; 
 	#endif
