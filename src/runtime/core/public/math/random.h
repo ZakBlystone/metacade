@@ -19,39 +19,30 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-core_public.h: Inter-modular headers
+random.h: Pseudo-random number generator
 ===============================================================================
 */
 
-#define EPSILON 0.00001f
+#pragma once
 
-#ifndef M_PI
-#define M_PI       3.14159265358979323846f
-#endif
+namespace Arcade
+{
 
-#define M_FPI	   3.1415926f
+class METACADE_API CRandom
+{
+public:
+	CRandom();
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
+	uint32 random();
+	uint32 random(uint32 maximum);
+	int32 randomInt(int32 minimum, int32 maximum);
+	float randomFloat();
 
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
+	void randomSeed(int32 newSeed);
 
-#include "public/math/matrix3.h"
-#include "public/math/matrix4.h"
-#include "public/math/vec2.h"
-#include "public/math/vec3.h"
-#include "public/math/halfplane.h"
-#include "public/math/random.h"
+private:
+	uint32 _seedX;
+	uint32 _seedY;
+};
 
-#include "public/gfx/color.h"
-#include "public/gfx/image.h"
-#include "public/gfx/vertex.h"
-
-#include "public/util/refcounter.h"
-#include "public/util/variant.h"
-#include "public/util/guid.h"
-#include "public/util/string.h"
-#include "public/util/sha.h"
+}

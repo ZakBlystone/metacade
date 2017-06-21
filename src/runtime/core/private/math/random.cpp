@@ -19,39 +19,47 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-core_public.h: Inter-modular headers
+random.cpp: Pseudo-random number generator
 ===============================================================================
 */
 
-#define EPSILON 0.00001f
+#include "core_private.h"
 
-#ifndef M_PI
-#define M_PI       3.14159265358979323846f
-#endif
+CRandom::CRandom()
+	: _seedX(1503829603)
+	, _seedY(4028562812)
+{
 
-#define M_FPI	   3.1415926f
+}
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
+uint32 CRandom::random()
+{
+	static uint32 a = 30963;
+	static uint32 b = 21723;
 
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
+	_seedX = a * (_seedX & 0xFFFF) + (_seedX >> 16);
+	_seedY = b * (_seedY & 0xFFFF) + (_seedY >> 16);
 
-#include "public/math/matrix3.h"
-#include "public/math/matrix4.h"
-#include "public/math/vec2.h"
-#include "public/math/vec3.h"
-#include "public/math/halfplane.h"
-#include "public/math/random.h"
+	return (_seedX << 16) + (_seedY & 0xFFFF);
+}
 
-#include "public/gfx/color.h"
-#include "public/gfx/image.h"
-#include "public/gfx/vertex.h"
+uint32 CRandom::random(uint32 maximum)
+{
+	return random() % maximum;
+}
 
-#include "public/util/refcounter.h"
-#include "public/util/variant.h"
-#include "public/util/guid.h"
-#include "public/util/string.h"
-#include "public/util/sha.h"
+int32 CRandom::randomInt(int32 minimum, int32 maximum)
+{
+	return minimum + random(maximum - minimum + 1);
+}
+
+float CRandom::randomFloat()
+{
+	uint32 uint = random();
+	return (float) (uint) / 0xFFFFFFFF;
+}
+
+void CRandom::randomSeed(int32 newSeed)
+{
+	_seedY = newSeed;
+}
