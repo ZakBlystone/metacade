@@ -41,12 +41,46 @@ static CImageAsset* opttexture(lua_State* L, int idx)
 	return nullptr;
 }
 
+#define NUM_MATRIX_STACK 16
+
 struct CDrawData : public CRenderState
 {
 	CClipShape _viewClip;
 	CColor _currentColor;
 	CElementRenderer *_renderer;
 	int32 _layer;
+	CMatrix3 _xformStack[NUM_MATRIX_STACK];
+	uint32 _stackPos;
+
+	void resetStack()
+	{
+		_stackPos = NUM_MATRIX_STACK - 1;
+		_xformStack[_stackPos] = CMatrix3();
+	}
+
+	bool push()
+	{
+		if ( _stackPos == 0 ) return false;
+
+		CMatrix3& copy = _xformStack[_stackPos];
+		_xformStack[--_stackPos] = copy;
+
+		return true;
+	}
+
+	bool pop()
+	{
+		if ( _stackPos == NUM_MATRIX_STACK - 1 ) return false;
+
+		++_stackPos;
+
+		return true;
+	}
+
+	CMatrix3& top()
+	{
+		return _xformStack[_stackPos];
+	}
 
 	inline bool valid()
 	{
@@ -68,6 +102,7 @@ void Arcade::beginLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
 	gData._currentColor = CFloatColor(1.f, 1.f, 1.f, 1.f);
 	gData._viewClip = renderer->getViewportClip();
 	gData._material._blend = BLEND_NORMAL;
+	gData.resetStack();
 }
 
 void Arcade::endLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
@@ -151,14 +186,17 @@ MODULE_FUNCTION_DEF(draw_rect)
 
 
 	CVertex2D* verts = nullptr;
+	CRenderQuad* quad = nullptr;
 	if ( ccheck == 0 )
 	{
 		static CClipShape empty;
-		verts = el.makeQuad2(empty, gData, gData._layer)._verts;
+		quad = &el.makeQuad2(empty, gData, gData._layer);
+		verts = quad->_verts;
 	}
 	else
 	{	
-		verts = el.makeQuad2(gData._viewClip, gData, gData._layer)._verts;
+		quad = &el.makeQuad2(gData._viewClip, gData, gData._layer);
+		verts = quad->_verts;
 	}
 
 	verts[0]._position.x = x;
@@ -184,6 +222,8 @@ MODULE_FUNCTION_DEF(draw_rect)
 	verts[3]._texcoord.x = u0;
 	verts[3]._texcoord.y = v1;
 	verts[3]._color.irgba = gData._currentColor.irgba;
+
+	quad->transform(gData.top());
 
 	return 0;
 }
@@ -220,7 +260,7 @@ MODULE_FUNCTION_DEF(draw_sprite)
 
 	CRenderQuad quad;
 	quad.makeBox(CVec2(-w,-h), CVec2(w,h), gData._currentColor);
-	quad.transform(xform);
+	quad.transform(gData.top() * xform);
 
 	quad._verts[0]._texcoord.set(u0, v0);
 	quad._verts[1]._texcoord.set(u1, v0);
@@ -251,6 +291,8 @@ MODULE_FUNCTION_DEF(draw_quad)
 		quad._verts[i]._texcoord.y = (float)luaL_checknumber(L, i*4 + 4);
 		quad._verts[i]._color.irgba = gData._currentColor.irgba;
 	}
+
+	quad.transform(gData.top());
 
 	CImageAsset* texture = opttexture(L, 17);
 	gData._material._baseTexture = texture != nullptr ? texture->getID() : 0;
@@ -285,6 +327,61 @@ MODULE_FUNCTION_DEF(draw_layer)
 }
 
 
+MODULE_FUNCTION_DEF(draw_push)
+{
+	QUICK_RENDERER_CHECK
+
+	if ( !gData.push() )
+		return luaL_error(L, "Draw matrix stack overflow");
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_pop)
+{
+	QUICK_RENDERER_CHECK
+
+	if ( !gData.pop() )
+		return luaL_error(L, "Draw matrix stack underflow");
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_translate)
+{
+	QUICK_RENDERER_CHECK
+
+	float x = (float) luaL_checknumber(L, 1);
+	float y = (float) luaL_checknumber(L, 2);
+
+	gData.top().translate(CVec2(x,y));
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_rotate)
+{
+	QUICK_RENDERER_CHECK
+
+	float r = (float) luaL_checknumber(L, 1);
+
+	gData.top().rotate(r);
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_scale)
+{
+	QUICK_RENDERER_CHECK
+
+	float sx = (float) luaL_checknumber(L, 1);
+	float sy = (float) luaL_checknumber(L, 2);
+
+	gData.top().scale(CVec2(sx,sy));
+
+	return 0;
+}
+
 static const luaL_Reg drawlib[] = {
 	{"color", draw_color},
 	{"rect", draw_rect},
@@ -292,6 +389,11 @@ static const luaL_Reg drawlib[] = {
 	{"quad", draw_quad},
 	{"size", draw_size},
 	{"layer", draw_layer},
+	{"push", draw_push},
+	{"pop", draw_pop},
+	{"translate", draw_translate},
+	{"rotate", draw_rotate},
+	{"scale", draw_scale},
 	{nullptr, nullptr}
 };
 
