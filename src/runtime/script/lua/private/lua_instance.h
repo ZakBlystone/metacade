@@ -56,6 +56,8 @@ public:
 
 	bool callHostFunction(const CFunctionCall& call, CVariant& returnValue);
 
+	CRandom& getRandom();
+
 private:
 	void createAssetRefTable(EAssetType type, const CString& prefix);
 
@@ -63,6 +65,7 @@ private:
 	shared_ptr<LuaVMReference> _object;
 	CInputState _state;
 	IGameInstance* _gameInstance;
+	CRandom _random;
 };
 
 }

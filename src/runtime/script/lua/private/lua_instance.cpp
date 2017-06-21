@@ -216,6 +216,50 @@ static int hostFunctionIndex(lua_State* L)
 	return 1;
 }
 
+static int instanceRandomSeed(lua_State* L)
+{
+	CLuaVMInstance* VM = (CLuaVMInstance*) lua_touserdata(L, lua_upvalueindex(1));
+
+	int32 seed = (int32) luaL_checkinteger(L, 1);
+	VM->getRandom().randomSeed( seed );
+
+	return 0;
+}
+
+static int instanceRandom(lua_State* L)
+{
+	CLuaVMInstance* VM = (CLuaVMInstance*) lua_touserdata(L, lua_upvalueindex(1));
+
+	switch( lua_gettop(L) )
+	{
+		case 0: //no arguments [0.0, 1.0]
+		lua_pushnumber(L, (lua_Number) VM->getRandom().randomFloat());
+		break;
+
+		case 1: //one argument [1, n]
+		{
+			int32 high = (int32) luaL_checkinteger(L, 1);
+			luaL_argcheck(L, 1 <= high, 1, "interval is empty");
+			lua_pushinteger(L, (lua_Integer) VM->getRandom().randomInt(1, high));
+			break;
+		}
+
+		case 2: //two arguments [low, high]
+		{
+			int32 low = (int32) luaL_checkinteger(L, 1);
+			int32 high = (int32) luaL_checkinteger(L, 2);
+			luaL_argcheck(L, low <= high, 2, "interval is empty");
+			lua_pushinteger(L, (lua_Integer) VM->getRandom().randomInt(low, high));
+			break;
+		}
+
+		default:
+		return luaL_error(L, "wrong number of arguments");
+	}
+
+	return 1;
+}
+
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
@@ -244,6 +288,16 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 
 	createAssetRefTable(ASSET_TEXTURE, "_t");
 	createAssetRefTable(ASSET_SOUND, "_s");
+
+	lua_getfield(L, -1, "math");
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, instanceRandomSeed, 1);
+	lua_setfield(L, -2, "randomseed");
+
+	lua_pushlightuserdata(L, this);
+	lua_pushcclosure(L, instanceRandom, 1);
+	lua_setfield(L, -2, "random");
+	lua_pop(L, 1);
 
 //meta table for indexing functions
 	lua_newtable(L);
@@ -453,4 +507,9 @@ bool CLuaVMInstance::callHostFunction(const CFunctionCall& call, CVariant& retur
 {
 	CGameInstance* instance = (CGameInstance*)(_gameInstance);
 	return instance->callHostFunction(call, returnValue);
+}
+
+CRandom& CLuaVMInstance::getRandom()
+{
+	return _random;
 }
