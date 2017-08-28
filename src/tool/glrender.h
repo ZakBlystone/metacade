@@ -47,6 +47,8 @@ public:
 	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) override;
 	virtual void freeTexture(class IRenderer* renderContext, ITexture* texture) override;
 
+	void setOffset(CVec2 offset);
+
 	//void renderGUI(struct ImDrawData* drawData);
 
 private:

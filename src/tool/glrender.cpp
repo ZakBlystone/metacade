@@ -39,11 +39,12 @@ static const GLchar *g_DefaultVertexSource =
 	"out vec4 Color;"
 	"out vec2 Texcoord;"
 	"uniform mat4 proj;"
+	"uniform vec2 off;"
 	"void main(void)"
 	"{"
 	" Color = color;"
 	" Texcoord = texcoord;"
-	" gl_Position = proj * vec4(position, 0.0, 1.0);"
+	" gl_Position = proj * vec4(position + off, 0.0, 1.0);"
 	"}";
 
 static const GLchar *g_DefaultFragmentSource =
@@ -68,10 +69,11 @@ static GLuint g_FragmentShader = 0;
 static GLuint g_VertexShader = 0;
 static GLuint g_DefaultShaderProgram = 0;
 static GLuint g_WhiteTexture = 0;
+static GLuint g_OffsetUniform = 0;
 
 CRendererGL::CRendererGL()
 {
-	glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+	glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 
 	glActiveTexture(GL_TEXTURE0);
 
@@ -103,6 +105,8 @@ CRendererGL::CRendererGL()
 		glBindFragDataLocation(g_DefaultShaderProgram, 0, "outColor");
 		glLinkProgram(g_DefaultShaderProgram);
 		glUseProgram(g_DefaultShaderProgram);
+
+		g_OffsetUniform = glGetUniformLocation(g_DefaultShaderProgram, "off");
 	}
 
 	glGenVertexArrays(1, &g_VAO);
@@ -171,6 +175,11 @@ void CRendererGL::reshape(int32 width, int32 height)
 
 	GLint uniformProjection = glGetUniformLocation(g_DefaultShaderProgram, "proj");
 	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, g_Projection.get());
+}
+
+void CRendererGL::setOffset(CVec2 offset)
+{
+	glUniform2f(g_OffsetUniform, offset.x, offset.y);
 }
 
 void CRendererGL::clear()
