@@ -7,35 +7,46 @@ Runtime:
    ☐ Figure out reverse mechanisim for game instances so hot-reloading will work
 
  General:
-   ☐ Fix memory leaks
-   ☐ Fix virtual destructors
+   ✔ Fix memory leaks @done (17-06-14 13:01)
+   ✔ Fix virtual destructors @done (17-06-13 16:33)
    ☐ Allocate memory using CRuntimeObject wherever possible
    ✔ Design Input system @done (17-05-18 05:36)
    ☐ Plan out entity management (should it be in VM, or on runtime)
-   ☐ Metadata CVariant support
+   ✔ Metadata CVariant support @done (17-06-08 15:57)
+   ✔ Rename UE4 shaders to something less stupid @done (17-06-22 16:47)
 
  VM:
    ✔ VM classes should use CRuntimeObject @done (17-05-18 05:41)
    ☐ VM function call threading to prevent lockups
    ☐ Seriously clean up the VM code
    ☐ Add error handling
+   ✔ Fix rendering crash when attempting to draw outside of draw() @done (17-06-20 18:19)
+   ✔ Function calls into host @done (17-06-09 16:20)
 
  Assets:
    ☐ Texture asset interface (texture->page)
-   ☐ Asset -> Variable interface (lua)
+   ✔ Asset -> Variable interface (lua) @done (17-05-18 20:12)
    ☐ Better name conformance on asset types 
 
  Rendering:
-   ☐ Fix clipping algorithm (probably just revert back to old version)
+   ✔ Fix clipping algorithm (probably just revert back to old version) @done (17-06-08 19:18)
+   ☐ Render scaling based on defined aspect ratio
+   ☐ Investigate conformance issue where additive blending looks different in Unreal
+   ✔ Investigate multiple texture loads in tool (possibly also in Unreal as a regression?) @done (17-06-13 15:48)
 
  Input:
-   ☐ Figure out Keymaps
+   ✔ Figure out Keymaps @done (17-05-20 07:01)
+   ☐ Map input coordinates to virtual resolutions
+
+ Sound:
+   ✔ Fix weird pitch bending on sound playback @done (17-06-08 17:06)
 
 Tool:
  General:
    ☐ Cleanup Tool code
    ✘ Design target system (target defines host parameters and capabilities) @cancelled (17-05-18 05:38)
    ☐ Function to make folder paths for new projects
+   ☐ Project folder configuration
 
  Projects:
    ✔ JSON loading @done (17-04-27 03:10)
