@@ -61,6 +61,11 @@ struct METACADE_API CVertex2D
 	inline CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
 	static void interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D& result, float fraction);
 
+	inline CVertex2D operator * (const CMatrix3& matrix) const
+	{
+		return CVertex2D(_position * matrix, _texcoord, _color);
+	}
+
 	CVertex3D to3D() const;
 
 	CVec2 _position;
