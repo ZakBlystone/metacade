@@ -166,6 +166,30 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 		return false;
 	}
 
+	for ( int32 i=0; i<locked->getNumAssets(); ++i )
+	{
+		CCodeAsset* lib = castAsset<CCodeAsset>( locked->getAsset(i) );
+		if ( lib && lib != luaMain )
+		{
+		
+			if (luaL_loadbuffer(L, lib->getCodeBuffer(), lib->getCodeLength(), *lib->getName()))
+			{
+				std::cout << "Lua: " << *lib->getName() << " : " << lua_tostring(L, -1) << std::endl;
+				lua_pop(L, 1);
+			}
+			else
+			{
+			
+				if (lua_pcall(L, 0, 0, 0)) {
+					std::cout << "Lua: " << lua_tostring(L, -1) << std::endl;
+					lua_pop(L, 1);
+				}
+
+			}
+
+		}
+	}
+
 	return true;
 }
 
