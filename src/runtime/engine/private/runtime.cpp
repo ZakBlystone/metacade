@@ -113,7 +113,7 @@ IPackageManager* CRuntime::getPackageManager()
 	return _packageManager.get();
 }
 
-IAllocator* CRuntime::getAllocator()
+IAllocator* CRuntime::getAllocator() const
 {
 	IAllocator *impl = _runtimeEnvironment->getAllocator();
 	if ( impl == nullptr ) impl = &gDefaultAllocator;
@@ -121,12 +121,12 @@ IAllocator* CRuntime::getAllocator()
 	return impl;
 }
 
-IFileSystem* CRuntime::getFilesystem()
+IFileSystem* CRuntime::getFilesystem() const
 {
 	return _runtimeEnvironment->getFileSystem();
 }
 
-ILogger* CRuntime::getLogger()
+ILogger* CRuntime::getLogger() const
 {
 	return _runtimeEnvironment->getLogger();
 }

@@ -37,9 +37,9 @@ CRuntimeObject::CRuntimeObject(CRuntimeObject* outer)
 }
 
 
-void CRuntimeObject::log(EMessageType type, const char* message, ...)
+void CRuntimeObject::log(EMessageType type, const char* message, ...) const
 {
-	CRuntime *runtime = (CRuntime* ) _runtime;
+	const CRuntime *runtime = (const CRuntime* ) _runtime;
 	va_list args;
 
 	va_start(args, message);
@@ -55,30 +55,30 @@ void CRuntimeObject::log(EMessageType type, const char* message, ...)
 	va_end(args);
 }
 
-void* CRuntimeObject::zalloc(uint32 size)
+void* CRuntimeObject::zalloc(uint32 size) const
 {
-	CRuntime *runtime = (CRuntime* ) _runtime;
+	const CRuntime *runtime = (const CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
 	return allocator->memrealloc(nullptr, size);
 }
 
-void* CRuntimeObject::zrealloc(void* pointer, uint32 size)
+void* CRuntimeObject::zrealloc(void* pointer, uint32 size) const
 {
-	CRuntime *runtime = (CRuntime* ) _runtime;
+	const CRuntime *runtime = (const CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
 	return allocator->memrealloc(pointer, size);
 }
 
-void CRuntimeObject::zfree(void* pointer)
+void CRuntimeObject::zfree(void* pointer) const
 {
-	CRuntime *runtime = (CRuntime* ) _runtime;
+	const CRuntime *runtime = (const CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
 	allocator->memfree(pointer);
 }
 
-void CRuntimeObject::zfree(const void* pointer)
+void CRuntimeObject::zfree(const void* pointer) const
 {
-	CRuntime *runtime = (CRuntime* ) _runtime;
+	const CRuntime *runtime = (const CRuntime* ) _runtime;
 	IAllocator* allocator = runtime->getAllocator();
 	allocator->memfree((void *) pointer);
 }

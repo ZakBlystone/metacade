@@ -50,10 +50,10 @@ protected:
 		zfree(obj);
 	}
 
-	void* zalloc(uint32 size);
-	void* zrealloc(void* pointer, uint32 size);
-	void zfree(void* pointer);
-	void zfree(const void* pointer);
+	void* zalloc(uint32 size) const;
+	void* zrealloc(void* pointer, uint32 size) const;
+	void zfree(void* pointer) const;
+	void zfree(const void* pointer) const;
 
 #ifdef ENGINE_PRIVATE
 
@@ -73,7 +73,7 @@ protected:
 		return (T*)asset; 
 	}
 
-	void log(EMessageType type, const char* message, ...);
+	void log(EMessageType type, const char* message, ...) const;
 
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);

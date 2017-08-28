@@ -52,9 +52,9 @@ public:
 
 	virtual IGameClass* getGameClassForPackage(IPackage* package);
 
-	IAllocator* getAllocator();
-	IFileSystem* getFilesystem();
-	ILogger* getLogger();
+	IAllocator* getAllocator() const;
+	IFileSystem* getFilesystem() const;
+	ILogger* getLogger() const;
 
 	bool filesystemTest();
 
