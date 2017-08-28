@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-assetmap.h:
+assetmap.h: A collection of assets that can be saved and loaded
 ===============================================================================
 */
 
@@ -34,6 +34,8 @@ public:
 	CAssetMap(CRuntimeObject* outer);
 	~CAssetMap();
 
+	//An asset load handle is used to keep assets in memory until it is destructed
+	//This allows multiple packages to hang on to shared assets
 	class CAssetLoadHandle
 	{
 	public:
@@ -56,6 +58,8 @@ public:
 
 	#pragma pack(push, 1)
 
+	//An asset locator tracks information about an asset in a file
+	//i.e. size, type, offset in file, name
 	struct CAssetLocator
 	{
 		CAssetLocator(IFileObject* obj = nullptr, IAsset* asset = nullptr)

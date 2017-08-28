@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-assetmap.cpp:
+assetmap.cpp: A collection of assets that can be saved and loaded
 ===============================================================================
 */
 
@@ -137,6 +137,7 @@ bool CAssetMap::save(IFileObject* file)
 	return true;
 }
 
+//Loads asset listing, does not actually load in asset data
 bool CAssetMap::load(IFileObject* file)
 {
 	_map.clear();
@@ -145,15 +146,20 @@ bool CAssetMap::load(IFileObject* file)
 	_locators.clear();
 
 	uint32 numAssets;
+
+	//Get the total number of assets in the file
 	if ( !file->read(&numAssets, sizeof(uint32)) ) 
 	{
 		log(LOG_ERROR, "Failed to read asset count on package");
 		return false;
 	}
 
+	//Loop over each asset and build locators
 	for ( uint32 i=0; i<numAssets; ++i )
 	{
 		CAssetLocator locator;
+
+		//Read in a locator entry and store it in the locator vector
 		if ( !file->read(&locator, sizeof(CAssetLocator)) ) 
 		{
 			log(LOG_ERROR, "Failed to read asset locator on package");
@@ -162,6 +168,7 @@ bool CAssetMap::load(IFileObject* file)
 
 		_locators.push_back(locator);
 
+		//Construct the appropriate asset based on the type denoted in the locator
 		shared_ptr<IAsset> asset = nullptr;
 		switch(locator._type)
 		{
@@ -179,6 +186,7 @@ bool CAssetMap::load(IFileObject* file)
 			return false;
 		}
 
+		//Read asset name from file if it is not anonymous
 		if ( locator._isNamed )
 		{
 			CString assetName;
@@ -186,15 +194,18 @@ bool CAssetMap::load(IFileObject* file)
 			asset->setName(assetName);
 		}
 
+		//Store the unique id on the asset
 		asset->setUniqueID(locator._id);
 		log(LOG_MESSAGE, "Preload asset with GUID %s", asset->getUniqueID().tostring());
 
+		//Add asset to map
 		add(asset);
 	}
 
 	return true;
 }
 
+//Loads in actual asset data using the asset locators
 shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 {
 	if ( _assetsLoaded ) return nullptr;
@@ -204,14 +215,17 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 		log(LOG_MESSAGE, "MAPPED: %s : 0x%X", pair.first.tostring(), pair.second.get() );
 	}
 
+	//Loop over all asset locators
 	for ( uint32 i=0; i<_locators.size(); ++i )
 	{
 		CAssetLocator &locator = _locators[i];
 
 		log(LOG_MESSAGE, "Load asset at offset: 0x%X", locator._offset);
 
+		//Seek to the asset data in file
 		if ( !file->seek(locator._offset) ) return nullptr;
 
+		//Find the appropriate asset object given the unique id stored in the locator
 		auto found = _map.find(locator._id);
 		if ( found == _map.end() ) 
 		{
@@ -219,14 +233,17 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 			return nullptr;
 		}
 
+		//Call load function on asset object
 		shared_ptr<IAsset> asset = (*found).second;
 		if ( !asset->load(file) ) return nullptr;
 
+		//Set asset to loaded
 		asset->setLoaded(true);
 	}
 
 	_assetsLoaded = true;
 
+	//Create an asset load handle
 	class CEnableAssetLoadHandle : public CAssetLoadHandle
 	{
 	public:
@@ -242,6 +259,7 @@ bool CAssetMap::hasLoadedAssets() const
 	return _assetsLoaded;
 }
 
+//Release all memory held by assets
 void CAssetMap::releaseAssets()
 {
 	if ( !_assetsLoaded ) return;
