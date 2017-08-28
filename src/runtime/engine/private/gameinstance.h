@@ -52,6 +52,8 @@ public:
 	virtual void setHostCallbacks(IHostCallbacks* callbacks) override;
 
 	bool callHostFunction(const CFunctionCall& call, CVariant& returnValue);
+	bool initializeParameters();
+	shared_ptr<CPackage> getPackage() const;
 
 private:
 	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
@@ -67,14 +69,18 @@ private:
 	map<IRenderer*, vector<ITexture* >*> _loadedTextures;
 
 	vector<ITexture*>* getTextureList(IRenderer* renderer, bool newOnly = false);
-
 	vector<ITexture*> _mainLoadedTextures;
 
 	CInputState _inputState;
+	CVec2 _desiredResolution;
+	bool _hasDesiredResolution;
 
 	float _lastTime;
 
 	IHostCallbacks *_callbacks;
+
+	CMatrix3 calculateAspectMatrix(const CVec2& viewport, const CVec2& desired) const;
+	CMatrix3 getAspectMatrixForViewport(const CVec2& viewport) const;
 };
 
 }

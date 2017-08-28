@@ -61,8 +61,10 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 	, _elementRenderer(make_shared<CElementRenderer>(this))
 	, _lastTime(0.f)
 	, _defaultWhiteImage(make_shared<CWhiteImage>())
+	, _hasDesiredResolution(false)
 	, _callbacks(nullptr)
 {
+	initializeParameters();
 	_vmInstance->setGameInstance(this);
 }
 
@@ -104,7 +106,14 @@ void CGameInstance::think(float time)
 
 void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID /*= 0*/)
 {
-	_elementRenderer->setViewSize(viewportSize);
+	CVec2 renderSize = _hasDesiredResolution ? _desiredResolution : viewportSize;
+
+	if ( _hasDesiredResolution )
+	{
+		_elementRenderer->setViewportTransform( getAspectMatrixForViewport(viewportSize) );
+	}
+
+	_elementRenderer->setViewSize(renderSize);
 	_elementRenderer->beginFrame();
 
 	float frac = 0.7f; //(sinf(_lastTime) + 1.f) / 2.f;
@@ -112,8 +121,8 @@ void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targe
 	CClipShape viewClip;
 	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
 	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
-	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportSize.x,0)));
-	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportSize.y)));
+	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(renderSize.x,0)));
+	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,renderSize.y)));
 
 	/*float cx = viewportSize.x / 2.f + cosf(_lastTime) * 200.f;
 	float cy = viewportSize.y / 2.f + sinf(_lastTime) * 200.f;
@@ -149,14 +158,8 @@ void CGameInstance::initializeRenderer(IRenderer* renderer)
 	if ( base == nullptr ) return;
 	textureList->push_back(base);
 
-	shared_ptr<CGameClass> klass = _klass.lock();
-	if ( klass == nullptr ) return;
-	
-	weak_ptr<CPackage> pkg = klass->getPackage();
-	if ( pkg.expired() ) return;
-
-	shared_ptr<CPackage> lockedpkg = pkg.lock();
-
+	shared_ptr<CPackage> lockedpkg = getPackage();
+	if ( lockedpkg == nullptr ) return;
 	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
 	{
 		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
@@ -216,13 +219,8 @@ void Arcade::CGameInstance::initializeTextures(class ITextureProvider* provider)
 	if ( base == nullptr ) return;
 	_mainLoadedTextures.push_back(base);
 
-	shared_ptr<CGameClass> klass = _klass.lock();
-	if ( klass == nullptr ) return;
-	
-	weak_ptr<CPackage> pkg = klass->getPackage();
-	if ( pkg.expired() ) return;
-
-	shared_ptr<CPackage> lockedpkg = pkg.lock();
+	shared_ptr<CPackage> lockedpkg = getPackage();
+	if ( lockedpkg == nullptr ) return;
 	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
 	{
 		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
@@ -269,4 +267,67 @@ bool CGameInstance::callHostFunction(const CFunctionCall& call, CVariant& return
 		return _callbacks->handleHostFunctionCall(call, returnValue);
 	}
 	return true;
+}
+
+bool CGameInstance::initializeParameters()
+{
+	shared_ptr<CPackage> lockedpkg = getPackage();
+	if ( !lockedpkg ) return false;
+
+	auto renderWidth = lockedpkg->getMetaData()->getValue("width");
+	auto renderHeight = lockedpkg->getMetaData()->getValue("height");
+	
+	int32 rx = 0;
+	int32 ry = 0;
+
+	if ( renderWidth.get(rx) && renderHeight.get(ry) )
+	{
+		_desiredResolution.set( (float)rx, (float)ry );
+		_hasDesiredResolution = true;
+	}
+
+	return true;
+}
+
+shared_ptr<CPackage> CGameInstance::getPackage() const
+{
+	shared_ptr<CGameClass> klass = _klass.lock();
+	if ( klass == nullptr ) return nullptr;
+	
+	weak_ptr<CPackage> pkg = klass->getPackage();
+	if ( pkg.expired() ) return nullptr;
+	return pkg.lock();
+}
+
+CMatrix3 CGameInstance::calculateAspectMatrix(const CVec2& viewport, const CVec2& desired) const
+{
+	CMatrix3 viewMatrix;
+
+	float src_aspect = viewport.x / viewport.y;
+	float dst_aspect = desired.x / desired.y;
+
+	if ( src_aspect >= dst_aspect )
+	{
+		float difference = viewport.y / desired.y;
+		viewMatrix(0,0) = difference;
+		viewMatrix(1,1) = difference;
+		viewMatrix(0,2) = (viewport.x - (desired.x * viewMatrix(0,0))) / 2.f;
+	}
+	else
+	{
+		float difference = viewport.x / desired.x;
+		viewMatrix(0,0) = difference;
+		viewMatrix(1,1) = difference;
+		viewMatrix(1,2) = (viewport.y - (desired.y * viewMatrix(1,1))) / 2.f;
+	}
+	return viewMatrix;
+}
+
+CMatrix3 CGameInstance::getAspectMatrixForViewport(const CVec2& viewport) const
+{
+	if ( _hasDesiredResolution )
+	{
+		return calculateAspectMatrix(viewport, _desiredResolution);
+	}
+	return CMatrix3();
 }

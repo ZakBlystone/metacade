@@ -122,7 +122,7 @@ void CElementRenderer::writePolygonToBufferAsTris(const CVertex2D* verts, uint32
 	if ( num <= 2) return; //not enough points
 	for ( uint32 i=0; i<num; ++i )
 	{
-		_renderBuffer->addVertex(verts[i]);
+		_renderBuffer->addVertex(verts[i] * _viewportTransform);
 	}
 
 	for ( uint32 i=1; i<num-1; ++i )
@@ -231,4 +231,14 @@ void Arcade::CElementRenderer::setViewportClip(const CClipShape& clip)
 Arcade::CVec2 Arcade::CElementRenderer::getViewSize() const
 {
 	return _viewSize;
+}
+
+void CElementRenderer::setViewportTransform(const CMatrix3& matrix)
+{
+	_viewportTransform = matrix;
+}
+
+CMatrix3 CElementRenderer::getViewportTransform() const
+{
+	return _viewportTransform;
 }

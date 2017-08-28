@@ -47,6 +47,9 @@ public:
 
 	void endFrame();
 
+	void setViewportTransform(const CMatrix3& matrix);
+	CMatrix3 getViewportTransform() const;
+
 	const shared_ptr<CDrawBuffer> getDrawBuffer() const;
 
 private:
@@ -60,6 +63,7 @@ private:
 	shared_ptr<CRenderBuffer> _renderBuffer;
 	shared_ptr<CDrawBuffer> _drawBuffer;
 
+	CMatrix3 _viewportTransform;
 	CClipShape _viewClip;
 	CVec2 _viewSize;
 	CRenderState _currentRenderState;
