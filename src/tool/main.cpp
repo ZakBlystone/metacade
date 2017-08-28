@@ -65,6 +65,11 @@ static IRuntime* runtime = nullptr;
 static IPackage* loadedPackage = nullptr;
 static IGameClass* loadedGameClass = nullptr;
 static IGameInstance* instance = nullptr;
+static IGameInstance* instance2 = nullptr;
+
+static bool demoRecord = false;
+static bool demoPlayback = false;
+static uint32 demoFrame = 0;
 
 static void sndCallback(void* userdata, uint8* stream, int32 len)
 {
@@ -155,6 +160,8 @@ static int initOpenGLAndWindow()
 	return 0;
 }
 
+static const float UI_SPLIT = .7f;
+
 static void immediateUI(int32 width, int32 height)
 {
 	static bool bNewPackageDialog = false;
@@ -213,7 +220,7 @@ static void immediateUI(int32 width, int32 height)
 		ImGui::EndPopup();
 	}
 
-	int32 sizeX = width / 2;
+	int32 sizeX = width * (1.f - UI_SPLIT);
 	int32 sizeY = height;
 	int32 posX = width - sizeX;
 
@@ -227,24 +234,34 @@ static void immediateUI(int32 width, int32 height)
 		| ImGuiWindowFlags_NoTitleBar)
 		)
 	{
+		if ( demoPlayback )
+		{
+			ImGui::TextColored(ImVec4(0.f,1.f,0.f,1.f), "PLAY DEMO frame %i", demoFrame);
+		}
+
+		if ( demoRecord )
+		{
+			ImGui::TextColored(ImVec4(1.f,0.f,0.f,1.f), "RECORD DEMO frame %i", demoFrame);
+		}
+
 		if ( loadedPackage )
 		{
-			ImGui::Text("%s:", *loadedPackage->getPackageName());
+			ImGui::TextWrapped("%s:", *loadedPackage->getPackageName());
 			ImGui::Separator();
 
 			const IMetaData* data = loadedPackage->getMetaData();
 			for ( uint32 i=0; i<data->getNumKeys(); ++i )
 			{
-				ImGui::Text("%s: %s", *data->getKey(i), *data->getValue(i).toString());
+				ImGui::TextWrapped("%s: %s", *data->getKey(i), *data->getValue(i).toString());
 			}
 			ImGui::Separator();
-
+			ImGui::Text("Assets:");
 			for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
 			{
 				IAsset* asset = loadedPackage->getAsset(i).get(runtime);
-				ImGui::Button("|");
-				ImGui::SameLine();
-				ImGui::Text("%s { %s }", *asset->getName(), asset->getUniqueID().tostring());
+				//ImGui::Button("|");
+				//ImGui::SameLine();
+				ImGui::Text("  %s", *asset->getName());
 			}
 		}
 
@@ -254,16 +271,88 @@ static void immediateUI(int32 width, int32 height)
 	//ImGui::End();
 }
 
+typedef vector<CInputEvent> EventBuffer;
+
+void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& events)
+{
+	if ( evt.type == SDL_MOUSEMOTION )
+	{
+		CInputState state;
+		state.setMousePosition(evt.motion.x, evt.motion.y - 20);
+		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
+		state.generateEvents(baseline, [&events](const CInputEvent &ev) mutable
+		{
+			events.push_back(ev);
+		});
+		baseline.merge(state);
+	}
+
+	if ( evt.type == SDL_MOUSEBUTTONDOWN || evt.type == SDL_MOUSEBUTTONUP )
+	{
+		CInputState state;
+		uint32 mouseButtons = SDL_GetMouseState(NULL, NULL);
+		state.setMouseButton(EMouseButton::MOUSE_BUTTON_LEFT, (mouseButtons & SDL_BUTTON_LMASK) != 0);
+		state.setMouseButton(EMouseButton::MOUSE_BUTTON_RIGHT, (mouseButtons & SDL_BUTTON_RMASK) != 0);
+		state.setMouseButton(EMouseButton::MOUSE_BUTTON_MIDDLE, (mouseButtons & SDL_BUTTON_MMASK) != 0);
+		state.setMouseButton(EMouseButton::MOUSE_BUTTON_X1, (mouseButtons & SDL_BUTTON_X1MASK) != 0);
+		state.setMouseButton(EMouseButton::MOUSE_BUTTON_X2, (mouseButtons & SDL_BUTTON_X2MASK) != 0);
+		state.generateEvents(baseline, [&events](const CInputEvent &ev) mutable
+		{
+			events.push_back(ev);
+		});
+		baseline.merge(state);
+	}
+
+	if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
+	{
+		CInputEvent ev = CInputEvent::generateKeyEvent(evt.key.keysym.scancode, evt.type == SDL_KEYDOWN);
+		events.push_back(ev);
+		baseline.applyEvent(ev);
+	}
+}
+
 static int start(int argc, char *argv[])
 {
+	uint32 nextAvailableDemoFrame = 0;
+	CString runPackage;
+
 	if ( argc < 2 ) 
 	{
 		std::cout << "Usage: tool <project name>" << std::endl;	
 		return 0;
 	}
 
+	if ( argc > 1 )
+	{
+		CString xarg(argv[1]);
+		if ( xarg.endsWith(".mpkg") )
+		{
+			runPackage = xarg;
+		}
+	}
+
+	if ( argc > 2 )
+	{
+		CString xarg(argv[2]);
+		if ( xarg == "-record" ) demoRecord = true;
+		if ( xarg == "-play" ) demoPlayback = true;
+	}
+
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
-	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects"); //"../../projects");
+	//shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects"); //"../../projects");
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects");
+
+	IFileObject* demoFile = nullptr;
+
+	if ( demoRecord )
+	{
+		demoFile = native->getFileSystem()->openFile("demo.dat", FILE_WRITE);
+	}
+	else if ( demoPlayback )
+	{
+		demoFile = native->getFileSystem()->openFile("demo.dat", FILE_READ);
+		demoFile->read(&nextAvailableDemoFrame, sizeof(uint32));
+	}
 
 	if ( Arcade::create(&runtime) && runtime->initialize(native.get()) )
 	{
@@ -279,21 +368,41 @@ static int start(int argc, char *argv[])
 	packmanager->setRootDirectory(".");
 	packmanager->findAndPreloadPackages();
 
-	//PROJECT STUFF
-	vector<CProject> projects;
-	projectManager->enumerateProjectFolders(projects);
+	shared_ptr<CProject> targetProject = nullptr;
 
-	CProject targetProject = projects[0];
-	for ( CProject& p : projects )
+	if ( runPackage.empty() )
 	{
-		if ( p.getProjectName() == CString(argv[1]) )
-			targetProject = p;
+		//PROJECT STUFF
+		vector<CProject> projects;
+		projectManager->enumerateProjectFolders(projects);
+
+		for ( CProject& p : projects )
+		{
+			if ( p.getProjectName() == CString(argv[1]) )
+				targetProject = make_shared<CProject>(p);
+		}
+
+		//projectManager->saveProjectAs(targetProject, "killer.mproject");
+
+		if ( targetProject == nullptr )
+		{
+			std::cout << "No project" << std::endl;
+			return 0;
+		}
+
+		IPackage* pkg = targetProject->buildPackage(runtime);
+		loadedPackage = pkg;
 	}
+	else
+	{
+		loadedPackage = packmanager->getPackageByName(runPackage.chopRight(5));
 
-	//projectManager->saveProjectAs(targetProject, "killer.mproject");
-
-	IPackage* pkg = targetProject.buildPackage(runtime);
-	loadedPackage = pkg;
+		if ( loadedPackage == nullptr )
+		{
+			std::cout << "Unable to load package " << runPackage.get() << std::endl;
+			return 0;
+		}
+	}
 
 	if ( initOpenGLAndWindow() || initSound() ) return 1;
 
@@ -306,7 +415,7 @@ static int start(int argc, char *argv[])
 	mixerSettings.maxChannels = 64;
 
 	{
-		loadedGameClass = runtime->getGameClassForPackage(pkg);
+		loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
 		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance) )
 		{
@@ -314,6 +423,12 @@ static int start(int argc, char *argv[])
 			instance->initSoundMixer(mixerSettings);
 			instance->init();
 		}
+
+		/*if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
+		{
+			instance2->initializeRenderer(renderer.get());
+			instance2->init();
+		}*/
 	}
 
 
@@ -321,8 +436,13 @@ static int start(int argc, char *argv[])
 	float height = 720.f;
 	bool paused = false;
 	bool running = true;
+	bool fastForward = false;
 	float lastTime = 0;
 	float deltaSeconds = 0;
+	float fixedTime = 0;
+	float fakeTime = 0;
+	EventBuffer events;
+	CInputState baseline;
 	while (running)
 	{
 		SDL_PumpEvents();
@@ -347,30 +467,16 @@ static int start(int argc, char *argv[])
 				}
 			}
 
-			if ( evt.type == SDL_MOUSEMOTION )
-			{
-				CInputState state;
-				state.setMousePosition(evt.motion.x, evt.motion.y - 20);
-				state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
-				if ( instance != nullptr ) instance->postInputState(state);
-			}
-
-			if ( evt.type == SDL_MOUSEBUTTONDOWN || evt.type == SDL_MOUSEBUTTONUP )
-			{
-				CInputState state;
-				uint32 mouseButtons = SDL_GetMouseState(NULL, NULL);
-				state.setMouseButton(EMouseButton::MOUSE_BUTTON_LEFT, (mouseButtons & SDL_BUTTON_LMASK) != 0);
-				state.setMouseButton(EMouseButton::MOUSE_BUTTON_RIGHT, (mouseButtons & SDL_BUTTON_RMASK) != 0);
-				state.setMouseButton(EMouseButton::MOUSE_BUTTON_MIDDLE, (mouseButtons & SDL_BUTTON_MMASK) != 0);
-				state.setMouseButton(EMouseButton::MOUSE_BUTTON_X1, (mouseButtons & SDL_BUTTON_X1MASK) != 0);
-				state.setMouseButton(EMouseButton::MOUSE_BUTTON_X2, (mouseButtons & SDL_BUTTON_X2MASK) != 0);
-				if ( instance != nullptr ) instance->postInputState(state);
-			}
-
 			if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
 			{
-				if ( instance != nullptr ) instance->postInputEvent(CInputEvent::generateKeyEvent(evt.key.keysym.scancode, evt.type == SDL_KEYDOWN));
+				if ( evt.key.keysym.sym == SDLK_F1 )
+				{
+					fastForward = evt.type == SDL_KEYDOWN;
+					continue;
+				}
 			}
+
+			if ( !demoPlayback ) processSDLInputs(evt, baseline, events);
 
 			if ( evt.type == SDL_KEYDOWN )
 			{
@@ -385,7 +491,10 @@ static int start(int argc, char *argv[])
 					}
 					SDL_UnlockMutex(sndMutex);
 
-					loadedPackage = targetProject.buildPackage(runtime);
+					if ( targetProject != nullptr )
+					{
+						loadedPackage = targetProject->buildPackage(runtime);
+					}
 					loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
 
 					SDL_LockMutex(sndMutex);
@@ -409,11 +518,76 @@ static int start(int argc, char *argv[])
 		deltaSeconds = time - lastTime;
 		lastTime = time;
 
+		fakeTime = fakeTime + deltaSeconds;
+
+		if ( fastForward )
+		{
+			fakeTime = fakeTime + deltaSeconds * 2.f;
+		}
+
+		while ( fixedTime < fakeTime )
+		{
+			if ( demoRecord || demoPlayback )
+			{
+				++demoFrame;
+			}
+
+			uint8 numEvents = (uint8) (events.size() & 0xFF);
+			if ( demoRecord && numEvents > 0 )
+			{
+				demoFile->write( &demoFrame, sizeof(uint32) );
+				demoFile->write( &numEvents, sizeof(uint8) );
+
+				for ( uint32 i=0; i<numEvents; ++i )
+				{
+					CInputEvent& ev = events[i];
+					demoFile->write( &ev, sizeof(CInputEvent) );
+				}
+			}
+
+			if ( demoPlayback && nextAvailableDemoFrame == demoFrame )
+			{
+				uint8 numEvents;
+				demoFile->read( &numEvents, sizeof(uint8) );
+
+				for ( uint32 i=0; i<numEvents; ++i )
+				{
+					CInputEvent ev = CInputEvent::generateKeyEvent(0,false);
+					demoFile->read( &ev, sizeof(CInputEvent) );
+					events.push_back(ev);
+				}
+
+				if ( !demoFile->read(&nextAvailableDemoFrame, sizeof(uint32)) )
+				{
+					demoPlayback = false;
+				}
+			}
+
+			for ( CInputEvent& ev : events )
+			{
+				instance->postInputEvent(ev);
+				//instance2->postInputEvent(ev);
+			}
+			events.clear();
+
+			fixedTime += 1.f / 60.f;
+			if ( instance != nullptr ) instance->think(fixedTime);
+			//if ( instance2 != nullptr ) instance2->think(fixedTime);
+		}
+
 		if ( instance != nullptr ) 
 		{
-			instance->think(time);
-			instance->render(renderer.get(), CVec2(400,300));
+			instance->render(renderer.get(), CVec2(width * UI_SPLIT,height - 20.f));
 		}
+
+		//renderer->setOffset(CVec2(0,300.f));
+
+		/*if ( instance2 != nullptr ) 
+		{
+			instance2->render(renderer.get(), CVec2(400,300));
+		}*/
+
+		//renderer->setOffset(CVec2(0,0.f));
 
 		immediateUI(width, height);
 
@@ -430,6 +604,11 @@ static int start(int argc, char *argv[])
 	{
 		instance->finishRenderer(renderer.get());
 		loadedGameClass->deleteInstance( instance );
+	}
+
+	if ( demoFile != nullptr )
+	{
+		native->getFileSystem()->closeFile(demoFile);
 	}
 
 	Arcade::destroy(runtime);
