@@ -142,7 +142,13 @@ static int initOpenGLAndWindow()
 	SDL_Init(SDL_INIT_EVERYTHING | SDL_INIT_EVENTS);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); //double buffering
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);  //24-bit depth buffer
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); //4x multi-sampling for pretty lines
+
+	//Disabling multi-sampling because samples miss geometry in weird ways causing line artifacts
+	//SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4); //4x multi-sampling for pretty lines
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	window = SDL_CreateWindow("Arcade", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (!window) return onError("Failed To Init SDL_Window");
@@ -153,7 +159,12 @@ static int initOpenGLAndWindow()
 	checkError(__LINE__);
 	SDL_GL_SetSwapInterval(1);
 
-	glewInit();
+	glewExperimental = GL_TRUE;
+	GLenum err = glewInit();
+	if (err != GLEW_OK)
+	{
+		return onError((const char*) glewGetErrorString(err));
+	}
 
 	ImGui_ImplSdlGL3_Init(window);
 
