@@ -160,18 +160,31 @@ static int initOpenGLAndWindow()
 	return 0;
 }
 
+struct CUIState
+{
+	float fUIRolloutFraction;
+	bool bShowInfo;
+	bool bNewPackageDialog;
+
+	CUIState()
+		: fUIRolloutFraction(1.f)
+		, bShowInfo(true)
+		, bNewPackageDialog(false)
+	{}
+};
+
+static CUIState g_UIState;
+
 static const float UI_SPLIT = .7f;
 
-static void immediateUI(int32 width, int32 height)
+static void immediateUI(int32 width, int32 height, float deltatime)
 {
-	static bool bNewPackageDialog = false;
-
 	if ( ImGui::BeginMainMenuBar() )
 	{
 		if ( ImGui::BeginMenu("File") )
 		{
 			if ( ImGui::MenuItem("New Package") ) 
-				bNewPackageDialog = true;
+				g_UIState.bNewPackageDialog = true;
 
 			if ( ImGui::MenuItem("Open Package") )
 			{
@@ -180,12 +193,27 @@ static void immediateUI(int32 width, int32 height)
 			ImGui::EndMenu();
 		}
 
+		if ( ImGui::BeginMenu("View") )
+		{
+			ImGui::MenuItem("Show Info", NULL, &g_UIState.bShowInfo, true);
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 	}
 
-	if ( bNewPackageDialog )
+	if ( g_UIState.bShowInfo )
 	{
-		bNewPackageDialog = false;
+		g_UIState.fUIRolloutFraction = min( g_UIState.fUIRolloutFraction + deltatime * 2.f, 1.f );
+	}
+	else
+	{
+		g_UIState.fUIRolloutFraction = max( g_UIState.fUIRolloutFraction - deltatime * 2.f, 0.f );
+	}
+
+	if ( g_UIState.bNewPackageDialog )
+	{
+		g_UIState.bNewPackageDialog = false;
 		ImGui::OpenPopup("NewPackage");
 	}
 
@@ -220,52 +248,57 @@ static void immediateUI(int32 width, int32 height)
 		ImGui::EndPopup();
 	}
 
-	int32 sizeX = width * (1.f - UI_SPLIT);
-	int32 sizeY = height;
-	int32 posX = width - sizeX;
-
-	ImGui::SetNextWindowPos(ImVec2(posX,20.f));
-	ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY - 20));
-
-	if ( ImGui::Begin("ArcadeTool", nullptr
-		, ImGuiWindowFlags_NoMove 
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoSavedSettings
-		| ImGuiWindowFlags_NoTitleBar)
-		)
+	if ( g_UIState.fUIRolloutFraction > 0.f )
 	{
-		if ( demoPlayback )
-		{
-			ImGui::TextColored(ImVec4(0.f,1.f,0.f,1.f), "PLAY DEMO frame %i", demoFrame);
-		}
 
-		if ( demoRecord )
-		{
-			ImGui::TextColored(ImVec4(1.f,0.f,0.f,1.f), "RECORD DEMO frame %i", demoFrame);
-		}
+		int32 sizeX = width * (1.f - UI_SPLIT);
+		int32 sizeY = height;
+		int32 posX = width - sizeX * g_UIState.fUIRolloutFraction;
 
-		if ( loadedPackage )
-		{
-			ImGui::TextWrapped("%s:", *loadedPackage->getPackageName());
-			ImGui::Separator();
+		ImGui::SetNextWindowPos(ImVec2(posX,20.f));
+		ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY - 20));
 
-			const IMetaData* data = loadedPackage->getMetaData();
-			for ( uint32 i=0; i<data->getNumKeys(); ++i )
+		if ( ImGui::Begin("ArcadeTool", nullptr
+			, ImGuiWindowFlags_NoMove 
+			| ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoSavedSettings
+			| ImGuiWindowFlags_NoTitleBar)
+			)
+		{
+			if ( demoPlayback )
 			{
-				ImGui::TextWrapped("%s: %s", *data->getKey(i), *data->getValue(i).toString());
+				ImGui::TextColored(ImVec4(0.f,1.f,0.f,1.f), "PLAY DEMO frame %i", demoFrame);
 			}
-			ImGui::Separator();
-			ImGui::Text("Assets:");
-			for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
+
+			if ( demoRecord )
 			{
-				IAsset* asset = loadedPackage->getAsset(i).get(runtime);
-				//ImGui::Button("|");
-				//ImGui::SameLine();
-				ImGui::Text("  %s", *asset->getName());
+				ImGui::TextColored(ImVec4(1.f,0.f,0.f,1.f), "RECORD DEMO frame %i", demoFrame);
 			}
+
+			if ( loadedPackage )
+			{
+				ImGui::TextWrapped("%s:", *loadedPackage->getPackageName());
+				ImGui::Separator();
+
+				const IMetaData* data = loadedPackage->getMetaData();
+				for ( uint32 i=0; i<data->getNumKeys(); ++i )
+				{
+					ImGui::TextWrapped("%s: %s", *data->getKey(i), *data->getValue(i).toString());
+				}
+				ImGui::Separator();
+				ImGui::Text("Assets:");
+				for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
+				{
+					IAsset* asset = loadedPackage->getAsset(i).get(runtime);
+					//ImGui::Button("|");
+					//ImGui::SameLine();
+					ImGui::Text("  %s", *asset->getName());
+				}
+			}
+
+			ImGui::End();
 		}
 
-		ImGui::End();
 	}
 
 	//ImGui::End();
@@ -340,7 +373,7 @@ static int start(int argc, char *argv[])
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 	//shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects"); //"../../projects");
-	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "E:/Projects/metacade/projects");
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "D:/Projects/metacade/projects");
 
 	IFileObject* demoFile = nullptr;
 
@@ -577,7 +610,8 @@ static int start(int argc, char *argv[])
 
 		if ( instance != nullptr ) 
 		{
-			instance->render(renderer.get(), CVec2(width * UI_SPLIT,height - 20.f));
+			float w = (width * UI_SPLIT) * g_UIState.fUIRolloutFraction + width * (1.f - g_UIState.fUIRolloutFraction);
+			instance->render(renderer.get(), CVec2(w,height - 20.f));
 		}
 
 		//renderer->setOffset(CVec2(0,300.f));
@@ -589,7 +623,7 @@ static int start(int argc, char *argv[])
 
 		//renderer->setOffset(CVec2(0,0.f));
 
-		immediateUI(width, height);
+		immediateUI(width, height, deltaSeconds);
 
 		ImGui::Render();
 
