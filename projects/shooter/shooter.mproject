@@ -1,0 +1,37 @@
+{
+	"meta": {
+		"name": "shooter",
+		"game": "Shooter Game",
+		"author": "Zak",
+		"description": "Basic shooter type game for shooting",
+		"width": 400,
+		"height": 300
+	},
+	"scripts": {
+		"main": "main.lua"
+	},
+	"textures": {
+		"ship0": "ship0.png",
+		"ship1": "ship1.png",
+		"shipmask": "ship_mask.png",
+		"enemy0": "enemy0.png",
+		"enemy1": "enemy1.png",
+		"enemymask": "enemy_mask.png",
+		"explode": "explode.png",
+		"shoot": "shoot.png",
+		"shoot2": "shoot2.png",
+		"clouds": "bg_clouds.png -wrap-x -wrap-y",
+		"stars": "stars.png -wrap-x -wrap-y"
+	},
+	"sounds": {
+		"bloop": "bloop.wav",
+		"dead": "dead.wav",
+		"hit": "hit.wav",
+		"shoot": "shoot.wav",
+		"shoot2": "shoot2.wav",
+		"splode": "splode.wav",
+		"warning": "warning.wav",
+		"woosh": "woosh.wav",
+		"music": "music.wav"
+	}
+}
