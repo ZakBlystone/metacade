@@ -161,7 +161,7 @@ MODULE_FUNCTION_DEF(draw_rect)
 	float cx = x + hw;
 	float cy = y + hh;
 
-	int32 ccheck = 0;
+	/*int32 ccheck = 0;
 	for (int32 i=0; i<gData._viewClip.getNumPlanes(); ++i )
 	{
 		const CHalfPlane& p = gData._viewClip.getHalfPlane(i);
@@ -177,7 +177,7 @@ MODULE_FUNCTION_DEF(draw_rect)
 		{
 			++ccheck;
 		}
-	}
+	}*/
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
 	//gData._material._baseTexture = t;
@@ -187,17 +187,17 @@ MODULE_FUNCTION_DEF(draw_rect)
 
 	CVertex2D* verts = nullptr;
 	CRenderQuad* quad = nullptr;
-	if ( ccheck == 0 )
+	/*if ( ccheck == 0 )
 	{
 		static CClipShape empty;
 		quad = &el.makeQuad2(empty, gData, gData._layer);
 		verts = quad->_verts;
 	}
 	else
-	{	
+	{*/	
 		quad = &el.makeQuad2(gData._viewClip, gData, gData._layer);
 		verts = quad->_verts;
-	}
+	//}
 
 	verts[0]._position.x = x;
 	verts[0]._position.y = y;
