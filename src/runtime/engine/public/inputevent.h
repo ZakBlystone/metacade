@@ -58,6 +58,11 @@ public:
 	float getMouseDeltaX() const;
 	float getMouseDeltaY() const;
 
+	void applyTransform(const CMatrix3& matrix);
+	bool canApplyTransform() const;
+
+	CInputEvent getTransformedEvent(const CMatrix3& matrix) const;
+
 private:
 	CInputEvent();
 

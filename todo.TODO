@@ -11,7 +11,7 @@ Runtime:
    ✔ Fix virtual destructors @done (17-06-13 16:33)
    ☐ Allocate memory using CRuntimeObject wherever possible
    ✔ Design Input system @done (17-05-18 05:36)
-   ☐ Plan out entity management (should it be in VM, or on runtime)
+   ✔ Plan out entity management (should it be in VM, or on runtime) @done (17-11-30 21:54)
    ✔ Metadata CVariant support @done (17-06-08 15:57)
    ✔ Rename UE4 shaders to something less stupid @done (17-06-22 16:47)
 
@@ -30,13 +30,13 @@ Runtime:
 
  Rendering:
    ✔ Fix clipping algorithm (probably just revert back to old version) @done (17-06-08 19:18)
-   ☐ Render scaling based on defined aspect ratio
+   ✔ Render scaling based on defined aspect ratio @done (17-11-30 21:53)
    ☐ Investigate conformance issue where additive blending looks different in Unreal
    ✔ Investigate multiple texture loads in tool (possibly also in Unreal as a regression?) @done (17-06-13 15:48)
 
  Input:
    ✔ Figure out Keymaps @done (17-05-20 07:01)
-   ☐ Map input coordinates to virtual resolutions
+   ✔ Map input coordinates to virtual resolutions @done (17-11-30 21:53)
 
  Sound:
    ✔ Fix weird pitch bending on sound playback @done (17-06-08 17:06)

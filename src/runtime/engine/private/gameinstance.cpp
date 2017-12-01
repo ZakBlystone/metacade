@@ -80,15 +80,32 @@ class IGameClass* CGameInstance::getClass()
 
 void CGameInstance::postInputEvent(const CInputEvent& input)
 {
-	_vmInstance->postInputEvent(input);
-	_inputState.applyEvent(input);
+	if (input.canApplyTransform())
+	{
+		CInputEvent transformed = input.getTransformedEvent( !_elementRenderer->getViewportTransform() );
+		_vmInstance->postInputEvent(transformed);
+		_inputState.applyEvent(transformed);
+	}
+	else
+	{
+		_vmInstance->postInputEvent(input);
+		_inputState.applyEvent(input);
+	}
 }
 
 void CGameInstance::postInputState(const CInputState& input)
 {
 	input.generateEvents(_inputState, [this](const CInputEvent& eventData)
 	{
-		_vmInstance->postInputEvent(eventData);
+		if ( eventData.canApplyTransform() )
+		{
+			CInputEvent transformed = eventData.getTransformedEvent( !_elementRenderer->getViewportTransform() );
+			_vmInstance->postInputEvent(transformed);
+		}
+		else
+		{
+			_vmInstance->postInputEvent(eventData);
+		}
 	});
 	
 	_inputState.merge(input);

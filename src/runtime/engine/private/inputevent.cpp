@@ -122,3 +122,31 @@ float CInputEvent::getMouseDeltaY() const
 {
 	return _mouseDeltaY;
 }
+
+void CInputEvent::applyTransform(const CMatrix3& matrix)
+{
+	if ( getEventType() != INPUTEVENT_MOUSEMOVED ) return;
+
+	float newMouseX = _mouseX * matrix(0,0) + _mouseY * matrix(0,1) + matrix(0,2);
+	float newMouseY = _mouseX * matrix(1,0) + _mouseY * matrix(1,1) + matrix(1,2);
+	float newMouseDeltaX = _mouseDeltaX * matrix(0,0) + _mouseDeltaY * matrix(0,1);
+	float newMouseDeltaY = _mouseDeltaX * matrix(1,0) + _mouseDeltaY * matrix(1,1);
+
+	_mouseX = newMouseX;
+	_mouseY = newMouseY;
+	_mouseDeltaX = newMouseDeltaX;
+	_mouseDeltaY = newMouseDeltaY;
+}
+
+bool CInputEvent::canApplyTransform() const
+{
+	return getEventType() == INPUTEVENT_MOUSEMOVED;
+}
+
+CInputEvent CInputEvent::getTransformedEvent(const CMatrix3& matrix) const
+{
+	CInputEvent newEvent = *this;
+	newEvent.applyTransform(matrix);
+	return newEvent;
+}
+
