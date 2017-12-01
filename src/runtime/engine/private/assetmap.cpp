@@ -196,7 +196,7 @@ bool CAssetMap::load(IFileObject* file)
 
 		//Store the unique id on the asset
 		asset->setUniqueID(locator._id);
-		log(LOG_MESSAGE, "Preload asset with GUID %s", asset->getUniqueID().tostring());
+		//log(LOG_MESSAGE, "Preload asset with GUID %s", asset->getUniqueID().tostring());
 
 		//Add asset to map
 		add(asset);
@@ -212,7 +212,7 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 
 	for ( auto pair : _map )
 	{
-		log(LOG_MESSAGE, "MAPPED: %s : 0x%X", pair.first.tostring(), pair.second.get() );
+		//log(LOG_MESSAGE, "MAPPED: %s : 0x%X", pair.first.tostring(), pair.second.get() );
 	}
 
 	//Loop over all asset locators
@@ -220,7 +220,7 @@ shared_ptr<CAssetMap::CAssetLoadHandle> CAssetMap::loadAssets(IFileObject* file)
 	{
 		CAssetLocator &locator = _locators[i];
 
-		log(LOG_MESSAGE, "Load asset at offset: 0x%X", locator._offset);
+		//log(LOG_MESSAGE, "Load asset at offset: 0x%X", locator._offset);
 
 		//Seek to the asset data in file
 		if ( !file->seek(locator._offset) ) return nullptr;
