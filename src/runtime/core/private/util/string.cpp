@@ -86,11 +86,11 @@ bool CString::contains(const CString& string) const
 	return find(string) != -1;
 }
 
-int32 CString::find(const CString& string) const
+int32 CString::find(const CString& string, uint32 start/* = 0*/) const
 {
 	if ( string.length() > _length ) return -1;
 
-	uint32 search = 0;
+	uint32 search = start;
 	do
 	{
 		if ( sub(search, string.length()) == string )

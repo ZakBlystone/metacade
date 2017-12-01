@@ -43,7 +43,7 @@ public:
 	bool contains(const CString& string) const;
 
 	//returns -1 if not found
-	int32 find(const CString& string) const;
+	int32 find(const CString& string, uint32 start = 0) const;
 
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
