@@ -42,7 +42,7 @@ public:
 	void set(const CMatrix3 &mat3);
 	void set(const CMatrix4 &mat4);
 	void set(float m[16]); //Temporary (use memcpy later)
-	const float *get() const {return m_;}
+	const float *get() const {return _m;}
 	void getAxis(CVec3 &forward, CVec3 &right, CVec3 &up) const;
 	float getDeterminant() const;
 	bool isInvertable() const;
@@ -86,7 +86,7 @@ private:
 
 	static void matrix4Mult(const CMatrix4 &a, const CMatrix4 &b, CMatrix4 &c);
 
-	float m_[16];
+	float _m[16];
 };
 
 }

@@ -80,7 +80,7 @@ inline CVertex2D::CVertex2D(float x, float y, float s, float t, const CColor &co
 }
 
 inline CVertex2D::CVertex2D(const CVertex3D &other) 
-	: _position(other._position.x, other._position.y)
+	: _position(other._position._x, other._position._y)
 	, _texcoord(other._texcoord)
 	, _color(other._color)
 {

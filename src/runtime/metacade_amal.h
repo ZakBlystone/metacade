@@ -125,8 +125,8 @@ class METACADE_API CMatrix3
 public:
 	CMatrix3();
 	CMatrix3(float m[9]) {set(m);}
-	void set(float m[9]) {for(int i=0; i<9; i++) m_[i] = m[i];} //Temporary (use memcpy later)
-	const float *get() const {return m_;}
+	void set(float m[9]) {for(int i=0; i<9; i++) _m[i] = m[i];} //Temporary (use memcpy later)
+	const float *get() const {return _m;}
 	float getDeterminant() const;
 	bool isInvertable() const;
 	static CMatrix3 &identity(CMatrix3 &m);
@@ -145,7 +145,7 @@ public:
 	float& operator() (unsigned row, unsigned column); //Set Elements
 	float  operator() (unsigned row, unsigned column) const; //Get Elements
 private:
-	float m_[9];
+	float _m[9];
 };
 }
 //src/runtime/core/public/math/matrix4.h
@@ -162,7 +162,7 @@ public:
 	void set(const CMatrix3 &mat3);
 	void set(const CMatrix4 &mat4);
 	void set(float m[16]); //Temporary (use memcpy later)
-	const float *get() const {return m_;}
+	const float *get() const {return _m;}
 	void getAxis(CVec3 &forward, CVec3 &right, CVec3 &up) const;
 	float getDeterminant() const;
 	bool isInvertable() const;
@@ -191,7 +191,7 @@ public:
 	float  operator() (unsigned row, unsigned column) const; //Get Elements
 private:
 	static void matrix4Mult(const CMatrix4 &a, const CMatrix4 &b, CMatrix4 &c);
-	float m_[16];
+	float _m[16];
 };
 }
 //src/runtime/core/public/math/vec2.h
@@ -272,7 +272,7 @@ public:
 	{
 		struct
 		{
-			float x,y,z;
+			float _x,_y,_z;
 		};
 		float _xyz[3];
 	};
@@ -389,10 +389,10 @@ struct METACADE_API CColor
 	{
 		struct
 		{
-			uint8 r,g,b,a;
+			uint8 _r,_g,_b,_a;
 		};
-		uint8 rgba[4];
-		uint32 irgba;
+		uint8 _rgba[4];
+		uint32 _irgba;
 	};
 	//Construct an empty CColor object, initializes as opaque black (0x000000FF)
 	inline CColor();
@@ -615,11 +615,11 @@ public:
 	{
 		struct
 		{
-			uint32 A,B,C,D;
+			uint32 _A,_B,_C,_D;
 		};
 		struct
 		{
-			uint64 X, Y;
+			uint64 _X,_Y;
 		};
 	};
 };

@@ -56,11 +56,11 @@ public:
 	{
 		struct
 		{
-			uint32 A,B,C,D;
+			uint32 _A,_B,_C,_D;
 		};
 		struct
 		{
-			uint64 X, Y;
+			uint64 _X,_Y;
 		};
 	};
 };

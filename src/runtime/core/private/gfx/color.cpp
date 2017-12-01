@@ -26,12 +26,12 @@ color.cpp: 32-bit color representation and floating-point counterpart
 #include "core_private.h"
 
 //CColor
-inline CColor::CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca /*= 0xFF*/) : r(cr), g(cg), b(cb), a(ca)
+inline CColor::CColor(uint8 cr, uint8 cg, uint8 cb, uint8 ca /*= 0xFF*/) : _r(cr), _g(cg), _b(cb), _a(ca)
 {
 
 }
 
-inline CColor::CColor(uint8 color[4]) : r(color[0]), g(color[1]), b(color[2]), a(color[3])
+inline CColor::CColor(uint8 color[4]) : _r(color[0]), _g(color[1]), _b(color[2]), _a(color[3])
 {
 
 }
@@ -39,13 +39,13 @@ inline CColor::CColor(uint8 color[4]) : r(color[0]), g(color[1]), b(color[2]), a
 inline CColor::CColor(uint32 irgba)
 {
 	//Unpack RGBA from uint32 into the [r,g,b,a] union
-	r = (irgba >> 24) & 0xFF;
-	g = (irgba >> 16) & 0xFF;
-	b = (irgba >> 8) & 0xFF;
-	a = (irgba)& 0xFF;
+	_r = (irgba >> 24) & 0xFF;
+	_g = (irgba >> 16) & 0xFF;
+	_b = (irgba >> 8) & 0xFF;
+	_a = (irgba)& 0xFF;
 }
 
-inline CColor::CColor() : r(0), g(0), b(0), a(0xFF)
+inline CColor::CColor() : _r(0), _g(0), _b(0), _a(0xFF)
 {
 
 }
@@ -53,7 +53,7 @@ inline CColor::CColor() : r(0), g(0), b(0), a(0xFF)
 uint32 CColor::asInt() const
 {
 	//Pack RGBA from the [r,g,b,a] union
-	return (r << 24) | (g << 16) | (b << 8) | a;
+	return (_r << 24) | (_g << 16) | (_b << 8) | _a;
 }
 
 //CFloatColor
@@ -66,10 +66,10 @@ inline CFloatColor::CFloatColor(const CColor& color)
 {
 	//Divide out maximum unsigned 8-bit color value from each channel, cast to float
 	static const float scale = 1.0f / 255.f;
-	r = (float)(color.r) * scale;
-	g = (float)(color.g) * scale;
-	b = (float)(color.b) * scale;
-	a = (float)(color.a) * scale;
+	r = (float)(color._r) * scale;
+	g = (float)(color._g) * scale;
+	b = (float)(color._b) * scale;
+	a = (float)(color._a) * scale;
 }
 
 inline CFloatColor::CFloatColor(float fr, float fg, float fb, float fa /*= 1.0f*/)

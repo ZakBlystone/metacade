@@ -37,10 +37,10 @@ struct METACADE_API CColor
 	{
 		struct
 		{
-			uint8 r,g,b,a;
+			uint8 _r,_g,_b,_a;
 		};
-		uint8 rgba[4];
-		uint32 irgba;
+		uint8 _rgba[4];
+		uint32 _irgba;
 	};
 
 	//Construct an empty CColor object, initializes as opaque black (0x000000FF)

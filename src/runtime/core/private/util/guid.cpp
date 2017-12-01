@@ -35,8 +35,8 @@ guid.cpp:
 
 //Construct zero'd out GUID
 Arcade::CGUID::CGUID()
-	: X(0)
-	, Y(0)
+	: _X(0)
+	, _Y(0)
 {
 
 }
@@ -44,25 +44,25 @@ Arcade::CGUID::CGUID()
 bool CGUID::operator==(const CGUID& other) const
 {
 	//XOR each 64-bit component of the two GUIDs, combine and check if 0
-	return ((X ^ other.X) | (Y ^ other.Y)) == 0;
+	return ((_X ^ other._X) | (_Y ^ other._Y)) == 0;
 }
 
 bool CGUID::operator!=(const CGUID& other) const
 {
 	//XOR each 64-bit component of the two GUIDs, combine and check if NOT 0
-	return ((X ^ other.X) | (Y ^ other.Y)) != 0;
+	return ((_X ^ other._X) | (_Y ^ other._Y)) != 0;
 }
 
 bool CGUID::operator<(const CGUID& other) const
 {
 	//Check to see if high 64-bit component of 'this' is less than 'other'
-	if ( X < other.X ) return true;
+	if ( _X < other._X ) return true;
 
 	//Otherwise, if the high bits of 'this' are greater than 'other', it's not less-than
-	else if ( X > other.X ) return false;
+	else if ( _X > other._X ) return false;
 
 	//High bits are equal, check low bits
-	else if ( Y < other.Y ) return true;
+	else if ( _Y < other._Y ) return true;
 
 	//Low bits were either greater-than or equal
 	else return false;
@@ -73,7 +73,7 @@ bool CGUID::operator<(const CGUID& other) const
 bool CGUID::isValid() const
 {
 	//Just check if non-zero
-	return X != 0 && Y != 0;
+	return _X != 0 && _Y != 0;
 }
 
 CGUID CGUID::generate()
@@ -97,14 +97,14 @@ CGUID CGUID::generate()
 void CGUID::reset()
 {
 	//Sets all parts to zero
-	X = Y = 0;
+	_X = _Y = 0;
 }
 
 const char* CGUID::tostring() const
 {
 	static char buf[64];
 
-	sprintf_s(buf, "%08X-%08X-%08X-%08X", A, B, C, D);
+	sprintf_s(buf, "%08X-%08X-%08X-%08X", _A, _B, _C, _D);
 
 	return buf;
 }

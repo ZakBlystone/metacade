@@ -27,7 +27,7 @@ vec3.cpp:
 
 float CVec3::lengthSquared() const
 {
-	return x*x + y*y + z*z;
+	return _x*_x + _y*_y + _z*_z;
 }
 
 float CVec3::length() const
@@ -48,17 +48,17 @@ float CVec3::distance(const CVec3 &other) const
 
 float CVec3::dot(const CVec3 &other) const
 {
-	return (x * other.x) + 
-		   (y * other.y) + 
-		   (z * other.z);
+	return (_x * other._x) + 
+		   (_y * other._y) + 
+		   (_z * other._z);
 }
 
 CVec3 CVec3::cross(const CVec3 &other) const
 {
 	return CVec3(
-		(y * other.z) - (z * other.y),
-		(z * other.x) - (x * other.z),
-		(x * other.y) - (y * other.x));
+		(_y * other._z) - (_z * other._y),
+		(_z * other._x) - (_x * other._z),
+		(_x * other._y) - (_y * other._x));
 }
 
 CVec3  CVec3::getNormal() const
@@ -81,7 +81,7 @@ CVec3 CVec3::interpolateTo(const CVec3 &other, float fraction) const
 
 inline CVec3::CVec3(const CVec3 &other)
 {
-	set(other.x, other.y, other.z);
+	set(other._x, other._y, other._z);
 }
 
 inline CVec3::CVec3(float x, float y, float z)
@@ -101,7 +101,7 @@ inline CVec3::CVec3()
 
 inline void CVec3::set(const CVec3 &other)
 {
-	set(other.x, other.y, other.z);
+	set(other._x, other._y, other._z);
 }
 
 inline void CVec3::set(float xyz[3])
@@ -111,32 +111,32 @@ inline void CVec3::set(float xyz[3])
 
 inline void CVec3::set(float vx, float vy, float vz)
 {
-	x = vx; y = vy; z = vz;
+	_x = vx; _y = vy; _z = vz;
 }
 
 inline float CVec3::getX() const
 {
-	return x;
+	return _x;
 }
 
 inline float CVec3::getY() const
 {
-	return y;
+	return _y;
 }
 
 inline float CVec3::getZ() const
 {
-	return z;
+	return _z;
 }
 
 void CVec3::get(float *ptr) const
 {
-	ptr[0] = x; ptr[1] = y; ptr[2] = z;
+	ptr[0] = _x; ptr[1] = _y; ptr[2] = _z;
 }
 
 bool CVec3::equal(const CVec3 &other) const
 {
-	return abs(x - other.x) < EPSILON && abs(y - other.y) < EPSILON && abs(z - other.z) < EPSILON;
+	return abs(_x - other._x) < EPSILON && abs(_y - other._y) < EPSILON && abs(_z - other._z) < EPSILON;
 }
 
 CVec3 CVec3::perpendicular() const
@@ -186,25 +186,25 @@ CVec3 CVec3::operator--()
 
 CVec3 & CVec3::operator+=(const CVec3 &other)
 {
-	x += other.x;
-	y += other.y;
-	z += other.z;
+	_x += other._x;
+	_y += other._y;
+	_z += other._z;
 	return *this;
 }
 
 CVec3 & CVec3::operator-=(const CVec3 &other)
 {
-	x -= other.x;
-	y -= other.y;
-	z -= other.z;
+	_x -= other._x;
+	_y -= other._y;
+	_z -= other._z;
 	return *this;
 }
 
 CVec3 & CVec3::operator*=(const CVec3 &other)
 {
-	x *= other.x;
-	y *= other.y;
-	z *= other.z;
+	_x *= other._x;
+	_y *= other._y;
+	_z *= other._z;
 	return *this;
 }
 
@@ -216,50 +216,50 @@ CVec3 &CVec3::operator*=(const CMatrix4 &other)
 
 CVec3 & CVec3::operator*=(float scalar)
 {
-	x *= scalar;
-	y *= scalar;
-	z *= scalar;
+	_x *= scalar;
+	_y *= scalar;
+	_z *= scalar;
 	return *this;
 }
 
 CVec3 & CVec3::operator/=(const CVec3 &other)
 {
-	x /= other.x;
-	y /= other.y;
-	z /= other.z;
+	_x /= other._x;
+	_y /= other._y;
+	_z /= other._z;
 	return *this;
 }
 
 CVec3 & CVec3::operator/=(float scalar)
 {
-	x /= scalar;
-	y /= scalar;
-	z /= scalar;
+	_x /= scalar;
+	_y /= scalar;
+	_z /= scalar;
 	return *this;
 }
 
 CVec3 CVec3::operator+(const CVec3 &other) const
 {
 	return CVec3(
-		x + other.x,
-		y + other.y,
-		z + other.z);
+		_x + other._x,
+		_y + other._y,
+		_z + other._z);
 }
 
 CVec3 CVec3::operator-(const CVec3 &other) const
 {
 	return CVec3(
-		x - other.x,
-		y - other.y,
-		z - other.z);
+		_x - other._x,
+		_y - other._y,
+		_z - other._z);
 }
 
 CVec3 CVec3::operator*(const CVec3 &other) const
 {
 	return CVec3(
-		x * other.x,
-		y * other.y,
-		z * other.z);
+		_x * other._x,
+		_y * other._y,
+		_z * other._z);
 }
 
 CVec3 CVec3::operator*(const CMatrix4 &other) const
@@ -277,23 +277,23 @@ CVec3 CVec3::operator*(const CMatrix4 &other) const
 CVec3 CVec3::operator*(float scalar) const
 {
 	return CVec3(
-		x * scalar,
-		y * scalar,
-		z * scalar);
+		_x * scalar,
+		_y * scalar,
+		_z * scalar);
 }
 
 CVec3 CVec3::operator/(const CVec3 &other) const
 {
 	return CVec3(
-		x / other.x,
-		y / other.y,
-		z / other.z);
+		_x / other._x,
+		_y / other._y,
+		_z / other._z);
 }
 
 CVec3 CVec3::operator/(float scalar) const
 {
 	return CVec3(
-		x / scalar,
-		y / scalar,
-		z / scalar);
+		_x / scalar,
+		_y / scalar,
+		_z / scalar);
 }

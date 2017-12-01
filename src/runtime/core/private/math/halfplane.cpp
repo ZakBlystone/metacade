@@ -45,7 +45,7 @@ inline CHalfPlane::CHalfPlane()
 inline float CHalfPlane::distance(const CVec2& point) const
 {
 	//dot(point, normal) - distance
-	return (point._x * this->x + point._y * this->y) - this->z;
+	return (point._x * this->_x + point._y * this->_y) - this->_z;
 }
 
 inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const

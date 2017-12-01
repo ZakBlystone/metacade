@@ -203,25 +203,25 @@ MODULE_FUNCTION_DEF(draw_rect)
 	verts[0]._position._y = y;
 	verts[0]._texcoord._x = u0;
 	verts[0]._texcoord._y = v0;
-	verts[0]._color.irgba = gData._currentColor.irgba;
+	verts[0]._color._irgba = gData._currentColor._irgba;
 
 	verts[1]._position._x = x+w;
 	verts[1]._position._y = y;
 	verts[1]._texcoord._x = u1;
 	verts[1]._texcoord._y = v0;
-	verts[1]._color.irgba = gData._currentColor.irgba;
+	verts[1]._color._irgba = gData._currentColor._irgba;
 
 	verts[2]._position._x = x+w;
 	verts[2]._position._y = y+h;
 	verts[2]._texcoord._x = u1;
 	verts[2]._texcoord._y = v1;
-	verts[2]._color.irgba = gData._currentColor.irgba;
+	verts[2]._color._irgba = gData._currentColor._irgba;
 
 	verts[3]._position._x = x;
 	verts[3]._position._y = y+h;
 	verts[3]._texcoord._x = u0;
 	verts[3]._texcoord._y = v1;
-	verts[3]._color.irgba = gData._currentColor.irgba;
+	verts[3]._color._irgba = gData._currentColor._irgba;
 
 	quad->transform(gData.top());
 
@@ -289,7 +289,7 @@ MODULE_FUNCTION_DEF(draw_quad)
 		quad._verts[i]._position._y = (float)luaL_checknumber(L, i*4 + 2);
 		quad._verts[i]._texcoord._x = (float)luaL_checknumber(L, i*4 + 3);
 		quad._verts[i]._texcoord._y = (float)luaL_checknumber(L, i*4 + 4);
-		quad._verts[i]._color.irgba = gData._currentColor.irgba;
+		quad._verts[i]._color._irgba = gData._currentColor._irgba;
 	}
 
 	quad.transform(gData.top());

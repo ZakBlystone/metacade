@@ -35,8 +35,8 @@ public:
 	CMatrix3();
 	CMatrix3(float m[9]) {set(m);}
 
-	void set(float m[9]) {for(int i=0; i<9; i++) m_[i] = m[i];} //Temporary (use memcpy later)
-	const float *get() const {return m_;}
+	void set(float m[9]) {for(int i=0; i<9; i++) _m[i] = m[i];} //Temporary (use memcpy later)
+	const float *get() const {return _m;}
 	float getDeterminant() const;
 	bool isInvertable() const;
 
@@ -66,7 +66,7 @@ public:
 	float& operator() (unsigned row, unsigned column); //Set Elements
 	float  operator() (unsigned row, unsigned column) const; //Get Elements
 private:
-	float m_[9];
+	float _m[9];
 };
 
 }
