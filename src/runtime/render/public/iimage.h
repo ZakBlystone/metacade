@@ -30,6 +30,13 @@ iimage.h: Abstraction of an image resource
 namespace Arcade
 {
 
+enum EImageFlags
+{
+	IF_WRAP_X = 1 << 0,
+	IF_WRAP_Y = 1 << 1,
+	IF_SMOOTH = 1 << 2,
+};
+
 class IImage
 {
 public:
@@ -39,6 +46,7 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
+	virtual uint32 getFlags() const = 0;
 	virtual ~IImage() = 0;
 };
 

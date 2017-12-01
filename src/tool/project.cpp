@@ -124,6 +124,13 @@ bool CProject::addAssetDef(EAssetType type, const CString& name, const CString& 
 	def._path = path;
 	def._name = name;
 
+	int32 paramOffset = def._path.find(" ");
+	if ( paramOffset > 0 )
+	{
+		def._params = def._path.chopLeft(paramOffset);
+		def._path = def._path.sub(0, paramOffset);
+	}
+
 	for ( auto asset : _assets[type] )
 	{
 		if ( asset._path == path ) return false;
@@ -191,6 +198,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
 		meta->setKeyValuePair("file", _rootpath / def._path);
+		meta->setKeyValuePair("params", def._params);
 
 		bool success = compiler->compile(asset, meta);
 		if ( !success )
@@ -210,6 +218,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
 		meta->setKeyValuePair("file", _rootpath / def._path);
+		meta->setKeyValuePair("params", def._params);
 
 		bool success = compiler->compile(asset, meta);
 		if ( !success )
@@ -229,6 +238,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;
 		meta->setKeyValuePair("file", _rootpath / def._path);
+		meta->setKeyValuePair("params", def._params);
 
 		bool success = compiler->compile(asset, meta);
 		if ( !success )

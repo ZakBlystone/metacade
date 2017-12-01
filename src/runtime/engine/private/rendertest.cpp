@@ -55,6 +55,11 @@ class WhiteImage : public IImage
 	{
 		return 0;
 	}
+
+	virtual uint32 getFlags() const override
+	{
+		return 0;
+	}
 };
 
 class TestImage : public IImage
@@ -95,6 +100,11 @@ public:
 	virtual uint32 getID() const override
 	{
 		return _id;
+	}
+
+	virtual uint32 getFlags() const override
+	{
+		return 0;
 	}
 
 private:

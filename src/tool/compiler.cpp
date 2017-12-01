@@ -59,6 +59,12 @@ static bool buildImage(CImageAsset* asset, IMetaData* params)
 	ilBindImage(test);
 	if ( !ilLoadImage(*params->getValue("file").toString()) ) return false;
 
+	CString flags = params->getValue("params").toString();
+
+	if ( flags.contains("-wrap-x") ) asset->setFlag(IF_WRAP_X);
+	if ( flags.contains("-wrap-y") ) asset->setFlag(IF_WRAP_Y);
+	if ( flags.contains("-smooth") ) asset->setFlag(IF_SMOOTH);
+
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 
 	int width = (int) ilGetInteger(IL_IMAGE_WIDTH);

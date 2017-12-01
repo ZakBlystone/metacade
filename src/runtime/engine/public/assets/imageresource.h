@@ -47,8 +47,10 @@ public:
 
 	virtual uint8* getPixels() const override;
 	virtual uint32 getID() const override;
+	virtual uint32 getFlags() const override;
 
 	void setImagePixels(EImagePixelFormat format, uint8 bpc, int32 width, int32 height, uint8* pixels);
+	void setFlag(EImageFlags flag, bool enable = true);
 
 private:
 	class CIndex *_index;
@@ -57,6 +59,7 @@ private:
 	uint8 _bpc;
 	int32 _width;
 	int32 _height;
+	uint32 _flags;
 	uint8* _pixels;
 };
 

@@ -27,6 +27,7 @@ imageresource.cpp:
 
 CImageAsset::CImageAsset(CRuntimeObject* outer)
 	: CAsset(outer)
+	, _flags(0)
 	, _index(nullptr)
 	, _pixels(nullptr)
 {
@@ -44,6 +45,7 @@ bool CImageAsset::load(IFileObject* file)
 	if ( !file->read(&_bpc, sizeof(uint8)) ) return false;
 	if ( !file->read(&_width, sizeof(int32)) ) return false;
 	if ( !file->read(&_height, sizeof(int32)) ) return false;
+	if ( !file->read(&_flags, sizeof(uint32)) ) return false;
 
 	if ( _index == nullptr ) 
 		_index = construct<CIndex>(allocateImageIndex());
@@ -65,6 +67,7 @@ bool CImageAsset::save(IFileObject* file)
 	if ( !file->write(&_bpc, sizeof(uint8)) ) return false;
 	if ( !file->write(&_width, sizeof(int32)) ) return false;
 	if ( !file->write(&_height, sizeof(int32)) ) return false;
+	if ( !file->write(&_flags, sizeof(uint32)) ) return false;
 
 	if ( _pixels == nullptr ) return false;
 
@@ -139,6 +142,19 @@ void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 widt
 
 	_pixels = (uint8*) zalloc(size);
 	memcpy(_pixels, pixels, size);
+}
+
+uint32 CImageAsset::getFlags() const
+{
+	return _flags;
+}
+
+void Arcade::CImageAsset::setFlag(EImageFlags flag, bool enable /*= true*/)
+{
+	if ( enable )
+		_flags |= (uint32)(flag);
+	else
+		_flags &= !(uint32)(flag);
 }
 
 IImage::~IImage()

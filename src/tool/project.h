@@ -7,6 +7,7 @@ struct CAssetFileDef
 {
 	CString _name;
 	CString _path;
+	CString _params;
 	EAssetType _assetType;
 };
 

@@ -52,6 +52,11 @@ class CWhiteImage : public IImage
 	{
 		return 0;
 	}
+
+	virtual uint32 getFlags() const override
+	{
+		return 0;
+	}
 };
 
 CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance)
