@@ -383,8 +383,14 @@ static int start(int argc, char *argv[])
 	}
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
-	//shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects"); //"../../projects");
-	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "D:/Projects/metacade/projects");
+
+#ifdef DEBUG
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "../../projects");
+	std::cout << "../../projects" << std::endl;
+#else
+	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects");
+	std::cout << "projects" << std::endl;
+#endif
 
 	IFileObject* demoFile = nullptr;
 
@@ -677,6 +683,11 @@ int SDL_main(int argc, char *argv[])
 	//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Mem", "Take a baseline snapshot", NULL);
 
 	int ret = start(argc, argv);
+
+	for(int i=0; i<argc; ++i)
+		if ( !strcmp(argv[i], "-test") )
+			std::cout << "METACADE_EXIT_SUCCESS" << std::endl;
+
 
 	//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Mem", "Take final snapshot", NULL);
 	return ret;
