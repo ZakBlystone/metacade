@@ -97,15 +97,7 @@ void CGameInstance::postInputState(const CInputState& input)
 {
 	input.generateEvents(_inputState, [this](const CInputEvent& eventData)
 	{
-		if ( eventData.canApplyTransform() )
-		{
-			CInputEvent transformed = eventData.getTransformedEvent( !_elementRenderer->getViewportTransform() );
-			_vmInstance->postInputEvent(transformed);
-		}
-		else
-		{
-			_vmInstance->postInputEvent(eventData);
-		}
+		postInputEvent(eventData);
 	});
 	
 	_inputState.merge(input);
@@ -143,8 +135,8 @@ void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targe
 	CClipShape viewClip;
 	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
 	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
-	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(renderSize.x,0)));
-	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,renderSize.y)));
+	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(renderSize._x,0)));
+	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,renderSize._y)));
 
 	/*float cx = viewportSize.x / 2.f + cosf(_lastTime) * 200.f;
 	float cy = viewportSize.y / 2.f + sinf(_lastTime) * 200.f;
@@ -325,22 +317,22 @@ CMatrix3 CGameInstance::calculateAspectMatrix(const CVec2& viewport, const CVec2
 {
 	CMatrix3 viewMatrix;
 
-	float src_aspect = viewport.x / viewport.y;
-	float dst_aspect = desired.x / desired.y;
+	float src_aspect = viewport._x / viewport._y;
+	float dst_aspect = desired._x / desired._y;
 
 	if ( src_aspect >= dst_aspect )
 	{
-		float difference = viewport.y / desired.y;
+		float difference = viewport._y / desired._y;
 		viewMatrix(0,0) = difference;
 		viewMatrix(1,1) = difference;
-		viewMatrix(0,2) = (viewport.x - (desired.x * viewMatrix(0,0))) / 2.f;
+		viewMatrix(0,2) = (viewport._x - (desired._x * viewMatrix(0,0))) / 2.f;
 	}
 	else
 	{
-		float difference = viewport.x / desired.x;
+		float difference = viewport._x / desired._x;
 		viewMatrix(0,0) = difference;
 		viewMatrix(1,1) = difference;
-		viewMatrix(1,2) = (viewport.y - (desired.y * viewMatrix(1,1))) / 2.f;
+		viewMatrix(1,2) = (viewport._y - (desired._y * viewMatrix(1,1))) / 2.f;
 	}
 	return viewMatrix;
 }

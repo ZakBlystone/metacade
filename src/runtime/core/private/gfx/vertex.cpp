@@ -97,11 +97,11 @@ CVertex2D CVertex2D::interpolateTo(const CVertex2D &other, float fraction) const
 
 void CVertex2D::interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D& result, float fraction)
 {
-	result._position.x = A._position.x + (B._position.x - A._position.x) * fraction;
-	result._position.y = A._position.y + (B._position.y - A._position.y) * fraction;
+	result._position._x = A._position._x + (B._position._x - A._position._x) * fraction;
+	result._position._y = A._position._y + (B._position._y - A._position._y) * fraction;
 
-	result._texcoord.x = A._texcoord.x + (B._texcoord.x - A._texcoord.x) * fraction;
-	result._texcoord.y = A._texcoord.y + (B._texcoord.y - A._texcoord.y) * fraction;
+	result._texcoord._x = A._texcoord._x + (B._texcoord._x - A._texcoord._x) * fraction;
+	result._texcoord._y = A._texcoord._y + (B._texcoord._y - A._texcoord._y) * fraction;
 
 	result._color = CFloatColor(A._color).interpolateTo(B._color, fraction);
 }
@@ -109,13 +109,13 @@ void CVertex2D::interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D&
 CVertex3D CVertex2D::to3D() const
 {
 	return CVertex3D(
-		_position.x, //x
-		_position.y, //y
+		_position._x, //x
+		_position._y, //y
 		1.0f, //z
 		0.0f, //nx
 		0.0f, //ny
 		1.0f, //nz
-		_texcoord.x, //s 
-		_texcoord.y, //t
+		_texcoord._x, //s 
+		_texcoord._y, //t
 		_color); //color
 }

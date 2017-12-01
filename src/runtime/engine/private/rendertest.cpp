@@ -178,8 +178,8 @@ void CRenderTest::frame(IRenderer *renderer, float time, CVec2 viewportsize)
 	CClipShape viewClip;
 	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));
 	viewClip.add(CHalfPlane(CVec2(0,-1), CVec2(0,0)));
-	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize.x,0)));
-	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize.y)));
+	viewClip.add(CHalfPlane(CVec2(1,0), CVec2(viewportsize._x,0)));
+	viewClip.add(CHalfPlane(CVec2(0,1), CVec2(0,viewportsize._y)));
 
 	_renderer->setViewportClip(viewClip);
 

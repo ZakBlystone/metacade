@@ -39,9 +39,9 @@ struct CRenderQuad
 	inline void makeBox(const CVec2 &mins, const CVec2 &maxs, const CColor &color)
 	{
 		_verts[0]._position.set(mins);
-		_verts[1]._position.set(maxs.x, mins.y);
+		_verts[1]._position.set(maxs._x, mins._y);
 		_verts[2]._position.set(maxs);
-		_verts[3]._position.set(mins.x, maxs.y);
+		_verts[3]._position.set(mins._x, maxs._y);
 
 		_verts[0]._texcoord.set(0,0);
 		_verts[1]._texcoord.set(1,0);

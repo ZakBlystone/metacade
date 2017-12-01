@@ -179,7 +179,7 @@ void CRendererGL::reshape(int32 width, int32 height)
 
 void CRendererGL::setOffset(CVec2 offset)
 {
-	glUniform2f(g_OffsetUniform, offset.x, offset.y);
+	glUniform2f(g_OffsetUniform, offset._x, offset._y);
 }
 
 void CRendererGL::clear()

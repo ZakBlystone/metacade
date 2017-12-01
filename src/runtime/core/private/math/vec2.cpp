@@ -37,12 +37,12 @@ inline CVec2::CVec2(float x, float y)
 
 inline CVec2::CVec2(const CVec2 &other)
 {
-	set(other.x, other.y);
+	set(other._x, other._y);
 }
 
 inline void CVec2::set(const CVec2 &other)
 {
-	set(other.x, other.y);
+	set(other._x, other._y);
 }
 
 inline void CVec2::set(float xy[2])
@@ -128,14 +128,14 @@ bool CVec2::inBox(const CVec2 &min, const CVec2 &max) const
 
 inline void CVec2::vmin(const CVec2 &b)
 {
-	x = min(x, b.x);
-	y = min(y, b.y);
+	_x = min(_x, b._x);
+	_y = min(_y, b._y);
 }
 
 inline void CVec2::vmax(const CVec2 &b)
 {
-	x = max(x, b.x);
-	y = max(y, b.y);
+	_x = max(_x, b._x);
+	_y = max(_y, b._y);
 }
 
 CVec2& CVec2::operator+=(const CVec2 &other)
@@ -203,8 +203,8 @@ CVec2 CVec2::operator-(const CVec2 &other) const
 CVec2 CVec2::operator*(const CMatrix3 &other) const
 {
 	CVec2 out;
-	out.x = x * other(0,0) + y * other(0,1) + other(0,2);
-	out.y = x * other(1,0) + y * other(1,1) + other(1,2);
+	out._x = _x * other(0,0) + _y * other(0,1) + other(0,2);
+	out._y = _x * other(1,0) + _y * other(1,1) + other(1,2);
 	return out;
 }
 
@@ -249,22 +249,22 @@ bool CVec2::operator!=(const CVec2 &other) const
 CVec2 CVec2::interpolateTo(const CVec2 &other, float fraction) const
 {
 	return CVec2(
-		this->x + (other.x - this->x) * fraction,
-		this->y + (other.y - this->y) * fraction
+		this->_x + (other._x - this->_x) * fraction,
+		this->_y + (other._y - this->_y) * fraction
 	);
 }
 
 void CVec2::interpolateTo(const CVec2& A, const CVec2& B, CVec2& result, float fraction)
 {
-	result.x = B.x + (B.x - A.x) * fraction;
-	result.y = B.y + (B.y - A.y) * fraction;
+	result._x = B._x + (B._x - A._x) * fraction;
+	result._y = B._y + (B._y - A._y) * fraction;
 }
 
 CVec2& CVec2::normalize()
 {
 	float len = length();
-	x = x / len;
-	y = y / len;
+	_x = _x / len;
+	_y = _y / len;
 	return (*this);
 }
 
@@ -285,5 +285,5 @@ CVec2 CVec2::operator--()
 
 CVec2 operator/(float scalar, CVec2 vec)
 {
-	return CVec2(scalar / vec.x, scalar / vec.y);
+	return CVec2(scalar / vec._x, scalar / vec._y);
 }

@@ -205,7 +205,7 @@ public:
 	{
 		struct
 		{
-			float x,y;
+			float _x,_y;
 		};
 		float _xy[2];
 	};
@@ -361,6 +361,23 @@ inline EPointClassify CHalfPlane::classifyPoint<true>(const CVec2& point) const
 	return PLANE_INFRONT;
 }
 }
+//src/runtime/core/public/math/random.h
+namespace Arcade
+{
+class METACADE_API CRandom
+{
+public:
+	CRandom();
+	uint32 random();
+	uint32 random(uint32 maximum);
+	int32 randomInt(int32 minimum, int32 maximum);
+	float randomFloat();
+	void randomSeed(int32 newSeed);
+private:
+	uint32 _seedX;
+	uint32 _seedY;
+};
+}
 //src/runtime/core/public/gfx/color.h
 namespace Arcade
 {
@@ -453,6 +470,10 @@ struct METACADE_API CVertex2D
 	inline CVertex2D(const CVertex3D &other);
 	inline CVertex2D interpolateTo(const CVertex2D &other, float fraction) const;
 	static void interpolateTo(const CVertex2D& A, const CVertex2D& B, CVertex2D& result, float fraction);
+	inline CVertex2D operator * (const CMatrix3& matrix) const
+	{
+		return CVertex2D(_position * matrix, _texcoord, _color);
+	}
 	CVertex3D to3D() const;
 	CVec2 _position;
 	CVec2 _texcoord;
@@ -619,7 +640,7 @@ public:
 	bool endsWith(const CString& string) const;
 	bool contains(const CString& string) const;
 	//returns -1 if not found
-	int32 find(const CString& string) const;
+	int32 find(const CString& string, uint32 start = 0) const;
 	CString chopLeft(uint32 len) const;
 	CString chopRight(uint32 len) const;
 	CString sub(uint32 offset, uint32 len) const;
@@ -768,6 +789,8 @@ public:
 	virtual void setChannelPitch(int32 channel, float pitch) = 0;
 	virtual void setChannelLooping(int32 channel, bool loop) = 0;
 	virtual void setChannelVolume(int32 channel, float volume) = 0;
+	virtual void setMasterPitch(float pitch) = 0;
+	virtual void setMasterVolume(float volume) = 0;
 	virtual ~ISoundMixer() {};
 };
 }
@@ -834,6 +857,12 @@ public:
 //src/runtime/render/public/iimage.h
 namespace Arcade
 {
+enum EImageFlags
+{
+	IF_WRAP_X = 1 << 0,
+	IF_WRAP_Y = 1 << 1,
+	IF_SMOOTH = 1 << 2,
+};
 class IImage
 {
 public:
@@ -843,6 +872,7 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const = 0;
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
+	virtual uint32 getFlags() const = 0;
 	virtual ~IImage() = 0;
 };
 }
@@ -881,9 +911,9 @@ struct CRenderQuad
 	inline void makeBox(const CVec2 &mins, const CVec2 &maxs, const CColor &color)
 	{
 		_verts[0]._position.set(mins);
-		_verts[1]._position.set(maxs.x, mins.y);
+		_verts[1]._position.set(maxs._x, mins._y);
 		_verts[2]._position.set(maxs);
-		_verts[3]._position.set(mins.x, maxs.y);
+		_verts[3]._position.set(mins._x, maxs._y);
 		_verts[0]._texcoord.set(0,0);
 		_verts[1]._texcoord.set(1,0);
 		_verts[2]._texcoord.set(1,1);
@@ -1356,6 +1386,9 @@ public:
 	float getMouseY() const;
 	float getMouseDeltaX() const;
 	float getMouseDeltaY() const;
+	void applyTransform(const CMatrix3& matrix);
+	bool canApplyTransform() const;
+	CInputEvent getTransformedEvent(const CMatrix3& matrix) const;
 private:
 	CInputEvent();
 	EInputEventType _eventType;
@@ -1610,10 +1643,10 @@ protected:
 		obj->~T();
 		zfree(obj);
 	}
-	void* zalloc(uint32 size);
-	void* zrealloc(void* pointer, uint32 size);
-	void zfree(void* pointer);
-	void zfree(const void* pointer);
+	void* zalloc(uint32 size) const;
+	void* zrealloc(void* pointer, uint32 size) const;
+	void zfree(void* pointer) const;
+	void zfree(const void* pointer) const;
 #ifdef ENGINE_PRIVATE
 	//not great, but only compiles when you use it, so whatever I'll fix it later
 	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
@@ -1629,7 +1662,7 @@ protected:
 		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
 		return (T*)asset; 
 	}
-	void log(EMessageType type, const char* message, ...);
+	void log(EMessageType type, const char* message, ...) const;
 	class IFileObject* openFile(const CString& name, EFileIOMode mode);
 	void closeFIle(class IFileObject* file);
 	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
@@ -1812,13 +1845,16 @@ public:
 	virtual EImagePixelFormat getPixelFormat() const override;
 	virtual uint8* getPixels() const override;
 	virtual uint32 getID() const override;
+	virtual uint32 getFlags() const override;
 	void setImagePixels(EImagePixelFormat format, uint8 bpc, int32 width, int32 height, uint8* pixels);
+	void setFlag(EImageFlags flag, bool enable = true);
 private:
 	class CIndex *_index;
 	EImagePixelFormat _format;
 	uint8 _bpc;
 	int32 _width;
 	int32 _height;
+	uint32 _flags;
 	uint8* _pixels;
 };
 }

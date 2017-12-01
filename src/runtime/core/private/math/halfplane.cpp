@@ -26,13 +26,13 @@ halfplane.cpp: Vec3 with plane characteristics
 #include "core_private.h"
 
 inline CHalfPlane::CHalfPlane(const CVec2& dir, float distance)
-	: CVec3(dir.x, dir.y, distance)
+	: CVec3(dir._x, dir._y, distance)
 {
 
 }
 
 inline CHalfPlane::CHalfPlane(const CVec2& dir, const CVec2& origin)
-	: CVec3(dir.x, dir.y, origin.dot(dir))
+	: CVec3(dir._x, dir._y, origin.dot(dir))
 {
 
 }
@@ -45,7 +45,7 @@ inline CHalfPlane::CHalfPlane()
 inline float CHalfPlane::distance(const CVec2& point) const
 {
 	//dot(point, normal) - distance
-	return (point.x * this->x + point.y * this->y) - this->z;
+	return (point._x * this->x + point._y * this->y) - this->z;
 }
 
 inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& end, float& fraction) const

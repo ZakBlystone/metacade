@@ -36,7 +36,7 @@ public:
 	{
 		struct
 		{
-			float x,y;
+			float _x,_y;
 		};
 		float _xy[2];
 	};
