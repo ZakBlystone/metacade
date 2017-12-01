@@ -53,18 +53,18 @@ uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= 
 		if ( asset == nullptr )
 		{
 			log(LOG_ERROR, "Sound asset is null");
-			return EChannelID::CHANNEL_INVALID;	
+			return (uint32) EChannelID::CHANNEL_INVALID;	
 		}
 		if ( asset->getType() != ASSET_SOUND )
 		{
 			log(LOG_ERROR, "Asset is not a sound");
-			return EChannelID::CHANNEL_INVALID;
+			return (uint32) EChannelID::CHANNEL_INVALID;
 		}
 
 		return playSoundSample(dynamic_pointer_cast<ISoundSample>( asset ), channel);
 	}
 
-	return EChannelID::CHANNEL_INVALID;
+	return (uint32) EChannelID::CHANNEL_INVALID;
 }
 
 void CSoundMixer::stopSound(int32 channel)
@@ -182,7 +182,7 @@ shared_ptr<CSoundChannel> CSoundMixer::createChannelObject(EChannelMode mode /*=
 shared_ptr<CSoundChannel> CSoundMixer::addChannel(uint32& index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
 {
 	shared_ptr<CSoundChannel> channelObject = nullptr;
-	index = EChannelID::CHANNEL_INVALID;
+	index = (uint32) EChannelID::CHANNEL_INVALID;
 
 	if ( _channels.size() >= _settings.maxChannels ) 
 	{
@@ -201,7 +201,7 @@ shared_ptr<CSoundChannel> CSoundMixer::addChannel(uint32& index, EChannelMode mo
 uint32 CSoundMixer::playSoundSample(shared_ptr<ISoundSample> sample, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
 	shared_ptr<CSoundChannel> channelObject = nullptr;
-	uint32 newIndex = EChannelID::CHANNEL_INVALID;
+	uint32 newIndex = (uint32) EChannelID::CHANNEL_INVALID;
 
 	if ( channel == -1 )
 	{
@@ -212,7 +212,7 @@ uint32 CSoundMixer::playSoundSample(shared_ptr<ISoundSample> sample, int32 chann
 		auto iter = _channels.find(channel);
 		if ( iter == _channels.end() )
 		{
-			return EChannelID::CHANNEL_INVALID;
+			return (uint32) EChannelID::CHANNEL_INVALID;
 		}
 
 		channelObject = (*iter).second;
@@ -221,7 +221,7 @@ uint32 CSoundMixer::playSoundSample(shared_ptr<ISoundSample> sample, int32 chann
 
 	if ( channelObject == nullptr )
 	{
-		return EChannelID::CHANNEL_INVALID;
+		return (uint32) EChannelID::CHANNEL_INVALID;
 	}
 
 	channelObject->play(sample);

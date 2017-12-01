@@ -66,8 +66,6 @@ bool CGUID::operator<(const CGUID& other) const
 
 	//Low bits were either greater-than or equal
 	else return false;
-
-	return false;
 }
 
 bool CGUID::isValid() const

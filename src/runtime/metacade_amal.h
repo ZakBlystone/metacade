@@ -814,7 +814,7 @@ class ITexture
 public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
-	virtual uint16 getID() const = 0;
+	virtual uint32 getID() const = 0;
 	virtual ~ITexture() {};
 };
 }
@@ -1326,7 +1326,7 @@ public:
 			{
 				if ( previous._keyboard[i] != _keyboard[i] )
 				{
-					func( CInputEvent::generateKeyEvent( i, _keyboard[i] == 1 ) );
+					func( CInputEvent::generateKeyEvent( (uint8) i, _keyboard[i] == 1 ) );
 				}
 			}
 		}

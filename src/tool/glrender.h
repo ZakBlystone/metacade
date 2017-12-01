@@ -52,7 +52,7 @@ public:
 	//void renderGUI(struct ImDrawData* drawData);
 
 private:
-	void renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch);
+	void renderBatch(const CRenderBatch* batch);
 	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
 
 	std::map<uint32, ITexture*> _textureRemap;

@@ -26,11 +26,13 @@ package.cpp:
 #include "engine_private.h"
 
 #define PACKAGE_FORMAT_MAGIC 0x474B504D
-#define PACKAGE_FORMAT_VERSION 2
+#define PACKAGE_FORMAT_VERSION 3
 
 //Version 2:
 //	CVariants on CMetaData
 
+//Version 3:
+//  Texture flags + fixed memory alignment on CAssetLocator CGUID construction
 
 #pragma pack(push, 1)
 

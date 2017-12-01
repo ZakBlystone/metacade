@@ -118,7 +118,7 @@ void CGameInstance::think(float time)
 	_vmInstance->think(time, DT);
 }
 
-void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID /*= 0*/)
+void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 /*targetID*/ /*= 0*/)
 {
 	CVec2 renderSize = _hasDesiredResolution ? _desiredResolution : viewportSize;
 
@@ -129,8 +129,6 @@ void CGameInstance::render(IRenderer* renderer, CVec2 viewportSize, uint32 targe
 
 	_elementRenderer->setViewSize(renderSize);
 	_elementRenderer->beginFrame();
-
-	float frac = 0.7f; //(sinf(_lastTime) + 1.f) / 2.f;
 
 	CClipShape viewClip;
 	viewClip.add(CHalfPlane(CVec2(-1,0), CVec2(0,0)));

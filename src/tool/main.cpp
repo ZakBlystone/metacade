@@ -50,7 +50,7 @@ void checkError(int line)
 	if (*error != '\0')
 	{
 		char buf[4096];
-		sprintf(buf, "SDL_Error: %s + line: %i", error, line);
+		snprintf(buf, 4096, "SDL_Error: %s + line: %i", error, line);
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL Error", buf, NULL);
 		SDL_ClearError();
 	}
@@ -71,7 +71,7 @@ static bool demoRecord = false;
 static bool demoPlayback = false;
 static uint32 demoFrame = 0;
 
-static void sndCallback(void* userdata, uint8* stream, int32 len)
+static void sndCallback(void*, uint8* stream, int32 len)
 {
 	SDL_LockMutex(sndMutex);
 
@@ -188,7 +188,7 @@ static CUIState g_UIState;
 
 static const float UI_SPLIT = .7f;
 
-static void immediateUI(int32 width, int32 height, float deltatime)
+static void immediateUI(float width, float height, float deltatime)
 {
 	if ( ImGui::BeginMainMenuBar() )
 	{
@@ -262,12 +262,12 @@ static void immediateUI(int32 width, int32 height, float deltatime)
 	if ( g_UIState.fUIRolloutFraction > 0.f )
 	{
 
-		int32 sizeX = width * (1.f - UI_SPLIT);
-		int32 sizeY = height;
-		int32 posX = width - sizeX * g_UIState.fUIRolloutFraction;
+		float sizeX = width * (1.f - UI_SPLIT);
+		float sizeY = height;
+		float posX = width - sizeX * g_UIState.fUIRolloutFraction;
 
 		ImGui::SetNextWindowPos(ImVec2(posX,20.f));
-		ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY - 20));
+		ImGui::SetNextWindowSize(ImVec2(sizeX, sizeY - 20.f));
 
 		if ( ImGui::Begin("ArcadeTool", nullptr
 			, ImGuiWindowFlags_NoMove 
@@ -322,7 +322,7 @@ void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& 
 	if ( evt.type == SDL_MOUSEMOTION )
 	{
 		CInputState state;
-		state.setMousePosition(evt.motion.x, evt.motion.y - 20);
+		state.setMousePosition((float) evt.motion.x, (float) evt.motion.y - 20.f);
 		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
 		state.generateEvents(baseline, [&events](const CInputEvent &ev) mutable
 		{
@@ -349,7 +349,7 @@ void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& 
 
 	if ( evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP )
 	{
-		CInputEvent ev = CInputEvent::generateKeyEvent(evt.key.keysym.scancode, evt.type == SDL_KEYDOWN);
+		CInputEvent ev = CInputEvent::generateKeyEvent((uint8) evt.key.keysym.scancode, evt.type == SDL_KEYDOWN);
 		events.push_back(ev);
 		baseline.applyEvent(ev);
 	}
@@ -484,7 +484,6 @@ static int start(int argc, char *argv[])
 
 	float width = 1280.f;
 	float height = 720.f;
-	bool paused = false;
 	bool running = true;
 	bool fastForward = false;
 	float lastTime = 0;
@@ -512,8 +511,8 @@ static int start(int argc, char *argv[])
 				if ( evt.window.event == SDL_WINDOWEVENT_RESIZED )
 				{
 					renderer->reshape(evt.window.data1, evt.window.data2);
-					width = evt.window.data1;
-					height = evt.window.data2;
+					width = (float) evt.window.data1;
+					height = (float) evt.window.data2;
 				}
 			}
 
@@ -597,7 +596,6 @@ static int start(int argc, char *argv[])
 
 			if ( demoPlayback && nextAvailableDemoFrame == demoFrame )
 			{
-				uint8 numEvents;
 				demoFile->read( &numEvents, sizeof(uint8) );
 
 				for ( uint32 i=0; i<numEvents; ++i )

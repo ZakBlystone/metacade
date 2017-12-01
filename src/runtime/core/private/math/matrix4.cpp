@@ -283,12 +283,14 @@ CMatrix4 &CMatrix4::identity(CMatrix4 &m)
 
 CMatrix4 CMatrix4::identity()
 {
-	return CMatrix4::identity(CMatrix4());
+	CMatrix4 out;
+	return CMatrix4::identity(out);
 }
 
 CMatrix4 CMatrix4::translation(const CVec3 &t)
 {
-	return CMatrix4::translation(t, CMatrix4());
+	CMatrix4 out;
+	return CMatrix4::translation(t, out);
 }
 
 CMatrix4 &CMatrix4::translation(const CVec3 &t, CMatrix4 &m)

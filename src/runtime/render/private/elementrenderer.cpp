@@ -69,7 +69,6 @@ const shared_ptr<CDrawBuffer> CElementRenderer::getDrawBuffer() const
 
 uint32 CElementRenderer::makeListBatch()
 {
-	uint16 baseVertex = _renderBuffer->getNumVertices();
 	uint32 baseIndex = _renderBuffer->getNumIndices();
 	CRenderState baseState = _renderList->top().getRenderState();
 
@@ -128,8 +127,8 @@ void CElementRenderer::writePolygonToBufferAsTris(const CVertex2D* verts, uint32
 	for ( uint32 i=1; i<num-1; ++i )
 	{
 		_renderBuffer->addIndex(baseIndex);
-		_renderBuffer->addIndex(baseIndex + i);
-		_renderBuffer->addIndex(baseIndex + i + 1);
+		_renderBuffer->addIndex(baseIndex + (uint16) i);
+		_renderBuffer->addIndex(baseIndex + (uint16) i + 1);
 	}
 }
 

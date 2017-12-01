@@ -166,7 +166,7 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 		return false;
 	}
 
-	for ( int32 i=0; i<locked->getNumAssets(); ++i )
+	for ( uint32 i=0; i<locked->getNumAssets(); ++i )
 	{
 		CCodeAsset* lib = castAsset<CCodeAsset>( locked->getAsset(i) );
 		if ( lib && lib != luaMain )

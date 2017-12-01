@@ -95,7 +95,7 @@ struct CDrawData : public CRenderState
 
 static CDrawData gData;
 
-void Arcade::beginLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
+void Arcade::beginLuaDraw(lua_State *, shared_ptr<CElementRenderer> renderer)
 {
 	gData._renderer = renderer.get();
 	gData._layer = 0;
@@ -105,7 +105,7 @@ void Arcade::beginLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
 	gData.resetStack();
 }
 
-void Arcade::endLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer)
+void Arcade::endLuaDraw(lua_State *, shared_ptr<CElementRenderer> renderer)
 {
 	gData._renderer = nullptr;
 }
@@ -156,10 +156,10 @@ MODULE_FUNCTION_DEF(draw_rect)
 	float u1 = (float)luaL_optnumber(L, 8, 1);
 	float v1 = (float)luaL_optnumber(L, 9, 1);
 
-	float hw = w * .5f;
+	/*float hw = w * .5f;
 	float hh = h * .5f;
 	float cx = x + hw;
-	float cy = y + hh;
+	float cy = y + hh;*/
 
 	/*int32 ccheck = 0;
 	for (int32 i=0; i<gData._viewClip.getNumPlanes(); ++i )

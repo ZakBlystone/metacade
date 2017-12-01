@@ -28,7 +28,7 @@ lua_vm.cpp:
 #include <iostream>
 #include <fstream>
 
-static void *l_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+/*static void *l_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	unsigned int *Usage = (unsigned int *)ud;
 
 	if (nsize == 0) {
@@ -49,7 +49,7 @@ static int l_print(lua_State *S)
 
 	std::cout << STR << std::endl;
 	return 0;
-}
+}*/
 
 CLuaVM::CLuaVM(CRuntimeObject* outer)
 	: _L(nullptr)

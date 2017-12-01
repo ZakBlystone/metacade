@@ -39,7 +39,7 @@ const CVertex2D* CRenderBuffer::getVertices() const
 
 const uint16 CRenderBuffer::getNumVertices() const
 {
-	return _numVerts;
+	return (int16) _numVerts;
 }
 
 const uint16* CRenderBuffer::getIndices() const

@@ -221,7 +221,7 @@ void CRendererGL::render(class IDrawBuffer* buffer)
 			updateRenderState(changeFlags, newState);
 		}
 
-		renderBatch(buffer, batch);
+		renderBatch(batch);
 
 		state = batch->getRenderState();
 	}
@@ -270,7 +270,7 @@ public:
 
 	virtual int32 getWidth() const override { return _width; }
 	virtual int32 getHeight() const override { return _height; }
-	virtual uint16 getID() const override { return _id; }
+	virtual uint32 getID() const override { return _id; }
 
 	void addRef()
 	{
@@ -300,7 +300,7 @@ private:
 	uint32 _refs;
 };
 
-class ITexture* CRendererGL::loadTexture(class IRenderer* renderContext, class IImage* imagesource)
+class ITexture* CRendererGL::loadTexture(class IRenderer*, class IImage* imagesource)
 {
 	auto found = _textureRemap.find(imagesource->getID());
 	if ( found != _textureRemap.end() ) 
@@ -318,7 +318,7 @@ class ITexture* CRendererGL::loadTexture(class IRenderer* renderContext, class I
 	return newTexture;
 }
 
-void CRendererGL::freeTexture(class IRenderer* renderContext, ITexture* texture)
+void CRendererGL::freeTexture(class IRenderer*, ITexture* texture)
 {
 	if ( texture == nullptr ) return;
 
@@ -332,7 +332,7 @@ void CRendererGL::freeTexture(class IRenderer* renderContext, ITexture* texture)
 	}
 }
 
-void CRendererGL::renderBatch(IDrawBuffer* buffer, const CRenderBatch* batch)
+void CRendererGL::renderBatch(const CRenderBatch* batch)
 {
 	switch ( batch->getPrimitive() )
 	{

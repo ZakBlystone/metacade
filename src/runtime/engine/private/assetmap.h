@@ -63,17 +63,17 @@ public:
 	struct CAssetLocator
 	{
 		CAssetLocator(IFileObject* obj = nullptr, IAsset* asset = nullptr)
-			: _type(asset ? asset->getType() : EAssetType::ASSET_NONE)
+			: _id(asset ? asset->getUniqueID() : CGUID())
+			, _type(asset ? asset->getType() : EAssetType::ASSET_NONE)
 			, _offset(obj ? obj->tell() : 0)
 			, _size(0)
-			, _id(asset ? asset->getUniqueID() : CGUID())
 			, _isNamed(asset ? asset->isNamedAsset() : false)
 		{}
 
+		CGUID _id;
 		EAssetType _type;
 		uint32 _offset;
 		uint32 _size;
-		CGUID _id;
 		bool _isNamed;
 	};
 

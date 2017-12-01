@@ -120,7 +120,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 				buffer[offset] += lerped * vol;	
 			}
 		}
-		else if ( _sampleInfo.numChannels = 2 )
+		else if ( _sampleInfo.numChannels == 2 )
 		{
 			float AL = (float)(sampleData[sampleIndex]);
 			float AR = (float)(sampleData[sampleIndex+1]);

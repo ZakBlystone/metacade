@@ -113,7 +113,7 @@ public:
 			{
 				if ( previous._keyboard[i] != _keyboard[i] )
 				{
-					func( CInputEvent::generateKeyEvent( i, _keyboard[i] == 1 ) );
+					func( CInputEvent::generateKeyEvent( (uint8) i, _keyboard[i] == 1 ) );
 				}
 			}
 		}

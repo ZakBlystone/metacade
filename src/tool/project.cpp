@@ -380,13 +380,11 @@ bool CProject::save(IFileObject* file) const
 
 		std::string outstr = out.dump(4);
 
-		return file->write(outstr.c_str(), outstr.size());
+		return file->write(outstr.c_str(), (uint32) outstr.size());
 	}
 	catch ( std::exception e )
 	{
 		std::cout << e.what() << std::endl;
 		return false;
 	}
-
-	return false;
 }
