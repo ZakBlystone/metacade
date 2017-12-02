@@ -42,44 +42,71 @@ static CImageAsset* opttexture(lua_State* L, int idx)
 }
 
 #define NUM_MATRIX_STACK 16
+#define NUM_CLIP_STACK 32
 
 struct CDrawData : public CRenderState
 {
-	CClipShape _viewClip;
 	CColor _currentColor;
 	CElementRenderer *_renderer;
 	int32 _layer;
 	CMatrix3 _xformStack[NUM_MATRIX_STACK];
-	uint32 _stackPos;
+	CClipShape _clipStack[NUM_CLIP_STACK];
+	uint32 _xformStackPos;
+	uint32 _clipStackPos;
 
-	void resetStack()
+	void resetStacks()
 	{
-		_stackPos = NUM_MATRIX_STACK - 1;
-		_xformStack[_stackPos] = CMatrix3();
+		_xformStackPos = NUM_MATRIX_STACK - 1;
+		_xformStack[_xformStackPos] = CMatrix3();
+
+		_clipStackPos = NUM_CLIP_STACK - 1;
+		_clipStack[_clipStackPos] = CClipShape();
 	}
 
-	bool push()
+	bool xformPush()
 	{
-		if ( _stackPos == 0 ) return false;
+		if ( _xformStackPos == 0 ) return false;
 
-		CMatrix3& copy = _xformStack[_stackPos];
-		_xformStack[--_stackPos] = copy;
+		CMatrix3& copy = _xformStack[_xformStackPos];
+		_xformStack[--_xformStackPos] = copy;
 
 		return true;
 	}
 
-	bool pop()
+	bool xformPop()
 	{
-		if ( _stackPos == NUM_MATRIX_STACK - 1 ) return false;
-
-		++_stackPos;
+		if ( _xformStackPos == NUM_MATRIX_STACK - 1 ) return false;
+		++_xformStackPos;
 
 		return true;
 	}
 
-	CMatrix3& top()
+	bool clipPush()
 	{
-		return _xformStack[_stackPos];
+		if ( _clipStackPos == 0 ) return false;
+
+		CClipShape& copy = _clipStack[_clipStackPos];
+		_clipStack[--_clipStackPos] = copy;
+
+		return true;
+	}
+
+	bool clipPop()
+	{
+		if (_clipStackPos == NUM_MATRIX_STACK - 1) return false;
+		++_clipStackPos;
+
+		return true;
+	}
+
+	CMatrix3& xformTop()
+	{
+		return _xformStack[_xformStackPos];
+	}
+
+	CClipShape& clipTop()
+	{
+		return _clipStack[_clipStackPos];
 	}
 
 	inline bool valid()
@@ -100,9 +127,9 @@ void Arcade::beginLuaDraw(lua_State *, shared_ptr<CElementRenderer> renderer)
 	gData._renderer = renderer.get();
 	gData._layer = 0;
 	gData._currentColor = CFloatColor(1.f, 1.f, 1.f, 1.f);
-	gData._viewClip = renderer->getViewportClip();
 	gData._material._blend = BLEND_NORMAL;
-	gData.resetStack();
+	gData.resetStacks();
+	gData.clipTop() = renderer->getViewportClip();
 }
 
 void Arcade::endLuaDraw(lua_State *, shared_ptr<CElementRenderer> renderer)
@@ -195,7 +222,7 @@ MODULE_FUNCTION_DEF(draw_rect)
 	}
 	else
 	{*/	
-		quad = &el.makeQuad2(gData._viewClip, gData, gData._layer);
+		quad = &el.makeQuad2(gData.clipTop(), gData, gData._layer);
 		verts = quad->_verts;
 	//}
 
@@ -223,7 +250,7 @@ MODULE_FUNCTION_DEF(draw_rect)
 	verts[3]._texcoord._y = v1;
 	verts[3]._color._irgba = gData._currentColor._irgba;
 
-	quad->transform(gData.top());
+	quad->transform(gData.xformTop());
 
 	return 0;
 }
@@ -260,7 +287,7 @@ MODULE_FUNCTION_DEF(draw_sprite)
 
 	CRenderQuad quad;
 	quad.makeBox(CVec2(-w,-h), CVec2(w,h), gData._currentColor);
-	quad.transform(gData.top() * xform);
+	quad.transform(gData.xformTop() * xform);
 
 	quad._verts[0]._texcoord.set(u0, v0);
 	quad._verts[1]._texcoord.set(u1, v0);
@@ -268,7 +295,7 @@ MODULE_FUNCTION_DEF(draw_sprite)
 	quad._verts[3]._texcoord.set(u0, v1);
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
-	el.makeQuad(quad, gData._viewClip, gData, gData._layer);
+	el.makeQuad(quad, gData.clipTop(), gData, gData._layer);
 
 	return 0;
 }
@@ -292,7 +319,7 @@ MODULE_FUNCTION_DEF(draw_quad)
 		quad._verts[i]._color._irgba = gData._currentColor._irgba;
 	}
 
-	quad.transform(gData.top());
+	quad.transform(gData.xformTop());
 
 	CImageAsset* texture = opttexture(L, 17);
 	gData._material._baseTexture = texture != nullptr ? texture->getID() : 0;
@@ -300,7 +327,7 @@ MODULE_FUNCTION_DEF(draw_quad)
 	//gData._material._baseTexture = (uint32)luaL_optnumber(L, 17, 0);
 
 	CRenderElement& el = gData.getRenderer()->addRenderElement();
-	el.makeQuad(quad, gData._viewClip, gData, gData._layer);
+	el.makeQuad(quad, gData.clipTop(), gData, gData._layer);
 
 	return 0;
 }
@@ -331,7 +358,7 @@ MODULE_FUNCTION_DEF(draw_push)
 {
 	QUICK_RENDERER_CHECK
 
-	if ( !gData.push() )
+	if ( !gData.xformPush() )
 		return luaL_error(L, "Draw matrix stack overflow");
 
 	return 0;
@@ -341,7 +368,7 @@ MODULE_FUNCTION_DEF(draw_pop)
 {
 	QUICK_RENDERER_CHECK
 
-	if ( !gData.pop() )
+	if ( !gData.xformPop() )
 		return luaL_error(L, "Draw matrix stack underflow");
 
 	return 0;
@@ -354,7 +381,7 @@ MODULE_FUNCTION_DEF(draw_translate)
 	float x = (float) luaL_checknumber(L, 1);
 	float y = (float) luaL_checknumber(L, 2);
 
-	gData.top().translate(CVec2(x,y));
+	gData.xformTop().translate(CVec2(x,y));
 
 	return 0;
 }
@@ -365,7 +392,7 @@ MODULE_FUNCTION_DEF(draw_rotate)
 
 	float r = (float) luaL_checknumber(L, 1);
 
-	gData.top().rotate(r);
+	gData.xformTop().rotate(r);
 
 	return 0;
 }
@@ -377,7 +404,60 @@ MODULE_FUNCTION_DEF(draw_scale)
 	float sx = (float) luaL_checknumber(L, 1);
 	float sy = (float) luaL_checknumber(L, 2);
 
-	gData.top().scale(CVec2(sx,sy));
+	gData.xformTop().scale(CVec2(sx,sy));
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_pushcliprect)
+{
+	QUICK_RENDERER_CHECK
+
+	if (!gData.clipPush())
+		return luaL_error(L, "Draw clip stack overflow");
+
+	float x = (float)luaL_checknumber(L, 1);
+	float y = (float)luaL_checknumber(L, 2);
+	float w = (float)luaL_checknumber(L, 3);
+	float h = (float)luaL_checknumber(L, 4);
+
+	CClipShape newshape;
+	newshape.add(CHalfPlane(CVec2(-1, 0), CVec2(x, 0)));
+	newshape.add(CHalfPlane(CVec2(0, -1), CVec2(0, y)));
+	newshape.add(CHalfPlane(CVec2(1, 0), CVec2(x+w, 0)));
+	newshape.add(CHalfPlane(CVec2(0, 1), CVec2(0, y+h)));
+
+	gData.clipTop() -= newshape;
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_pushclipplane)
+{
+	QUICK_RENDERER_CHECK
+
+	if (!gData.clipPush())
+		return luaL_error(L, "Draw clip stack overflow");
+	
+	float x = (float)luaL_checknumber(L, 1);
+	float y = (float)luaL_checknumber(L, 2);
+	float nx = (float)luaL_checknumber(L, 3);
+	float ny = (float)luaL_checknumber(L, 4);
+
+	CClipShape newshape;
+	newshape.add(CHalfPlane(CVec2(nx, ny), CVec2(x, y)));
+
+	gData.clipTop() -= newshape;
+
+	return 0;
+}
+
+MODULE_FUNCTION_DEF(draw_popclip)
+{
+	QUICK_RENDERER_CHECK
+
+	if (!gData.clipPop())
+		return luaL_error(L, "Draw clip stack underflow");
 
 	return 0;
 }
@@ -394,6 +474,9 @@ static const luaL_Reg drawlib[] = {
 	{"translate", draw_translate},
 	{"rotate", draw_rotate},
 	{"scale", draw_scale},
+	{"pushcliprect", draw_pushcliprect},
+	{"pushclipplane", draw_pushclipplane},
+	{"popclip", draw_popclip},
 	{nullptr, nullptr}
 };
 

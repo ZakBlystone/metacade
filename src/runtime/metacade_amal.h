@@ -342,6 +342,8 @@ public:
 	//Only returns intersection if start->end faces into the plane from the front
 	//TOI is stored in 'fraction', returns type of intersection
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
+	//Calculates the point of intersection between two planes
+	inline bool intersection(const CHalfPlane& other, CVec2& out) const;
 	//Returns whether or not 'point' is behind or in front of the plane
 	//Passing template parameter 'true' for 'CheckOn' will cause this to also return if the point is on the plane
 	template<bool CheckOn = false>
@@ -953,6 +955,7 @@ public:
 	}
 	inline const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
 	inline int32 getNumPlanes() const { return _numPlanes; }
+	CClipShape& operator-=(const CClipShape& other);
 private:
 	CHalfPlane _planes[MAX_CLIPPING_PLANES];
 	int32 _numPlanes;

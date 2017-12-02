@@ -89,6 +89,8 @@ public:
 	inline const CHalfPlane& getHalfPlane(int32 i) const { return _planes[i]; }
 	inline int32 getNumPlanes() const { return _numPlanes; }
 
+	CClipShape& operator-=(const CClipShape& other);
+
 private:
 	CHalfPlane _planes[MAX_CLIPPING_PLANES];
 	int32 _numPlanes;

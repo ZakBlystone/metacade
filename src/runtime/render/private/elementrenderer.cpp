@@ -140,7 +140,7 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 	//Check if clipping even needs to be done
 	if ( clip.getNumPlanes() == 0 )
 	{
-		writePolygonToBufferAsTris(verts, num);
+		//writePolygonToBufferAsTris(verts, num);
 		return;
 	}
 

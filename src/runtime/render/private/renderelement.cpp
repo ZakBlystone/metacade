@@ -75,3 +75,58 @@ int32 CRenderElement::getLayer() const
 {
 	return _layer;
 }
+
+CClipShape& CClipShape::operator-=(const CClipShape& other)
+{
+	//total number of planes to consider
+	int32 num = _numPlanes + other._numPlanes;
+
+	//temporary array to combine lists of planes
+	CHalfPlane temp[MAX_CLIPPING_PLANES*2];
+
+	//temporary markers to determine which planes are valid
+	bool marked[MAX_CLIPPING_PLANES*2] = {false};
+
+	//copy this shape's planes into temp
+	memcpy(temp, _planes, _numPlanes * sizeof(CHalfPlane));
+
+	//copy other shape's planes into temp
+	memcpy(temp + _numPlanes, other._planes, other._numPlanes * sizeof(CHalfPlane));
+
+	//making a new set of planes
+	_numPlanes = 0;
+
+	//temporary for point of intersection
+	CVec2 point;
+
+	//iterate over every pair of planes
+	for ( int32 i=0; i<num; ++i )
+	{
+		for ( int32 j=i+1; j<num; ++j )
+		{
+			//continue until two intersecting planes are found
+			if ( !temp[i].intersection(temp[j], point) ) continue;
+
+			//verify that the intersection point is 'behind' all other planes
+			bool valid = true;
+			for (int32 k = 0; k < num; ++k)
+			{
+				if (k == i || k == j) continue;
+				if (temp[k].distance(point) > EPSILON) { valid = false; break; }
+			}
+
+			//mark the two planes as valid
+			if (valid)
+			{
+				marked[i] = true;
+				marked[j] = true;
+			}
+		}
+
+		//if plane is a valid part of the set, add it
+		//break once we've reached MAX_CLIPPING_PLANES
+		if ( marked[i] && !add(temp[i]) ) break;
+	}
+
+	return *this;
+}

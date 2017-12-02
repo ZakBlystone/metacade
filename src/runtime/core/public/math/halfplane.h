@@ -48,6 +48,9 @@ public:
 	//TOI is stored in 'fraction', returns type of intersection
 	inline EPointClassify intersection(const CVec2& start, const CVec2& end, float& fraction) const;
 
+	//Calculates the point of intersection between two planes
+	inline bool intersection(const CHalfPlane& other, CVec2& out) const;
+
 	//Returns whether or not 'point' is behind or in front of the plane
 	//Passing template parameter 'true' for 'CheckOn' will cause this to also return if the point is on the plane
 	template<bool CheckOn = false>

@@ -71,3 +71,25 @@ inline EPointClassify CHalfPlane::intersection(const CVec2& start, const CVec2& 
 
 	return PLANE_INFRONT;
 }
+
+bool CHalfPlane::intersection(const CHalfPlane& other, CVec2& out) const
+{
+	//origin of other plane
+	float otherX = other._x * other._z;
+	float otherY = other._y * other._z;
+
+	//dotProduct(p0 - p1, normal)
+	float a = (_x * _z - otherX) * _x + (_y * _z - otherY) * _y;
+
+	//dot product between this normal and perpendicular normal of other plane
+	float b = other._y * _x - other._x * _y;
+
+	//check if parallel
+	if ( b == 0.f ) return false;
+
+	//projection along vector perpendicular to other plane
+	float c = a / b;
+	out.set(otherX + other._y * c, otherY - other._x * c);
+
+	return true;
+}
