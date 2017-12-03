@@ -122,7 +122,7 @@ CRenderTest::CRenderTest()
 	_loadImage = new TestImage("E:/Temp/pic3.dat", 1);
 	_loadImage2 = new TestImage("E:/Temp/pic2.dat", 2);
 
-	_renderer = make_shared<CElementRenderer>();
+	_renderer = makeShared<CElementRenderer>();
 	_lastTime = 0.f;
 }
 

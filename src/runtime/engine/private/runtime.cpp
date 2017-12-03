@@ -53,8 +53,6 @@ struct CRefTest
 CRuntime::CRuntime()
 	: _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
-	, _textureIndices(make_shared<CIndexAllocator>())
-	, _luaVM(make_shared<CLuaVM>())
 {
 }
 
@@ -70,10 +68,14 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
+
+	_packageManager = makeShared<CPackageManager>();
+	_textureIndices = makeShared<CIndexAllocator>();
+	_luaVM = makeShared<CLuaVM>();
+
 	if ( !_luaVM->init() ) return false;
 
-	_packageManager = make_shared<CPackageManager>();
-	//_renderTest = make_shared<CRenderTest>(this);
+	//_renderTest = makeShared<CRenderTest>(this);
 
 	//if ( !_renderTest->init() ) return false;
 

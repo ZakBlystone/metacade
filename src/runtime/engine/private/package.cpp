@@ -53,8 +53,8 @@ struct CPackHeader
 
 CPackage::CPackage(const CString& filepath)
 	: _filepath(filepath)
-	, _map(make_shared<CAssetMap>())
-	, _meta(make_shared<CMetaData>())
+	, _map(makeShared<CAssetMap>())
+	, _meta(makeShared<CMetaData>())
 {
 }
 

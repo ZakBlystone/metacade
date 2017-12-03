@@ -28,7 +28,7 @@ indexallocator.cpp:
 CIndex CIndexAllocator::getIndex()
 {
 	CIndex out;
-	out._lock = make_shared<CIndexAllocator::CIndexLock>(shared_from_this());
+	out._lock = makeShared<CIndexAllocator::CIndexLock>(shared_from_this());
 	return out;
 }
 

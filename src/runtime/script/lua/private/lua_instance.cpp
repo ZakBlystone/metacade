@@ -326,7 +326,7 @@ Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 		++ptr;
 	}
 
-	_object = make_shared<LuaVMReference>(getLuaClass()->_host, -1);
+	_object = makeShared<LuaVMReference>(getLuaClass()->_host, -1);
 
 	lua_pop(L, 1);
 }
