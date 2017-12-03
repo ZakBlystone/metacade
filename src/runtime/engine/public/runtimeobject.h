@@ -37,54 +37,8 @@ public:
 
 protected:
 
-	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
-	{
-		return new(zalloc(sizeof(T))) T(args...);
-	}
-
-	template<typename T>
-	void destroy(T* obj)
-	{
-		if ( obj == nullptr ) return;
-		obj->~T();
-		zfree(obj);
-	}
-
-	void* zalloc(uint32 size) const;
-	void* zrealloc(void* pointer, uint32 size) const;
-	void zfree(void* pointer) const;
-	void zfree(const void* pointer) const;
-
 #ifdef ENGINE_PRIVATE
-
-	//not great, but only compiles when you use it, so whatever I'll fix it later
-	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
-	{
-		return shared_ptr<T>
-			( this->construct<T>( args... )
-			, [this](T* ptr) { this->destroy(ptr); });
-	}
-
-	template<typename T>
-	T* castAsset(const CAssetRef& ref) 
-	{ 
-		IAsset* asset = ref.get(_runtime); 
-		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
-		return (T*)asset; 
-	}
-
-	void log(EMessageType type, const char* message, ...) const;
-
-	class IFileObject* openFile(const CString& name, EFileIOMode mode);
-	void closeFIle(class IFileObject* file);
-
-	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
-
 	class IRuntime* getRuntime() const;
-
-	class CIndex allocateImageIndex();
-
-	class IVMHost* getLuaVM();
 #endif
 
 private:

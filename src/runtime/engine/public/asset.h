@@ -72,6 +72,8 @@ public:
 	virtual bool isNamedAsset() const { return !_name.empty(); }
 	virtual CString getName() const { return _name; }
 
+	static EAssetType getAssetType() { return Type; }
+
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
@@ -110,8 +112,8 @@ public:
 
 	EAssetType getType() const;
 
-	IAsset* get(IRuntime* runtime) const;
-	IPackage* getPackage(IRuntime* runtime) const;
+	IAsset* get() const;
+	IPackage* getPackage() const;
 
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
@@ -124,5 +126,13 @@ private:
 	CGUID _asset, _package;
 	EAssetType _type;
 };
+
+template<typename T>
+T* castAsset(const CAssetRef& ref)
+{
+	IAsset* asset = ref.get();
+	if (!asset || !((T*)(asset))->checkType()) return nullptr;
+	return (T*)asset;
+}
 
 }

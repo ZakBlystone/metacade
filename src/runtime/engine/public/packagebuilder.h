@@ -43,8 +43,9 @@ public:
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = construct<T>(this);
-		newAsset->setUniqueID(CGUID::generate());
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
+
 		addAsset(newAsset);
 		return newAsset;
 	}
@@ -52,9 +53,10 @@ public:
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
-		T* newAsset = construct<T>(this);
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
+
 		newAsset->setName(name);
-		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
 		return newAsset;
 	}
@@ -76,6 +78,8 @@ private:
 	friend class CPackageManager;
 
 	void addAsset(class IAsset* asset);
+
+	class IAsset* constructAsset(EAssetType type);
 
 	CPackageBuilder(class CPackage* package);
 

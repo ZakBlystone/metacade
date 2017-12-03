@@ -1489,6 +1489,8 @@ class IRuntime
 public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
+	virtual void makeCurrent() = 0;
+	virtual bool isCurrent() const = 0;
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
 	virtual IMetaData* createMetaData() = 0;
@@ -1635,43 +1637,8 @@ public:
 	CRuntimeObject(class IRuntime* runtime);
 	CRuntimeObject(CRuntimeObject* outer);
 protected:
-	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
-	{
-		return new(zalloc(sizeof(T))) T(args...);
-	}
-	template<typename T>
-	void destroy(T* obj)
-	{
-		if ( obj == nullptr ) return;
-		obj->~T();
-		zfree(obj);
-	}
-	void* zalloc(uint32 size) const;
-	void* zrealloc(void* pointer, uint32 size) const;
-	void zfree(void* pointer) const;
-	void zfree(const void* pointer) const;
 #ifdef ENGINE_PRIVATE
-	//not great, but only compiles when you use it, so whatever I'll fix it later
-	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
-	{
-		return shared_ptr<T>
-			( this->construct<T>( args... )
-			, [this](T* ptr) { this->destroy(ptr); });
-	}
-	template<typename T>
-	T* castAsset(const CAssetRef& ref) 
-	{ 
-		IAsset* asset = ref.get(_runtime); 
-		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
-		return (T*)asset; 
-	}
-	void log(EMessageType type, const char* message, ...) const;
-	class IFileObject* openFile(const CString& name, EFileIOMode mode);
-	void closeFIle(class IFileObject* file);
-	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 	class IRuntime* getRuntime() const;
-	class CIndex allocateImageIndex();
-	class IVMHost* getLuaVM();
 #endif
 private:
 	class IRuntime* _runtime;
@@ -1718,6 +1685,7 @@ public:
 	virtual bool isLoaded() const { return _loaded; }
 	virtual bool isNamedAsset() const { return !_name.empty(); }
 	virtual CString getName() const { return _name; }
+	static EAssetType getAssetType() { return Type; }
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
@@ -1748,8 +1716,8 @@ class METACADE_API CAssetRef
 public:
 	CAssetRef();
 	EAssetType getType() const;
-	IAsset* get(IRuntime* runtime) const;
-	IPackage* getPackage(IRuntime* runtime) const;
+	IAsset* get() const;
+	IPackage* getPackage() const;
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
 private:
@@ -1758,6 +1726,13 @@ private:
 	CGUID _asset, _package;
 	EAssetType _type;
 };
+template<typename T>
+T* castAsset(const CAssetRef& ref)
+{
+	IAsset* asset = ref.get();
+	if (!asset || !((T*)(asset))->checkType()) return nullptr;
+	return (T*)asset;
+}
 }
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade
@@ -1774,17 +1749,17 @@ public:
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = construct<T>(this);
-		newAsset->setUniqueID(CGUID::generate());
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
 		addAsset(newAsset);
 		return newAsset;
 	}
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
-		T* newAsset = construct<T>(this);
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
 		newAsset->setName(name);
-		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
 		return newAsset;
 	}
@@ -1799,6 +1774,7 @@ public:
 private:
 	friend class CPackageManager;
 	void addAsset(class IAsset* asset);
+	class IAsset* constructAsset(EAssetType type);
 	CPackageBuilder(class CPackage* package);
 	IAssetCompiler* _compiler;
 	class CPackage* _package;

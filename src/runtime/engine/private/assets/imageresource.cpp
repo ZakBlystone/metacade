@@ -48,7 +48,7 @@ bool CImageAsset::load(IFileObject* file)
 	if ( !file->read(&_flags, sizeof(uint32)) ) return false;
 
 	if ( _index == nullptr ) 
-		_index = construct<CIndex>(allocateImageIndex());
+		_index = construct<CIndex>(gRuntime->getImageIndexAllocator()->getIndex());
 
 	if ( _pixels != nullptr )
 		release();

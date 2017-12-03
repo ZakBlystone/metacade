@@ -32,11 +32,7 @@ namespace Arcade
 class CFileHandle : public CRuntimeObject
 {
 public:
-	CFileHandle(const CString& filename, EFileIOMode mode, CRuntimeObject* runtime)
-		: CRuntimeObject(runtime)
-		, _file(openFile(filename, mode))
-		, _ref(new uint32(1))
-	{}
+	CFileHandle(const CString& filename, EFileIOMode mode, CRuntimeObject* runtime);
 
 	CFileHandle(const CFileHandle& other)
 		: CRuntimeObject(other)
@@ -67,17 +63,7 @@ public:
 		return *this;
 	}
 
-	void reset()
-	{
-		if ( _file != nullptr && --(*_ref) == 0 )
-		{
-			closeFIle(_file);
-			delete _ref;
-
-			_file = nullptr;
-			_ref = nullptr;
-		}
-	}
+	void reset();
 
 	operator IFileObject*()
 	{

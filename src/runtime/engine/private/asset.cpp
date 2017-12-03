@@ -44,19 +44,18 @@ EAssetType CAssetRef::getType() const
 	return _type;
 }
 
-IAsset* CAssetRef::get(IRuntime* runtime) const
+IAsset* CAssetRef::get() const
 {
-	CPackage* pkg = (CPackage*) getPackage(runtime);
+	CPackage* pkg = (CPackage*) getPackage();
 	if ( pkg == nullptr ) return nullptr;
 
 	return pkg->getAssetMap()->findAssetByID(_asset).get();
 }
 
-IPackage* CAssetRef::getPackage(IRuntime* runtime) const
+IPackage* CAssetRef::getPackage() const
 {
-	if ( runtime == nullptr ) return nullptr;
-
-	return runtime->getPackageManager()->getPackageByID(_package);
+	if ( gRuntime == nullptr ) return nullptr;
+	return gRuntime->getPackageManager()->getPackageByID(_package);
 }
 
 CGUID CAssetRef::getAssetID() const

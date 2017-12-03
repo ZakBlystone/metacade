@@ -48,6 +48,9 @@ public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
 
+	virtual void makeCurrent() = 0;
+	virtual bool isCurrent() const = 0;
+
 	virtual IRenderTest* createRenderTest() = 0;
 	virtual void deleteRenderTest(IRenderTest* test) = 0;
 

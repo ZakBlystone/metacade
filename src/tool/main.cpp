@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <thread>
 
 using std::ostream;
 using std::istream;
@@ -300,7 +301,7 @@ static void immediateUI(float width, float height, float deltatime)
 				ImGui::Text("Assets:");
 				for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
 				{
-					IAsset* asset = loadedPackage->getAsset(i).get(runtime);
+					IAsset* asset = loadedPackage->getAsset(i).get();
 					//ImGui::Button("|");
 					//ImGui::SameLine();
 					ImGui::Text("  %s", *asset->getName());
@@ -355,10 +356,48 @@ void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& 
 	}
 }
 
+static void testCurrent(const char* name, Arcade::IRuntime* rt)
+{
+	if ( rt == nullptr ) { std::cout << "Runtime[" << name << "] is not valid" << std::endl; return; }
+	std::cout << "Runtime[" << name << "] is " << (rt->isCurrent() ? "current" : "NOT current") << std::endl; 
+}
+
+static void innerThread(const char* name, Arcade::IRuntime* rt)
+{
+	std::cout << "TEST CURRENT IN THREAD" << std::endl;
+	rt->makeCurrent();
+	testCurrent(name, rt);
+}
+
+static int threadTest()
+{
+	Arcade::IRuntime *rtA = nullptr;
+	Arcade::IRuntime *rtB = nullptr;
+	Arcade::create(&rtA);
+	Arcade::create(&rtB);
+
+	rtA->makeCurrent();
+
+	std::cout << "PRE TEST CURRENT" << std::endl;
+	testCurrent("rtA", rtA);
+	testCurrent("rtB", rtB);
+
+	std::thread t(innerThread, "rtB-thread", rtB);
+	t.join();
+
+	std::cout << "POST TEST CURRENT" << std::endl;
+	testCurrent("rtA", rtA);
+	testCurrent("rtB", rtB);
+
+	return 0;
+}
+
 static int start(int argc, char *argv[])
 {
 	uint32 nextAvailableDemoFrame = 0;
 	CString runPackage;
+
+	//if ( true ) return threadTest();
 
 	if ( argc < 2 ) 
 	{

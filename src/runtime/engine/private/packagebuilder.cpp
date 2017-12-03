@@ -101,3 +101,25 @@ bool CPackageBuilder::save()
 {
 	return _package->save();
 }
+
+class IAsset* CPackageBuilder::constructAsset(EAssetType type)
+{
+	IAsset* newAsset = nullptr;
+	switch(type)
+	{
+	case Arcade::ASSET_NONE: return nullptr;
+	case Arcade::ASSET_ANY: return nullptr;
+	case Arcade::ASSET_CODE: newAsset = construct<CCodeAsset>(this); break;
+	case Arcade::ASSET_TEXTURE: newAsset = construct<CImageAsset>(this); break;
+	case Arcade::ASSET_SOUND: newAsset = construct<CSoundAsset>(this); break;
+	default:
+	break;
+	}
+
+	if ( newAsset != nullptr )
+	{
+		newAsset->setUniqueID(CGUID::generate());
+	}
+
+	return newAsset;
+}

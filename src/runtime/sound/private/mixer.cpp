@@ -35,18 +35,18 @@ Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings 
 {
 	_mixBuffer = shared_ptr<float>( 
 		(float*) zalloc( _settings.bufferSize * sizeof(float) * _settings.getChannelCount() ),
-		[this](float* del) { this->zfree(del); }
+		[](float* del) { zfree(del); }
 	);
 
 	_outBuffer = shared_ptr<uint8>( 
 		(uint8*) zalloc( _settings.bufferSize * sizeof(uint8) * _settings.getBytesPerFrame() ),
-		[this](uint8* del) { this->zfree(del); }
+		[](uint8* del) { zfree(del); }
 	);
 }
 
 uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
-	CPackage* pkg = (CPackage*) (sound.getPackage(getRuntime()));
+	CPackage* pkg = (CPackage*) (sound.getPackage());
 	if ( pkg != nullptr )
 	{
 		shared_ptr<IAsset> asset = pkg->getAssetMap()->findAssetByID(sound.getAssetID());

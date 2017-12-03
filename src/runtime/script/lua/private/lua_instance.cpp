@@ -85,7 +85,7 @@ void CLuaVMInstance::createAssetRefTable(EAssetType type, const CString& prefix)
 		CAssetRef ref = pkg->getAsset(i);
 		if ( ref.getType() != type ) continue;
 
-		IAsset* asset = ref.get(getRuntime());
+		IAsset* asset = ref.get();
 		if ( asset == nullptr ) continue;
 
 		pushAssetRef(L, ref);
@@ -371,21 +371,21 @@ void Arcade::CLuaVMInstance::postInputEvent(const class CInputEvent& input)
 	case INPUTEVENT_NONE:
 	break;
 	case INPUTEVENT_MOUSEPRESSED:
-		success = callFunction(CFunctionCall("onMousePressed"
+		success = !_state.getMouseIsFocused() || callFunction(CFunctionCall("onMousePressed"
 			, mouseX
 			, mouseY
 			, (int32) input.getMouseButton()
 			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_MOUSERELEASED:
-		success = callFunction(CFunctionCall("onMouseReleased"
+		success = !_state.getMouseIsFocused() || callFunction(CFunctionCall("onMouseReleased"
 			, mouseX
 			, mouseY
 			, (int32) input.getMouseButton()
 			, _state.getMouseIsFocused()));
 	break;
 	case INPUTEVENT_MOUSEMOVED:
-		success = callFunction(CFunctionCall("onMouseMoved"
+		success = !_state.getMouseIsFocused() || callFunction(CFunctionCall("onMouseMoved"
 			, input.getMouseX()
 			, input.getMouseY()
 			, input.getMouseDeltaX()

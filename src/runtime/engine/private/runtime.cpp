@@ -61,10 +61,13 @@ CRuntime::CRuntime()
 CRuntime::~CRuntime()
 {
 	std::cout << "Destruct RUNTIME" << std::endl;
+	if ( isCurrent() ) gRuntime = nullptr;
 }
 
 bool CRuntime::initialize(IRuntimeEnvironment* env)
 {
+	makeCurrent();
+
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
 	if ( !_luaVM->init() ) return false;
@@ -211,6 +214,16 @@ shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
 	return _textureIndices;
 }
 
+void CRuntime::makeCurrent()
+{
+	gRuntime = this;
+}
+
+bool CRuntime::isCurrent() const
+{
+	return gRuntime == this;
+}
+
 Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
 {
 	CRenderTest* test = construct<CRenderTest>(this);
@@ -280,4 +293,82 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 Arcade::IVMHost* Arcade::CRuntime::getLuaVM()
 {
 	return _luaVM.get();
+}
+
+thread_local CRuntime* Arcade::gRuntime = nullptr;
+
+//from CRuntimeObject
+
+void Arcade::log(EMessageType type, const char* message, ...)
+{
+	if ( gRuntime == nullptr ) return;
+
+	va_list args;
+
+	va_start(args, message);
+	int32 len = _vscprintf(message, args) + 1;
+
+	char* buffer = (char*)zalloc(len);
+	vsprintf_s(buffer, len, message, args);
+
+	ILogger* logger = gRuntime->getLogger();
+	logger->log(buffer, type);
+
+	zfree(buffer);
+	va_end(args);
+}
+
+void* Arcade::zalloc(uint32 size)
+{
+	if ( gRuntime == nullptr ) return nullptr;
+	IAllocator* allocator = gRuntime->getAllocator();
+	return allocator->memrealloc(nullptr, size);
+}
+
+void* Arcade::zrealloc(void* pointer, uint32 size)
+{
+	if ( gRuntime == nullptr ) return pointer;
+	IAllocator* allocator = gRuntime->getAllocator();
+	return allocator->memrealloc(pointer, size);
+}
+
+void Arcade::zfree(void* pointer)
+{
+	if ( gRuntime == nullptr ) return;
+	IAllocator* allocator = gRuntime->getAllocator();
+	allocator->memfree(pointer);
+}
+
+void Arcade::zfree(const void* pointer)
+{
+	if ( gRuntime == nullptr ) return;
+	IAllocator* allocator = gRuntime->getAllocator();
+	allocator->memfree((void *)pointer);
+}
+
+IFileObject* Arcade::openFile(const CString& name, EFileIOMode mode)
+{
+	if ( gRuntime == nullptr ) return nullptr;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return nullptr;
+	return fs->openFile(name, mode);
+}
+
+void Arcade::closeFIle(IFileObject* file)
+{
+	if ( gRuntime == nullptr ) return;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return;
+	fs->closeFile(file);
+}
+
+bool Arcade::listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter)
+{
+	if ( gRuntime == nullptr ) return nullptr;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return false;
+	return fs->listFilesInDirectory(collection, dir, extFilter);
 }

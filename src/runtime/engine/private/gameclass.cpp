@@ -84,7 +84,7 @@ bool CGameClass::init()
 		return false;
 	}
 
-	_vmKlass = getLuaVM()->loadGameVMClass(locked);
+	_vmKlass = gRuntime->getLuaVM()->loadGameVMClass(locked);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");
