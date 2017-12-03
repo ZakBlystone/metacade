@@ -28,10 +28,10 @@ assetmap.h: A collection of assets that can be saved and loaded
 namespace Arcade
 {
 
-class CAssetMap : public CRuntimeObject, public enable_shared_from_this<CAssetMap>
+class CAssetMap : public enable_shared_from_this<CAssetMap>
 {
 public:
-	CAssetMap(CRuntimeObject* outer);
+	CAssetMap();
 	~CAssetMap();
 
 	//An asset load handle is used to keep assets in memory until it is destructed

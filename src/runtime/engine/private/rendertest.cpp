@@ -114,16 +114,15 @@ private:
 	uint32 _id;
 };
 
-CRenderTest::CRenderTest(CRuntimeObject* outer)
-	: CRuntimeObject(outer)
-	, _vmInstance(nullptr)
+CRenderTest::CRenderTest()
+	: _vmInstance(nullptr)
 {
 
 	_whiteImage = new WhiteImage;
 	_loadImage = new TestImage("E:/Temp/pic3.dat", 1);
 	_loadImage2 = new TestImage("E:/Temp/pic2.dat", 2);
 
-	_renderer = make_shared<CElementRenderer>(this);
+	_renderer = make_shared<CElementRenderer>();
 	_lastTime = 0.f;
 }
 

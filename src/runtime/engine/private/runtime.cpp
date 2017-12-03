@@ -26,6 +26,7 @@ runtime.cpp:
 #include "engine_private.h"
 #include "sound_private.h"
 #include "script/lua/lua_private.h"
+#include <stdarg.h>
 
 class CDefaultAllocator : public IAllocator
 {
@@ -50,11 +51,10 @@ struct CRefTest
 };
 
 CRuntime::CRuntime()
-	: CRuntimeObject((IRuntime*) this)
-	, _packageManager(nullptr)
+	: _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
 	, _textureIndices(make_shared<CIndexAllocator>())
-	, _luaVM(make_shared<CLuaVM>(this))
+	, _luaVM(make_shared<CLuaVM>())
 {
 }
 
@@ -72,7 +72,7 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	if ( _runtimeEnvironment == nullptr ) return false;
 	if ( !_luaVM->init() ) return false;
 
-	_packageManager = make_shared<CPackageManager>(this);
+	_packageManager = make_shared<CPackageManager>();
 	//_renderTest = make_shared<CRenderTest>(this);
 
 	//if ( !_renderTest->init() ) return false;
@@ -146,7 +146,7 @@ bool CRuntime::filesystemTest()
 	string writeTestString("Hello World");
 
 	{
-		CFileHandle obj("TestFile.txt", FILE_WRITE, this);
+		CFileHandle obj("TestFile.txt", FILE_WRITE);
 		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to create test file");
@@ -161,7 +161,7 @@ bool CRuntime::filesystemTest()
 	}
 
 	{
-		CFileHandle obj("TestFile.txt", FILE_READ, this);
+		CFileHandle obj("TestFile.txt", FILE_READ);
 		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to re-open test file");
@@ -226,7 +226,7 @@ bool CRuntime::isCurrent() const
 
 Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
 {
-	CRenderTest* test = construct<CRenderTest>(this);
+	CRenderTest* test = construct<CRenderTest>();
 	if ( !test->init() ) return nullptr;
 
 	return test;
@@ -249,7 +249,7 @@ void CRuntime::deleteMetaData(IMetaData* data)
 
 ISoundMixer* CRuntime::createSoundMixer(CMixerSettings settings)
 {
-	return construct<CSoundMixer>(this, settings);
+	return construct<CSoundMixer>(settings);
 }
 
 void CRuntime::deleteSoundMixer(ISoundMixer* mixer)
@@ -279,11 +279,11 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	class CEnableGameClass : public CGameClass
 	{
 	public:
-		CEnableGameClass(weak_ptr<CPackage> package, class CRuntimeObject* outer)
-			: CGameClass(package, outer) {}
+		CEnableGameClass(weak_ptr<CPackage> package)
+			: CGameClass(package) {}
 	};
 
-	shared_ptr<CEnableGameClass> newClass = makeShared<CEnableGameClass>(pkg, this);
+	shared_ptr<CEnableGameClass> newClass = makeShared<CEnableGameClass>(pkg);
 
 	_classes.insert(make_pair(packageID, newClass));
 

@@ -263,7 +263,6 @@ static int instanceRandom(lua_State* L)
 //VM INSTANCE
 Arcade::CLuaVMInstance::CLuaVMInstance(weak_ptr<CLuaVMClass> klass)
 	: _klass(klass)
-	, CRuntimeObject(klass.lock().get())
 {
 	if ( _klass.expired() ) return;
 

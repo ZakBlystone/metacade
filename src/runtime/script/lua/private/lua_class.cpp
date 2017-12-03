@@ -30,7 +30,6 @@ lua_class.cpp:
 Arcade::CLuaVMClass::CLuaVMClass(weak_ptr<CLuaVM> host)
 	: _host(host)
 	, _metaData(make_shared<CMetaData>())
-	, CRuntimeObject(host.lock().get())
 {
 
 }

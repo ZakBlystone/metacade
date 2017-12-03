@@ -50,7 +50,7 @@ struct CChannelState
 };
 
 class CSoundMixer;
-class CSoundChannel : public CRuntimeObject, public ISoundChannel
+class CSoundChannel : public ISoundChannel
 {
 public:
 	CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode = CHANNELMODE_DEFAULT);

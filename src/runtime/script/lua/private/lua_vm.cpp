@@ -51,10 +51,9 @@ static int l_print(lua_State *S)
 	return 0;
 }*/
 
-CLuaVM::CLuaVM(CRuntimeObject* outer)
+CLuaVM::CLuaVM()
 	: _L(nullptr)
 	, _memUsage(0)
-	, CRuntimeObject(outer)
 {
 
 }
@@ -96,9 +95,6 @@ bool CLuaVM::init()
 	luaopen_math(_L);
 	luaopen_table(_L);
 	luaopen_string(_L);
-
-	lua_pushlightuserdata(_L, getRuntime());
-	lua_setglobal(_L, "__runtime");
 
 	lua_newtable(_L);
 

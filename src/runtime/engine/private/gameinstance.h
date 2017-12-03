@@ -28,7 +28,7 @@ gameinstance.h:
 namespace Arcade
 {
 
-class CGameInstance : public CRuntimeObject, public IGameInstance
+class CGameInstance : public IGameInstance
 {
 public:
 	virtual class IGameClass* getClass() override;

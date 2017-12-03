@@ -31,7 +31,7 @@ namespace Arcade
 class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
 {
 public:
-	CSoundAsset(CRuntimeObject* outer);
+	CSoundAsset();
 	virtual ~CSoundAsset();
 
 	virtual bool load(IFileObject* file) override;

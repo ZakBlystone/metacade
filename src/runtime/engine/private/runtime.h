@@ -32,7 +32,7 @@ runtime.h:
 namespace Arcade
 {
 
-class CRuntime : public IRuntime, public CRuntimeObject
+class CRuntime : public IRuntime
 {
 public:
 	CRuntime();

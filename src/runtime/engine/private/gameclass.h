@@ -28,7 +28,7 @@ gameclass.h:
 namespace Arcade
 {
 
-class CGameClass : public CRuntimeObject, public IGameClass, public enable_shared_from_this<CGameClass>
+class CGameClass : public IGameClass, public enable_shared_from_this<CGameClass>
 {
 public:
 	virtual bool createInstance(IGameInstance** instance) override;
@@ -39,7 +39,7 @@ public:
 private:
 	friend class CRuntime;
 
-	CGameClass( weak_ptr<CPackage> package, class CRuntimeObject* outer);
+	CGameClass( weak_ptr<CPackage> package );
 
 	bool init();
 	void release();

@@ -39,7 +39,6 @@ engine_public.h:
 #include "public/imachineenvironment.h"
 #include "public/iruntimeenvironment.h"
 #include "public/ipackagemanager.h"
-#include "public/runtimeobject.h"
 #include "public/asset.h"
 #include "public/packagebuilder.h"
 #include "public/api.h"

@@ -25,9 +25,8 @@ imageresource.cpp:
 
 #include "engine_private.h"
 
-CImageAsset::CImageAsset(CRuntimeObject* outer)
-	: CAsset(outer)
-	, _flags(0)
+CImageAsset::CImageAsset()
+	: _flags(0)
 	, _index(nullptr)
 	, _pixels(nullptr)
 {

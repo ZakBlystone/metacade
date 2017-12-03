@@ -60,12 +60,11 @@ class CWhiteImage : public IImage
 };
 
 CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance)
-	: CRuntimeObject(klass.lock().get())
-	, _klass(klass)
+	: _klass(klass)
 	, _vmInstance(vmInstance)
-	, _elementRenderer(make_shared<CElementRenderer>(this))
+	, _elementRenderer(makeShared<CElementRenderer>())
 	, _lastTime(0.f)
-	, _defaultWhiteImage(make_shared<CWhiteImage>())
+	, _defaultWhiteImage(makeShared<CWhiteImage>())
 	, _hasDesiredResolution(false)
 	, _callbacks(nullptr)
 {
@@ -259,7 +258,7 @@ void Arcade::CGameInstance::finishTextures(class ITextureProvider* provider)
 
 void CGameInstance::initSoundMixer(const CMixerSettings& settings)
 {
-	_mixer = make_shared<CSoundMixer>(this, settings);
+	_mixer = makeShared<CSoundMixer>(settings);
 }
 
 ISoundMixer* CGameInstance::getSoundMixer()

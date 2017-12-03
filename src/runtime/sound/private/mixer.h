@@ -28,10 +28,10 @@ mixer.h:
 namespace Arcade
 {
 
-class CSoundMixer : public ISoundMixer, public CRuntimeObject
+class CSoundMixer : public ISoundMixer
 {
 public:
-	CSoundMixer(CRuntimeObject* outer, CMixerSettings settings = CMixerSettings());
+	CSoundMixer(CMixerSettings settings = CMixerSettings());
 
 	//returns channel index
 	uint32 playSoundSample(shared_ptr<ISoundSample> sample, int32 channel = EChannelID::CHANNEL_ANY);

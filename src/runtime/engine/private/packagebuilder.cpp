@@ -27,8 +27,7 @@ packagebuilder.cpp:
 #include "../script/lua/lua_private.h"
 
 CPackageBuilder::CPackageBuilder(class CPackage* package)
-	: CRuntimeObject(package)
-	, _package(package)
+	: _package(package)
 	, _compiler(nullptr)
 {
 }
@@ -109,9 +108,9 @@ class IAsset* CPackageBuilder::constructAsset(EAssetType type)
 	{
 	case Arcade::ASSET_NONE: return nullptr;
 	case Arcade::ASSET_ANY: return nullptr;
-	case Arcade::ASSET_CODE: newAsset = construct<CCodeAsset>(this); break;
-	case Arcade::ASSET_TEXTURE: newAsset = construct<CImageAsset>(this); break;
-	case Arcade::ASSET_SOUND: newAsset = construct<CSoundAsset>(this); break;
+	case Arcade::ASSET_CODE: newAsset = construct<CCodeAsset>(); break;
+	case Arcade::ASSET_TEXTURE: newAsset = construct<CImageAsset>(); break;
+	case Arcade::ASSET_SOUND: newAsset = construct<CSoundAsset>(); break;
 	default:
 	break;
 	}

@@ -26,8 +26,7 @@ channel.cpp:
 #include "sound_private.h"
 
 CSoundChannel::CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode /*= CHANNELMODE_DEFAULT*/)
-	: CRuntimeObject(mixer)
-	, _mixer(mixer)
+	: _mixer(mixer)
 	, _index(index)
 	, _mode(mode)
 {

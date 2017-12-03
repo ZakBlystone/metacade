@@ -26,7 +26,7 @@ render_private.h:
 #include "metacade_private.h"
 #include "render_public.h"
 
-#include "engine/public/runtimeobject.h"
+#include "engine/engine_private.h"
 
 #include "private/drawbuffer.h"
 #include "private/renderbuffer.h"

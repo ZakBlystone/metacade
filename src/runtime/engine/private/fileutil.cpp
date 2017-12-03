@@ -25,9 +25,8 @@ fileutil.cpp:
 
 #include "engine_private.h"
 
-CFileHandle::CFileHandle(const CString& filename, EFileIOMode mode, CRuntimeObject* runtime)
-	: CRuntimeObject(runtime)
-	, _file(openFile(filename, mode))
+CFileHandle::CFileHandle(const CString& filename, EFileIOMode mode)
+	: _file(openFile(filename, mode))
 	, _ref(new uint32(1))
 {}
 

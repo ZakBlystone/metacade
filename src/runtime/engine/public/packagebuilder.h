@@ -34,7 +34,7 @@ public:
 	virtual bool compile(IAsset* asset, class IMetaData* buildParameters) = 0;
 };
 
-class METACADE_API CPackageBuilder : public CRuntimeObject
+class METACADE_API CPackageBuilder
 {
 public:
 

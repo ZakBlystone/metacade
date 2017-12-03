@@ -25,9 +25,8 @@ gameclass.cpp:
 
 #include "engine_private.h"
 
-CGameClass::CGameClass( weak_ptr<CPackage> package, class CRuntimeObject* outer)
-	: CRuntimeObject(outer)
-	, _package(package)
+CGameClass::CGameClass( weak_ptr<CPackage> package )
+	: _package(package)
 	, _instanceCount(0)
 {
 

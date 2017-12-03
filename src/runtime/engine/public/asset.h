@@ -61,7 +61,7 @@ protected:
 };
 
 template<EAssetType Type>
-class CAsset : public IAsset, public CRuntimeObject
+class CAsset : public IAsset
 {
 public:
 
@@ -78,9 +78,8 @@ protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
 
-	CAsset(CRuntimeObject* object) 
-		: CRuntimeObject(object)
-		, _type(Type)
+	CAsset() 
+		: _type(Type)
 	{}
 
 	void setUniqueID(const CGUID &id)

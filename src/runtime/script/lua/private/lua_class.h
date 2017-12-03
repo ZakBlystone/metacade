@@ -33,7 +33,7 @@ lua_class.h:
 namespace Arcade
 {
 
-class CLuaVMClass : public IVMClass, public CRuntimeObject, public enable_shared_from_this<CLuaVMClass>
+class CLuaVMClass : public IVMClass, public enable_shared_from_this<CLuaVMClass>
 {
 public:
 	CLuaVMClass(weak_ptr<class CLuaVM> host);

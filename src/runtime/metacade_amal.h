@@ -1627,23 +1627,6 @@ public:
 	virtual ~IPackageManager() {}
 };
 }
-//src/runtime/engine/public/runtimeobject.h
-namespace Arcade
-{
-//Ideally, this shouldn't be exported, it's just quicker than making interfaces for everything
-class METACADE_API CRuntimeObject
-{
-public:
-	CRuntimeObject(class IRuntime* runtime);
-	CRuntimeObject(CRuntimeObject* outer);
-protected:
-#ifdef ENGINE_PRIVATE
-	class IRuntime* getRuntime() const;
-#endif
-private:
-	class IRuntime* _runtime;
-};
-}
 //src/runtime/engine/public/asset.h
 namespace Arcade
 {
@@ -1676,7 +1659,7 @@ protected:
 	virtual void setName(const CString& name) = 0;
 };
 template<EAssetType Type>
-class CAsset : public IAsset, public CRuntimeObject
+class CAsset : public IAsset
 {
 public:
 	bool checkType() const { return _type == Type; }
@@ -1689,9 +1672,8 @@ public:
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
-	CAsset(CRuntimeObject* object) 
-		: CRuntimeObject(object)
-		, _type(Type)
+	CAsset() 
+		: _type(Type)
 	{}
 	void setUniqueID(const CGUID &id)
 	{
@@ -1742,7 +1724,7 @@ class IAssetCompiler
 public:
 	virtual bool compile(IAsset* asset, class IMetaData* buildParameters) = 0;
 };
-class METACADE_API CPackageBuilder : public CRuntimeObject
+class METACADE_API CPackageBuilder
 {
 public:
 	~CPackageBuilder();
@@ -1792,7 +1774,7 @@ namespace Arcade
 class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
 {
 public:
-	CCodeAsset(CRuntimeObject* outer);
+	CCodeAsset();
 	~CCodeAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
@@ -1812,7 +1794,7 @@ namespace Arcade
 class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
 {
 public:
-	CImageAsset(CRuntimeObject* outer);
+	CImageAsset();
 	virtual ~CImageAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
@@ -1843,7 +1825,7 @@ namespace Arcade
 class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
 {
 public:
-	CSoundAsset(CRuntimeObject* outer);
+	CSoundAsset();
 	virtual ~CSoundAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;

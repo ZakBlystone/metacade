@@ -25,9 +25,8 @@ mixer.cpp:
 
 #include "sound_private.h"
 
-Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings /*= CMixerInitSettings()*/) 
-	: CRuntimeObject(outer)
-	, _channelIndices(make_shared<CIndexAllocator>())
+Arcade::CSoundMixer::CSoundMixer(CMixerSettings settings /*= CMixerInitSettings()*/) 
+	: _channelIndices(make_shared<CIndexAllocator>())
 	, _settings(settings)
 	, _available(0)
 	, _pitch(1.f)
