@@ -127,9 +127,43 @@ NativeEnv::NativeEnv()
 
 }
 
+class CTestAllocator : public IAllocator
+{
+public:
+	int64 _bytesAllocated;
+
+	CTestAllocator()
+		: _bytesAllocated(0)
+	{}
+
+	virtual void* memrealloc(void* pointer, uint32 size) override
+	{
+		size += sizeof(uint32);
+
+		uint8* mem = (uint8*) realloc(pointer, size);
+		*(uint32*)(mem) = size;
+
+		_bytesAllocated += size;
+		//std::cout << "A: " << _bytesAllocated << " +" << size << std::endl;
+		return mem + sizeof(uint32);
+	}
+
+	virtual void memfree(void* pointer) override
+	{
+		uint8* mem = ((uint8*) (pointer)) - sizeof(uint32);
+		_bytesAllocated -= *(uint32*)(mem);
+
+		//std::cout << "F: " << _bytesAllocated << " -" << *(uint32*)(mem) << std::endl;
+
+		free(mem);
+	}
+};
+
+static CTestAllocator gTestAllocator;
+
 class IAllocator* NativeEnv::getAllocator()
 {
-	return nullptr;
+	return &gTestAllocator;
 }
 
 class IFileSystem* NativeEnv::getFileSystem()
@@ -140,6 +174,11 @@ class IFileSystem* NativeEnv::getFileSystem()
 class ILogger* NativeEnv::getLogger()
 {
 	return _logger.get();
+}
+
+int64 NativeEnv::getMemUsage() const
+{
+	return gTestAllocator._bytesAllocated;
 }
 
 void Logger::log(const char* text, EMessageType type)

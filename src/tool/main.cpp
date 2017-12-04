@@ -177,11 +177,13 @@ struct CUIState
 	float fUIRolloutFraction;
 	bool bShowInfo;
 	bool bNewPackageDialog;
+	uint32 memUsage;
 
 	CUIState()
 		: fUIRolloutFraction(1.f)
 		, bShowInfo(true)
 		, bNewPackageDialog(false)
+		, memUsage(0)
 	{}
 };
 
@@ -277,6 +279,8 @@ static void immediateUI(float width, float height, float deltatime)
 			| ImGuiWindowFlags_NoTitleBar)
 			)
 		{
+			ImGui::TextColored(ImVec4(1.f,0.f,0.f,1.f), "Mem %ikb", g_UIState.memUsage);
+
 			if ( demoPlayback )
 			{
 				ImGui::TextColored(ImVec4(0.f,1.f,0.f,1.f), "PLAY DEMO frame %i", demoFrame);
@@ -476,6 +480,7 @@ static int start(int argc, char *argv[])
 		if ( targetProject == nullptr )
 		{
 			std::cout << "No project" << std::endl;
+			Arcade::destroy(runtime);
 			return 0;
 		}
 
@@ -676,6 +681,8 @@ static int start(int argc, char *argv[])
 		}*/
 
 		//renderer->setOffset(CVec2(0,0.f));
+
+		g_UIState.memUsage = (uint32) (native->getMemUsage() >> 10);
 
 		immediateUI(width, height, deltaSeconds);
 

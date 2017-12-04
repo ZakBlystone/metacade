@@ -28,23 +28,6 @@ runtime.cpp:
 #include "script/lua/lua_private.h"
 #include <stdarg.h>
 
-class CDefaultAllocator : public IAllocator
-{
-public:
-	virtual void* memrealloc(void* pointer, uint32 size) override
-	{
-		return realloc(pointer, size);
-	}
-
-	virtual void memfree(void* pointer) override
-	{
-		free(pointer);
-	}
-};
-
-static CDefaultAllocator gDefaultAllocator;
-
-
 struct CRefTest
 {
 	CReferenceCounter counter;
@@ -59,15 +42,19 @@ CRuntime::CRuntime()
 CRuntime::~CRuntime()
 {
 	std::cout << "Destruct RUNTIME" << std::endl;
-	if ( isCurrent() ) gRuntime = nullptr;
+	if ( isCurrent() ) 
+	{
+		gRuntime = nullptr;
+		gAllocator = CDefaultAllocator::get();
+	}
 }
 
 bool CRuntime::initialize(IRuntimeEnvironment* env)
 {
-	makeCurrent();
-
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
+
+	makeCurrent();
 
 	_packageManager = makeShared<CPackageManager>();
 	_textureIndices = makeShared<CIndexAllocator>();
@@ -121,7 +108,7 @@ IPackageManager* CRuntime::getPackageManager()
 IAllocator* CRuntime::getAllocator() const
 {
 	IAllocator *impl = _runtimeEnvironment->getAllocator();
-	if ( impl == nullptr ) impl = &gDefaultAllocator;
+	if ( impl == nullptr ) impl = CDefaultAllocator::get();
 
 	return impl;
 }
@@ -219,6 +206,7 @@ shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
 void CRuntime::makeCurrent()
 {
 	gRuntime = this;
+	gAllocator = getAllocator();
 }
 
 bool CRuntime::isCurrent() const
@@ -318,34 +306,6 @@ void Arcade::log(EMessageType type, const char* message, ...)
 
 	zfree(buffer);
 	va_end(args);
-}
-
-void* Arcade::zalloc(uint32 size)
-{
-	if ( gRuntime == nullptr ) return nullptr;
-	IAllocator* allocator = gRuntime->getAllocator();
-	return allocator->memrealloc(nullptr, size);
-}
-
-void* Arcade::zrealloc(void* pointer, uint32 size)
-{
-	if ( gRuntime == nullptr ) return pointer;
-	IAllocator* allocator = gRuntime->getAllocator();
-	return allocator->memrealloc(pointer, size);
-}
-
-void Arcade::zfree(void* pointer)
-{
-	if ( gRuntime == nullptr ) return;
-	IAllocator* allocator = gRuntime->getAllocator();
-	allocator->memfree(pointer);
-}
-
-void Arcade::zfree(const void* pointer)
-{
-	if ( gRuntime == nullptr ) return;
-	IAllocator* allocator = gRuntime->getAllocator();
-	allocator->memfree((void *)pointer);
 }
 
 IFileObject* Arcade::openFile(const CString& name, EFileIOMode mode)

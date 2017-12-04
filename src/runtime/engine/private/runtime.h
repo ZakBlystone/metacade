@@ -76,33 +76,6 @@ private:
 
 extern thread_local CRuntime* gRuntime;
 
-template<typename T, typename... ArgT> 
-T *construct(ArgT&&... args)
-{
-	return new(zalloc(sizeof(T))) T(args...);
-}
-
-template<typename T>
-void destroy(T* obj)
-{
-	if (obj == nullptr) return;
-	obj->~T();
-	zfree(obj);
-}
-
-extern void* zalloc(uint32 size);
-extern void* zrealloc(void* pointer, uint32 size);
-extern void zfree(void* pointer);
-extern void zfree(const void* pointer);
-
-template <typename T, typename... ArgT> 
-shared_ptr<T> makeShared(ArgT&&... args)
-{
-	return shared_ptr<T>
-		(construct<T>(args...)
-		, [](T* ptr) { destroy(ptr); });
-}
-
 extern void log(EMessageType type, const char* message, ...);
 
 extern class IFileObject* openFile(const CString& name, EFileIOMode mode);

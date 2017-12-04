@@ -32,9 +32,9 @@ CString::CString()
 {}
 
 CString::CString(uint32 length) 
-	: _string(new char[length+1])
+	: _string((char*)zalloc(sizeof(char) * (length+1)))
 	, _length(length)
-	, _refs(new uint32(1))
+	, _refs(construct<uint32>(1))
 {
 
 }
@@ -49,10 +49,10 @@ CString::CString(const CString& other)
 }
 
 CString::CString(const char* str)
-	: _refs(new uint32(1))
+	: _refs(construct<uint32>(1))
 {
 	_length = (uint32) strlen(str);
-	_string = new char[_length+1];
+	_string = (char*)zalloc(sizeof(char) * (_length+1));
 	memcpy(_string, str, _length+1);
 }
 
@@ -211,8 +211,8 @@ void CString::reset()
 {
 	if ( _string != nullptr && --(*_refs) == 0 )
 	{
-		delete [] _string;
-		delete _refs;
+		zfree(_string);
+		destroy(_refs);
 
 		_string = nullptr;
 		_refs = nullptr;

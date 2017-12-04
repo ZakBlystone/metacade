@@ -705,6 +705,17 @@ private:
 	uint8 _digest[20];
 };
 }
+//src/runtime/core/public/iallocator.h
+namespace Arcade
+{
+class IAllocator
+{
+public:
+	virtual void* memrealloc(void* pointer, uint32 size) = 0;
+	virtual void memfree(void* pointer) = 0;
+	virtual ~IAllocator() {}
+};
+}
 //src/runtime/sound/sound_public.h
 //src/runtime/sound/public/sample.h
 namespace Arcade
@@ -1509,17 +1520,6 @@ class ILogger
 public:
 	virtual void log(const char* text, EMessageType type) = 0;
 	virtual ~ILogger() {}
-};
-}
-//src/runtime/engine/public/iallocator.h
-namespace Arcade
-{
-class IAllocator
-{
-public:
-	virtual void* memrealloc(void* pointer, uint32 size) = 0;
-	virtual void memfree(void* pointer) = 0;
-	virtual ~IAllocator() {}
 };
 }
 //src/runtime/engine/public/ifilesystem.h

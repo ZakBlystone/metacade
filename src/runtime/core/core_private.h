@@ -26,4 +26,56 @@ core_private.h: Headers and macros private to this module
 #include "metacade_private.h"
 #include "core_public.h"
 
+#pragma once
+
 using namespace Arcade;
+
+namespace Arcade
+{
+
+class CDefaultAllocator : public IAllocator
+{
+public:
+	virtual void* memrealloc(void* pointer, uint32 size) override
+	{
+		return realloc(pointer, size);
+	}
+
+	virtual void memfree(void* pointer) override
+	{
+		free(pointer);
+	}
+
+	static CDefaultAllocator* get();
+};
+
+extern thread_local IAllocator* gAllocator;
+
+template<typename T, typename... ArgT>
+T *construct(ArgT&&... args)
+{
+	return new(zalloc(sizeof(T))) T(args...);
+}
+
+template<typename T>
+void destroy(T* obj)
+{
+	if (obj == nullptr) return;
+	obj->~T();
+	zfree(obj);
+}
+
+template <typename T, typename... ArgT>
+shared_ptr<T> makeShared(ArgT&&... args)
+{
+	return shared_ptr<T>
+		(construct<T>(args...)
+		, [](T* ptr) { destroy(ptr); });
+}
+
+extern void* zalloc(uint32 size);
+extern void* zrealloc(void* pointer, uint32 size);
+extern void zfree(const void* pointer);
+extern void zfree(void* pointer);
+
+}

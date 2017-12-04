@@ -208,26 +208,21 @@ bool CVariant::get(CString& str) const
 
 CString CVariant::toString() const
 {
-	static const CString VSTR_INVALID("<invalid>");
-	static const CString VSTR_NONE("<empty>");
-	static const CString VSTR_TRUE("True");
-	static const CString VSTR_FALSE("False");
-
 	switch( _type )
 	{
 	case Arcade::VT_NONE:
-		return VSTR_NONE;
+		return "<empty>";
 	break;
 	case Arcade::VT_BOOLEAN:
 		{
 			bool boolvalue;
-			if ( get(boolvalue) ) return boolvalue ? VSTR_TRUE : VSTR_FALSE;
+			if ( get(boolvalue) ) return boolvalue ? "True" : "False";
 		}
 	break;
 	case Arcade::VT_UINT:
 		{
 			uint64 uintvalue;
-			if ( !get(uintvalue) ) return VSTR_INVALID;
+			if ( !get(uintvalue) ) return "<invalid>";
 			stringstream str;
 			str << uintvalue;
 			return str.str().c_str();
@@ -236,7 +231,7 @@ CString CVariant::toString() const
 	case Arcade::VT_INT:
 		{
 			int64 intvalue;
-			if ( !get(intvalue) ) return VSTR_INVALID;
+			if ( !get(intvalue) ) return "<invalid>";
 			stringstream str;
 			str << intvalue;
 			return str.str().c_str();
@@ -245,7 +240,7 @@ CString CVariant::toString() const
 	case Arcade::VT_DOUBLE:
 		{
 			double doublevalue;
-			if ( !get(doublevalue) ) return VSTR_INVALID;
+			if ( !get(doublevalue) ) return "<invalid>";
 			stringstream str;
 			str << doublevalue;
 			return str.str().c_str();
@@ -261,5 +256,5 @@ CString CVariant::toString() const
 	break;
 	}
 
-	return VSTR_INVALID;
+	return "<invalid>";
 }
