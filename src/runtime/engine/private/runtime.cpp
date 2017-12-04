@@ -26,6 +26,7 @@ runtime.cpp:
 #include "engine_private.h"
 #include "sound_private.h"
 #include "script/lua/lua_private.h"
+#include "script/js/js_private.h"
 #include <stdarg.h>
 
 struct CRefTest
@@ -55,6 +56,8 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 	if ( _runtimeEnvironment == nullptr ) return false;
 
 	makeCurrent();
+
+	testJavascript();
 
 	_packageManager = makeShared<CPackageManager>();
 	_textureIndices = makeShared<CIndexAllocator>();
