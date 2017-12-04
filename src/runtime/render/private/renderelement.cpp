@@ -78,6 +78,9 @@ int32 CRenderElement::getLayer() const
 
 CClipShape& CClipShape::operator-=(const CClipShape& other)
 {
+	//if this clip shape is empty, we can't subtract from it
+	if (_numPlanes == 0) return *this;
+
 	//total number of planes to consider
 	int32 num = _numPlanes + other._numPlanes;
 
