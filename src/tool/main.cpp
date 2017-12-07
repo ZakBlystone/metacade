@@ -518,11 +518,11 @@ static int start(int argc, char *argv[])
 			instance->init();
 		}
 
-		/*if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
+		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
 		{
 			instance2->initializeRenderer(renderer.get());
 			instance2->init();
-		}*/
+		}
 	}
 
 
@@ -664,7 +664,7 @@ static int start(int argc, char *argv[])
 
 			fixedTime += 1.f / 60.f;
 			if ( instance != nullptr ) instance->think(fixedTime);
-			//if ( instance2 != nullptr ) instance2->think(fixedTime);
+			if ( instance2 != nullptr ) instance2->think(fixedTime);
 		}
 
 		if ( instance != nullptr ) 

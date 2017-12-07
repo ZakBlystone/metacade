@@ -81,6 +81,8 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 		v8::HandleScope handle_scope(isolate);
 		v8::Local<v8::Context> context = v8::Context::New(isolate);
 
+		context->SetSecurityToken( v8::Integer::New(isolate, 420) );
+
 		v8::Context::Scope context_scope(context);
 
 		v8::Local<v8::Object> global = context->Global();
@@ -99,17 +101,18 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 			return false;
 		}
 
-		v8::Local<v8::Value> result;
+		/*v8::Local<v8::Value> result;
 		if ( !script->Run(context).ToLocal(&result) )
 		{
 			log(LOG_ERROR, "Failed to run script");
 			return false;
-		}
+		}*/
 
 		//v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
 		//v8::String::Utf8Value utf8(isolate, result);
 
 		_context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(isolate, context);
+		_script = v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>>(isolate, script->GetUnboundScript());
 
 		//log(LOG_MESSAGE, "OUTPUT: %s", *utf8);
 		log(LOG_MESSAGE, "Compiled OK");
@@ -164,4 +167,18 @@ v8::Isolate* Arcade::CJavascriptVMClass::getIsolate()
 	}
 
 	return isolate;
+}
+
+v8::Local<v8::UnboundScript> Arcade::CJavascriptVMClass::getScript()
+{
+	shared_ptr<CJavascriptVM> host = _host.lock();
+
+	v8::Isolate* isolate = host->getIsolate();
+	if (isolate == nullptr)
+	{
+		log(LOG_ERROR, "Couldn't get isolate");
+		return v8::Local<v8::UnboundScript>();
+	}
+
+	return _script.Get(isolate);
 }

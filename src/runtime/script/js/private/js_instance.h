@@ -48,6 +48,7 @@ private:
 	weak_ptr<CJavascriptVMClass> _klass;
 	CInputState _state;
 	IGameInstance* _gameInstance;
+	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
 };
 
 }

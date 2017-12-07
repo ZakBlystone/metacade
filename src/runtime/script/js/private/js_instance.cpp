@@ -114,11 +114,32 @@ void Arcade::CJavascriptVMInstance::init()
 
 	v8::HandleScope handle_scope(isolate);
 
-	v8::Local<v8::Context> context = klass->getContext();
-	v8::Context::Scope context_scope(context);
 
+	//v8::Local<v8::Context> klassContext = klass->getContext();
+	v8::Local<v8::Context> context = v8::Context::New(isolate);
+
+	/*context->SetSecurityToken( v8::Integer::New(isolate, 420) );
+
+	v8::Local<v8::Object> klassGlobals = klassContext->Global();
+	v8::Local<v8::Object> instanceGlobals = context->Global();
+	v8::Local<v8::Array> properties = klassGlobals->GetPropertyNames(klassContext).ToLocalChecked();
+	for ( uint32_t i=0; i<properties->Length(); ++i )
+	{
+		v8::Local<v8::Value> key = properties->Get(klassContext, i).ToLocalChecked();
+		v8::Local<v8::Value> value = klassGlobals->Get(key);
+		instanceGlobals->Set(context, key, value);
+	}*/
+
+	v8::Context::Scope context_scope(context);
 	v8::Local<v8::Object> global = context->Global();
+
+	klass->createGlobals(context, global);
+	klass->getScript()->BindToCurrentContext()->Run(context);
+
+	
 	v8::MaybeLocal<v8::Value> xvalue = global->Get(context, v8::String::NewFromUtf8(isolate, "x"));
+
+	_context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(isolate, context);
 
 	if ( !xvalue.IsEmpty() && xvalue.ToLocalChecked()->IsNumber() )
 	{
@@ -156,7 +177,7 @@ bool Arcade::CJavascriptVMInstance::callFunction(const CFunctionCall& call)
 
 	v8::HandleScope handle_scope(isolate);
 
-	v8::Local<v8::Context> context = klass->getContext();
+	v8::Local<v8::Context> context = _context.Get(isolate);
 	v8::Context::Scope context_scope(context);
 
 	v8::Local<v8::Object> global = context->Global();
