@@ -62,6 +62,7 @@ enum ELanguage
 {
 	LANG_DUMMY,
 	LANG_LUA,
+	LANG_JAVASCRIPT,
 	//LANG_PYTHON,
 };
 #define MAX_BLEND_BITS 3

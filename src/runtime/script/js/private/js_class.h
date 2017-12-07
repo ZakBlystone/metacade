@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-js_vm.h:
+js_class.h:
 ===============================================================================
 */
 
@@ -28,29 +28,28 @@ js_vm.h:
 namespace Arcade
 {
 
-class CJavascriptVM : public IVMHost, public enable_shared_from_this<CJavascriptVM>
+class CJavascriptVMClass : public IVMClass, public enable_shared_from_this<CJavascriptVMClass>
 {
-
 public:
-	virtual ELanguage getLanguage() override;
-	virtual bool init() override;
-	virtual void shutdown() override;
+	CJavascriptVMClass(weak_ptr<class CJavascriptVM> host);
 
-	virtual bool isRunning() override;
+	virtual bool reload() override;
+	virtual class IVMHost* getHost() override;
+	virtual shared_ptr<class CMetaData> getMetaData() override;
+	virtual shared_ptr<class IVMInstance> createVMInstance() override;
 
-	virtual weak_ptr<IVMClass> loadGameVMClass(shared_ptr<CPackage> gamePackage) override;
-	virtual bool includeGameScript() override;
-	virtual bool validateGameScript() override;
+	bool loadFromPackage(weak_ptr<CPackage> package);
 
+	v8::Local<v8::Context> getContext();
 	v8::Isolate* getIsolate();
 
 private:
-	std::unique_ptr<v8::Platform> _platform;
-	v8::ArrayBuffer::Allocator* _allocator;
-	v8::Isolate* _isolate;
-	map<CGUID, shared_ptr<class CJavascriptVMClass>> _loadedClasses;
-};
+	void createGlobals(v8::Local<v8::Context>& context, v8::Local<v8::Object>& global);
 
-extern void testJavascript();
+	weak_ptr<CJavascriptVM> _host;
+	weak_ptr<CPackage> _package;
+	shared_ptr<CMetaData> _metaData;
+	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
+};
 
 }

@@ -135,7 +135,7 @@ CRenderTest::~CRenderTest()
 
 bool Arcade::CRenderTest::init()
 {
-	_vmHost = gRuntime->getLuaVM();
+	_vmHost = gRuntime->getCodeVM();
 	//_vmKlass = _vmHost->loadGameVMClass();
 
 	shared_ptr<IVMClass> klass = _vmKlass.lock();

@@ -28,4 +28,10 @@ js_private.h:
 #include "libplatform/libplatform.h"
 #include "v8.h"
 
+#include "engine/engine_private.h"
+
+#include "private/js_class.h"
+#include "private/js_instance.h"
 #include "private/js_vm.h"
+
+using namespace Arcade;

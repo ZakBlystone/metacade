@@ -57,13 +57,13 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	makeCurrent();
 
-	testJavascript();
+	//testJavascript();
 
 	_packageManager = makeShared<CPackageManager>();
 	_textureIndices = makeShared<CIndexAllocator>();
-	_luaVM = makeShared<CLuaVM>();
+	_codeVM = makeShared<CJavascriptVM>();
 
-	if ( !_luaVM->init() ) return false;
+	if ( !_codeVM->init() ) return false;
 
 	//_renderTest = makeShared<CRenderTest>(this);
 
@@ -283,9 +283,9 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	return newClass.get();
 }
 
-Arcade::IVMHost* Arcade::CRuntime::getLuaVM()
+Arcade::IVMHost* Arcade::CRuntime::getCodeVM()
 {
-	return _luaVM.get();
+	return _codeVM.get();
 }
 
 thread_local CRuntime* Arcade::gRuntime = nullptr;

@@ -233,7 +233,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 	for ( int32 i=0; i<numAssetDefs(ASSET_CODE); ++i )
 	{
 		CAssetFileDef def = getAssetDef(ASSET_CODE, i);
-		CCodeAsset* asset = builder->addNamedAsset<CCodeAsset>(def._name + ".lua");
+		CCodeAsset* asset = builder->addNamedAsset<CCodeAsset>(def._name + ".code");
 		
 		IMetaData* meta = runtime->createMetaData();
 		std::cout << "COMPILE: " << *(_rootpath / def._path) << std::endl;

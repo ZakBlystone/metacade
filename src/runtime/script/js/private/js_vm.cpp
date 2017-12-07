@@ -31,7 +31,7 @@ void Arcade::testJavascript()
 {
 	std::cout << "TESTING JAVASCRIPT..." << std::endl;
 
-	static const char* working_directory = "D:/Projects/metacade/bin/Debug/";
+	static const char* working_directory = "./";
 	v8::V8::InitializeICUDefaultLocation(working_directory);
 	v8::V8::InitializeExternalStartupData(working_directory);
 
@@ -70,4 +70,98 @@ void Arcade::testJavascript()
 	v8::V8::Dispose();
 	v8::V8::ShutdownPlatform();
 	delete create_params.array_buffer_allocator;
+}
+
+ELanguage CJavascriptVM::getLanguage()
+{
+	return LANG_JAVASCRIPT;
+}
+
+bool CJavascriptVM::init()
+{
+	log(LOG_MESSAGE, "Initializing Javascript VM");
+
+	static const char* working_directory = "./";
+	if ( !v8::V8::InitializeICUDefaultLocation(working_directory) )
+	{
+		log(LOG_WARN, "ICU Disabled");
+	}
+	else
+	{
+		log(LOG_WARN, "ICU Enabled");
+	}
+
+	v8::V8::InitializeExternalStartupData(working_directory);
+
+	_platform = v8::platform::NewDefaultPlatform();
+	v8::V8::InitializePlatform(_platform.get());
+	if ( !v8::V8::Initialize() )
+	{
+		log(LOG_ERROR, "Failed to initialize Javascript VM");
+		return false;
+	}
+
+	_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+
+	v8::Isolate::CreateParams create_params;
+	create_params.array_buffer_allocator = _allocator;
+
+	_isolate = v8::Isolate::New(create_params);
+
+	return true;
+}
+
+void CJavascriptVM::shutdown()
+{
+	_isolate->Dispose();
+	v8::V8::Dispose();
+	v8::V8::ShutdownPlatform();
+	_platform.reset();
+	delete _allocator;
+}
+
+bool CJavascriptVM::isRunning()
+{
+	return false;
+}
+
+weak_ptr<IVMClass> CJavascriptVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
+{
+	auto found = _loadedClasses.find(gamePackage->getPackageID());
+	if (found != _loadedClasses.end())
+	{
+		if ( !(*found).second->loadFromPackage(gamePackage) )
+		{
+			return shared_ptr<CJavascriptVMClass>(nullptr);
+		}
+
+		return (*found).second;
+	}
+	else
+	{
+		shared_ptr<CJavascriptVMClass> newClass = makeShared<CJavascriptVMClass>(shared_from_this());
+		_loadedClasses.insert(make_pair(gamePackage->getPackageID(), newClass));
+
+		if (newClass->loadFromPackage(gamePackage))
+		{
+			return newClass;
+		}
+	}
+
+	return shared_ptr<CJavascriptVMClass>(nullptr);
+}
+
+bool Arcade::CJavascriptVM::includeGameScript()
+{
+	return false;
+}
+
+bool Arcade::CJavascriptVM::validateGameScript()
+{
+	return false;
+}
+
+v8::Isolate* CJavascriptVM::getIsolate()
+{
+	return _isolate;
 }

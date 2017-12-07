@@ -63,13 +63,13 @@ public:
 
 	shared_ptr<CIndexAllocator> getImageIndexAllocator();
 
-	IVMHost* getLuaVM();
+	IVMHost* getCodeVM();
 
 private:
 	shared_ptr<CPackageManager> _packageManager;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
-	shared_ptr<class CLuaVM> _luaVM;
+	shared_ptr<class IVMHost> _codeVM;
 
 	map<CGUID, shared_ptr<class CGameClass>> _classes;
 };

@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-js_vm.h:
+js_instance.h:
 ===============================================================================
 */
 
@@ -28,29 +28,24 @@ js_vm.h:
 namespace Arcade
 {
 
-class CJavascriptVM : public IVMHost, public enable_shared_from_this<CJavascriptVM>
+class CJavascriptVMInstance : public IVMInstance
 {
-
 public:
-	virtual ELanguage getLanguage() override;
-	virtual bool init() override;
-	virtual void shutdown() override;
+	CJavascriptVMInstance(weak_ptr<CJavascriptVMClass> klass);
 
-	virtual bool isRunning() override;
+	virtual IVMClass* getClass() override;
 
-	virtual weak_ptr<IVMClass> loadGameVMClass(shared_ptr<CPackage> gamePackage) override;
-	virtual bool includeGameScript() override;
-	virtual bool validateGameScript() override;
+	virtual void setGameInstance(IGameInstance* gameInstance) override;
+	virtual void postInputEvent(const class CInputEvent& input) override;
+	virtual void init() override;
 
-	v8::Isolate* getIsolate();
+	virtual void think(float seconds, float deltaSeconds) override;
+	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
+	virtual void reset() override;
 
+	virtual bool callFunction(const CFunctionCall& call) override;
 private:
-	std::unique_ptr<v8::Platform> _platform;
-	v8::ArrayBuffer::Allocator* _allocator;
-	v8::Isolate* _isolate;
-	map<CGUID, shared_ptr<class CJavascriptVMClass>> _loadedClasses;
+	weak_ptr<CJavascriptVMClass> _klass;
 };
-
-extern void testJavascript();
 
 }

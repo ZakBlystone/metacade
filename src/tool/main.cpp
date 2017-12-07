@@ -657,7 +657,7 @@ static int start(int argc, char *argv[])
 
 			for ( CInputEvent& ev : events )
 			{
-				instance->postInputEvent(ev);
+				if ( instance != nullptr) instance->postInputEvent(ev);
 				//instance2->postInputEvent(ev);
 			}
 			events.clear();
