@@ -46,6 +46,8 @@ public:
 	virtual bool callFunction(const CFunctionCall& call) override;
 private:
 	weak_ptr<CJavascriptVMClass> _klass;
+	CInputState _state;
+	IGameInstance* _gameInstance;
 };
 
 }

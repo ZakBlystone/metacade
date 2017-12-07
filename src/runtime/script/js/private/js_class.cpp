@@ -99,12 +99,20 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 			return false;
 		}
 
+		v8::Local<v8::Value> result;
+		if ( !script->Run(context).ToLocal(&result) )
+		{
+			log(LOG_ERROR, "Failed to run script");
+			return false;
+		}
+
 		//v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
 		//v8::String::Utf8Value utf8(isolate, result);
 
 		_context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(isolate, context);
 
 		//log(LOG_MESSAGE, "OUTPUT: %s", *utf8);
+		log(LOG_MESSAGE, "Compiled OK");
 	}
 
 	return true;
