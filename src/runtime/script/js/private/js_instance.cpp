@@ -113,13 +113,15 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Isolate::Scope isolate_scope(isolate);
 
 	v8::HandleScope handle_scope(isolate);
-	v8::Local<v8::Context> context = v8::Context::New(isolate);
+	v8::Local<v8::Context> context = v8::Context::New(isolate, NULL, klass->getVM()->getGlobalTemplate());
 
 	v8::Context::Scope context_scope(context);
 	v8::Local<v8::Object> global = context->Global();
 
-	klass->createGlobals(context, global);
-	klass->getScript()->BindToCurrentContext()->Run(context);
+	for ( int32 i=0; i<klass->getNumScripts(); ++i )
+	{
+		klass->getScript(i)->BindToCurrentContext()->Run(context);
+	}
 
 	
 	v8::MaybeLocal<v8::Value> xvalue = global->Get(context, v8::String::NewFromUtf8(isolate, "x"));

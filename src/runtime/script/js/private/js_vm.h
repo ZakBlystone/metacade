@@ -43,8 +43,12 @@ public:
 	virtual bool validateGameScript() override;
 
 	v8::Isolate* getIsolate();
+	v8::Local<v8::ObjectTemplate> getGlobalTemplate();
 
 private:
+	void createGlobalTemplate();
+
+	v8::Eternal<v8::ObjectTemplate> _globalTemplate;
 	std::unique_ptr<v8::Platform> _platform;
 	v8::ArrayBuffer::Allocator* _allocator;
 	v8::Isolate* _isolate;

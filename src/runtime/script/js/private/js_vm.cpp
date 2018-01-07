@@ -26,6 +26,7 @@ js_vm.cpp:
 #include "js_private.h"
 
 #include <iostream>
+#include <windows.h>
 
 void Arcade::testJavascript()
 {
@@ -77,12 +78,57 @@ ELanguage CJavascriptVM::getLanguage()
 	return LANG_JAVASCRIPT;
 }
 
+static void printFunction(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	if ( args.Length() < 1 ) return;
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+	v8::Local<v8::Value> arg = args[0];
+	v8::String::Utf8Value value(isolate, arg);
+	log(LOG_MESSAGE, "JS: %s", *value);
+}
+
+void CJavascriptVM::createGlobalTemplate()
+{
+	v8::Isolate::Scope isolate_scope(_isolate);
+	v8::HandleScope handle_scope(_isolate);
+
+	v8::Local<v8::ObjectTemplate> global = v8::ObjectTemplate::New( _isolate );
+	
+	global->Set(
+		v8::String::NewFromUtf8( _isolate, "print", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( _isolate, printFunction )
+	);
+
+	v8::Local<v8::ObjectTemplate> template_keys = v8::ObjectTemplate::New( _isolate );
+
+	for ( int32 i=0; i<EHIDKeyCode::KEY_MAX; ++i )
+	{
+		template_keys->Set(
+			v8::String::NewFromUtf8( _isolate, *CHIDKeyCodes::getKeyName( (EHIDKeyCode) i ), v8::NewStringType::kNormal ).ToLocalChecked(),
+			v8::Integer::New( _isolate, i )
+		);
+	}
+
+	global->Set(
+		v8::String::NewFromUtf8( _isolate, "keys", v8::NewStringType::kNormal ).ToLocalChecked(),
+		template_keys
+	);
+
+	//_globalTemplate.Reset(_isolate, global);
+	_globalTemplate.Set(_isolate, global);
+}
+
 bool CJavascriptVM::init()
 {
 	log(LOG_MESSAGE, "Initializing Javascript VM");
 
+	//We need to look for this stuff where the .exe is
+	char module_path[4096] = {0};
+	GetModuleFileName(NULL, module_path, 4096);
+
 	static const char* working_directory = "./";
-	if ( !v8::V8::InitializeICUDefaultLocation(working_directory) )
+	if ( !v8::V8::InitializeICUDefaultLocation(module_path) )
 	{
 		log(LOG_WARN, "ICU Disabled");
 	}
@@ -91,7 +137,7 @@ bool CJavascriptVM::init()
 		log(LOG_WARN, "ICU Enabled");
 	}
 
-	v8::V8::InitializeExternalStartupData(working_directory);
+	v8::V8::InitializeExternalStartupData(module_path);
 
 	_platform = v8::platform::NewDefaultPlatform();
 	v8::V8::InitializePlatform(_platform.get());
@@ -107,6 +153,8 @@ bool CJavascriptVM::init()
 	create_params.array_buffer_allocator = _allocator;
 
 	_isolate = v8::Isolate::New(create_params);
+
+	createGlobalTemplate();
 
 	return true;
 }
@@ -159,6 +207,12 @@ bool Arcade::CJavascriptVM::includeGameScript()
 bool Arcade::CJavascriptVM::validateGameScript()
 {
 	return false;
+}
+
+
+v8::Local<v8::ObjectTemplate> CJavascriptVM::getGlobalTemplate()
+{
+	return _globalTemplate.Get(_isolate);
 }
 
 v8::Isolate* CJavascriptVM::getIsolate()

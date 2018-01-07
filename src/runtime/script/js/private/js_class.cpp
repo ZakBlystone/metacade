@@ -62,13 +62,6 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 
 	shared_ptr<CJavascriptVM> host = _host.lock();
 
-	CCodeAsset* jsMain = castAsset<CCodeAsset>(locked->findAssetByName("main.code"));
-	if (jsMain == nullptr)
-	{
-		log(LOG_ERROR, "Failed to load 'main.js'");
-		return false;
-	}
-
 	v8::Isolate* isolate = host->getIsolate();
 	if (isolate == nullptr)
 	{
@@ -81,38 +74,43 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 		v8::HandleScope handle_scope(isolate);
 		v8::Local<v8::Context> context = v8::Context::New(isolate);
 
-		context->SetSecurityToken( v8::Integer::New(isolate, 420) );
+		//context->SetSecurityToken( v8::Integer::New(isolate, 420) );
 
 		v8::Context::Scope context_scope(context);
 
-		v8::Local<v8::Object> global = context->Global();
-		createGlobals(context, global);
-
-		v8::Local<v8::String> source = v8::String::NewFromOneByte(
-			isolate,
-			(const uint8_t*)jsMain->getCodeBuffer(),
-			v8::NewStringType::kNormal,
-			jsMain->getCodeLength()).ToLocalChecked();
-
-		v8::Local<v8::Script> script;
-		if ( !v8::Script::Compile(context, source).ToLocal<v8::Script>(&script) )
+		for ( int32 i=0; i<locked->getNumAssets(); ++i )
 		{
-			log(LOG_ERROR, "Failed to compile script");
-			return false;
+			const CAssetRef& asset = locked->getAsset(i);
+			if ( asset.getType() == ASSET_CODE )
+			{
+				CCodeAsset* scriptSource = castAsset<CCodeAsset>(asset);
+				if (scriptSource == nullptr)
+				{
+					log(LOG_ERROR, "Failed to load script asset '%s'", asset.getAssetID().tostring());
+					return false;
+				}
+
+				CString origin_string = locked->getPackageName() + "." + scriptSource->getName();
+
+				v8::Local<v8::String> source = v8::String::NewFromOneByte(
+					isolate,
+					(const uint8_t*)scriptSource->getCodeBuffer(),
+					v8::NewStringType::kNormal,
+					scriptSource->getCodeLength()).ToLocalChecked();
+
+				v8::Local<v8::Script> script;
+				v8::ScriptOrigin origin( v8::String::NewFromOneByte(isolate, (const uint8_t*)*origin_string, v8::NewStringType::kNormal).ToLocalChecked() );
+				if ( !v8::Script::Compile(context, source, &origin).ToLocal<v8::Script>(&script) )
+				{
+					log(LOG_ERROR, "Failed to compile script '%s'", *origin_string);
+					return false;
+				}
+
+				_scripts.push_back(
+					v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>>(isolate, script->GetUnboundScript())
+				);
+			}
 		}
-
-		/*v8::Local<v8::Value> result;
-		if ( !script->Run(context).ToLocal(&result) )
-		{
-			log(LOG_ERROR, "Failed to run script");
-			return false;
-		}*/
-
-		//v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
-		//v8::String::Utf8Value utf8(isolate, result);
-
-		_context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(isolate, context);
-		_script = v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>>(isolate, script->GetUnboundScript());
 
 		//log(LOG_MESSAGE, "OUTPUT: %s", *utf8);
 		log(LOG_MESSAGE, "Compiled OK");
@@ -121,38 +119,9 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	return true;
 }
 
-static void printFunction(const v8::FunctionCallbackInfo<v8::Value>& args)
+shared_ptr<CJavascriptVM> CJavascriptVMClass::getVM()
 {
-	if ( args.Length() < 1 ) return;
-	v8::Isolate* isolate = args.GetIsolate();
-	v8::HandleScope scope(isolate);
-	v8::Local<v8::Value> arg = args[0];
-	v8::String::Utf8Value value(isolate, arg);
-	log(LOG_MESSAGE, "JS: %s", *value);
-}
-
-void Arcade::CJavascriptVMClass::createGlobals(v8::Local<v8::Context>& context, v8::Local<v8::Object>& global)
-{
-	global->Set(
-		context,
-		v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), "print", v8::NewStringType::kNormal ).ToLocalChecked(),
-		v8::Function::New( context, printFunction ).ToLocalChecked()
-	);
-}
-
-
-v8::Local<v8::Context> Arcade::CJavascriptVMClass::getContext()
-{
-	shared_ptr<CJavascriptVM> host = _host.lock();
-
-	v8::Isolate* isolate = host->getIsolate();
-	if (isolate == nullptr)
-	{
-		log(LOG_ERROR, "Couldn't get isolate");
-		return v8::Local<v8::Context>();
-	}
-
-	return _context.Get(isolate);
+	return _host.lock();
 }
 
 v8::Isolate* Arcade::CJavascriptVMClass::getIsolate()
@@ -169,7 +138,7 @@ v8::Isolate* Arcade::CJavascriptVMClass::getIsolate()
 	return isolate;
 }
 
-v8::Local<v8::UnboundScript> Arcade::CJavascriptVMClass::getScript()
+v8::Local<v8::UnboundScript> Arcade::CJavascriptVMClass::getScript(int32 index)
 {
 	shared_ptr<CJavascriptVM> host = _host.lock();
 
@@ -180,5 +149,10 @@ v8::Local<v8::UnboundScript> Arcade::CJavascriptVMClass::getScript()
 		return v8::Local<v8::UnboundScript>();
 	}
 
-	return _script.Get(isolate);
+	return _scripts[index].Get(isolate);
+}
+
+int32 Arcade::CJavascriptVMClass::getNumScripts()
+{
+	return _scripts.size();
 }

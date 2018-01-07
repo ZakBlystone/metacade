@@ -427,13 +427,13 @@ static int start(int argc, char *argv[])
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 
-#ifdef DEBUG
+/*#ifdef DEBUG
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "../../projects");
 	std::cout << "../../projects" << std::endl;
-#else
+#else*/
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects");
 	std::cout << "projects" << std::endl;
-#endif
+//#endif
 
 	IFileObject* demoFile = nullptr;
 
@@ -518,11 +518,11 @@ static int start(int argc, char *argv[])
 			instance->init();
 		}
 
-		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
+		/*if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
 		{
 			instance2->initializeRenderer(renderer.get());
 			instance2->init();
-		}
+		}*/
 	}
 
 

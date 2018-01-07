@@ -40,18 +40,18 @@ public:
 
 	bool loadFromPackage(weak_ptr<CPackage> package);
 
-	v8::Local<v8::Context> getContext();
 	v8::Isolate* getIsolate();
-	v8::Local<v8::UnboundScript> getScript();
+	v8::Local<v8::UnboundScript> getScript(int32 index);
 
-	void createGlobals(v8::Local<v8::Context>& context, v8::Local<v8::Object>& global);
+	int32 getNumScripts();
+
+	shared_ptr<CJavascriptVM> getVM();
 
 private:
 	weak_ptr<CJavascriptVM> _host;
 	weak_ptr<CPackage> _package;
 	shared_ptr<CMetaData> _metaData;
-	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
-	v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>> _script;
+	vector<v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>>> _scripts;
 };
 
 }
