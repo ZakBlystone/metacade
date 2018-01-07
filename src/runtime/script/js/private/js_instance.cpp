@@ -113,22 +113,7 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Isolate::Scope isolate_scope(isolate);
 
 	v8::HandleScope handle_scope(isolate);
-
-
-	//v8::Local<v8::Context> klassContext = klass->getContext();
 	v8::Local<v8::Context> context = v8::Context::New(isolate);
-
-	/*context->SetSecurityToken( v8::Integer::New(isolate, 420) );
-
-	v8::Local<v8::Object> klassGlobals = klassContext->Global();
-	v8::Local<v8::Object> instanceGlobals = context->Global();
-	v8::Local<v8::Array> properties = klassGlobals->GetPropertyNames(klassContext).ToLocalChecked();
-	for ( uint32_t i=0; i<properties->Length(); ++i )
-	{
-		v8::Local<v8::Value> key = properties->Get(klassContext, i).ToLocalChecked();
-		v8::Local<v8::Value> value = klassGlobals->Get(key);
-		instanceGlobals->Set(context, key, value);
-	}*/
 
 	v8::Context::Scope context_scope(context);
 	v8::Local<v8::Object> global = context->Global();
