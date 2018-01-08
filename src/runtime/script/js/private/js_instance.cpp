@@ -31,6 +31,12 @@ Arcade::CJavascriptVMInstance::CJavascriptVMInstance(weak_ptr<CJavascriptVMClass
 
 }
 
+
+Arcade::CJavascriptVMInstance::~CJavascriptVMInstance()
+{
+	_context.Reset();
+}
+
 Arcade::IVMClass* Arcade::CJavascriptVMInstance::getClass()
 {
 	if (_klass.expired()) return nullptr;
@@ -118,11 +124,39 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Context::Scope context_scope(context);
 	v8::Local<v8::Object> global = context->Global();
 
+	v8::Local<v8::Object> assetlist = v8::Object::New(isolate);
+	v8::Local<v8::ObjectTemplate> asset_template = klass->getVM()->getAssetTemplate();
+
+	auto package = klass->getPackage();
+	for ( int32 i=0; i<package->getNumAssets(); ++i )
+	{
+		const CAssetRef& asset = package->getAsset(i);
+		IAsset* locked = asset.get();
+		if ( locked )
+		{
+			v8::Local<v8::Object> wrapped = newJSUserdata(context, &asset, asset_template);
+			log(LOG_MESSAGE, "Write asset: %s", *locked->getName());
+			assetlist->Set(
+				v8::String::NewFromUtf8(isolate, *locked->getName(), v8::NewStringType::kInternalized)
+					.ToLocalChecked(),
+				wrapped
+			);
+		}
+	}
+
+	global->Set(
+		context, 
+		v8::String::NewFromUtf8( isolate, "assets", v8::NewStringType::kNormal ).ToLocalChecked(), 
+		assetlist
+	);
+	log(LOG_MESSAGE, "Created asset list");
+
+
+
 	for ( int32 i=0; i<klass->getNumScripts(); ++i )
 	{
 		klass->getScript(i)->BindToCurrentContext()->Run(context);
 	}
-
 	
 	v8::MaybeLocal<v8::Value> xvalue = global->Get(context, v8::String::NewFromUtf8(isolate, "x"));
 

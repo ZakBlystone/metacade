@@ -12,7 +12,7 @@
 		"other": "other.js"
 	},
 	"textures": {
-
+		"ship": "ship0.png"
 	},
 	"sounds": {
 

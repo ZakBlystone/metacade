@@ -28,6 +28,71 @@ js_vm.h:
 namespace Arcade
 {
 
+typedef intptr_t DistinctClassID;
+
+template<typename T>
+class CClassIDGenerator
+{
+public:
+	static DistinctClassID getDistinctClassID()
+	{
+		return (DistinctClassID) &getDistinctClassID;
+	}
+};
+
+template<typename T>
+struct CTypedObjectPack
+{
+	T _object;
+	DistinctClassID _classid;
+
+	using BaseType = typename std::decay<T>::type;
+
+	CTypedObjectPack() {}
+	CTypedObjectPack(T* object)
+	{
+		store(object);
+	}
+
+	void store( T* object )
+	{
+		_classid = CClassIDGenerator<BaseType>::getDistinctClassID();
+		memcpy( (void*)&_object, object, sizeof(T) );
+	}
+
+	bool check()
+	{
+		static const DistinctClassID match = CClassIDGenerator<BaseType>::getDistinctClassID();
+		if ( _classid != match ) return false;
+		return true;
+	}
+};
+
+template<typename T>
+static v8::Local<v8::Object> newJSUserdata( v8::Local<v8::Context> context, T* object, v8::Local<v8::ObjectTemplate> object_template )
+{
+	CTypedObjectPack<T> pack(object);
+
+	v8::EscapableHandleScope handle_scope( context->GetIsolate() );
+	v8::Local<v8::Object> wrapped = object_template->NewInstance(context).ToLocalChecked();
+	v8::Local<v8::ArrayBuffer> copy = v8::ArrayBuffer::New( context->GetIsolate(), sizeof(CTypedObjectPack<T>) );
+
+	memcpy( copy->GetContents().Data(), &pack, copy->ByteLength() );
+
+	wrapped->SetInternalField(0, v8::Uint8Array::New( copy, 0, sizeof(CTypedObjectPack<T>) ) );
+	return handle_scope.Escape(wrapped);
+}
+
+template<typename T>
+static T* getJSUserdataPtr( v8::Local<v8::Object> object )
+{
+	v8::Local<v8::Uint8Array> buffer = v8::Local<v8::Uint8Array>::Cast(object->GetInternalField(0));
+	if ( buffer->ByteLength() != sizeof(CTypedObjectPack<T>) ) return false;
+	
+	CTypedObjectPack<T>* pack = (CTypedObjectPack<T>*) buffer->Buffer()->GetContents().Data();
+	return pack->check() ? &pack->_object : nullptr;
+}
+
 class CJavascriptVM : public IVMHost, public enable_shared_from_this<CJavascriptVM>
 {
 
@@ -44,11 +109,14 @@ public:
 
 	v8::Isolate* getIsolate();
 	v8::Local<v8::ObjectTemplate> getGlobalTemplate();
+	v8::Local<v8::ObjectTemplate> getAssetTemplate();
 
 private:
 	void createGlobalTemplate();
+	void createAssetTemplate();
 
 	v8::Eternal<v8::ObjectTemplate> _globalTemplate;
+	v8::Eternal<v8::ObjectTemplate> _assetTemplate;
 	std::unique_ptr<v8::Platform> _platform;
 	v8::ArrayBuffer::Allocator* _allocator;
 	v8::Isolate* _isolate;

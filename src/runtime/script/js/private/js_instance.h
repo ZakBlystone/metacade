@@ -33,6 +33,7 @@ class CJavascriptVMInstance : public IVMInstance
 public:
 	CJavascriptVMInstance(weak_ptr<CJavascriptVMClass> klass);
 
+	virtual ~CJavascriptVMInstance();
 	virtual IVMClass* getClass() override;
 
 	virtual void setGameInstance(IGameInstance* gameInstance) override;

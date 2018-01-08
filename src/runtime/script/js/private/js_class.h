@@ -46,6 +46,7 @@ public:
 	int32 getNumScripts();
 
 	shared_ptr<CJavascriptVM> getVM();
+	shared_ptr<CPackage> getPackage();
 
 private:
 	weak_ptr<CJavascriptVM> _host;

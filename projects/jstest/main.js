@@ -25,3 +25,10 @@ function onKeyPressed(code)
 {
 	print("Key Pressed: " + getKeyByValue(keys, code) )
 }
+
+for ( var asset in assets )
+{
+	var value = assets[asset]
+	print( asset )
+	print( value.name + " " + value.type )
+}

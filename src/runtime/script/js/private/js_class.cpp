@@ -124,6 +124,11 @@ shared_ptr<CJavascriptVM> CJavascriptVMClass::getVM()
 	return _host.lock();
 }
 
+shared_ptr<Arcade::CPackage> Arcade::CJavascriptVMClass::getPackage()
+{
+	return _package.lock();
+}
+
 v8::Isolate* Arcade::CJavascriptVMClass::getIsolate()
 {
 	shared_ptr<CJavascriptVM> host = _host.lock();

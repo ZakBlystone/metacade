@@ -155,6 +155,7 @@ bool CJavascriptVM::init()
 	_isolate = v8::Isolate::New(create_params);
 
 	createGlobalTemplate();
+	createAssetTemplate();
 
 	return true;
 }
@@ -210,6 +211,11 @@ bool Arcade::CJavascriptVM::validateGameScript()
 }
 
 
+v8::Local<v8::ObjectTemplate> Arcade::CJavascriptVM::getAssetTemplate()
+{
+	return _assetTemplate.Get(_isolate);
+}
+
 v8::Local<v8::ObjectTemplate> CJavascriptVM::getGlobalTemplate()
 {
 	return _globalTemplate.Get(_isolate);
@@ -218,4 +224,41 @@ v8::Local<v8::ObjectTemplate> CJavascriptVM::getGlobalTemplate()
 v8::Isolate* CJavascriptVM::getIsolate()
 {
 	return _isolate;
+}
+
+static void assetRefGetName(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	CAssetRef* assetref = getJSUserdataPtr<CAssetRef>( info.Holder() );
+	IAsset* locked = assetref ? assetref->get() : nullptr;
+	info.GetReturnValue().Set(
+		v8::String::NewFromUtf8( info.GetIsolate(), locked ? *locked->getName() : "<unnamed>", v8::NewStringType::kNormal).ToLocalChecked()
+	);
+}
+
+static void assetRefGetType(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	CAssetRef* assetref = getJSUserdataPtr<CAssetRef>( info.Holder() );
+	info.GetReturnValue().Set(
+		v8::Uint32::New( info.GetIsolate(), assetref ? assetref->getType() : ASSET_NONE )
+	);
+}
+
+void CJavascriptVM::createAssetTemplate()
+{
+	v8::Isolate::Scope isolate_scope(_isolate);
+	v8::HandleScope handle_scope( _isolate );
+	v8::Local<v8::ObjectTemplate> wrapobject = v8::ObjectTemplate::New( _isolate );
+	wrapobject->SetInternalFieldCount(1);
+
+	wrapobject->SetAccessor(
+		v8::String::NewFromUtf8(_isolate, "name", v8::NewStringType::kInternalized).ToLocalChecked(),
+		assetRefGetName
+	);
+
+	wrapobject->SetAccessor(
+		v8::String::NewFromUtf8(_isolate, "type", v8::NewStringType::kInternalized).ToLocalChecked(),
+		assetRefGetType
+	);
+
+	_assetTemplate.Set(_isolate, wrapobject);
 }
