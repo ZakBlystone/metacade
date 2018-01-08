@@ -28,4 +28,5 @@ js_asset.h: javascript asset interface
 namespace Arcade
 {
 	extern v8::Local<v8::ObjectTemplate> getJSAssetWrapper( v8::Isolate* isolate );
+	extern void shutdownJSAsset();
 }

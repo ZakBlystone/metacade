@@ -32,6 +32,9 @@ class CJavascriptVM : public IVMHost, public enable_shared_from_this<CJavascript
 {
 
 public:
+	CJavascriptVM();
+
+	virtual ~CJavascriptVM();
 	virtual ELanguage getLanguage() override;
 	virtual bool init() override;
 	virtual void shutdown() override;
@@ -48,13 +51,12 @@ public:
 private:
 	void createGlobalTemplate();
 
+	bool _initialized;
 	v8::Eternal<v8::ObjectTemplate> _globalTemplate;
 	std::unique_ptr<v8::Platform> _platform;
 	v8::ArrayBuffer::Allocator* _allocator;
 	v8::Isolate* _isolate;
 	map<CGUID, shared_ptr<class CJavascriptVMClass>> _loadedClasses;
 };
-
-extern void testJavascript();
 
 }

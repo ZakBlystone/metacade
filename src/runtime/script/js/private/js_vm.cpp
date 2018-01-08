@@ -28,50 +28,30 @@ js_vm.cpp:
 #include <iostream>
 #include <windows.h>
 
-void Arcade::testJavascript()
+class CArcadeAllocator : public v8::ArrayBuffer::Allocator
 {
-	std::cout << "TESTING JAVASCRIPT..." << std::endl;
 
-	static const char* working_directory = "./";
-	v8::V8::InitializeICUDefaultLocation(working_directory);
-	v8::V8::InitializeExternalStartupData(working_directory);
-
-	std::unique_ptr<v8::Platform> platform = v8::platform::NewDefaultPlatform();
-	v8::V8::InitializePlatform(platform.get());
-	v8::V8::Initialize();
-
-	v8::Isolate::CreateParams create_params;
-	create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-
-	v8::Isolate* isolate = v8::Isolate::New(create_params);
+public:
+	virtual void* Allocate(size_t length) override
 	{
-		v8::Isolate::Scope isolate_scope(isolate);
-		// Create a stack-allocated handle scope.
-		v8::HandleScope handle_scope(isolate);
-		// Create a new context.
-		v8::Local<v8::Context> context = v8::Context::New(isolate);
-		// Enter the context for compiling and running the hello world script.
-		v8::Context::Scope context_scope(context);
-		// Create a string containing the JavaScript source code.
-		v8::Local<v8::String> source =
-			v8::String::NewFromUtf8(isolate, "'Hello' + ', World!'",
-									v8::NewStringType::kNormal)
-			.ToLocalChecked();
-		// Compile the source code.
-		v8::Local<v8::Script> script =
-			v8::Script::Compile(context, source).ToLocalChecked();
-		// Run the script to get the result.
-		v8::Local<v8::Value> result = script->Run(context).ToLocalChecked();
-		// Convert the result to an UTF8 string and print it.
-		v8::String::Utf8Value utf8(isolate, result);
-		std::cout << *utf8 << std::endl;
+		log(LOG_MESSAGE, "Allocate-zeroed: %i", length);
+		void* mem = gRuntime->getAllocator()->memrealloc(nullptr, length);
+		memset( mem, 0, length );
+		return mem;
 	}
 
-	isolate->Dispose();
-	v8::V8::Dispose();
-	v8::V8::ShutdownPlatform();
-	delete create_params.array_buffer_allocator;
-}
+	virtual void* AllocateUninitialized(size_t length) override
+	{
+		log(LOG_MESSAGE, "Allocate: %i", length);
+		return gRuntime->getAllocator()->memrealloc(nullptr, length);
+	}
+
+	virtual void Free(void* data, size_t length) override
+	{
+		log(LOG_MESSAGE, "Free: %i", length);
+		gRuntime->getAllocator()->memfree(data);
+	}
+};
 
 ELanguage CJavascriptVM::getLanguage()
 {
@@ -121,6 +101,8 @@ void CJavascriptVM::createGlobalTemplate()
 
 bool CJavascriptVM::init()
 {
+	if ( _initialized ) return true;
+
 	log(LOG_MESSAGE, "Initializing Javascript VM");
 
 	//We need to look for this stuff where the .exe is
@@ -147,7 +129,7 @@ bool CJavascriptVM::init()
 		return false;
 	}
 
-	_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+	_allocator =  new CArcadeAllocator(); //v8::ArrayBuffer::Allocator::NewDefaultAllocator();
 
 	v8::Isolate::CreateParams create_params;
 	create_params.array_buffer_allocator = _allocator;
@@ -156,11 +138,23 @@ bool CJavascriptVM::init()
 
 	createGlobalTemplate();
 
+	_initialized = true;
+
 	return true;
 }
 
 void CJavascriptVM::shutdown()
 {
+	if ( !_initialized ) return;
+	_initialized = false;
+
+	log(LOG_MESSAGE, "Shutdown Javascript VM");
+
+	shutdownJSSound();
+	shutdownJSDraw();
+	shutdownJSAsset();
+
+	_loadedClasses.clear();
 	_isolate->Dispose();
 	v8::V8::Dispose();
 	v8::V8::ShutdownPlatform();
@@ -197,6 +191,20 @@ weak_ptr<IVMClass> CJavascriptVM::loadGameVMClass(shared_ptr<CPackage> gamePacka
 	}
 
 	return shared_ptr<CJavascriptVMClass>(nullptr);
+}
+
+
+Arcade::CJavascriptVM::CJavascriptVM()
+	: _initialized(false)
+{
+
+}
+
+Arcade::CJavascriptVM::~CJavascriptVM()
+{
+	log(LOG_MESSAGE, "Destruct VM");
+	shutdown();
+	log(LOG_MESSAGE, "Finished Destruct VM");
 }
 
 bool Arcade::CJavascriptVM::includeGameScript()

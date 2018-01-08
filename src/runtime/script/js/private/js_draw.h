@@ -86,4 +86,5 @@ namespace Arcade
 	};
 
 	extern v8::Local<v8::ObjectTemplate> getJSDrawWrapper( v8::Isolate* isolate );
+	extern void shutdownJSDraw();
 }

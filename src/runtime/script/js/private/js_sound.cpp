@@ -245,3 +245,8 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSSoundWrapper(v8::Isolate* isolate)
 	gSoundTemplate.Reset(isolate, wrapper);
 	return handleScope.Escape( wrapper );
 }
+
+void Arcade::shutdownJSSound()
+{
+	gSoundTemplate.Reset();
+}

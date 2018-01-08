@@ -35,6 +35,7 @@ Arcade::CJavascriptVMInstance::CJavascriptVMInstance(weak_ptr<CJavascriptVMClass
 Arcade::CJavascriptVMInstance::~CJavascriptVMInstance()
 {
 	_context.Reset();
+	log(LOG_MESSAGE, "Destruct Instance");
 }
 
 Arcade::IVMClass* Arcade::CJavascriptVMInstance::getClass()

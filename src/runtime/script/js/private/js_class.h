@@ -33,6 +33,7 @@ class CJavascriptVMClass : public IVMClass, public enable_shared_from_this<CJava
 public:
 	CJavascriptVMClass(weak_ptr<class CJavascriptVM> host);
 
+	virtual ~CJavascriptVMClass();
 	virtual bool reload() override;
 	virtual class IVMHost* getHost() override;
 	virtual shared_ptr<class CMetaData> getMetaData() override;

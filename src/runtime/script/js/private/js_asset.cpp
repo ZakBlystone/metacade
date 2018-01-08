@@ -65,3 +65,8 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSAssetWrapper(v8::Isolate* isolate)
 	gAssetTemplate.Reset(isolate, wrapper);
 	return handleScope.Escape( wrapper );
 }
+
+void Arcade::shutdownJSAsset()
+{
+	gAssetTemplate.Reset();
+}

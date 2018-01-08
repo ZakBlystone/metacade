@@ -37,4 +37,5 @@ namespace Arcade
 	};
 
 	extern v8::Local<v8::ObjectTemplate> getJSSoundWrapper( v8::Isolate* isolate );
+	extern void shutdownJSSound();
 }

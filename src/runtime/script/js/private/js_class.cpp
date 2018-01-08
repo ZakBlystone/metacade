@@ -32,6 +32,11 @@ Arcade::CJavascriptVMClass::CJavascriptVMClass(weak_ptr<class CJavascriptVM> hos
 
 }
 
+Arcade::CJavascriptVMClass::~CJavascriptVMClass()
+{
+	log(LOG_MESSAGE, "Destruct Class");
+}
+
 bool Arcade::CJavascriptVMClass::reload()
 {
 	return false;

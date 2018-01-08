@@ -45,6 +45,8 @@ CRuntime::~CRuntime()
 	std::cout << "Destruct RUNTIME" << std::endl;
 	if ( isCurrent() ) 
 	{
+		_packageManager.reset();
+		_codeVM.reset();
 		gRuntime = nullptr;
 		gAllocator = CDefaultAllocator::get();
 	}

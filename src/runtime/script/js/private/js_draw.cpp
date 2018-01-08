@@ -390,3 +390,8 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 	return handleScope.Escape( wrapper );
 }
 
+void Arcade::shutdownJSDraw()
+{
+	gDrawTemplate.Reset();
+}
+
