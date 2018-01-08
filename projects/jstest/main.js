@@ -1,10 +1,18 @@
 
-var x = 0
-var y = 0
+var width = 0;
+var height = 0;
 function think(time, dt)
 {
+	width = 200 + Math.sin(time * 2) * 100;
+	height = 200 + Math.cos(time * 2) * 100;
 	//print(x);
 	//x = x + 1
+}
+
+function draw()
+{
+	_r.color(1,1,1,.5);
+	_r.sprite(0,0,width,height,0,assets["ship.tex"]);
 }
 
 function getKeyByValue(object, value) {

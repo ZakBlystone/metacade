@@ -19,42 +19,8 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-js_vm.h:
+js_userdata.cpp: javascript userdata objects similar to Lua
 ===============================================================================
 */
 
-#pragma once
-
-namespace Arcade
-{
-
-class CJavascriptVM : public IVMHost, public enable_shared_from_this<CJavascriptVM>
-{
-
-public:
-	virtual ELanguage getLanguage() override;
-	virtual bool init() override;
-	virtual void shutdown() override;
-
-	virtual bool isRunning() override;
-
-	virtual weak_ptr<IVMClass> loadGameVMClass(shared_ptr<CPackage> gamePackage) override;
-	virtual bool includeGameScript() override;
-	virtual bool validateGameScript() override;
-
-	v8::Isolate* getIsolate();
-	v8::Local<v8::ObjectTemplate> getGlobalTemplate();
-
-private:
-	void createGlobalTemplate();
-
-	v8::Eternal<v8::ObjectTemplate> _globalTemplate;
-	std::unique_ptr<v8::Platform> _platform;
-	v8::ArrayBuffer::Allocator* _allocator;
-	v8::Isolate* _isolate;
-	map<CGUID, shared_ptr<class CJavascriptVMClass>> _loadedClasses;
-};
-
-extern void testJavascript();
-
-}
+#include "js_private.h"

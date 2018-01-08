@@ -124,8 +124,11 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Context::Scope context_scope(context);
 	v8::Local<v8::Object> global = context->Global();
 
+	v8::Local<v8::ObjectTemplate> asset_template = getJSAssetWrapper(isolate);
+	v8::Local<v8::ObjectTemplate> draw_template = getJSDrawWrapper(isolate);
+
 	v8::Local<v8::Object> assetlist = v8::Object::New(isolate);
-	v8::Local<v8::ObjectTemplate> asset_template = klass->getVM()->getAssetTemplate();
+	v8::Local<v8::Object> drawInterface = newJSUserdata<CDrawInterface>( context, nullptr, draw_template );
 
 	auto package = klass->getPackage();
 	for ( int32 i=0; i<package->getNumAssets(); ++i )
@@ -149,6 +152,12 @@ void Arcade::CJavascriptVMInstance::init()
 		v8::String::NewFromUtf8( isolate, "assets", v8::NewStringType::kNormal ).ToLocalChecked(), 
 		assetlist
 	);
+
+	global->Set(
+		context, 
+		v8::String::NewFromUtf8( isolate, "_r", v8::NewStringType::kNormal ).ToLocalChecked(), 
+		drawInterface
+	);
 	log(LOG_MESSAGE, "Created asset list");
 
 
@@ -160,7 +169,8 @@ void Arcade::CJavascriptVMInstance::init()
 	
 	v8::MaybeLocal<v8::Value> xvalue = global->Get(context, v8::String::NewFromUtf8(isolate, "x"));
 
-	_context = v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>>(isolate, context);
+	_context.Reset(isolate, context);
+	_drawInterface.Reset(isolate, drawInterface);
 
 	if ( !xvalue.IsEmpty() && xvalue.ToLocalChecked()->IsNumber() )
 	{
@@ -179,7 +189,19 @@ void Arcade::CJavascriptVMInstance::think(float seconds, float deltaSeconds)
 
 void Arcade::CJavascriptVMInstance::render(shared_ptr<class CElementRenderer> renderer)
 {
+	if ( _klass.expired() ) return;
+	shared_ptr<CJavascriptVMClass> klass = _klass.lock();
+
+	v8::HandleScope handle_scope( klass->getIsolate() );
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( _drawInterface.Get( klass->getIsolate() ) );
+	if ( draw == nullptr ) return;
+
+	draw->start( renderer.get() );
+
 	callFunction(CFunctionCall("draw"));
+
+	draw->end();
 }
 
 void Arcade::CJavascriptVMInstance::reset()

@@ -19,7 +19,7 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-js_instance.h:
+js_asset.h: javascript asset interface
 ===============================================================================
 */
 
@@ -27,30 +27,5 @@ js_instance.h:
 
 namespace Arcade
 {
-
-class CJavascriptVMInstance : public IVMInstance
-{
-public:
-	CJavascriptVMInstance(weak_ptr<CJavascriptVMClass> klass);
-
-	virtual ~CJavascriptVMInstance();
-	virtual IVMClass* getClass() override;
-
-	virtual void setGameInstance(IGameInstance* gameInstance) override;
-	virtual void postInputEvent(const class CInputEvent& input) override;
-	virtual void init() override;
-
-	virtual void think(float seconds, float deltaSeconds) override;
-	virtual void render(shared_ptr<class CElementRenderer> renderer) override;
-	virtual void reset() override;
-
-	virtual bool callFunction(const CFunctionCall& call) override;
-private:
-	weak_ptr<CJavascriptVMClass> _klass;
-	CInputState _state;
-	IGameInstance* _gameInstance;
-	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
-	v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> _drawInterface;
-};
-
+	extern v8::Local<v8::ObjectTemplate> getJSAssetWrapper( v8::Isolate* isolate );
 }

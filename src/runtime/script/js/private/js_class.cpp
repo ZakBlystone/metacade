@@ -74,6 +74,8 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 		v8::HandleScope handle_scope(isolate);
 		v8::Local<v8::Context> context = v8::Context::New(isolate);
 
+		_scripts.clear();
+
 		//context->SetSecurityToken( v8::Integer::New(isolate, 420) );
 
 		v8::Context::Scope context_scope(context);
