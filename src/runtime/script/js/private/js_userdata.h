@@ -86,6 +86,8 @@ static v8::Local<v8::Object> newJSUserdata( v8::Local<v8::Context> context, T* o
 template<typename T>
 static T* getJSUserdataPtr( v8::Local<v8::Object> object )
 {
+	if ( object->InternalFieldCount() == 0 ) return nullptr;
+
 	v8::Local<v8::Uint8Array> buffer = v8::Local<v8::Uint8Array>::Cast(object->GetInternalField(0));
 	if ( buffer->ByteLength() != sizeof(CTypedObjectPack<T>) ) return false;
 	
@@ -96,6 +98,7 @@ static T* getJSUserdataPtr( v8::Local<v8::Object> object )
 template<typename T>
 static T* getJSUserdataValuePtr( v8::Local<v8::Value> value )
 {
+	if ( value->IsNull() ) return nullptr;
 	return getJSUserdataPtr<T>( v8::Local<v8::Object>::Cast( value ) );
 }
 

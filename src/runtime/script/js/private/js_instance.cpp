@@ -124,6 +124,8 @@ void Arcade::CJavascriptVMInstance::init()
 	if ( _klass.expired() ) return;
 	shared_ptr<CJavascriptVMClass> klass = _klass.lock();
 
+	log(LOG_MESSAGE, "Initialize instance...");
+
 	v8::Isolate* isolate = klass->getIsolate();
 	v8::Isolate::Scope isolate_scope(isolate);
 
@@ -138,6 +140,8 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Local<v8::Object> assetlist = v8::Object::New(isolate);
 	v8::Local<v8::Object> drawInterface = newJSUserdata<CDrawInterface>( context, nullptr, getJSDrawWrapper(isolate) );
 	v8::Local<v8::Object> soundInterface = newJSUserdata<CSoundInterface>( context, nullptr, getJSSoundWrapper(isolate) );
+
+	log(LOG_MESSAGE, "Write asset list...");
 
 	auto package = klass->getPackage();
 	for ( int32 i=0; i<package->getNumAssets(); ++i )
