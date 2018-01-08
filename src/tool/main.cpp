@@ -322,13 +322,13 @@ static void immediateUI(float width, float height, float deltatime)
 
 typedef vector<CInputEvent> EventBuffer;
 
-void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& events)
+void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& events, float width, float height)
 {
 	if ( evt.type == SDL_MOUSEMOTION )
 	{
 		CInputState state;
 		state.setMousePosition((float) evt.motion.x, (float) evt.motion.y - 20.f);
-		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
+		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < width && evt.motion.y > 30 && evt.motion.y < height);
 		state.generateEvents(baseline, [&events](const CInputEvent &ev) mutable
 		{
 			events.push_back(ev);
@@ -569,12 +569,14 @@ static int start(int argc, char *argv[])
 				}
 			}
 
-			if ( !demoPlayback ) processSDLInputs(evt, baseline, events);
+			if ( !demoPlayback ) processSDLInputs(evt, baseline, events, width, height);
 
 			if ( evt.type == SDL_KEYDOWN )
 			{
 				if ( evt.key.keysym.sym == SDLK_r )
 				{
+					baseline.clear();
+
 					SDL_LockMutex(sndMutex);
 					if ( instance != nullptr )
 					{
