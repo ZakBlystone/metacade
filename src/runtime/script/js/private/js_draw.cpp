@@ -36,12 +36,75 @@ Arcade::CDrawInterface::CDrawInterface()
 }
 
 
+void Arcade::CDrawInterface::resetStacks()
+{
+	_xformStackPos = NUM_MATRIX_STACK - 1;
+	_xformStack[_xformStackPos] = CMatrix3();
+
+	_clipStackPos = NUM_CLIP_STACK - 1;
+	_clipStack[_clipStackPos] = CClipShape();
+}
+
+
+bool Arcade::CDrawInterface::xformPush()
+{
+	if (_xformStackPos == 0) return false;
+
+	CMatrix3& copy = _xformStack[_xformStackPos];
+	_xformStack[--_xformStackPos] = copy;
+
+	return true;
+}
+
+
+bool Arcade::CDrawInterface::xformPop()
+{
+	if (_xformStackPos == NUM_MATRIX_STACK - 1) return false;
+	++_xformStackPos;
+
+	return true;
+}
+
+
+bool Arcade::CDrawInterface::clipPush()
+{
+	if (_clipStackPos == 0) return false;
+
+	CClipShape& copy = _clipStack[_clipStackPos];
+	_clipStack[--_clipStackPos] = copy;
+
+	return true;
+}
+
+
+bool Arcade::CDrawInterface::clipPop()
+{
+	if (_clipStackPos == NUM_MATRIX_STACK - 1) return false;
+	++_clipStackPos;
+
+	return true;
+}
+
+
+Arcade::CMatrix3& Arcade::CDrawInterface::xformTop()
+{
+	return _xformStack[_xformStackPos];
+}
+
+
+Arcade::CClipShape& Arcade::CDrawInterface::clipTop()
+{
+	return _clipStack[_clipStackPos];
+}
+
 void CDrawInterface::start(CElementRenderer* renderer)
 {
 	_renderer = renderer;
 	_layer = 0;
 	_currentColor = CFloatColor(1.f, 1.f, 1.f, 1.f);
 	_material._blend = BLEND_NORMAL;
+	resetStacks();
+	clipTop() = renderer->getViewportClip();
 }
 
 
@@ -58,7 +121,7 @@ void CDrawInterface::rect(const CRectData& data, const CAssetRef* asset)
 
 	_material._baseTexture = resolveTextureID(asset);
 
-	CRenderQuad* quad = &el.makeQuad2( _renderer->getViewportClip(), *this, _layer );
+	CRenderQuad* quad = &el.makeQuad2( clipTop(), *this, _layer );
 	CVertex2D* verts = quad->_verts;
 
 	verts[0]._position._x = data._x;
@@ -84,6 +147,8 @@ void CDrawInterface::rect(const CRectData& data, const CAssetRef* asset)
 	verts[3]._texcoord._x = data._u0;
 	verts[3]._texcoord._y = data._v1;
 	verts[3]._color._irgba = _currentColor._irgba;
+
+	quad->transform(xformTop());
 }
 
 void CDrawInterface::sprite(const CSpriteData& data, const CAssetRef* asset)
@@ -105,8 +170,7 @@ void CDrawInterface::sprite(const CSpriteData& data, const CAssetRef* asset)
 		_currentColor
 	);
 
-	//quad.transform(gData.xformTop() * xform);
-	quad.transform(xform);
+	quad.transform(xformTop() * xform);
 
 	quad._verts[0]._texcoord.set( data._u0, data._v0 );
 	quad._verts[1]._texcoord.set( data._u1, data._v0 );
@@ -114,7 +178,19 @@ void CDrawInterface::sprite(const CSpriteData& data, const CAssetRef* asset)
 	quad._verts[3]._texcoord.set( data._u0, data._v1 );
 
 	CRenderElement& el = _renderer->addRenderElement();
-	el.makeQuad( quad, _renderer->getViewportClip(), *this, _layer );
+	el.makeQuad( quad, clipTop(), *this, _layer );
+}
+
+void Arcade::CDrawInterface::quad(CRenderQuad& data, const CAssetRef* asset)
+{
+	if ( !valid() ) return;
+
+	_material._baseTexture = resolveTextureID(asset);
+	
+	data.transform(xformTop());
+
+	CRenderElement& el = _renderer->addRenderElement();
+	el.makeQuad( data, clipTop(), *this, _layer );
 }
 
 CImageAsset* CDrawInterface::resolveTexture(const CAssetRef* asset)
@@ -226,6 +302,56 @@ static void drawSprite(const v8::FunctionCallbackInfo<v8::Value>& args)
 	draw->sprite( sprite, ( args.Length() > 5 ) ? getJSUserdataValuePtr<CAssetRef>( args[5] ) : nullptr );
 }
 
+static void drawQuad(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 16 )
+	{
+		jsThrow(isolate, "_r.quad requires at least 16 arguments");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	CRenderQuad quad;
+
+	for ( uint32 i=0; i<4; ++i )
+	{
+		quad._verts[i]._position._x = (float) v8::Local<v8::Number>::Cast(args[i*4 + 0])->Value();
+		quad._verts[i]._position._y = (float) v8::Local<v8::Number>::Cast(args[i*4 + 1])->Value();
+		quad._verts[i]._texcoord._x = (float) v8::Local<v8::Number>::Cast(args[i*4 + 2])->Value();
+		quad._verts[i]._texcoord._y = (float) v8::Local<v8::Number>::Cast(args[i*4 + 3])->Value();
+		quad._verts[i]._color._irgba = draw->_currentColor._irgba;
+	}
+
+	draw->quad( quad, ( args.Length() > 16 ) ? getJSUserdataValuePtr<CAssetRef>( args[16] ) : nullptr );
+}
+
+static void getDrawLayer(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( info.Holder() );
+	if ( draw == nullptr ) return;
+
+	info.GetReturnValue().Set( v8::Int32::New( info.GetIsolate(), draw->_layer ) );
+}
+
+static void setDrawLayer(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( info.Holder() );
+	if ( draw == nullptr ) return;
+
+	draw->_layer = v8::Local<v8::Int32>::Cast( value )->Value();
+}
+
 v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 {
 	if ( !gDrawTemplate.IsEmpty() ) return gDrawTemplate.Get( isolate );
@@ -247,6 +373,17 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 	wrapper->Set(
 		v8::String::NewFromUtf8( isolate, "sprite", v8::NewStringType::kNormal ).ToLocalChecked(),
 		v8::FunctionTemplate::New( isolate, drawSprite )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "quad", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawQuad )
+	);
+
+	wrapper->SetAccessor(
+		v8::String::NewFromUtf8( isolate, "layer", v8::NewStringType::kNormal ).ToLocalChecked(),
+		getDrawLayer,
+		setDrawLayer
 	);
 
 	gDrawTemplate.Reset(isolate, wrapper);

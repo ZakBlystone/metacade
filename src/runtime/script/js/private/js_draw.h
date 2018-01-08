@@ -25,6 +25,9 @@ js_draw.h: javascript drawing interface
 
 #pragma once
 
+#define NUM_MATRIX_STACK 16
+#define NUM_CLIP_STACK 32
+
 namespace Arcade
 {
 	struct CDrawInterface : public CRenderState
@@ -32,6 +35,10 @@ namespace Arcade
 		CElementRenderer* _renderer;
 		CColor _currentColor;
 		int32 _layer;
+		CMatrix3 _xformStack[NUM_MATRIX_STACK];
+		CClipShape _clipStack[NUM_CLIP_STACK];
+		uint32 _xformStackPos;
+		uint32 _clipStackPos;
 
 		CDrawInterface();
 
@@ -61,8 +68,18 @@ namespace Arcade
 		void start(CElementRenderer* renderer);
 		void end();
 
+		void resetStacks();
+		bool xformPush();
+		bool xformPop();
+		bool clipPush();
+		bool clipPop();
+
+		CMatrix3& xformTop();
+		CClipShape& clipTop();
+
 		void rect(const CRectData& data, const CAssetRef* asset);
 		void sprite(const CSpriteData& data, const CAssetRef* asset);
+		void quad(CRenderQuad& data, const CAssetRef* asset);
 		bool valid() const;
 		inline CImageAsset* resolveTexture(const CAssetRef* asset);
 		inline uint32 resolveTextureID(const CAssetRef* asset);
