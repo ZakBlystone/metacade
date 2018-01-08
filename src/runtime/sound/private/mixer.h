@@ -54,8 +54,8 @@ public:
 	virtual void setMasterPitch(float pitch);
 	virtual void setMasterVolume(float volume);
 
-	float getMasterPitch() const { return _pitch; }
-	float getMasterVolume() const { return _volume; }
+	virtual float getMasterPitch() const { return _pitch; }
+	virtual float getMasterVolume() const { return _volume; }
 
 	const CMixerSettings& getSettings() const;
 

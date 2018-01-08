@@ -101,7 +101,11 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 					scriptSource->getCodeLength()).ToLocalChecked();
 
 				v8::Local<v8::Script> script;
-				v8::ScriptOrigin origin( v8::String::NewFromOneByte(isolate, (const uint8_t*)*origin_string, v8::NewStringType::kNormal).ToLocalChecked() );
+				v8::ScriptOrigin origin( 
+					v8::String::NewFromOneByte(isolate, (const uint8_t*)*origin_string, v8::NewStringType::kNormal).ToLocalChecked(),
+					v8::Integer::New(isolate, 0),
+					v8::Integer::New(isolate, 0)
+				);
 				if ( !v8::Script::Compile(context, source, &origin).ToLocal<v8::Script>(&script) )
 				{
 					log(LOG_ERROR, "Failed to compile script '%s'", *origin_string);

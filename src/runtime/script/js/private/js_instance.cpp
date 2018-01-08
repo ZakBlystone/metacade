@@ -46,6 +46,15 @@ Arcade::IVMClass* Arcade::CJavascriptVMInstance::getClass()
 void Arcade::CJavascriptVMInstance::setGameInstance(IGameInstance* gameInstance)
 {
 	_gameInstance = gameInstance;
+
+	if ( _klass.expired() || _soundInterface.IsEmpty() ) return;
+
+	shared_ptr<CJavascriptVMClass> klass = _klass.lock();
+
+	CSoundInterface* sound = getJSUserdataPtr<CSoundInterface>( _soundInterface.Get( klass->getIsolate() ) );
+	if ( sound == nullptr ) return;
+
+	sound->setMixer( _gameInstance->getSoundMixer() );
 }
 
 void Arcade::CJavascriptVMInstance::postInputEvent(const class CInputEvent& input)
@@ -125,10 +134,10 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Local<v8::Object> global = context->Global();
 
 	v8::Local<v8::ObjectTemplate> asset_template = getJSAssetWrapper(isolate);
-	v8::Local<v8::ObjectTemplate> draw_template = getJSDrawWrapper(isolate);
 
 	v8::Local<v8::Object> assetlist = v8::Object::New(isolate);
-	v8::Local<v8::Object> drawInterface = newJSUserdata<CDrawInterface>( context, nullptr, draw_template );
+	v8::Local<v8::Object> drawInterface = newJSUserdata<CDrawInterface>( context, nullptr, getJSDrawWrapper(isolate) );
+	v8::Local<v8::Object> soundInterface = newJSUserdata<CSoundInterface>( context, nullptr, getJSSoundWrapper(isolate) );
 
 	auto package = klass->getPackage();
 	for ( int32 i=0; i<package->getNumAssets(); ++i )
@@ -158,9 +167,20 @@ void Arcade::CJavascriptVMInstance::init()
 		v8::String::NewFromUtf8( isolate, "_r", v8::NewStringType::kNormal ).ToLocalChecked(), 
 		drawInterface
 	);
+
+	global->Set(
+		context, 
+		v8::String::NewFromUtf8( isolate, "_s", v8::NewStringType::kNormal ).ToLocalChecked(), 
+		soundInterface
+	);
 	log(LOG_MESSAGE, "Created asset list");
 
 
+	_context.Reset(isolate, context);
+	_drawInterface.Reset(isolate, drawInterface);
+	_soundInterface.Reset(isolate, soundInterface);
+
+	setGameInstance(_gameInstance);
 
 	for ( int32 i=0; i<klass->getNumScripts(); ++i )
 	{
@@ -168,9 +188,6 @@ void Arcade::CJavascriptVMInstance::init()
 	}
 	
 	v8::MaybeLocal<v8::Value> xvalue = global->Get(context, v8::String::NewFromUtf8(isolate, "x"));
-
-	_context.Reset(isolate, context);
-	_drawInterface.Reset(isolate, drawInterface);
 
 	if ( !xvalue.IsEmpty() && xvalue.ToLocalChecked()->IsNumber() )
 	{

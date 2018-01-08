@@ -19,23 +19,22 @@ along with Metacade.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ===============================================================================
-js_private.h:
+js_sound.h: javascript sound interface
 ===============================================================================
 */
 
-#include "js_public.h"
+#pragma once
 
-#include "libplatform/libplatform.h"
-#include "v8.h"
+namespace Arcade
+{
+	struct CSoundInterface
+	{
+		ISoundMixer* _mixer;
 
-#include "engine/engine_private.h"
+		CSoundInterface();
 
-#include "private/js_userdata.h"
-#include "private/js_asset.h"
-#include "private/js_draw.h"
-#include "private/js_sound.h"
-#include "private/js_class.h"
-#include "private/js_instance.h"
-#include "private/js_vm.h"
+		void setMixer(ISoundMixer* mixer);
+	};
 
-using namespace Arcade;
+	extern v8::Local<v8::ObjectTemplate> getJSSoundWrapper( v8::Isolate* isolate );
+}

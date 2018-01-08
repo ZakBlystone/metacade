@@ -51,6 +51,7 @@ private:
 	IGameInstance* _gameInstance;
 	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
 	v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> _drawInterface;
+	v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> _soundInterface;
 };
 
 }
