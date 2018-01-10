@@ -145,9 +145,9 @@ bool CJavascriptVM::init()
 
 	v8::Isolate::CreateParams create_params;
 	create_params.array_buffer_allocator = _allocator;
-	create_params.constraints.set_max_zone_pool_size(32);
-	create_params.constraints.set_max_old_space_size(32);
-	create_params.constraints.set_code_range_size(32);
+	//create_params.constraints.set_max_zone_pool_size(32);
+	//create_params.constraints.set_max_old_space_size(32);
+	//create_params.constraints.set_code_range_size(32);
 
 	_isolate = v8::Isolate::New(create_params);
 
