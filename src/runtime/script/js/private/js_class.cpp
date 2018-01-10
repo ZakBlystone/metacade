@@ -77,19 +77,20 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	{
 		v8::Isolate::Scope isolate_scope(isolate);
 		v8::HandleScope handle_scope(isolate);
-		v8::Local<v8::Context> context = v8::Context::New(isolate);
+		
 
 		_scripts.clear();
 
 		//context->SetSecurityToken( v8::Integer::New(isolate, 420) );
-
-		v8::Context::Scope context_scope(context);
 
 		for ( int32 i=0; i<locked->getNumAssets(); ++i )
 		{
 			const CAssetRef& asset = locked->getAsset(i);
 			if ( asset.getType() == ASSET_CODE )
 			{
+				v8::Local<v8::Context> context = v8::Context::New(isolate);
+				v8::Context::Scope context_scope(context);
+
 				CCodeAsset* scriptSource = castAsset<CCodeAsset>(asset);
 				if (scriptSource == nullptr)
 				{

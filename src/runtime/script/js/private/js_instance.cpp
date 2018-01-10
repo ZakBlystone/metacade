@@ -151,10 +151,11 @@ void Arcade::CJavascriptVMInstance::init()
 		IAsset* locked = asset.get();
 		if ( locked )
 		{
+			CString assetname = locked->getName();
 			v8::Local<v8::Object> wrapped = newJSUserdata(context, &asset, asset_template);
-			log(LOG_MESSAGE, "Write asset: %s", *locked->getName());
+			log(LOG_MESSAGE, "Write asset: %s", *assetname);
 			assetlist->Set(
-				v8::String::NewFromUtf8(isolate, *locked->getName(), v8::NewStringType::kInternalized)
+				v8::String::NewFromUtf8(isolate, *assetname, v8::NewStringType::kInternalized)
 					.ToLocalChecked(),
 				wrapped
 			);
@@ -307,7 +308,26 @@ bool Arcade::CJavascriptVMInstance::callFunction(const CFunctionCall& call)
 			}
 
 			v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(value);
-			v8::MaybeLocal<v8::Value> result = func->Call(context, global, call.numArgs(), values);
+
+			{
+				v8::TryCatch catcher(isolate);
+				v8::MaybeLocal<v8::Value> result = func->Call(context, global, call.numArgs(), values);
+				if ( result.IsEmpty() )
+				{
+					v8::Local<v8::Value> stack;
+					if ( catcher.StackTrace( context ).ToLocal(&stack) )
+					{
+						v8::String::Utf8Value str( stack );
+						log(LOG_WARN, "\n%s", *str);					
+					}
+					else
+					{
+						v8::Local<v8::Value> except = catcher.Exception();
+						v8::String::Utf8Value str( except );
+						log(LOG_WARN, "%s", *str);
+					}
+				}
+			}
 
 			delete [] values;
 			return true;
