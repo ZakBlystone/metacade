@@ -70,8 +70,106 @@ uint32 CSoundChannel::getIndex() const
 	return _index.get();
 }
 
+struct CInterpolatorData
+{
+	int32 channels;
+	int32 current;
+	int32 next;
+	float frac;
+	float vol;
+	float* outbuffer;
+	bool stereo;
+};
+
+template<typename SampleType>
+static inline float lerpSamples(const SampleType* samples, int32 current, int32 next, float frac)
+{
+	float A = (float)(samples[current]);
+	float B = (float)(samples[next]);
+	return A + (B - A) * frac;
+}
+
+template<>
+inline float lerpSamples<int8>(const int8* samples, int32 current, int32 next, float frac)
+{
+	float A = (float)(samples[current] << 8);
+	float B = (float)(samples[next] << 8);
+	return A + (B - A) * frac;
+}
+
+template<typename SampleType, int32 ChannelCount>
+struct CSampleInterpolator
+{;
+	inline void stereoInterpolate(	
+		const SampleType* samples, 
+		const CInterpolatorData& data)
+	{}
+};
+
+template<typename SampleType>
+struct CSampleInterpolator<SampleType, 2>
+{
+	static inline void stereoInterpolate(
+		const SampleType* samples, 
+		const CInterpolatorData& data)
+	{
+		float lerpedL = lerpSamples<SampleType>(samples, data.current, data.next, data.frac);
+		float lerpedR = lerpSamples<SampleType>(samples, data.current+1, data.next+1, data.frac);
+		if ( data.stereo )
+		{
+			data.outbuffer[0] += lerpedL * data.vol;
+			data.outbuffer[1] += lerpedR * data.vol;
+		}
+		else
+		{
+			data.outbuffer[0] += (lerpedR + lerpedL) * .5f * data.vol;
+		}
+	}
+};
+
+template<typename SampleType>
+struct CSampleInterpolator<SampleType, 1>
+{
+		static inline void stereoInterpolate(
+		const SampleType* samples, 
+		const CInterpolatorData& data)
+	{
+		float lerped = lerpSamples<SampleType>(samples, data.current, data.next, data.frac);
+		if ( data.stereo )
+		{
+			data.outbuffer[0] += lerped * data.vol;
+			data.outbuffer[1] += lerped * data.vol;
+		}
+		else
+		{
+			data.outbuffer[0] += lerped * data.vol;
+		}
+	}
+};
+
+template<typename SampleType>
+static inline bool interpolateSamples(const uint8* buffer, const CInterpolatorData& data)
+{
+	const SampleType* sampleData = reinterpret_cast<const SampleType*>(buffer);
+	if ( sampleData == nullptr ) return false;
+
+	if ( data.channels == 1 )
+	{
+		CSampleInterpolator<SampleType,1>::stereoInterpolate(sampleData, data);
+	}
+	else if ( data.channels == 2 )
+	{
+		CSampleInterpolator<SampleType,2>::stereoInterpolate(sampleData, data);
+	}
+
+	return true;
+}
+
 bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISoundSample* sample, const CMixerSettings& mixerSettings)
 {
+	//data for interpolator
+	static CInterpolatorData interpolate;
+
 	//playhead
 	double time = _rate * _state._time;
 	uint32 index = (uint32) floor(time);
@@ -92,51 +190,23 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	if ( nextFrame >= _sampleInfo.numFrames )
 		nextFrame = 0;
 	
-	//sample locations
-	int32 sampleIndex = frame * _sampleInfo.numChannels;
-	int32 nextSampleIndex = nextFrame * _sampleInfo.numChannels;
-
-	float vol = _state._volume * _mixer->getMasterVolume();
+	//setup interpolator data
+	interpolate.current = frame * _sampleInfo.numChannels;
+	interpolate.next = nextFrame * _sampleInfo.numChannels;
+	interpolate.frac = frac;
+	interpolate.outbuffer = buffer + offset;
+	interpolate.stereo = _mixer->getSettings().flags & MIXF_STEREO;
+	interpolate.vol = _state._volume * _mixer->getMasterVolume();
+	interpolate.channels = _sampleInfo.numChannels;
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )
 	{
-		int16* sampleData = reinterpret_cast<int16*>(sample->getPCMSamples());
-		if ( sampleData == nullptr ) return false;
-
-		if ( _sampleInfo.numChannels == 1 )
-		{
-			float A = (float)(sampleData[sampleIndex]);
-			float B = (float)(sampleData[nextSampleIndex]);
-			float lerped = A + (B - A) * frac;
-			if ( mixerSettings.flags & MIXF_STEREO )
-			{
-				buffer[offset] += lerped * vol;
-				buffer[offset+1] += lerped * vol;
-			}
-			else
-			{
-				buffer[offset] += lerped * vol;	
-			}
-		}
-		else if ( _sampleInfo.numChannels == 2 )
-		{
-			float AL = (float)(sampleData[sampleIndex]);
-			float AR = (float)(sampleData[sampleIndex+1]);
-			float BL = (float)(sampleData[nextSampleIndex]);
-			float BR = (float)(sampleData[nextSampleIndex+1]);
-			float lerpedL = AL + (BL - AL) * frac;
-			float lerpedR = AR + (BR - AR) * frac;
-			if ( mixerSettings.flags & MIXF_STEREO )
-			{
-				buffer[offset] += lerpedL * vol;
-				buffer[offset+1] += lerpedR * vol;
-			}
-			else
-			{
-				buffer[offset] += (lerpedR + lerpedL) * .5f * vol;
-			}
-		}
+		interpolateSamples<int16>(sample->getPCMSamples(), interpolate );
+	}
+	else if ( _sampleInfo.width == 8 )
+	{
+		interpolateSamples<int8>(sample->getPCMSamples(), interpolate );
 	}
 
 	return true;
