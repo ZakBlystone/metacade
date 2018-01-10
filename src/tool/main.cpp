@@ -86,7 +86,20 @@ static void sndCallback(void*, uint8* stream, int32 len)
 
 	mixer->update();
 
-	memcpy(stream, mixer->getPCMSamples(), len);
+	if ( mixer->getSettings().flags & MIXF_8BIT )
+	{
+		int8* samples = reinterpret_cast<int8*>(mixer->getPCMSamples());
+		int16* streamsamples = reinterpret_cast<int16*>(stream);
+		for ( int32 i=0; i<(len>>1); ++i )
+		{
+			int16 resample = samples[i] << 8;
+			streamsamples[i] = resample;
+		}
+	}
+	else
+	{
+		memcpy(stream, mixer->getPCMSamples(), len);
+	}
 
 	SDL_UnlockMutex(sndMutex);
 }
@@ -507,6 +520,7 @@ static int start(int argc, char *argv[])
 	mixerSettings.bufferSize = SOUND_DEVICE_SAMPLES;
 	mixerSettings.sampleRate = 44100;
 	mixerSettings.maxChannels = 64;
+	//mixerSettings.flags |= ( MIXF_8BIT | MIXF_ALIASED_INTERPOLATION );
 
 	{
 		loadedGameClass = runtime->getGameClassForPackage(loadedPackage);

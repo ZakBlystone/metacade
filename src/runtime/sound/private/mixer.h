@@ -57,7 +57,7 @@ public:
 	virtual float getMasterPitch() const { return _pitch; }
 	virtual float getMasterVolume() const { return _volume; }
 
-	const CMixerSettings& getSettings() const;
+	virtual const CMixerSettings& getSettings() const;
 
 private:
 	CIndex lockChannelIndex();
