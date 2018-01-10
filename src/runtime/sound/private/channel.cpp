@@ -79,20 +79,21 @@ struct CInterpolatorData
 	float vol;
 	float* outbuffer;
 	bool stereo;
+	bool aliasing;
 };
 
 template<typename SampleType>
-static inline float lerpSamples(const SampleType* samples, int32 current, int32 next, float frac)
+static inline float lerpSamples(const SampleType* samples, int32 current, int32 next, float frac, bool alias)
 {
-	float A = (float)(samples[current]);
+	float A = (float)(samples[current]); if ( alias ) return A;
 	float B = (float)(samples[next]);
 	return A + (B - A) * frac;
 }
 
 template<>
-inline float lerpSamples<int8>(const int8* samples, int32 current, int32 next, float frac)
+inline float lerpSamples<int8>(const int8* samples, int32 current, int32 next, float frac, bool alias)
 {
-	float A = (float)(samples[current] << 8);
+	float A = (float)(samples[current] << 8); if ( alias ) return A;
 	float B = (float)(samples[next] << 8);
 	return A + (B - A) * frac;
 }
@@ -113,8 +114,8 @@ struct CSampleInterpolator<SampleType, 2>
 		const SampleType* samples, 
 		const CInterpolatorData& data)
 	{
-		float lerpedL = lerpSamples<SampleType>(samples, data.current, data.next, data.frac);
-		float lerpedR = lerpSamples<SampleType>(samples, data.current+1, data.next+1, data.frac);
+		float lerpedL = lerpSamples<SampleType>(samples, data.current, data.next, data.frac, data.aliasing);
+		float lerpedR = lerpSamples<SampleType>(samples, data.current+1, data.next+1, data.frac, data.aliasing);
 		if ( data.stereo )
 		{
 			data.outbuffer[0] += lerpedL * data.vol;
@@ -134,7 +135,7 @@ struct CSampleInterpolator<SampleType, 1>
 		const SampleType* samples, 
 		const CInterpolatorData& data)
 	{
-		float lerped = lerpSamples<SampleType>(samples, data.current, data.next, data.frac);
+		float lerped = lerpSamples<SampleType>(samples, data.current, data.next, data.frac, data.aliasing);
 		if ( data.stereo )
 		{
 			data.outbuffer[0] += lerped * data.vol;
@@ -169,6 +170,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 {
 	//data for interpolator
 	static CInterpolatorData interpolate;
+	const CMixerSettings& settings = _mixer->getSettings();
 
 	//playhead
 	double time = _rate * _state._time;
@@ -195,9 +197,10 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	interpolate.next = nextFrame * _sampleInfo.numChannels;
 	interpolate.frac = frac;
 	interpolate.outbuffer = buffer + offset;
-	interpolate.stereo = _mixer->getSettings().flags & MIXF_STEREO;
+	interpolate.stereo = settings.flags & MIXF_STEREO;
 	interpolate.vol = _state._volume * _mixer->getMasterVolume();
 	interpolate.channels = _sampleInfo.numChannels;
+	interpolate.aliasing = settings.flags & MIXF_ALIASED_INTERPOLATION;
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )
