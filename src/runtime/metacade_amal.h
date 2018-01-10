@@ -58,11 +58,11 @@ enum EPointClassify
 	PLANE_INTERSECT = 0,
 	PLANE_INFRONT = 1,
 };
-enum ELanguage
+enum ELanguage : uint8
 {
-	LANG_DUMMY,
 	LANG_LUA,
 	LANG_JAVASCRIPT,
+	LANG_NUM,
 	//LANG_PYTHON,
 };
 #define MAX_BLEND_BITS 3
@@ -550,6 +550,7 @@ public:
 	CVariant();
 	CVariant(const CVariant& other);
 	~CVariant();
+	bool isSet() const;
 	void set(bool value);
 	void set(uint64 value);
 	void set(int64 value);
@@ -1488,16 +1489,6 @@ public:
 namespace Arcade
 {
 class IRenderer;
-class IRenderTest
-{
-public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
-	virtual void callFunction(CFunctionCall call) = 0;
-	virtual ~IRenderTest() {}
-};
 class IMetaData;
 class IRuntime
 {
@@ -1506,8 +1497,6 @@ public:
 	virtual class IPackageManager* getPackageManager() = 0;
 	virtual void makeCurrent() = 0;
 	virtual bool isCurrent() const = 0;
-	virtual IRenderTest* createRenderTest() = 0;
-	virtual void deleteRenderTest(IRenderTest* test) = 0;
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;
 	virtual ISoundMixer* createSoundMixer(CMixerSettings settings) = 0;

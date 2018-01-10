@@ -130,6 +130,8 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Isolate* isolate = klass->getIsolate();
 	v8::Isolate::Scope isolate_scope(isolate);
 
+	isolate->LowMemoryNotification();
+
 	v8::HandleScope handle_scope(isolate);
 	v8::Local<v8::Context> context = v8::Context::New(isolate, NULL, klass->getVM()->getGlobalTemplate());
 

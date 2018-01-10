@@ -143,8 +143,7 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 		return;
 	}
 
-	//#TODO Optimize memory allocation here, use CRuntimeObject's allocator
-	vector<CVertex2D> outputList, inputList;
+	vector<CVertex2D, CRuntimeAllocator<CVertex2D>> outputList, inputList;
 	outputList.reserve(num);
 	outputList.resize(num);
 	memcpy(outputList.data(), verts, num * sizeof(CVertex2D));

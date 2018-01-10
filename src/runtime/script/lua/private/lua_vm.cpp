@@ -207,18 +207,19 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 
 weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 {
-	shared_ptr<CLuaVMClass> newClass(nullptr);
-
 	auto found = _loadedClasses.find(gamePackage->getPackageID());
 	if ( found != _loadedClasses.end() )
 	{
-		(*found).second->loadFromPackage(gamePackage);
+		if ( !(*found).second->loadFromPackage(gamePackage) )
+		{
+			return shared_ptr<CLuaVMClass>(nullptr);
+		}
 
 		return (*found).second;
 	}
 	else
 	{
-		newClass = makeShared<CLuaVMClass>(shared_from_this());
+		shared_ptr<CLuaVMClass> newClass = makeShared<CLuaVMClass>(shared_from_this());
 		_loadedClasses.insert(make_pair(gamePackage->getPackageID(), newClass));
 
 		if ( newClass->loadFromPackage(gamePackage) )
@@ -227,7 +228,7 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 		}
 	}
 
-	return newClass;
+	return shared_ptr<CLuaVMClass>(nullptr);
 }
 
 bool CLuaVM::includeGameScript()

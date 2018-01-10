@@ -185,11 +185,6 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 	
 	builder->load();
 
-	for ( auto entry : _meta )
-	{
-		builder->getMetaData()->setKeyValuePair( entry.first, entry.second );
-	}
-
 	for ( int32 i=0; i<numAssetDefs(ASSET_TEXTURE); ++i )
 	{
 		CAssetFileDef def = getAssetDef(ASSET_TEXTURE, i);
@@ -230,6 +225,7 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		runtime->deleteMetaData(meta);
 	}
 
+	uint8 lanuage = 0xFF;
 	for ( int32 i=0; i<numAssetDefs(ASSET_CODE); ++i )
 	{
 		CAssetFileDef def = getAssetDef(ASSET_CODE, i);
@@ -240,6 +236,25 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		meta->setKeyValuePair("file", _rootpath / def._path);
 		meta->setKeyValuePair("params", def._params);
 
+		if ( def._path.endsWith(".js") )
+		{
+			if ( lanuage != 0xFF && lanuage != LANG_JAVASCRIPT )
+			{
+				std::cout << "Mixed lanuages in project" << std::endl;
+				return nullptr;
+			}
+			setMetaValue("language", LANG_JAVASCRIPT);
+		}
+		else if ( def._path.endsWith(".lua") )
+		{
+			if ( lanuage != 0xFF && lanuage != LANG_LUA )
+			{
+				std::cout << "Mixed lanuages in project" << std::endl;
+				return nullptr;
+			}
+			setMetaValue("language", LANG_LUA);
+		}
+
 		bool success = compiler->compile(asset, meta);
 		if ( !success )
 		{
@@ -248,6 +263,11 @@ IPackage* CProject::buildPackage(IRuntime* runtime)
 		}
 
 		runtime->deleteMetaData(meta);
+	}
+
+	for ( auto entry : _meta )
+	{
+		builder->getMetaData()->setKeyValuePair( entry.first, entry.second );
 	}
 
 	if ( !builder->save() )

@@ -73,6 +73,11 @@ CVariant::~CVariant()
 	reset();
 }
 
+bool Arcade::CVariant::isSet() const
+{
+	return _type != VT_NONE;
+}
+
 void CVariant::set(bool value)
 {
 	reset();

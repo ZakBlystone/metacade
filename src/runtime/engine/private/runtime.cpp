@@ -46,7 +46,8 @@ CRuntime::~CRuntime()
 	if ( isCurrent() ) 
 	{
 		_packageManager.reset();
-		_codeVM.reset();
+		_codeVM[LANG_JAVASCRIPT].reset();
+		_codeVM[LANG_LUA].reset();
 		gRuntime = nullptr;
 		gAllocator = CDefaultAllocator::get();
 	}
@@ -63,9 +64,11 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	_packageManager = makeShared<CPackageManager>();
 	_textureIndices = makeShared<CIndexAllocator>();
-	_codeVM = makeShared<CJavascriptVM>();
+	_codeVM[LANG_JAVASCRIPT] = makeShared<CJavascriptVM>();
+	_codeVM[LANG_LUA] = makeShared<CLuaVM>();
 
-	if ( !_codeVM->init() ) return false;
+	if ( !_codeVM[LANG_JAVASCRIPT]->init() ) return false;
+	if ( !_codeVM[LANG_LUA]->init() ) return false;
 
 	//_renderTest = makeShared<CRenderTest>(this);
 
@@ -219,19 +222,6 @@ bool CRuntime::isCurrent() const
 	return gRuntime == this;
 }
 
-Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
-{
-	CRenderTest* test = construct<CRenderTest>();
-	if ( !test->init() ) return nullptr;
-
-	return test;
-}
-
-void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
-{
-	destroy( test );
-}
-
 IMetaData* CRuntime::createMetaData()
 {
 	return construct<CMetaData>();
@@ -285,9 +275,9 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	return newClass.get();
 }
 
-Arcade::IVMHost* Arcade::CRuntime::getCodeVM()
+Arcade::IVMHost* Arcade::CRuntime::getCodeVM( ELanguage language )
 {
-	return _codeVM.get();
+	return _codeVM[language].get();
 }
 
 thread_local CRuntime* Arcade::gRuntime = nullptr;

@@ -65,6 +65,8 @@ private:
 	shared_ptr<CSoundChannel> createChannelObject(EChannelMode mode = CHANNELMODE_DEFAULT);
 	shared_ptr<CSoundChannel> addChannel(uint32& index, EChannelMode mode = CHANNELMODE_DEFAULT);
 
+	typedef CRuntimeAllocator<std::pair<uint32, shared_ptr<CSoundChannel>>> Allocator;
+	//, std::less<uint32>, Allocator
 	map<uint32, shared_ptr<CSoundChannel>> _channels;
 	shared_ptr<CIndexAllocator> _channelIndices;
 

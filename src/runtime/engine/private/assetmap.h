@@ -102,8 +102,8 @@ private:
 
 	void releaseAssets();
 
-	vector<shared_ptr<IAsset>> _assets;
-	vector<CAssetLocator> _locators;
+	vector<shared_ptr<IAsset>, CRuntimeAllocator<shared_ptr<IAsset>>> _assets;
+	vector<CAssetLocator, CRuntimeAllocator<CAssetLocator>> _locators;
 	map<CGUID, shared_ptr<IAsset>> _map;
 	map<CGUID, shared_ptr<CAssetMap>> _dependencies;
 	map<CString, shared_ptr<IAsset>> _nameMap;

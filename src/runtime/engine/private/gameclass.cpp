@@ -83,7 +83,11 @@ bool CGameClass::init()
 		return false;
 	}
 
-	_vmKlass = gRuntime->getCodeVM()->loadGameVMClass(locked);
+	uint32 language;
+	if ( !locked->getMetaData()->getValue("language").get(language) ) return false;
+	if ( language > LANG_NUM ) return false;
+
+	_vmKlass = gRuntime->getCodeVM( (ELanguage) language )->loadGameVMClass(locked);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");

@@ -45,7 +45,7 @@ public:
 private:
 
 	shared_ptr<CRenderBuffer> _renderBuffer;
-	vector<CRenderBatch> _renderBatches;
+	vector<CRenderBatch, CRuntimeAllocator<CRenderBatch>> _renderBatches;
 };
 
 }

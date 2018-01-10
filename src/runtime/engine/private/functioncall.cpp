@@ -25,16 +25,18 @@ functioncall.cpp: call VM functions externally
 
 #include "engine_private.h"
 
+typedef vector<CVariant, CRuntimeAllocator<CVariant>> CArgVector;
+
 CFunctionCall::CFunctionCall(const CString& func)
 	: _func(func)
-	, _args(new vector<CVariant>())
+	, _args(construct<CArgVector>())
 {
 
 }
 
 Arcade::CFunctionCall::CFunctionCall()
 	: _func("null")
-	, _args(new vector<CVariant>())
+	, _args(construct<CArgVector>())
 {
 
 }
@@ -46,17 +48,17 @@ void CFunctionCall::setFunction(const CString& func)
 
 CFunctionCall::~CFunctionCall()
 {
-	if (_counter.unique()) delete ((vector<CVariant>*)(_args));
+	if (_counter.unique()) destroy((CArgVector*)(_args));
 }
 
 uint32 CFunctionCall::numArgs() const
 {
-	return (uint32) ((vector<CVariant>*)(_args))->size();
+	return (uint32) ((CArgVector*)(_args))->size();
 }
 
 CVariant CFunctionCall::getArg(uint32 i) const
 {
-	return (*((vector<CVariant>*)(_args)))[i];
+	return (*((CArgVector*)(_args)))[i];
 }
 
 CString CFunctionCall::getFunction() const
@@ -66,5 +68,5 @@ CString CFunctionCall::getFunction() const
 
 void CFunctionCall::addArg(const CVariant& v)
 {
-	((vector<CVariant>*)(_args))->push_back(v);
+	((CArgVector*)(_args))->push_back(v);
 }

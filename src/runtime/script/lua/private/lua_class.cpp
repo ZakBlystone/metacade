@@ -126,10 +126,10 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	lua_State *L = host->getState();
 	_functions.clear();
 
-	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );
+	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.code") );
 	if ( luaMain == nullptr )
 	{
-		log(LOG_ERROR, "Failed to load 'main.lua'");
+		log(LOG_ERROR, "Failed to load 'main.code'");
 		return false;
 	}
 

@@ -32,9 +32,16 @@ class CArcadeAllocator : public v8::ArrayBuffer::Allocator
 {
 
 public:
+	CArcadeAllocator(IRuntime* runtime) 
+		: v8::ArrayBuffer::Allocator()
+		, _runtime(runtime)
+	{
+	}
+
 	virtual void* Allocate(size_t length) override
 	{
 		log(LOG_MESSAGE, "Allocate-zeroed: %i", length);
+		_runtime->makeCurrent();
 		void* mem = gRuntime->getAllocator()->memrealloc(nullptr, length);
 		memset( mem, 0, length );
 		return mem;
@@ -43,14 +50,19 @@ public:
 	virtual void* AllocateUninitialized(size_t length) override
 	{
 		log(LOG_MESSAGE, "Allocate: %i", length);
+		_runtime->makeCurrent();
 		return gRuntime->getAllocator()->memrealloc(nullptr, length);
 	}
 
 	virtual void Free(void* data, size_t length) override
 	{
 		log(LOG_MESSAGE, "Free: %i", length);
+		_runtime->makeCurrent();
 		gRuntime->getAllocator()->memfree(data);
 	}
+
+private:
+	IRuntime* _runtime;
 };
 
 ELanguage CJavascriptVM::getLanguage()
@@ -129,10 +141,13 @@ bool CJavascriptVM::init()
 		return false;
 	}
 
-	_allocator =  new CArcadeAllocator(); //v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+	_allocator = new CArcadeAllocator(gRuntime); //v8::ArrayBuffer::Allocator::NewDefaultAllocator();
 
 	v8::Isolate::CreateParams create_params;
 	create_params.array_buffer_allocator = _allocator;
+	create_params.constraints.set_max_zone_pool_size(32);
+	create_params.constraints.set_max_old_space_size(32);
+	create_params.constraints.set_code_range_size(32);
 
 	_isolate = v8::Isolate::New(create_params);
 

@@ -27,8 +27,6 @@ runtime.h:
 
 #include "metacade_types.h"
 
-#include "rendertest.h"
-
 namespace Arcade
 {
 
@@ -43,9 +41,6 @@ public:
 
 	virtual void makeCurrent();
 	virtual bool isCurrent() const;
-
-	virtual IRenderTest* createRenderTest();
-	virtual void deleteRenderTest(IRenderTest* test);
 
 	virtual IMetaData* createMetaData();
 	virtual void deleteMetaData(IMetaData* data);
@@ -63,13 +58,13 @@ public:
 
 	shared_ptr<CIndexAllocator> getImageIndexAllocator();
 
-	IVMHost* getCodeVM();
+	IVMHost* getCodeVM( ELanguage language );
 
 private:
 	shared_ptr<CPackageManager> _packageManager;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
-	shared_ptr<class IVMHost> _codeVM;
+	shared_ptr<class IVMHost> _codeVM[ ELanguage::LANG_NUM ];
 
 	map<CGUID, shared_ptr<class CGameClass>> _classes;
 };

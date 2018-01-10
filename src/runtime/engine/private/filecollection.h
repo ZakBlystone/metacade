@@ -37,7 +37,7 @@ public:
 	CString getFile(uint32 index) const;
 
 private:
-	vector<CString> _files;
+	vector<CString, CRuntimeAllocator<CString>> _files;
 };
 
 }

@@ -74,7 +74,7 @@ private:
 	void lock(uint32 &index);
 	void unlock(uint32 index);
 
-	map<uint32, bool> _indices;
+	map<uint32, bool, std::less<uint32>, CRuntimeAllocator<std::pair<uint32, bool>>> _indices;
 };
 
 class CIndex
