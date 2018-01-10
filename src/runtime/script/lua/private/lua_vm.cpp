@@ -28,7 +28,7 @@ lua_vm.cpp:
 #include <iostream>
 #include <fstream>
 
-/*static void *l_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+static void *l_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	unsigned int *Usage = (unsigned int *)ud;
 
 	if (nsize == 0) {
@@ -43,7 +43,7 @@ lua_vm.cpp:
 	}
 }
 
-static int l_print(lua_State *S)
+/*static int l_print(lua_State *S)
 {
 	const char *STR = lua_tostring(S, 1);
 
@@ -51,10 +51,9 @@ static int l_print(lua_State *S)
 	return 0;
 }*/
 
-CLuaVM::CLuaVM(CRuntimeObject* outer)
+CLuaVM::CLuaVM()
 	: _L(nullptr)
 	, _memUsage(0)
-	, CRuntimeObject(outer)
 {
 
 }
@@ -96,9 +95,6 @@ bool CLuaVM::init()
 	luaopen_math(_L);
 	luaopen_table(_L);
 	luaopen_string(_L);
-
-	lua_pushlightuserdata(_L, getRuntime());
-	lua_setglobal(_L, "__runtime");
 
 	lua_newtable(_L);
 
@@ -211,18 +207,19 @@ bool CLuaVM::pushVariant(const CVariant& variant)
 
 weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 {
-	shared_ptr<CLuaVMClass> newClass(nullptr);
-
 	auto found = _loadedClasses.find(gamePackage->getPackageID());
 	if ( found != _loadedClasses.end() )
 	{
-		(*found).second->loadFromPackage(gamePackage);
+		if ( !(*found).second->loadFromPackage(gamePackage) )
+		{
+			return shared_ptr<CLuaVMClass>(nullptr);
+		}
 
 		return (*found).second;
 	}
 	else
 	{
-		newClass = makeShared<CLuaVMClass>(shared_from_this());
+		shared_ptr<CLuaVMClass> newClass = makeShared<CLuaVMClass>(shared_from_this());
 		_loadedClasses.insert(make_pair(gamePackage->getPackageID(), newClass));
 
 		if ( newClass->loadFromPackage(gamePackage) )
@@ -231,7 +228,7 @@ weak_ptr<IVMClass> CLuaVM::loadGameVMClass(shared_ptr<CPackage> gamePackage)
 		}
 	}
 
-	return newClass;
+	return shared_ptr<CLuaVMClass>(nullptr);
 }
 
 bool CLuaVM::includeGameScript()

@@ -27,12 +27,10 @@ runtime.h:
 
 #include "metacade_types.h"
 
-#include "rendertest.h"
-
 namespace Arcade
 {
 
-class CRuntime : public IRuntime, public CRuntimeObject
+class CRuntime : public IRuntime
 {
 public:
 	CRuntime();
@@ -41,8 +39,8 @@ public:
 	virtual bool initialize(IRuntimeEnvironment* env);
 	virtual IPackageManager* getPackageManager();
 
-	virtual IRenderTest* createRenderTest();
-	virtual void deleteRenderTest(IRenderTest* test);
+	virtual void makeCurrent();
+	virtual bool isCurrent() const;
 
 	virtual IMetaData* createMetaData();
 	virtual void deleteMetaData(IMetaData* data);
@@ -60,15 +58,24 @@ public:
 
 	shared_ptr<CIndexAllocator> getImageIndexAllocator();
 
-	IVMHost* getLuaVM();
+	IVMHost* getCodeVM( ELanguage language );
 
 private:
 	shared_ptr<CPackageManager> _packageManager;
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
-	shared_ptr<class CLuaVM> _luaVM;
+	shared_ptr<class IVMHost> _codeVM[ ELanguage::LANG_NUM ];
 
 	map<CGUID, shared_ptr<class CGameClass>> _classes;
 };
+
+extern thread_local CRuntime* gRuntime;
+
+extern void log(EMessageType type, const char* message, ...);
+
+extern class IFileObject* openFile(const CString& name, EFileIOMode mode);
+extern void closeFIle(class IFileObject* file);
+
+extern bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
 
 }

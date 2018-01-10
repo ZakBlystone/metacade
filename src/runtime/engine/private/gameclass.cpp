@@ -25,9 +25,8 @@ gameclass.cpp:
 
 #include "engine_private.h"
 
-CGameClass::CGameClass( weak_ptr<CPackage> package, class CRuntimeObject* outer)
-	: CRuntimeObject(outer)
-	, _package(package)
+CGameClass::CGameClass( weak_ptr<CPackage> package )
+	: _package(package)
 	, _instanceCount(0)
 {
 
@@ -84,7 +83,11 @@ bool CGameClass::init()
 		return false;
 	}
 
-	_vmKlass = getLuaVM()->loadGameVMClass(locked);
+	uint32 language;
+	if ( !locked->getMetaData()->getValue("language").get(language) ) return false;
+	if ( language > LANG_NUM ) return false;
+
+	_vmKlass = gRuntime->getCodeVM( (ELanguage) language )->loadGameVMClass(locked);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");

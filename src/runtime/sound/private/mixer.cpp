@@ -25,9 +25,8 @@ mixer.cpp:
 
 #include "sound_private.h"
 
-Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings /*= CMixerInitSettings()*/) 
-	: CRuntimeObject(outer)
-	, _channelIndices(make_shared<CIndexAllocator>())
+Arcade::CSoundMixer::CSoundMixer(CMixerSettings settings /*= CMixerInitSettings()*/) 
+	: _channelIndices(makeShared<CIndexAllocator>())
 	, _settings(settings)
 	, _available(0)
 	, _pitch(1.f)
@@ -35,18 +34,18 @@ Arcade::CSoundMixer::CSoundMixer(CRuntimeObject* outer, CMixerSettings settings 
 {
 	_mixBuffer = shared_ptr<float>( 
 		(float*) zalloc( _settings.bufferSize * sizeof(float) * _settings.getChannelCount() ),
-		[this](float* del) { this->zfree(del); }
+		[](float* del) { zfree(del); }
 	);
 
 	_outBuffer = shared_ptr<uint8>( 
 		(uint8*) zalloc( _settings.bufferSize * sizeof(uint8) * _settings.getBytesPerFrame() ),
-		[this](uint8* del) { this->zfree(del); }
+		[](uint8* del) { zfree(del); }
 	);
 }
 
 uint32 Arcade::CSoundMixer::playSound(const CAssetRef& sound, int32 channel /*= EChannelID::CHANNEL_ANY*/)
 {
-	CPackage* pkg = (CPackage*) (sound.getPackage(getRuntime()));
+	CPackage* pkg = (CPackage*) (sound.getPackage());
 	if ( pkg != nullptr )
 	{
 		shared_ptr<IAsset> asset = pkg->getAssetMap()->findAssetByID(sound.getAssetID());
@@ -79,8 +78,6 @@ void CSoundMixer::stopSound(int32 channel)
 void CSoundMixer::update()
 {
 	float* buffer = _mixBuffer.get();
-	int16* outbuf = (int16*) _outBuffer.get();
-
 	uint32 realSize = _settings.bufferSize * _settings.getChannelCount();
 
 	for ( uint32 i=0; i<realSize; ++i )
@@ -100,9 +97,22 @@ void CSoundMixer::update()
 		}
 	}
 
-	for ( uint32 i=0; i<realSize; ++i )
+	if ( _settings.flags & MIXF_8BIT )
 	{
-		outbuf[i] = (int16)( min(max(buffer[i], -32678.f),32767.f) );
+		static const float downres = 1.0f / (256.f);
+		int8* outbuf = (int8*) _outBuffer.get();
+		for ( uint32 i=0; i<realSize; ++i )
+		{
+			outbuf[i] = (int8)( min(max(buffer[i] * downres, -128.f),127.f) );
+		}
+	}
+	else
+	{
+		int16* outbuf = (int16*) _outBuffer.get();
+		for ( uint32 i=0; i<realSize; ++i )
+		{
+			outbuf[i] = (int16)( min(max(buffer[i], -32678.f),32767.f) );
+		}
 	}
 }
 

@@ -5,10 +5,13 @@ include_directories(${PROJECT_SOURCE_DIR}/src/runtime/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/runtime/runtime)
 include_directories(${PROJECT_SOURCE_DIR}/src/runtime/script/py)
 include_directories(${PROJECT_SOURCE_DIR}/src/runtime/script/lua)
+include_directories(${PROJECT_SOURCE_DIR}/src/runtime/script/js)
 include_directories(${PROJECT_SOURCE_DIR}/src/runtime/sound)
 include_directories(${LUA_INCLUDE_DIR})
+include_directories(${V8_INCLUDE_DIR})
 #include_directories(${PYTHON_INCLUDE_DIR} ${PYTHON_CONFIG_DIR})
 #link_directories(${PYTHON_LIBRARY_DIR})
+link_directories(${V8_LIBRARY_DIR})
 
 include_directories(${PYTHON_INCLUDE_DIR} ${PYTHON_CONFIG_DIR})
 
@@ -48,12 +51,41 @@ file (GLOB_RECURSE LUA_SOURCES
 
 source_group("src\\script\\lua" FILES ${LUA_SOURCES})
 
+file (GLOB_RECURSE JS_SOURCES 
+	"script/js/*.h"
+	"script/js/*.cpp")
+
+source_group("src\\script\\js" FILES ${JS_SOURCES})
+
 add_definitions(-DMETACADE_API_EXPORT)
-add_library(runtime SHARED ${CORE_SOURCES} ${RENDER_SOURCES} ${ENGINE_SOURCES} ${SOUND_SOURCES} ${LUA_SOURCES})
+add_library(runtime SHARED ${CORE_SOURCES} ${RENDER_SOURCES} ${ENGINE_SOURCES} ${SOUND_SOURCES} ${LUA_SOURCES} ${JS_SOURCES})
 
 if (WIN32)
 	#target_link_libraries(runtime debug python37_d.lib)
 	#target_link_libraries(runtime optimized python37.lib)
+endif()
+
+if (WIN32)
+	if (V8_STATIC)
+		target_link_libraries(runtime v8_base_0.lib)
+		target_link_libraries(runtime v8_base_1.lib)
+		target_link_libraries(runtime v8_libbase.lib)
+		target_link_libraries(runtime v8_libplatform.lib)
+		target_link_libraries(runtime v8_libsampler.lib)
+		target_link_libraries(runtime v8_init.lib)
+		target_link_libraries(runtime v8_initializers.lib)
+		target_link_libraries(runtime v8_external_snapshot.lib)
+		target_link_libraries(runtime third_party/icu/icuuc)
+		target_link_libraries(runtime third_party/icu/icui18n)
+		target_link_libraries(runtime src/inspector/inspector)
+		target_link_libraries(runtime dbghelp.lib)
+		target_link_libraries(runtime winmm.lib)
+		target_link_libraries(runtime shlwapi.lib)
+	else()
+		target_link_libraries(runtime v8.dll.lib)
+		target_link_libraries(runtime v8_libbase.dll.lib)
+		target_link_libraries(runtime v8_libplatform.dll.lib)
+	endif()
 endif()
 
 target_link_libraries(runtime ${LUA_LIBRARY})

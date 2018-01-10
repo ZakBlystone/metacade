@@ -46,7 +46,7 @@ public:
 	void sort();
 
 private:
-	vector<CRenderElement> _elements;
+	vector<CRenderElement, CRuntimeAllocator<CRenderElement>> _elements;
 	uint32 _count;
 };
 

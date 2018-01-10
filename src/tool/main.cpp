@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <thread>
 
 using std::ostream;
 using std::istream;
@@ -85,7 +86,20 @@ static void sndCallback(void*, uint8* stream, int32 len)
 
 	mixer->update();
 
-	memcpy(stream, mixer->getPCMSamples(), len);
+	if ( mixer->getSettings().flags & MIXF_8BIT )
+	{
+		int8* samples = reinterpret_cast<int8*>(mixer->getPCMSamples());
+		int16* streamsamples = reinterpret_cast<int16*>(stream);
+		for ( int32 i=0; i<(len>>1); ++i )
+		{
+			int16 resample = samples[i] << 8;
+			streamsamples[i] = resample;
+		}
+	}
+	else
+	{
+		memcpy(stream, mixer->getPCMSamples(), len);
+	}
 
 	SDL_UnlockMutex(sndMutex);
 }
@@ -176,11 +190,13 @@ struct CUIState
 	float fUIRolloutFraction;
 	bool bShowInfo;
 	bool bNewPackageDialog;
+	uint32 memUsage;
 
 	CUIState()
 		: fUIRolloutFraction(1.f)
 		, bShowInfo(true)
 		, bNewPackageDialog(false)
+		, memUsage(0)
 	{}
 };
 
@@ -276,6 +292,8 @@ static void immediateUI(float width, float height, float deltatime)
 			| ImGuiWindowFlags_NoTitleBar)
 			)
 		{
+			ImGui::TextColored(ImVec4(1.f,0.f,0.f,1.f), "Mem %ikb", g_UIState.memUsage);
+
 			if ( demoPlayback )
 			{
 				ImGui::TextColored(ImVec4(0.f,1.f,0.f,1.f), "PLAY DEMO frame %i", demoFrame);
@@ -300,7 +318,7 @@ static void immediateUI(float width, float height, float deltatime)
 				ImGui::Text("Assets:");
 				for ( uint32 i=0; i<loadedPackage->getNumAssets(); ++i )
 				{
-					IAsset* asset = loadedPackage->getAsset(i).get(runtime);
+					IAsset* asset = loadedPackage->getAsset(i).get();
 					//ImGui::Button("|");
 					//ImGui::SameLine();
 					ImGui::Text("  %s", *asset->getName());
@@ -317,13 +335,13 @@ static void immediateUI(float width, float height, float deltatime)
 
 typedef vector<CInputEvent> EventBuffer;
 
-void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& events)
+void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& events, float width, float height)
 {
 	if ( evt.type == SDL_MOUSEMOTION )
 	{
 		CInputState state;
 		state.setMousePosition((float) evt.motion.x, (float) evt.motion.y - 20.f);
-		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < 400 && evt.motion.y > 20 && evt.motion.y < 320);
+		state.setMouseIsFocused(evt.motion.x > 0 && evt.motion.x < width && evt.motion.y > 30 && evt.motion.y < height);
 		state.generateEvents(baseline, [&events](const CInputEvent &ev) mutable
 		{
 			events.push_back(ev);
@@ -355,10 +373,48 @@ void processSDLInputs(const SDL_Event& evt, CInputState& baseline, EventBuffer& 
 	}
 }
 
+static void testCurrent(const char* name, Arcade::IRuntime* rt)
+{
+	if ( rt == nullptr ) { std::cout << "Runtime[" << name << "] is not valid" << std::endl; return; }
+	std::cout << "Runtime[" << name << "] is " << (rt->isCurrent() ? "current" : "NOT current") << std::endl; 
+}
+
+static void innerThread(const char* name, Arcade::IRuntime* rt)
+{
+	std::cout << "TEST CURRENT IN THREAD" << std::endl;
+	rt->makeCurrent();
+	testCurrent(name, rt);
+}
+
+static int threadTest()
+{
+	Arcade::IRuntime *rtA = nullptr;
+	Arcade::IRuntime *rtB = nullptr;
+	Arcade::create(&rtA);
+	Arcade::create(&rtB);
+
+	rtA->makeCurrent();
+
+	std::cout << "PRE TEST CURRENT" << std::endl;
+	testCurrent("rtA", rtA);
+	testCurrent("rtB", rtB);
+
+	std::thread t(innerThread, "rtB-thread", rtB);
+	t.join();
+
+	std::cout << "POST TEST CURRENT" << std::endl;
+	testCurrent("rtA", rtA);
+	testCurrent("rtB", rtB);
+
+	return 0;
+}
+
 static int start(int argc, char *argv[])
 {
 	uint32 nextAvailableDemoFrame = 0;
 	CString runPackage;
+
+	//if ( true ) return threadTest();
 
 	if ( argc < 2 ) 
 	{
@@ -384,13 +440,13 @@ static int start(int argc, char *argv[])
 
 	shared_ptr<NativeEnv> native = make_shared<NativeEnv>();
 
-#ifdef DEBUG
+/*#ifdef DEBUG
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "../../projects");
 	std::cout << "../../projects" << std::endl;
-#else
+#else*/
 	shared_ptr<CProjectManager> projectManager = make_shared<CProjectManager>(native, "projects");
 	std::cout << "projects" << std::endl;
-#endif
+//#endif
 
 	IFileObject* demoFile = nullptr;
 
@@ -437,6 +493,7 @@ static int start(int argc, char *argv[])
 		if ( targetProject == nullptr )
 		{
 			std::cout << "No project" << std::endl;
+			Arcade::destroy(runtime);
 			return 0;
 		}
 
@@ -463,6 +520,7 @@ static int start(int argc, char *argv[])
 	mixerSettings.bufferSize = SOUND_DEVICE_SAMPLES;
 	mixerSettings.sampleRate = 44100;
 	mixerSettings.maxChannels = 64;
+	//mixerSettings.flags |= ( MIXF_8BIT | MIXF_ALIASED_INTERPOLATION );
 
 	{
 		loadedGameClass = runtime->getGameClassForPackage(loadedPackage);
@@ -525,12 +583,14 @@ static int start(int argc, char *argv[])
 				}
 			}
 
-			if ( !demoPlayback ) processSDLInputs(evt, baseline, events);
+			if ( !demoPlayback ) processSDLInputs(evt, baseline, events, width, height);
 
 			if ( evt.type == SDL_KEYDOWN )
 			{
 				if ( evt.key.keysym.sym == SDLK_r )
 				{
+					baseline.clear();
+
 					SDL_LockMutex(sndMutex);
 					if ( instance != nullptr )
 					{
@@ -613,14 +673,14 @@ static int start(int argc, char *argv[])
 
 			for ( CInputEvent& ev : events )
 			{
-				instance->postInputEvent(ev);
+				if ( instance != nullptr) instance->postInputEvent(ev);
 				//instance2->postInputEvent(ev);
 			}
 			events.clear();
 
 			fixedTime += 1.f / 60.f;
 			if ( instance != nullptr ) instance->think(fixedTime);
-			//if ( instance2 != nullptr ) instance2->think(fixedTime);
+			if ( instance2 != nullptr ) instance2->think(fixedTime);
 		}
 
 		if ( instance != nullptr ) 
@@ -637,6 +697,8 @@ static int start(int argc, char *argv[])
 		}*/
 
 		//renderer->setOffset(CVec2(0,0.f));
+
+		g_UIState.memUsage = (uint32) (native->getMemUsage() >> 10);
 
 		immediateUI(width, height, deltaSeconds);
 

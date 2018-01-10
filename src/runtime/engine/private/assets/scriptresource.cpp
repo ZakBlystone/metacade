@@ -25,9 +25,8 @@ scriptresource.cpp:
 
 #include "engine/engine_private.h"
 
-Arcade::CCodeAsset::CCodeAsset(CRuntimeObject* outer) 
-	: CAsset(outer)
-	, _code(nullptr)
+Arcade::CCodeAsset::CCodeAsset() 
+	: _code(nullptr)
 	, _codeLength(0)
 {
 

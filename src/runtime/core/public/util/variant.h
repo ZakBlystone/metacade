@@ -55,6 +55,8 @@ public:
 	CVariant(const CVariant& other);
 	~CVariant();
 
+	bool isSet() const;
+
 	void set(bool value);
 	void set(uint64 value);
 	void set(int64 value);

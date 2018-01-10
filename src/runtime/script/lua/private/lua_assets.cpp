@@ -25,14 +25,6 @@ lua_assets.cpp:
 
 #include "lua_private.h"
 
-static IRuntime* getRuntimePtr(lua_State* L)
-{
-	lua_getglobal(L, "__runtime");
-	IRuntime* ptr = (IRuntime*) lua_touserdata(L, -1);
-	lua_pop(L, 1);
-	return ptr;
-}
-
 CAssetRef* Arcade::toAssetRef(lua_State* L, int idx)
 {
 	CAssetRef* ref = (CAssetRef*) luaL_checkudata(L, idx, "__assetmeta");
@@ -44,7 +36,7 @@ IAsset* Arcade::toAsset(lua_State* L, int idx)
 	CAssetRef* ref = toAssetRef(L, idx);
 	if ( ref == nullptr ) return nullptr;
 
-	IAsset* asset = ref->get(getRuntimePtr(L));
+	IAsset* asset = ref->get();
 	return asset;
 }
 

@@ -25,6 +25,23 @@ fileutil.cpp:
 
 #include "engine_private.h"
 
+CFileHandle::CFileHandle(const CString& filename, EFileIOMode mode)
+	: _file(openFile(filename, mode))
+	, _ref(new uint32(1))
+{}
+
+void CFileHandle::reset()
+{
+	if (_file != nullptr && --(*_ref) == 0)
+	{
+		closeFIle(_file);
+		delete _ref;
+
+		_file = nullptr;
+		_ref = nullptr;
+	}
+}
+
 bool CFileUtil::writeString(IFileObject* file, const CString &str)
 {
 	uint32 len = str.length();

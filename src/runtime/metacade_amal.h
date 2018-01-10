@@ -58,10 +58,11 @@ enum EPointClassify
 	PLANE_INTERSECT = 0,
 	PLANE_INFRONT = 1,
 };
-enum ELanguage
+enum ELanguage : uint8
 {
-	LANG_DUMMY,
 	LANG_LUA,
+	LANG_JAVASCRIPT,
+	LANG_NUM,
 	//LANG_PYTHON,
 };
 #define MAX_BLEND_BITS 3
@@ -549,6 +550,7 @@ public:
 	CVariant();
 	CVariant(const CVariant& other);
 	~CVariant();
+	bool isSet() const;
 	void set(bool value);
 	void set(uint64 value);
 	void set(int64 value);
@@ -705,6 +707,17 @@ private:
 	uint8 _digest[20];
 };
 }
+//src/runtime/core/public/iallocator.h
+namespace Arcade
+{
+class IAllocator
+{
+public:
+	virtual void* memrealloc(void* pointer, uint32 size) = 0;
+	virtual void memfree(void* pointer) = 0;
+	virtual ~IAllocator() {}
+};
+}
 //src/runtime/sound/sound_public.h
 //src/runtime/sound/public/sample.h
 namespace Arcade
@@ -793,6 +806,9 @@ public:
 	virtual void setChannelVolume(int32 channel, float volume) = 0;
 	virtual void setMasterPitch(float pitch) = 0;
 	virtual void setMasterVolume(float volume) = 0;
+	virtual float getMasterPitch() const = 0;
+	virtual float getMasterVolume() const = 0;
+	virtual const CMixerSettings& getSettings() const = 0;
 	virtual ~ISoundMixer() {};
 };
 }
@@ -1473,24 +1489,14 @@ public:
 namespace Arcade
 {
 class IRenderer;
-class IRenderTest
-{
-public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
-	virtual void callFunction(CFunctionCall call) = 0;
-	virtual ~IRenderTest() {}
-};
 class IMetaData;
 class IRuntime
 {
 public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
-	virtual IRenderTest* createRenderTest() = 0;
-	virtual void deleteRenderTest(IRenderTest* test) = 0;
+	virtual void makeCurrent() = 0;
+	virtual bool isCurrent() const = 0;
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;
 	virtual ISoundMixer* createSoundMixer(CMixerSettings settings) = 0;
@@ -1507,17 +1513,6 @@ class ILogger
 public:
 	virtual void log(const char* text, EMessageType type) = 0;
 	virtual ~ILogger() {}
-};
-}
-//src/runtime/engine/public/iallocator.h
-namespace Arcade
-{
-class IAllocator
-{
-public:
-	virtual void* memrealloc(void* pointer, uint32 size) = 0;
-	virtual void memfree(void* pointer) = 0;
-	virtual ~IAllocator() {}
 };
 }
 //src/runtime/engine/public/ifilesystem.h
@@ -1625,58 +1620,6 @@ public:
 	virtual ~IPackageManager() {}
 };
 }
-//src/runtime/engine/public/runtimeobject.h
-namespace Arcade
-{
-//Ideally, this shouldn't be exported, it's just quicker than making interfaces for everything
-class METACADE_API CRuntimeObject
-{
-public:
-	CRuntimeObject(class IRuntime* runtime);
-	CRuntimeObject(CRuntimeObject* outer);
-protected:
-	template<typename T, typename... ArgT> T *construct(ArgT&&... args)
-	{
-		return new(zalloc(sizeof(T))) T(args...);
-	}
-	template<typename T>
-	void destroy(T* obj)
-	{
-		if ( obj == nullptr ) return;
-		obj->~T();
-		zfree(obj);
-	}
-	void* zalloc(uint32 size) const;
-	void* zrealloc(void* pointer, uint32 size) const;
-	void zfree(void* pointer) const;
-	void zfree(const void* pointer) const;
-#ifdef ENGINE_PRIVATE
-	//not great, but only compiles when you use it, so whatever I'll fix it later
-	template <typename T, typename... ArgT> shared_ptr<T> makeShared(ArgT&&... args)
-	{
-		return shared_ptr<T>
-			( this->construct<T>( args... )
-			, [this](T* ptr) { this->destroy(ptr); });
-	}
-	template<typename T>
-	T* castAsset(const CAssetRef& ref) 
-	{ 
-		IAsset* asset = ref.get(_runtime); 
-		if (!asset || !((T*)(asset))->checkType()) return nullptr; 
-		return (T*)asset; 
-	}
-	void log(EMessageType type, const char* message, ...) const;
-	class IFileObject* openFile(const CString& name, EFileIOMode mode);
-	void closeFIle(class IFileObject* file);
-	bool listFilesInDirectory(class IFileCollection* collection, const char* dir, const char* extFilter = nullptr);
-	class IRuntime* getRuntime() const;
-	class CIndex allocateImageIndex();
-	class IVMHost* getLuaVM();
-#endif
-private:
-	class IRuntime* _runtime;
-};
-}
 //src/runtime/engine/public/asset.h
 namespace Arcade
 {
@@ -1709,7 +1652,7 @@ protected:
 	virtual void setName(const CString& name) = 0;
 };
 template<EAssetType Type>
-class CAsset : public IAsset, public CRuntimeObject
+class CAsset : public IAsset
 {
 public:
 	bool checkType() const { return _type == Type; }
@@ -1718,12 +1661,12 @@ public:
 	virtual bool isLoaded() const { return _loaded; }
 	virtual bool isNamedAsset() const { return !_name.empty(); }
 	virtual CString getName() const { return _name; }
+	static EAssetType getAssetType() { return Type; }
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
-	CAsset(CRuntimeObject* object) 
-		: CRuntimeObject(object)
-		, _type(Type)
+	CAsset() 
+		: _type(Type)
 	{}
 	void setUniqueID(const CGUID &id)
 	{
@@ -1748,8 +1691,8 @@ class METACADE_API CAssetRef
 public:
 	CAssetRef();
 	EAssetType getType() const;
-	IAsset* get(IRuntime* runtime) const;
-	IPackage* getPackage(IRuntime* runtime) const;
+	IAsset* get() const;
+	IPackage* getPackage() const;
 	CGUID getAssetID() const;
 	CGUID getPackageID() const;
 private:
@@ -1758,6 +1701,13 @@ private:
 	CGUID _asset, _package;
 	EAssetType _type;
 };
+template<typename T>
+T* castAsset(const CAssetRef& ref)
+{
+	IAsset* asset = ref.get();
+	if (!asset || !((T*)(asset))->checkType()) return nullptr;
+	return (T*)asset;
+}
 }
 //src/runtime/engine/public/packagebuilder.h
 namespace Arcade
@@ -1767,24 +1717,24 @@ class IAssetCompiler
 public:
 	virtual bool compile(IAsset* asset, class IMetaData* buildParameters) = 0;
 };
-class METACADE_API CPackageBuilder : public CRuntimeObject
+class METACADE_API CPackageBuilder
 {
 public:
 	~CPackageBuilder();
 	template<typename T>
 	T* addAsset()
 	{
-		T* newAsset = construct<T>(this);
-		newAsset->setUniqueID(CGUID::generate());
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
 		addAsset(newAsset);
 		return newAsset;
 	}
 	template<typename T>
 	T* addNamedAsset(const CString& name)
 	{
-		T* newAsset = construct<T>(this);
+		T* newAsset = (T*) constructAsset(T::getAssetType());
+		if ( newAsset == nullptr ) return nullptr;
 		newAsset->setName(name);
-		newAsset->setUniqueID(CGUID::generate());
 		addAsset(newAsset);
 		return newAsset;
 	}
@@ -1799,6 +1749,7 @@ public:
 private:
 	friend class CPackageManager;
 	void addAsset(class IAsset* asset);
+	class IAsset* constructAsset(EAssetType type);
 	CPackageBuilder(class CPackage* package);
 	IAssetCompiler* _compiler;
 	class CPackage* _package;
@@ -1816,7 +1767,7 @@ namespace Arcade
 class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
 {
 public:
-	CCodeAsset(CRuntimeObject* outer);
+	CCodeAsset();
 	~CCodeAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
@@ -1836,7 +1787,7 @@ namespace Arcade
 class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
 {
 public:
-	CImageAsset(CRuntimeObject* outer);
+	CImageAsset();
 	virtual ~CImageAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
@@ -1867,7 +1818,7 @@ namespace Arcade
 class METACADE_API CSoundAsset : public CAsset<ASSET_SOUND>, public ISoundSample
 {
 public:
-	CSoundAsset(CRuntimeObject* outer);
+	CSoundAsset();
 	virtual ~CSoundAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;

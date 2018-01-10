@@ -28,10 +28,10 @@ mixer.h:
 namespace Arcade
 {
 
-class CSoundMixer : public ISoundMixer, public CRuntimeObject
+class CSoundMixer : public ISoundMixer
 {
 public:
-	CSoundMixer(CRuntimeObject* outer, CMixerSettings settings = CMixerSettings());
+	CSoundMixer(CMixerSettings settings = CMixerSettings());
 
 	//returns channel index
 	uint32 playSoundSample(shared_ptr<ISoundSample> sample, int32 channel = EChannelID::CHANNEL_ANY);
@@ -54,10 +54,10 @@ public:
 	virtual void setMasterPitch(float pitch);
 	virtual void setMasterVolume(float volume);
 
-	float getMasterPitch() const { return _pitch; }
-	float getMasterVolume() const { return _volume; }
+	virtual float getMasterPitch() const { return _pitch; }
+	virtual float getMasterVolume() const { return _volume; }
 
-	const CMixerSettings& getSettings() const;
+	virtual const CMixerSettings& getSettings() const;
 
 private:
 	CIndex lockChannelIndex();
@@ -65,6 +65,8 @@ private:
 	shared_ptr<CSoundChannel> createChannelObject(EChannelMode mode = CHANNELMODE_DEFAULT);
 	shared_ptr<CSoundChannel> addChannel(uint32& index, EChannelMode mode = CHANNELMODE_DEFAULT);
 
+	typedef CRuntimeAllocator<std::pair<uint32, shared_ptr<CSoundChannel>>> Allocator;
+	//, std::less<uint32>, Allocator
 	map<uint32, shared_ptr<CSoundChannel>> _channels;
 	shared_ptr<CIndexAllocator> _channelIndices;
 

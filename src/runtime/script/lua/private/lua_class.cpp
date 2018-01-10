@@ -29,8 +29,7 @@ lua_class.cpp:
 
 Arcade::CLuaVMClass::CLuaVMClass(weak_ptr<CLuaVM> host)
 	: _host(host)
-	, _metaData(make_shared<CMetaData>())
-	, CRuntimeObject(host.lock().get())
+	, _metaData(makeShared<CMetaData>())
 {
 
 }
@@ -67,7 +66,7 @@ int CLuaVMClass::metaTopLevelSet(lua_State *L)
 	int type = lua_type(L, 3);
 	if ( type == LUA_TFUNCTION )
 	{
-		auto entry = make_pair(CString(key), make_shared<LuaVMReference>(klass->getLuaHost(), 3));
+		auto entry = make_pair(CString(key), makeShared<LuaVMReference>(klass->getLuaHost(), 3));
 		klass->_functions.insert(entry);
 	}
 	else
@@ -127,10 +126,10 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	lua_State *L = host->getState();
 	_functions.clear();
 
-	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.lua") );
+	CCodeAsset* luaMain = castAsset<CCodeAsset>( locked->findAssetByName("main.code") );
 	if ( luaMain == nullptr )
 	{
-		log(LOG_ERROR, "Failed to load 'main.lua'");
+		log(LOG_ERROR, "Failed to load 'main.code'");
 		return false;
 	}
 
@@ -147,7 +146,7 @@ bool CLuaVMClass::loadFromPackage(weak_ptr<CPackage> package)
 	lua_setfield(L, -2, "__klass");
 
 	lua_newtable(L);
-	_locals = make_shared<LuaVMReference>(getLuaHost(), -1);
+	_locals = makeShared<LuaVMReference>(getLuaHost(), -1);
 	lua_setfield(L, -2, "__locals");
 
 	lua_newtable(L);

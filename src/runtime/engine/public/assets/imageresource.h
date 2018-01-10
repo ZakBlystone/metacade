@@ -31,7 +31,7 @@ namespace Arcade
 class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
 {
 public:
-	CImageAsset(CRuntimeObject* outer);
+	CImageAsset();
 	virtual ~CImageAsset();
 
 	virtual bool load(IFileObject* file) override;

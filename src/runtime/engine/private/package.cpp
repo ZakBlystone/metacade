@@ -51,11 +51,10 @@ struct CPackHeader
 
 #pragma pack(pop)
 
-CPackage::CPackage(CRuntimeObject* outer, const CString& filepath)
-	: CRuntimeObject(outer)
-	, _filepath(filepath)
-	, _map(make_shared<CAssetMap>(this))
-	, _meta(make_shared<CMetaData>())
+CPackage::CPackage(const CString& filepath)
+	: _filepath(filepath)
+	, _map(makeShared<CAssetMap>())
+	, _meta(makeShared<CMetaData>())
 {
 }
 
@@ -204,7 +203,7 @@ CAssetMap* CPackage::getAssetMap()
 
 CFileHandle CPackage::openPackageFile(EFileIOMode mode)
 {
-	return CFileHandle(_filepath, mode, this);
+	return CFileHandle(_filepath, mode);
 }
 
 CAssetRef CPackage::findAssetByID(const CGUID& id) const

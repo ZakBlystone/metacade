@@ -78,6 +78,12 @@ public:
 
 	virtual void setMasterPitch(float pitch) = 0;
 	virtual void setMasterVolume(float volume) = 0;
+
+	virtual float getMasterPitch() const = 0;
+	virtual float getMasterVolume() const = 0;
+
+	virtual const CMixerSettings& getSettings() const = 0;
+
 	virtual ~ISoundMixer() {};
 };
 

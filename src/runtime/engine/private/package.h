@@ -28,7 +28,7 @@ package.h:
 namespace Arcade
 {
 
-class CPackage : public CRuntimeObject, public IPackage
+class CPackage : public IPackage
 {
 public:
 	~CPackage();
@@ -61,7 +61,7 @@ private:
 
 	friend class CPackageManager;
 
-	CPackage(CRuntimeObject* outer, const CString& filepath);
+	CPackage(const CString& filepath);
 
 	shared_ptr<CAssetMap> _map;
 	shared_ptr<CMetaData> _meta;

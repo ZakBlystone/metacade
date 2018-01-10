@@ -29,18 +29,6 @@ namespace Arcade
 {
 
 class IRenderer;
-class IRenderTest
-{
-public:
-	virtual void frame(IRenderer *renderer, float time, CVec2 viewportsize) = 0;
-	virtual void start(IRenderer *renderer) = 0;
-	virtual void end(IRenderer *renderer) = 0;
-	virtual void reloadVM() = 0;
-
-	virtual void callFunction(CFunctionCall call) = 0;
-	virtual ~IRenderTest() {}
-};
-
 class IMetaData;
 class IRuntime
 {
@@ -48,8 +36,8 @@ public:
 	virtual bool initialize(class IRuntimeEnvironment* env) = 0;
 	virtual class IPackageManager* getPackageManager() = 0;
 
-	virtual IRenderTest* createRenderTest() = 0;
-	virtual void deleteRenderTest(IRenderTest* test) = 0;
+	virtual void makeCurrent() = 0;
+	virtual bool isCurrent() const = 0;
 
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;

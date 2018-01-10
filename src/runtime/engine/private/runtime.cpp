@@ -26,23 +26,8 @@ runtime.cpp:
 #include "engine_private.h"
 #include "sound_private.h"
 #include "script/lua/lua_private.h"
-
-class CDefaultAllocator : public IAllocator
-{
-public:
-	virtual void* memrealloc(void* pointer, uint32 size) override
-	{
-		return realloc(pointer, size);
-	}
-
-	virtual void memfree(void* pointer) override
-	{
-		free(pointer);
-	}
-};
-
-static CDefaultAllocator gDefaultAllocator;
-
+#include "script/js/js_private.h"
+#include <stdarg.h>
 
 struct CRefTest
 {
@@ -50,27 +35,42 @@ struct CRefTest
 };
 
 CRuntime::CRuntime()
-	: CRuntimeObject((IRuntime*) this)
-	, _packageManager(nullptr)
+	: _packageManager(nullptr)
 	, _runtimeEnvironment(nullptr)
-	, _textureIndices(make_shared<CIndexAllocator>())
-	, _luaVM(make_shared<CLuaVM>(this))
 {
 }
 
 CRuntime::~CRuntime()
 {
 	std::cout << "Destruct RUNTIME" << std::endl;
+	if ( isCurrent() ) 
+	{
+		_packageManager.reset();
+		_codeVM[LANG_JAVASCRIPT].reset();
+		_codeVM[LANG_LUA].reset();
+		gRuntime = nullptr;
+		gAllocator = CDefaultAllocator::get();
+	}
 }
 
 bool CRuntime::initialize(IRuntimeEnvironment* env)
 {
 	_runtimeEnvironment = env;
 	if ( _runtimeEnvironment == nullptr ) return false;
-	if ( !_luaVM->init() ) return false;
 
-	_packageManager = make_shared<CPackageManager>(this);
-	//_renderTest = make_shared<CRenderTest>(this);
+	makeCurrent();
+
+	//testJavascript();
+
+	_packageManager = makeShared<CPackageManager>();
+	_textureIndices = makeShared<CIndexAllocator>();
+	_codeVM[LANG_JAVASCRIPT] = makeShared<CJavascriptVM>();
+	_codeVM[LANG_LUA] = makeShared<CLuaVM>();
+
+	if ( !_codeVM[LANG_JAVASCRIPT]->init() ) return false;
+	if ( !_codeVM[LANG_LUA]->init() ) return false;
+
+	//_renderTest = makeShared<CRenderTest>(this);
 
 	//if ( !_renderTest->init() ) return false;
 
@@ -116,7 +116,7 @@ IPackageManager* CRuntime::getPackageManager()
 IAllocator* CRuntime::getAllocator() const
 {
 	IAllocator *impl = _runtimeEnvironment->getAllocator();
-	if ( impl == nullptr ) impl = &gDefaultAllocator;
+	if ( impl == nullptr ) impl = CDefaultAllocator::get();
 
 	return impl;
 }
@@ -143,7 +143,7 @@ bool CRuntime::filesystemTest()
 	string writeTestString("Hello World");
 
 	{
-		CFileHandle obj("TestFile.txt", FILE_WRITE, this);
+		CFileHandle obj("TestFile.txt", FILE_WRITE);
 		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to create test file");
@@ -158,7 +158,7 @@ bool CRuntime::filesystemTest()
 	}
 
 	{
-		CFileHandle obj("TestFile.txt", FILE_READ, this);
+		CFileHandle obj("TestFile.txt", FILE_READ);
 		if ( !obj.isValid() )
 		{
 			log(LOG_ERROR, "Failed to re-open test file");
@@ -211,17 +211,15 @@ shared_ptr<CIndexAllocator> CRuntime::getImageIndexAllocator()
 	return _textureIndices;
 }
 
-Arcade::IRenderTest* Arcade::CRuntime::createRenderTest()
+void CRuntime::makeCurrent()
 {
-	CRenderTest* test = construct<CRenderTest>(this);
-	if ( !test->init() ) return nullptr;
-
-	return test;
+	gRuntime = this;
+	gAllocator = getAllocator();
 }
 
-void Arcade::CRuntime::deleteRenderTest(IRenderTest* test)
+bool CRuntime::isCurrent() const
 {
-	destroy( test );
+	return gRuntime == this;
 }
 
 IMetaData* CRuntime::createMetaData()
@@ -236,7 +234,7 @@ void CRuntime::deleteMetaData(IMetaData* data)
 
 ISoundMixer* CRuntime::createSoundMixer(CMixerSettings settings)
 {
-	return construct<CSoundMixer>(this, settings);
+	return construct<CSoundMixer>(settings);
 }
 
 void CRuntime::deleteSoundMixer(ISoundMixer* mixer)
@@ -266,18 +264,68 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	class CEnableGameClass : public CGameClass
 	{
 	public:
-		CEnableGameClass(weak_ptr<CPackage> package, class CRuntimeObject* outer)
-			: CGameClass(package, outer) {}
+		CEnableGameClass(weak_ptr<CPackage> package)
+			: CGameClass(package) {}
 	};
 
-	shared_ptr<CEnableGameClass> newClass = makeShared<CEnableGameClass>(pkg, this);
+	shared_ptr<CEnableGameClass> newClass = makeShared<CEnableGameClass>(pkg);
 
 	_classes.insert(make_pair(packageID, newClass));
 
 	return newClass.get();
 }
 
-Arcade::IVMHost* Arcade::CRuntime::getLuaVM()
+Arcade::IVMHost* Arcade::CRuntime::getCodeVM( ELanguage language )
 {
-	return _luaVM.get();
+	return _codeVM[language].get();
+}
+
+thread_local CRuntime* Arcade::gRuntime = nullptr;
+
+//from CRuntimeObject
+
+void Arcade::log(EMessageType type, const char* message, ...)
+{
+	if ( gRuntime == nullptr ) return;
+
+	va_list args;
+
+	va_start(args, message);
+	int32 len = _vscprintf(message, args) + 1;
+
+	char* buffer = (char*)zalloc(len);
+	vsprintf_s(buffer, len, message, args);
+
+	ILogger* logger = gRuntime->getLogger();
+	logger->log(buffer, type);
+
+	zfree(buffer);
+	va_end(args);
+}
+
+IFileObject* Arcade::openFile(const CString& name, EFileIOMode mode)
+{
+	if ( gRuntime == nullptr ) return nullptr;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return nullptr;
+	return fs->openFile(name, mode);
+}
+
+void Arcade::closeFIle(IFileObject* file)
+{
+	if ( gRuntime == nullptr ) return;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return;
+	fs->closeFile(file);
+}
+
+bool Arcade::listFilesInDirectory(IFileCollection* collection, const char* dir, const char* extFilter)
+{
+	if ( gRuntime == nullptr ) return nullptr;
+	IFileSystem* fs = gRuntime->getFilesystem();
+
+	if (fs == nullptr) return false;
+	return fs->listFilesInDirectory(collection, dir, extFilter);
 }

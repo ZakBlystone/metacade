@@ -36,10 +36,10 @@ lua_vm.h:
 namespace Arcade
 {
 
-class CLuaVM : public IVMHost, public CRuntimeObject, public enable_shared_from_this<CLuaVM>
+class CLuaVM : public IVMHost, public enable_shared_from_this<CLuaVM>
 {
 public:
-	CLuaVM(CRuntimeObject* outer);
+	CLuaVM();
 	virtual ~CLuaVM();
 	virtual ELanguage getLanguage() override;
 	virtual bool init() override;

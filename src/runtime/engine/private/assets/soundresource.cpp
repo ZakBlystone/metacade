@@ -25,9 +25,8 @@ soundresource.cpp:
 
 #include "engine/engine_private.h"
 
-Arcade::CSoundAsset::CSoundAsset(CRuntimeObject* outer) 
-	: CAsset(outer)
-	, _waveData(nullptr)
+Arcade::CSoundAsset::CSoundAsset() 
+	: _waveData(nullptr)
 	, _waveSize(0)
 {
 

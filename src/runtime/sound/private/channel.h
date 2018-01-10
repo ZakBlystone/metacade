@@ -50,9 +50,10 @@ struct CChannelState
 };
 
 class CSoundMixer;
-class CSoundChannel : public CRuntimeObject, public ISoundChannel
+class CSoundChannel : public ISoundChannel
 {
 public:
+	CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode = CHANNELMODE_DEFAULT);
 
 	void play(shared_ptr<class ISoundSample> sample);
 
@@ -67,8 +68,6 @@ public:
 	CChannelState& getState();
 
 private:
-	CSoundChannel(CSoundMixer *mixer, CIndex index, EChannelMode mode = CHANNELMODE_DEFAULT);
-
 	friend class CSoundMixer;
 	friend class CRuntimeObject;
 

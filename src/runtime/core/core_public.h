@@ -55,3 +55,5 @@ core_public.h: Inter-modular headers
 #include "public/util/guid.h"
 #include "public/util/string.h"
 #include "public/util/sha.h"
+
+#include "public/iallocator.h"

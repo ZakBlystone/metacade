@@ -1,0 +1,20 @@
+{
+	"meta": {
+		"name": "jstest",
+		"game": "Javascript Test",
+		"author": "Zak",
+		"description": "Testing V8 Javascript Engine",
+		"width": 400,
+		"height": 300
+	},
+	"scripts": {
+		"main": "main.js",
+		"other": "other.js"
+	},
+	"textures": {
+		"ship": "ship0.png"
+	},
+	"sounds": {
+
+	}
+}

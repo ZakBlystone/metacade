@@ -25,9 +25,8 @@ packagemanager.cpp:
 
 #include "engine_private.h"
 
-CPackageManager::CPackageManager(CRuntimeObject* outer) 
-	: CRuntimeObject(outer)
-	, _rootPath(".")
+CPackageManager::CPackageManager() 
+	: _rootPath(".")
 {
 }
 
@@ -47,7 +46,7 @@ CPackageBuilder* CPackageManager::createPackageBuilder(const CString& packageNam
 			: CPackageBuilder(package) {}
 	};
 
-	shared_ptr<CEnablePackageBuilder> builder = makeShared<CEnablePackageBuilder>( new CPackage(this, path) );
+	shared_ptr<CEnablePackageBuilder> builder = makeShared<CEnablePackageBuilder>( new CPackage(path) );
 	_builders.push_back(builder);
 	return builder.get();
 }
@@ -99,11 +98,11 @@ bool CPackageManager::findAndPreloadPackages()
 		class CEnablePackage : public CPackage
 		{
 		public:
-			CEnablePackage(CRuntimeObject* outer, const CString& filepath)
-				: CPackage(outer, filepath) {}
+			CEnablePackage(const CString& filepath)
+				: CPackage(filepath) {}
 		};
 
-		shared_ptr<CEnablePackage> newPackage = makeShared<CEnablePackage>(this, filepath);
+		shared_ptr<CEnablePackage> newPackage = makeShared<CEnablePackage>(filepath);
 		_references.push_back(newPackage);
 
 		if ( !newPackage->load() )

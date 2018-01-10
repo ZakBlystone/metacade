@@ -29,17 +29,12 @@ namespace Arcade
 {
 
 //TODO make a base class or something for reference counting
-class CFileHandle : public CRuntimeObject
+class CFileHandle
 {
 public:
-	CFileHandle(const CString& filename, EFileIOMode mode, CRuntimeObject* runtime)
-		: CRuntimeObject(runtime)
-		, _file(openFile(filename, mode))
-		, _ref(new uint32(1))
-	{}
+	CFileHandle(const CString& filename, EFileIOMode mode);
 
 	CFileHandle(const CFileHandle& other)
-		: CRuntimeObject(other)
 	{
 		_ref = other._ref;
 		_file = other._file;
@@ -67,17 +62,7 @@ public:
 		return *this;
 	}
 
-	void reset()
-	{
-		if ( _file != nullptr && --(*_ref) == 0 )
-		{
-			closeFIle(_file);
-			delete _ref;
-
-			_file = nullptr;
-			_ref = nullptr;
-		}
-	}
+	void reset();
 
 	operator IFileObject*()
 	{

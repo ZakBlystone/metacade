@@ -25,12 +25,11 @@ elementrenderer.cpp:
 
 #include "render_private.h"
 
-CElementRenderer::CElementRenderer(CRuntimeObject* outer)
-	: CRuntimeObject(outer)
+CElementRenderer::CElementRenderer()
 {
-	_renderList = make_shared<CRenderList>();
-	_renderBuffer = make_shared<CRenderBuffer>();
-	_drawBuffer = make_shared<CDrawBuffer>(_renderBuffer);
+	_renderList = makeShared<CRenderList>();
+	_renderBuffer = makeShared<CRenderBuffer>();
+	_drawBuffer = makeShared<CDrawBuffer>(_renderBuffer);
 }
 
 void CElementRenderer::beginFrame()
@@ -144,8 +143,7 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 		return;
 	}
 
-	//#TODO Optimize memory allocation here, use CRuntimeObject's allocator
-	vector<CVertex2D> outputList, inputList;
+	vector<CVertex2D, CRuntimeAllocator<CVertex2D>> outputList, inputList;
 	outputList.reserve(num);
 	outputList.resize(num);
 	memcpy(outputList.data(), verts, num * sizeof(CVertex2D));

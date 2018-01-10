@@ -25,9 +25,8 @@ assetmap.cpp: A collection of assets that can be saved and loaded
 
 #include "engine_private.h"
 
-CAssetMap::CAssetMap(CRuntimeObject* outer)
-	: CRuntimeObject(outer)
-	, _assetsLoaded(false)
+CAssetMap::CAssetMap()
+	: _assetsLoaded(false)
 {
 
 }
@@ -173,9 +172,9 @@ bool CAssetMap::load(IFileObject* file)
 		switch(locator._type)
 		{
 		case Arcade::ASSET_NONE: break;
-		case Arcade::ASSET_CODE: asset = shared_ptr<CCodeAsset>(makeShared<CCodeAsset>(this)); break;
-		case Arcade::ASSET_TEXTURE: asset = shared_ptr<CImageAsset>(makeShared<CImageAsset>(this)); break;
-		case Arcade::ASSET_SOUND: asset = shared_ptr<CSoundAsset>(makeShared<CSoundAsset>(this)); break;
+		case Arcade::ASSET_CODE: asset = shared_ptr<CCodeAsset>(makeShared<CCodeAsset>()); break;
+		case Arcade::ASSET_TEXTURE: asset = shared_ptr<CImageAsset>(makeShared<CImageAsset>()); break;
+		case Arcade::ASSET_SOUND: asset = shared_ptr<CSoundAsset>(makeShared<CSoundAsset>()); break;
 		default:
 		break;
 		}

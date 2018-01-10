@@ -64,10 +64,11 @@ enum EPointClassify
 	PLANE_INFRONT = 1,
 };
 
-enum ELanguage
+enum ELanguage : uint8
 {
-	LANG_DUMMY,
 	LANG_LUA,
+	LANG_JAVASCRIPT,
+	LANG_NUM,
 	//LANG_PYTHON,
 };
 

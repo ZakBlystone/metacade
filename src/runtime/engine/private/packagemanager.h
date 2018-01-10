@@ -28,10 +28,10 @@ packagemanager.h:
 namespace Arcade
 {
 
-class CPackageManager : public IPackageManager, public CRuntimeObject
+class CPackageManager : public IPackageManager
 {
 public:
-	CPackageManager(CRuntimeObject* outer);
+	CPackageManager();
 	~CPackageManager();
 
 	virtual CPackageBuilder* createPackageBuilder(const CString& packageName = "unnamed");

@@ -31,7 +31,7 @@ namespace Arcade
 class METACADE_API CCodeAsset : public CAsset<ASSET_CODE>
 {
 public:
-	CCodeAsset(CRuntimeObject* outer);
+	CCodeAsset();
 	~CCodeAsset();
 
 	virtual bool load(IFileObject* file) override;

@@ -39,7 +39,6 @@ engine_private.h:
 #include "private/metadata.h"
 #include "private/filecollection.h"
 #include "private/assetmap.h"
-#include "private/rendertest.h"
 #include "private/package.h"
 #include "private/packagemanager.h"
 #include "private/runtime.h"
