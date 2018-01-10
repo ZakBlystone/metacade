@@ -237,7 +237,10 @@ static void drawColor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	col.g = (float) v8::Local<v8::Number>::Cast(args[1])->Value();
 	col.b = (float) v8::Local<v8::Number>::Cast(args[2])->Value();
 
-	if ( args.Length() > 3 ) col.a = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
+	if ( args.Length() > 3 ) 
+		col.a = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
+	else
+		col.a = 1.f;
 
 	draw->_currentColor = col;
 
@@ -330,6 +333,161 @@ static void drawQuad(const v8::FunctionCallbackInfo<v8::Value>& args)
 	draw->quad( quad, ( args.Length() > 16 ) ? getJSUserdataValuePtr<CAssetRef>( args[16] ) : nullptr );
 }
 
+static void drawPushTransform(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	if ( !draw->xformPush() )
+	{
+		jsThrow(isolate, "matrix stack overflow");
+	}
+}
+
+
+static void drawPopTransform(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	if ( !draw->xformPop() )
+	{
+		jsThrow(isolate, "matrix stack underflow");
+	}
+}
+
+static void drawTranslate(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 2 )
+	{
+		jsThrow(isolate, "_r.translate requires at least 2 arguments");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	float x = (float) v8::Local<v8::Number>::Cast(args[0])->Value();
+	float y = (float) v8::Local<v8::Number>::Cast(args[1])->Value();
+
+	draw->xformTop().translate(CVec2(x, y));
+}
+
+static void drawRotate(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 1 )
+	{
+		jsThrow(isolate, "_r.rotate requires at least 1 argument");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	float r = (float) v8::Local<v8::Number>::Cast(args[0])->Value();
+
+	draw->xformTop().rotate(r);
+}
+
+static void drawScale(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 2 )
+	{
+		jsThrow(isolate, "_r.scale requires at least 2 arguments");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	float sx = (float) v8::Local<v8::Number>::Cast(args[0])->Value();
+	float sy = (float) v8::Local<v8::Number>::Cast(args[1])->Value();
+
+	draw->xformTop().scale(CVec2(sx, sy));
+}
+
+static void drawPushClipRect(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 4 )
+	{
+		jsThrow(isolate, "_r.pushcliprect requires at least 4 arguments");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	float x = (float) v8::Local<v8::Number>::Cast(args[0])->Value();
+	float y = (float) v8::Local<v8::Number>::Cast(args[1])->Value();
+	float w = (float) v8::Local<v8::Number>::Cast(args[2])->Value();
+	float h = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
+
+	CClipShape newshape;
+	newshape.add(CHalfPlane(CVec2(-1, 0), CVec2(x, 0)));
+	newshape.add(CHalfPlane(CVec2(0, -1), CVec2(0, y)));
+	newshape.add(CHalfPlane(CVec2(1, 0), CVec2(x+w, 0)));
+	newshape.add(CHalfPlane(CVec2(0, 1), CVec2(0, y+h)));
+
+	draw->clipTop() -= newshape;
+}
+
+static void drawPushClipPlane(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	if ( args.Length() < 4 )
+	{
+		jsThrow(isolate, "_r.pushclipplane requires at least 4 arguments");
+		return;
+	}
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	float x = (float) v8::Local<v8::Number>::Cast(args[0])->Value();
+	float y = (float) v8::Local<v8::Number>::Cast(args[1])->Value();
+	float nx = (float) v8::Local<v8::Number>::Cast(args[2])->Value();
+	float ny = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
+
+	CClipShape newshape;
+	newshape.add(CHalfPlane(CVec2(nx, ny), CVec2(x, y)));
+
+	draw->clipTop() -= newshape;
+}
+
+static void drawPopClip(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	v8::Isolate* isolate = args.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>( args.Holder() );
+	if ( draw == nullptr ) return;
+
+	if ( !draw->clipPop() )
+	{
+		jsThrow(isolate, "clipping plane stack underflow");
+	}
+}
+
 static void getDrawLayer(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
 {
 	v8::Isolate* isolate = info.GetIsolate();
@@ -378,6 +536,46 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 	wrapper->Set(
 		v8::String::NewFromUtf8( isolate, "quad", v8::NewStringType::kNormal ).ToLocalChecked(),
 		v8::FunctionTemplate::New( isolate, drawQuad )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "push", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawPushTransform )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "pop", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawPopTransform )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "translate", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawTranslate )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "rotate", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawRotate )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "scale", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawScale )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "pushcliprect", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawPushClipRect )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "pushclipplane", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawPushClipPlane )
+	);
+
+	wrapper->Set(
+		v8::String::NewFromUtf8( isolate, "popclip", v8::NewStringType::kNormal ).ToLocalChecked(),
+		v8::FunctionTemplate::New( isolate, drawPopClip )
 	);
 
 	wrapper->SetAccessor(
