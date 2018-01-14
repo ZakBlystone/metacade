@@ -141,6 +141,7 @@ void Arcade::CJavascriptVMInstance::init()
 	v8::Local<v8::ObjectTemplate> asset_template = getJSAssetWrapper(isolate);
 
 	v8::Local<v8::Object> assetlist = v8::Object::New(isolate);
+	v8::Local<v8::Object> metadata = v8::Object::New(isolate);
 	v8::Local<v8::Object> drawInterface = newJSUserdata<CDrawInterface>( context, nullptr, getJSDrawWrapper(isolate) );
 	v8::Local<v8::Object> soundInterface = newJSUserdata<CSoundInterface>( context, nullptr, getJSSoundWrapper(isolate) );
 
@@ -171,6 +172,12 @@ void Arcade::CJavascriptVMInstance::init()
 	);
 
 	global->Set(
+		context,
+		v8::String::NewFromUtf8(isolate, "_m", v8::NewStringType::kNormal).ToLocalChecked(),
+		metadata
+	);
+
+	global->Set(
 		context, 
 		v8::String::NewFromUtf8( isolate, "_r", v8::NewStringType::kNormal ).ToLocalChecked(), 
 		drawInterface
@@ -181,6 +188,17 @@ void Arcade::CJavascriptVMInstance::init()
 		v8::String::NewFromUtf8( isolate, "_s", v8::NewStringType::kNormal ).ToLocalChecked(), 
 		soundInterface
 	);
+
+	const IMetaData* meta = package->getMetaData();
+	for (int32 i = 0; i < meta->getNumKeys(); ++i)
+	{
+		CString key = meta->getKey(i);
+		CVariant value = meta->getValue(i);
+
+		v8::Local<v8::String> key_str = v8::String::NewFromUtf8(isolate, *key, v8::NewStringType::kNormal).ToLocalChecked();
+		metadata->Set(context, key_str, convertVariant(value, isolate));
+	}
+
 	log(LOG_MESSAGE, "Created asset list");
 
 
@@ -259,54 +277,7 @@ bool Arcade::CJavascriptVMInstance::callFunction(const CFunctionCall& call)
 			for ( uint32 i=0; i<call.numArgs(); ++i )
 			{
 				CVariant arg = call.getArg(i);
-
-				switch ( arg.type() )
-				{
-				case VT_NONE:
-					values[i] = v8::Null(isolate);
-				break;
-				case VT_BOOLEAN:
-				{
-					bool bValue;
-					values[i] = arg.get(bValue) ? v8::Local<v8::Value>::Cast(v8::Boolean::New(isolate, bValue)) : v8::Null(isolate);
-				}
-				break;
-				case VT_UINT:
-				{
-					uint32 uiValue;
-					values[i] = arg.get(uiValue) ? v8::Local<v8::Value>::Cast(v8::Uint32::NewFromUnsigned(isolate, uiValue)) : v8::Null(isolate);
-				}
-				break;
-				case VT_INT:
-				{
-					int32 iValue;
-					values[i] = arg.get(iValue) ? v8::Local<v8::Value>::Cast(v8::Int32::New(isolate, iValue)) : v8::Null(isolate);
-				}
-				break;
-				case VT_DOUBLE:
-				{
-					double dValue;
-					values[i] = arg.get(dValue) ? v8::Local<v8::Value>::Cast(v8::Number::New(isolate, dValue)) : v8::Null(isolate);
-				}
-				break;
-				case VT_STRING:
-				{
-					CString sValue;
-					values[i] = v8::Null(isolate);
-					if ( arg.get(sValue) )
-					{
-						v8::Local<v8::String> str;
-						if ( v8::String::NewFromUtf8( isolate, *sValue, v8::NewStringType::kNormal ).ToLocal(&str) )
-						{
-							values[i] = str;
-						}
-					}
-				}
-				break;
-				default:
-					values[i] = v8::Null(isolate);
-				break;
-				}
+				values[i] = convertVariant(arg, isolate);
 			}
 
 			v8::Local<v8::Function> func = v8::Local<v8::Function>::Cast(value);
@@ -341,4 +312,57 @@ bool Arcade::CJavascriptVMInstance::callFunction(const CFunctionCall& call)
 	}
 
 	return false;
+}
+
+v8::Local<v8::Value> CJavascriptVMInstance::convertVariant(const CVariant& var, v8::Isolate* isolate)
+{
+	v8::Isolate::Scope isolate_scope(isolate);
+	v8::EscapableHandleScope handle_scope(isolate);
+
+	switch (var.type())
+	{
+	case VT_NONE:
+		return handle_scope.Escape( v8::Null(isolate) );
+	case VT_BOOLEAN:
+	{
+		bool bValue;
+		return handle_scope.Escape( var.get(bValue) ? v8::Local<v8::Value>::Cast(v8::Boolean::New(isolate, bValue)) : v8::Null(isolate) );
+	}
+	break;
+	case VT_UINT:
+	{
+		uint32 uiValue;
+		return handle_scope.Escape( var.get(uiValue) ? v8::Local<v8::Value>::Cast(v8::Uint32::NewFromUnsigned(isolate, uiValue)) : v8::Null(isolate) );
+	}
+	break;
+	case VT_INT:
+	{
+		int32 iValue;
+		return handle_scope.Escape( var.get(iValue) ? v8::Local<v8::Value>::Cast(v8::Int32::New(isolate, iValue)) : v8::Null(isolate) );
+	}
+	break;
+	case VT_DOUBLE:
+	{
+		double dValue;
+		return handle_scope.Escape( var.get(dValue) ? v8::Local<v8::Value>::Cast(v8::Number::New(isolate, dValue)) : v8::Null(isolate) );
+	}
+	break;
+	case VT_STRING:
+	{
+		CString sValue;
+		if ( var.get(sValue) )
+		{
+			v8::Local<v8::String> str;
+			if (v8::String::NewFromUtf8(isolate, *sValue, v8::NewStringType::kNormal).ToLocal(&str))
+			{
+				return handle_scope.Escape( str );
+			}
+		}
+	}
+	break;
+	default:
+		break;
+	}
+
+	return handle_scope.Escape( v8::Null(isolate) );
 }

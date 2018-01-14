@@ -52,6 +52,7 @@ private:
 	v8::Persistent<v8::Context, v8::CopyablePersistentTraits<v8::Context>> _context;
 	v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> _drawInterface;
 	v8::Persistent<v8::Object, v8::CopyablePersistentTraits<v8::Object>> _soundInterface;
+	v8::Local<v8::Value> convertVariant(const CVariant& var, v8::Isolate* isolate);
 };
 
 }
