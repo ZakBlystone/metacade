@@ -79,7 +79,7 @@ bool Arcade::CDrawInterface::clipPush()
 
 bool Arcade::CDrawInterface::clipPop()
 {
-	if (_clipStackPos == NUM_MATRIX_STACK - 1) return false;
+	if (_clipStackPos == NUM_CLIP_STACK - 1) return false;
 	++_clipStackPos;
 
 	return true;
@@ -268,9 +268,9 @@ static void drawRect(const v8::FunctionCallbackInfo<v8::Value>& args)
 	rect._h = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
 
 	if ( args.Length() > 5 ) rect._u0 = (float) v8::Local<v8::Number>::Cast(args[5])->Value();
-	if ( args.Length() > 6 ) rect._u0 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
-	if ( args.Length() > 7 ) rect._u0 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
-	if ( args.Length() > 8 ) rect._u0 = (float) v8::Local<v8::Number>::Cast(args[8])->Value();
+	if ( args.Length() > 6 ) rect._u1 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
+	if ( args.Length() > 7 ) rect._v0 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
+	if ( args.Length() > 8 ) rect._v1 = (float) v8::Local<v8::Number>::Cast(args[8])->Value();
 
 	draw->rect( rect, ( args.Length() > 4 ) ? getJSUserdataValuePtr<CAssetRef>( args[4] ) : nullptr );
 }
@@ -446,6 +446,11 @@ static void drawPushClipRect(const v8::FunctionCallbackInfo<v8::Value>& args)
 	newshape.add(CHalfPlane(CVec2(1, 0), CVec2(x+w, 0)));
 	newshape.add(CHalfPlane(CVec2(0, 1), CVec2(0, y+h)));
 
+	if (!draw->clipPush())
+	{
+		jsThrow(isolate, "clipping plane stack overflow");
+		return;
+	}
 	draw->clipTop() -= newshape;
 }
 
@@ -470,7 +475,12 @@ static void drawPushClipPlane(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	CClipShape newshape;
 	newshape.add(CHalfPlane(CVec2(nx, ny), CVec2(x, y)));
-
+	
+	if (!draw->clipPush())
+	{
+		jsThrow(isolate, "clipping plane stack overflow");
+		return;
+	}
 	draw->clipTop() -= newshape;
 }
 
