@@ -268,8 +268,8 @@ static void drawRect(const v8::FunctionCallbackInfo<v8::Value>& args)
 	rect._h = (float) v8::Local<v8::Number>::Cast(args[3])->Value();
 
 	if ( args.Length() > 5 ) rect._u0 = (float) v8::Local<v8::Number>::Cast(args[5])->Value();
-	if ( args.Length() > 6 ) rect._u1 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
-	if ( args.Length() > 7 ) rect._v0 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
+	if ( args.Length() > 6 ) rect._v0 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
+	if ( args.Length() > 7 ) rect._u1 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
 	if ( args.Length() > 8 ) rect._v1 = (float) v8::Local<v8::Number>::Cast(args[8])->Value();
 
 	draw->rect( rect, ( args.Length() > 4 ) ? getJSUserdataValuePtr<CAssetRef>( args[4] ) : nullptr );
@@ -297,10 +297,10 @@ static void drawSprite(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	if ( args.Length() > 4 ) sprite._r = (float) v8::Local<v8::Number>::Cast(args[4])->Value();
 
-	if ( args.Length() > 6 ) sprite._u0 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
-	if ( args.Length() > 7 ) sprite._u0 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
-	if ( args.Length() > 8 ) sprite._u0 = (float) v8::Local<v8::Number>::Cast(args[8])->Value();
-	if ( args.Length() > 9 ) sprite._u0 = (float) v8::Local<v8::Number>::Cast(args[9])->Value();
+	if (args.Length() > 6) sprite._u0 = (float) v8::Local<v8::Number>::Cast(args[6])->Value();
+	if (args.Length() > 7) sprite._v0 = (float) v8::Local<v8::Number>::Cast(args[7])->Value();
+	if (args.Length() > 8) sprite._u1 = (float) v8::Local<v8::Number>::Cast(args[8])->Value();
+	if (args.Length() > 9) sprite._v1 = (float) v8::Local<v8::Number>::Cast(args[9])->Value();
 
 	draw->sprite( sprite, ( args.Length() > 5 ) ? getJSUserdataValuePtr<CAssetRef>( args[5] ) : nullptr );
 }
