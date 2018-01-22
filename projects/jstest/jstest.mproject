@@ -8,6 +8,7 @@
 		"height": 300
 	},
 	"scripts": {
+		"box2d": "box2d.js",
 		"main": "main.js",
 		"other": "other.js"
 	},
@@ -15,6 +16,8 @@
 		"ship": "ship0.png"
 	},
 	"sounds": {
-
+		"shoot": "shoot_c.wav",
+		"music": "music_loop_2.wav",
+		"place": "place_c.wav"
 	}
 }
