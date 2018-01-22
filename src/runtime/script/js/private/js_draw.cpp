@@ -103,6 +103,7 @@ void CDrawInterface::start(CElementRenderer* renderer)
 	_layer = 0;
 	_currentColor = CFloatColor(1.f, 1.f, 1.f, 1.f);
 	_material._blend = BLEND_NORMAL;
+	_enableClipping = true;
 	resetStacks();
 	clipTop() = renderer->getViewportClip();
 }
@@ -121,7 +122,7 @@ void CDrawInterface::rect(const CRectData& data, const CAssetRef* asset)
 
 	_material._baseTexture = resolveTextureID(asset);
 
-	CRenderQuad* quad = &el.makeQuad2( clipTop(), *this, _layer );
+	CRenderQuad* quad = &el.makeQuad2( _enableClipping ? clipTop() : CClipShape::disabled(), *this, _layer );
 	CVertex2D* verts = quad->_verts;
 
 	verts[0]._position._x = data._x;
@@ -520,6 +521,28 @@ static void setDrawLayer(v8::Local<v8::String> name, v8::Local<v8::Value> value,
 	draw->_layer = v8::Local<v8::Int32>::Cast( value )->Value();
 }
 
+static void getDrawClipping(v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>(info.Holder());
+	if (draw == nullptr) return;
+
+	info.GetReturnValue().Set(v8::Boolean::New(info.GetIsolate(), draw->_enableClipping));
+}
+
+static void setDrawClipping(v8::Local<v8::String> name, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+{
+	v8::Isolate* isolate = info.GetIsolate();
+	v8::HandleScope scope(isolate);
+
+	CDrawInterface* draw = getJSUserdataPtr<CDrawInterface>(info.Holder());
+	if (draw == nullptr) return;
+
+	draw->_enableClipping = v8::Local<v8::Boolean>::Cast(value)->Value();
+}
+
 v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 {
 	if ( !gDrawTemplate.IsEmpty() ) return gDrawTemplate.Get( isolate );
@@ -592,6 +615,12 @@ v8::Local<v8::ObjectTemplate> Arcade::getJSDrawWrapper(v8::Isolate* isolate)
 		v8::String::NewFromUtf8( isolate, "layer", v8::NewStringType::kNormal ).ToLocalChecked(),
 		getDrawLayer,
 		setDrawLayer
+	);
+
+	wrapper->SetAccessor(
+		v8::String::NewFromUtf8(isolate, "clipping", v8::NewStringType::kNormal).ToLocalChecked(),
+		getDrawClipping,
+		setDrawClipping
 	);
 
 	gDrawTemplate.Reset(isolate, wrapper);

@@ -111,6 +111,8 @@ void CJavascriptVM::createGlobalTemplate()
 	_globalTemplate.Set(_isolate, global);
 }
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 bool CJavascriptVM::init()
 {
 	if ( _initialized ) return true;
@@ -119,7 +121,7 @@ bool CJavascriptVM::init()
 
 	//We need to look for this stuff where the .exe is
 	char module_path[4096] = {0};
-	GetModuleFileName(NULL, module_path, 4096);
+	GetModuleFileName((HINSTANCE)&__ImageBase, module_path, 4096);
 
 	static const char* working_directory = "./";
 	if ( !v8::V8::InitializeICUDefaultLocation(module_path) )

@@ -39,6 +39,7 @@ namespace Arcade
 		CClipShape _clipStack[NUM_CLIP_STACK];
 		uint32 _xformStackPos;
 		uint32 _clipStackPos;
+		bool _enableClipping;
 
 		CDrawInterface();
 

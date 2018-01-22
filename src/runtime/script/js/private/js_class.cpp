@@ -117,6 +117,10 @@ bool Arcade::CJavascriptVMClass::loadFromPackage(weak_ptr<CPackage> package)
 					log(LOG_ERROR, "Failed to compile script '%s'", *origin_string);
 					return false;
 				}
+				else
+				{
+					log(LOG_MESSAGE, "Compiled '%s'", *origin_string);
+				}
 
 				_scripts.push_back(
 					v8::Persistent<v8::UnboundScript, v8::CopyablePersistentTraits<v8::UnboundScript>>(isolate, script->GetUnboundScript())

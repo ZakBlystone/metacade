@@ -136,6 +136,12 @@ void CElementRenderer::writeClippedPolygonToBufferAsTris(const CVertex2D* verts,
 	//Minimum of 3 vertices required
 	if ( num < 3 ) return;
 
+	if (clip.getNumPlanes() < 0 )
+	{
+		writePolygonToBufferAsTris(verts, num);
+		return;
+	}
+
 	//Check if clipping even needs to be done
 	if ( clip.getNumPlanes() == 0 )
 	{

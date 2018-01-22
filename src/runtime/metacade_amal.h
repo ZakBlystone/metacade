@@ -963,6 +963,12 @@ public:
 	inline CClipShape() 
 		: _numPlanes(0)
 	{}
+	inline static CClipShape& disabled()
+	{
+		static CClipShape ret;
+		ret._numPlanes = -1;
+		return ret;
+	}
 	inline bool add(const CHalfPlane& plane)
 	{
 		if ( _numPlanes >= MAX_CLIPPING_PLANES - 1 ) return false;
