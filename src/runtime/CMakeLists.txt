@@ -51,11 +51,15 @@ file (GLOB_RECURSE LUA_SOURCES
 
 source_group("src\\script\\lua" FILES ${LUA_SOURCES})
 
-file (GLOB_RECURSE JS_SOURCES 
-	"script/js/*.h"
-	"script/js/*.cpp")
+if(${V8_ENABLED})
+	file (GLOB_RECURSE JS_SOURCES 
+		"script/js/*.h"
+		"script/js/*.cpp")
 
-source_group("src\\script\\js" FILES ${JS_SOURCES})
+	source_group("src\\script\\js" FILES ${JS_SOURCES})
+else()
+	set(JS_SOURCES "")
+endif()
 
 add_definitions(-DMETACADE_API_EXPORT)
 add_library(runtime SHARED ${CORE_SOURCES} ${RENDER_SOURCES} ${ENGINE_SOURCES} ${SOUND_SOURCES} ${LUA_SOURCES} ${JS_SOURCES})
@@ -65,7 +69,7 @@ if (WIN32)
 	#target_link_libraries(runtime optimized python37.lib)
 endif()
 
-if (WIN32)
+if (WIN32 AND ${V8_ENABLED})
 	if (V8_STATIC)
 		target_link_libraries(runtime v8_base_0.lib)
 		target_link_libraries(runtime v8_base_1.lib)

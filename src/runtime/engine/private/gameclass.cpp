@@ -87,7 +87,15 @@ bool CGameClass::init()
 	if ( !locked->getMetaData()->getValue("language").get(language) ) return false;
 	if ( language > LANG_NUM ) return false;
 
-	_vmKlass = gRuntime->getCodeVM( (ELanguage) language )->loadGameVMClass(locked);
+	IVMHost* vm = gRuntime->getCodeVM( (ELanguage) language );
+
+	if (vm == nullptr)
+	{
+		log(LOG_ERROR, "Language not supported in this build");
+		return false;
+	}
+
+	_vmKlass = vm->loadGameVMClass(locked);
 	if ( _vmKlass.expired() )
 	{
 		log(LOG_ERROR, "Failed to create game VM");

@@ -26,7 +26,11 @@ runtime.cpp:
 #include "engine_private.h"
 #include "sound_private.h"
 #include "script/lua/lua_private.h"
+
+#if WITH_V8
 #include "script/js/js_private.h"
+#endif
+
 #include <stdarg.h>
 
 struct CRefTest
@@ -64,10 +68,13 @@ bool CRuntime::initialize(IRuntimeEnvironment* env)
 
 	_packageManager = makeShared<CPackageManager>();
 	_textureIndices = makeShared<CIndexAllocator>();
-	_codeVM[LANG_JAVASCRIPT] = makeShared<CJavascriptVM>();
-	_codeVM[LANG_LUA] = makeShared<CLuaVM>();
 
+#if WITH_V8
+	_codeVM[LANG_JAVASCRIPT] = makeShared<CJavascriptVM>();
 	if ( !_codeVM[LANG_JAVASCRIPT]->init() ) return false;
+#endif
+
+	_codeVM[LANG_LUA] = makeShared<CLuaVM>();
 	if ( !_codeVM[LANG_LUA]->init() ) return false;
 
 	//_renderTest = makeShared<CRenderTest>(this);

@@ -39,8 +39,13 @@ SET(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include directory")
 SET(PYTHON_CONFIG_DIR "" CACHE PATH "Python config directory")
 SET(PYTHON_LIBRARY_DIR "" CACHE PATH "Python library directory")
 
+SET(V8_ENABLED FALSE CACHE BOOL "Enable v8 Javascript support")
 SET(V8_INCLUDE_DIR "" CACHE PATH "v8 include directory")
 SET(V8_LIBRARY_DIR "" CACHE PATH "v8 library directory")
+
+if(${V8_ENABLED})
+	add_definitions(-DWITH_V8)
+endif()
 
 add_subdirectory(src)
 
