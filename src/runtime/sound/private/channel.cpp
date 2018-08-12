@@ -200,7 +200,7 @@ bool CSoundChannel::generateSinglePCMSample(float* buffer, uint32 offset, ISound
 	interpolate.stereo = settings.flags & MIXF_STEREO;
 	interpolate.vol = _state._volume * _mixer->getMasterVolume();
 	interpolate.channels = _sampleInfo.numChannels;
-	interpolate.aliasing = settings.flags & MIXF_ALIASED_INTERPOLATION;
+	interpolate.aliasing = ( settings.flags & MIXF_ALIASED_INTERPOLATION ) != 0;
 
 	//interpolation
 	if ( _sampleInfo.width == 16 )

@@ -41,7 +41,7 @@ public:
 	void reshape(int32 width, int32 height);
 	void clear();
 
-	virtual void render(class IDrawBuffer* buffer) override;
+	virtual void render(class IGameInstance* instance, class IDrawBuffer* buffer) override;
 	virtual class ITextureProvider* getTextureProvider() override;
 
 	virtual class ITexture* loadTexture(class IRenderer* renderContext, class IImage* imagesource) override;

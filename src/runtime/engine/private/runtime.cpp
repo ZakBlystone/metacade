@@ -138,6 +138,11 @@ ILogger* CRuntime::getLogger() const
 	return _runtimeEnvironment->getLogger();
 }
 
+IRenderer* CRuntime::getRenderer() const
+{
+	return _runtimeEnvironment->getRenderer();
+}
+
 bool CRuntime::filesystemTest()
 {
 	IFileSystem* fs = _runtimeEnvironment->getFileSystem();

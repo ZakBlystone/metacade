@@ -176,6 +176,16 @@ class ILogger* NativeEnv::getLogger()
 	return _logger.get();
 }
 
+class IRenderer* NativeEnv::getRenderer()
+{
+	return _renderer.get();
+}
+
+void NativeEnv::setRenderer(shared_ptr<IRenderer> renderer)
+{
+	_renderer = renderer;
+}
+
 int64 NativeEnv::getMemUsage() const
 {
 	return gTestAllocator._bytesAllocated;

@@ -31,7 +31,7 @@ namespace Arcade
 class CGameClass : public IGameClass, public enable_shared_from_this<CGameClass>
 {
 public:
-	virtual bool createInstance(IGameInstance** instance) override;
+	virtual bool createInstance(IGameInstance** instance, void* userdata = nullptr) override;
 	virtual void deleteInstance(IGameInstance* instance) override;
 
 	weak_ptr<CPackage> getPackage();

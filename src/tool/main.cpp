@@ -516,6 +516,8 @@ static int start(int argc, char *argv[])
 	shared_ptr<CRendererGL> renderer = make_shared<CRendererGL>();
 	renderer->reshape(1280, 720);
 
+	native->setRenderer( renderer );
+
 	CMixerSettings mixerSettings;
 	mixerSettings.bufferSize = SOUND_DEVICE_SAMPLES;
 	mixerSettings.sampleRate = 44100;
@@ -527,14 +529,12 @@ static int start(int argc, char *argv[])
 
 		if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance) )
 		{
-			instance->initializeRenderer(renderer.get());
 			instance->initSoundMixer(mixerSettings);
 			instance->init();
 		}
 
 		/*if ( loadedGameClass != nullptr && loadedGameClass->createInstance(&instance2) )
 		{
-			instance2->initializeRenderer(renderer.get());
 			instance2->init();
 		}*/
 	}
@@ -594,7 +594,6 @@ static int start(int argc, char *argv[])
 					SDL_LockMutex(sndMutex);
 					if ( instance != nullptr )
 					{
-						instance->finishRenderer(renderer.get());
 						loadedGameClass->deleteInstance(instance);
 						instance = nullptr;
 					}
@@ -609,7 +608,6 @@ static int start(int argc, char *argv[])
 					SDL_LockMutex(sndMutex);
 					if ( loadedGameClass->createInstance(&instance) )
 					{
-						instance->initializeRenderer(renderer.get());
 						instance->initSoundMixer(mixerSettings);
 						instance->init();
 					}
@@ -686,7 +684,7 @@ static int start(int argc, char *argv[])
 		if ( instance != nullptr ) 
 		{
 			float w = (width * UI_SPLIT) * g_UIState.fUIRolloutFraction + width * (1.f - g_UIState.fUIRolloutFraction);
-			instance->render(renderer.get(), CVec2(w,height - 20.f));
+			instance->render(CVec2(w,height - 20.f));
 		}
 
 		//renderer->setOffset(CVec2(0,300.f));
@@ -713,7 +711,6 @@ static int start(int argc, char *argv[])
 
 	if ( loadedGameClass != nullptr && instance != nullptr )
 	{
-		instance->finishRenderer(renderer.get());
 		loadedGameClass->deleteInstance( instance );
 	}
 

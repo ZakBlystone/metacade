@@ -32,7 +32,7 @@ CGameClass::CGameClass( weak_ptr<CPackage> package )
 
 }
 
-bool CGameClass::createInstance(IGameInstance** instance)
+bool CGameClass::createInstance(IGameInstance** instance, void* userdata /*= nullptr*/)
 {
 	if ( instance == nullptr ) return false;
 
@@ -47,11 +47,11 @@ bool CGameClass::createInstance(IGameInstance** instance)
 	class CEnableGameInstance : public CGameInstance
 	{
 	public:
-		CEnableGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance)
-			: CGameInstance(klass, vmInstance) {}
+		CEnableGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance, void* userdata)
+			: CGameInstance(klass, vmInstance, userdata) {}
 	};
 
-	*instance = construct<CEnableGameInstance>(shared_from_this(), lockedKlass->createVMInstance());
+	*instance = construct<CEnableGameInstance>(shared_from_this(), lockedKlass->createVMInstance(), userdata);
 
 	++_instanceCount;
 

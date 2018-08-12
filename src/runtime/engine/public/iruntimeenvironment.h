@@ -34,6 +34,7 @@ public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
 	virtual class ILogger* getLogger() = 0;
+	virtual class IRenderer* getRenderer() = 0;
 	virtual ~IRuntimeEnvironment() {};
 };
 

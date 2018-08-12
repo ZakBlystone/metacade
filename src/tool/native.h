@@ -31,10 +31,14 @@ public:
 	virtual class IAllocator* getAllocator() override;
 	virtual class IFileSystem* getFileSystem() override;
 	virtual class ILogger* getLogger() override;
+	virtual class IRenderer* getRenderer() override;
+
+	void setRenderer(shared_ptr<IRenderer> renderer);
 
 	int64 getMemUsage() const;
 
 private:
 	shared_ptr<FileSystem> _fs;
 	shared_ptr<Logger> _logger;
+	shared_ptr<IRenderer> _renderer;
 };

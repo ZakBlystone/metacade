@@ -187,7 +187,7 @@ void CRendererGL::clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void CRendererGL::render(class IDrawBuffer* buffer)
+void CRendererGL::render(class IGameInstance* instance, class IDrawBuffer* buffer)
 {
 	const IRenderBuffer *renderBuffer = buffer->getRenderBuffer();
 

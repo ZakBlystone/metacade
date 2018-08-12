@@ -31,20 +31,19 @@ namespace Arcade
 class CGameInstance : public IGameInstance
 {
 public:
+	~CGameInstance();
+
 	virtual class IGameClass* getClass() override;
+
+	virtual void* getUserData() override;
 
 	virtual void postInputEvent(const class CInputEvent& input) override;
 	virtual void postInputState(const class CInputState& input) override;
 
 	virtual void init() override;
 	virtual void think(float time) override;
-	virtual void render(IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) override;
-	virtual void initializeRenderer(IRenderer* renderer) override;
-	virtual void finishRenderer(IRenderer* renderer) override;
+	virtual void render(CVec2 viewportSize) override;
 	virtual bool callFunction(const CFunctionCall& call) override;
-
-	virtual void initializeTextures(class ITextureProvider* provider) override;
-	virtual void finishTextures(class ITextureProvider* provider) override;
 
 	virtual void initSoundMixer(const CMixerSettings& settings) override;
 	virtual ISoundMixer* getSoundMixer() override;
@@ -56,7 +55,7 @@ public:
 	shared_ptr<CPackage> getPackage() const;
 
 private:
-	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance);
+	CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance> vmInstance, void* userdata);
 
 	friend class CGameClass;
 
@@ -64,6 +63,7 @@ private:
 	shared_ptr<IVMInstance> _vmInstance;
 	shared_ptr<CElementRenderer> _elementRenderer;
 	shared_ptr<class CSoundMixer> _mixer;
+	void* _userdata;
 
 	shared_ptr<IImage> _defaultWhiteImage;
 	map<IRenderer*, vector<ITexture* >*> _loadedTextures;
@@ -81,6 +81,12 @@ private:
 
 	CMatrix3 calculateAspectMatrix(const CVec2& viewport, const CVec2& desired) const;
 	CMatrix3 getAspectMatrixForViewport(const CVec2& viewport) const;
+
+	void initializeTextures(class ITextureProvider* provider);
+	void finishTextures(class ITextureProvider* provider);
+
+	void initializeRenderer(IRenderer* renderer);
+	void finishRenderer(IRenderer* renderer);
 };
 
 }

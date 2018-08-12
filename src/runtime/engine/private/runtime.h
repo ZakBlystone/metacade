@@ -53,6 +53,7 @@ public:
 	IAllocator* getAllocator() const;
 	IFileSystem* getFilesystem() const;
 	ILogger* getLogger() const;
+	IRenderer* getRenderer() const;
 
 	bool filesystemTest();
 

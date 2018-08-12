@@ -867,7 +867,7 @@ namespace Arcade
 class IRenderer
 {
 public:
-	virtual void render(class IDrawBuffer* buffer) = 0;
+	virtual void render(class IGameInstance* instance, class IDrawBuffer* buffer) = 0;
 	virtual class ITextureProvider* getTextureProvider() = 0;
 	virtual ~IRenderer() {};
 };
@@ -1461,7 +1461,7 @@ namespace Arcade
 class IGameClass
 {
 public:
-	virtual bool createInstance(class IGameInstance** instance) = 0;
+	virtual bool createInstance(class IGameInstance** instance, void* userdata = nullptr) = 0;
 	virtual void deleteInstance(class IGameInstance* instance) = 0;
 	virtual ~IGameClass() {};
 };
@@ -1475,16 +1475,13 @@ class IGameInstance
 {
 public:
 	virtual class IGameClass* getClass() = 0;
+	virtual void* getUserData() = 0;
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 	virtual void postInputState(const class CInputState& input) = 0;
 	virtual void init() = 0;
 	virtual void think(float time) = 0;
-	virtual void render(class IRenderer* renderer, CVec2 viewportSize, uint32 targetID = 0) = 0;
-	virtual void initializeRenderer(class IRenderer* renderer) = 0;
-	virtual void finishRenderer(class IRenderer* renderer) = 0;
+	virtual void render(CVec2 viewportSize) = 0;
 	virtual bool callFunction(const CFunctionCall& call) = 0;
-	virtual void initializeTextures(class ITextureProvider* provider) = 0;
-	virtual void finishTextures(class ITextureProvider* provider) = 0;
 	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
 	virtual ISoundMixer* getSoundMixer() = 0;
 	virtual void setHostCallbacks(IHostCallbacks* callbacks) = 0;
@@ -1584,6 +1581,7 @@ public:
 	virtual class IAllocator* getAllocator() = 0;
 	virtual class IFileSystem* getFileSystem() = 0;
 	virtual class ILogger* getLogger() = 0;
+	virtual class IRenderer* getRenderer() = 0;
 	virtual ~IRuntimeEnvironment() {};
 };
 }
