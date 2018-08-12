@@ -33,6 +33,7 @@ namespace Arcade
 void beginLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer);
 void endLuaDraw(lua_State *L, shared_ptr<CElementRenderer> renderer);
 
-extern void OpenLuaDrawModule(lua_State *L);
+extern void openLuaDrawModule(lua_State *L);
+extern void closeLuaDrawModule();
 
 }

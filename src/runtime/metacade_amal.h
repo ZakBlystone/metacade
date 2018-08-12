@@ -261,6 +261,7 @@ public:
 };
 CVec2 operator/(float scalar, CVec2 vec);
 static const CVec2 Vec2Zero(0,0);
+static const CVec2 Vec2One(1,1);
 }
 //src/runtime/core/public/math/vec3.h
 namespace Arcade
@@ -324,6 +325,16 @@ public:
 	CVec3 operator/(float scalar) const;
 };
 static const CVec3 Vec3Zero(0,0,0);
+}
+//src/runtime/core/public/math/rect.h
+namespace Arcade
+{
+struct METACADE_API CRect
+{
+public:
+	CVec2 pos;
+	CVec2 size;
+};
 }
 //src/runtime/core/public/math/halfplane.h
 namespace Arcade

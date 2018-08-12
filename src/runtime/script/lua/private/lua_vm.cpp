@@ -118,7 +118,7 @@ bool CLuaVM::init()
 	lua_setglobal(_L, "_keynames");
 
 	//OpenLuaMathModule(_L);
-	OpenLuaDrawModule(_L);
+	openLuaDrawModule(_L);
 	openAssetModule(_L);
 	openLuaSoundModule(_L);
 
@@ -130,6 +130,8 @@ bool CLuaVM::init()
 void CLuaVM::shutdown()
 {
 	if ( _L == nullptr ) return;
+
+	closeLuaDrawModule();
 
 	lua_close(_L);
 

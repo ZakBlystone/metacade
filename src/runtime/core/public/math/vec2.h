@@ -114,5 +114,6 @@ public:
 CVec2 operator/(float scalar, CVec2 vec);
 
 static const CVec2 Vec2Zero(0,0);
+static const CVec2 Vec2One(1,1);
 
 }

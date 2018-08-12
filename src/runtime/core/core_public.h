@@ -43,6 +43,7 @@ core_public.h: Inter-modular headers
 #include "public/math/matrix4.h"
 #include "public/math/vec2.h"
 #include "public/math/vec3.h"
+#include "public/math/rect.h"
 #include "public/math/halfplane.h"
 #include "public/math/random.h"
 
