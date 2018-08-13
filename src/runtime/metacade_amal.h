@@ -843,7 +843,7 @@ class ITexture
 public:
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
-	virtual uint32 getID() const = 0;
+	virtual int32 getID() const = 0;
 	virtual ~ITexture() {};
 };
 }
@@ -895,6 +895,7 @@ enum EImageFlags
 class IImage
 {
 public:
+	virtual ~IImage() = 0;
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
 	virtual int32 getBytesPerPixel() const = 0;
@@ -902,7 +903,6 @@ public:
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
 	virtual uint32 getFlags() const = 0;
-	virtual ~IImage() = 0;
 };
 }
 //src/runtime/render/public/material.h
@@ -913,10 +913,10 @@ class METACADE_API CMaterial
 public:
 	CMaterial()
 		: _blend(BLEND_NORMAL)
-		, _baseTexture(0)
+		, _baseTexture(nullptr)
 	{}
 	EBlendMode _blend;
-	uint32 _baseTexture;
+	ITexture* _baseTexture;
 	uint64 getHash() const;
 };
 }
@@ -1666,6 +1666,13 @@ protected:
 	virtual void setLoaded(bool loaded) = 0;
 	virtual void setName(const CString& name) = 0;
 };
+class INativeLoadableAsset
+{
+public:
+	virtual bool loadNative() = 0;
+	virtual bool unloadNative() = 0;
+	virtual bool isNativeLoaded() const = 0;
+};
 template<EAssetType Type>
 class CAsset : public IAsset
 {
@@ -1700,6 +1707,48 @@ private:
 	CGUID _uniqueID;
 	CString _name;
 	bool _loaded;
+};
+template<EAssetType Type, typename T>
+class CNativeLoadableAsset : public CAsset<Type>, public INativeLoadableAsset
+{
+public:
+	CNativeLoadableAsset()
+		: CAsset<Type>()
+		, _nativeLoaded(false)
+		, _nativeData(nullptr)
+	{}
+	virtual bool loadNative()
+	{
+		if ( _nativeLoaded ) return true;
+		if ( !isLoaded() ) return false;
+		_nativeLoaded = handleLoadNative();
+		return _nativeLoaded;
+	}
+	virtual bool unloadNative()
+	{
+		if ( !_nativeLoaded ) return true;
+		if ( !handleUnloadNative() ) return false;
+		_nativeLoaded = false;
+		return true;
+	}
+	virtual void release()
+	{
+		unloadNative();
+	}
+	virtual bool isNativeLoaded() const
+	{
+		return _nativeLoaded;
+	}
+	T* getNativeData() const
+	{
+		return _nativeData;
+	}
+protected:
+	virtual bool handleLoadNative() = 0;
+	virtual bool handleUnloadNative() = 0;
+	T* _nativeData;
+private:
+	bool _nativeLoaded;
 };
 class METACADE_API CAssetRef
 {
@@ -1799,7 +1848,7 @@ public:
 //src/runtime/engine/public/assets/imageresource.h
 namespace Arcade
 {
-class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
+class METACADE_API CImageAsset : public CNativeLoadableAsset<ASSET_TEXTURE, ITexture>, public IImage
 {
 public:
 	CImageAsset();
@@ -1825,6 +1874,9 @@ private:
 	int32 _height;
 	uint32 _flags;
 	uint8* _pixels;
+protected:
+	virtual bool handleLoadNative() override;
+	virtual bool handleUnloadNative() override;
 };
 }
 //src/runtime/engine/public/assets/soundresource.h

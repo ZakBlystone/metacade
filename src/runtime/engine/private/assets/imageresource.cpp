@@ -26,7 +26,8 @@ imageresource.cpp:
 #include "engine_private.h"
 
 CImageAsset::CImageAsset()
-	: _flags(0)
+	: CNativeLoadableAsset()
+	, _flags(0)
 	, _index(nullptr)
 	, _pixels(nullptr)
 {
@@ -82,6 +83,8 @@ bool CImageAsset::validate() const
 
 void CImageAsset::release()
 {
+	CNativeLoadableAsset::release();
+
 	if ( _index != nullptr ) 
 	{
 		destroy(_index);
@@ -154,6 +157,30 @@ void Arcade::CImageAsset::setFlag(EImageFlags flag, bool enable /*= true*/)
 		_flags |= (uint32)(flag);
 	else
 		_flags &= !(uint32)(flag);
+}
+
+bool CImageAsset::handleLoadNative()
+{
+	IRenderer* renderer = gRuntime->getRenderer();
+	if ( renderer == nullptr ) return false;
+
+	_nativeData = renderer->getTextureProvider()->loadTexture( renderer, this );
+
+	log(LOG_MESSAGE, "Load native texture for image: %s", *getName());
+
+	return _nativeData != nullptr;
+}
+
+bool CImageAsset::handleUnloadNative()
+{
+	IRenderer* renderer = gRuntime->getRenderer();
+	if ( renderer == nullptr ) return false;
+
+	renderer->getTextureProvider()->freeTexture(renderer, _nativeData);
+
+	log(LOG_MESSAGE, "Release native texture for image: %s", *getName());
+
+	return true;
 }
 
 IImage::~IImage()

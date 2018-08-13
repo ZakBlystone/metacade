@@ -28,6 +28,6 @@ material.h:
 uint64 CMaterial::getHash() const
 {
 	uint32 blendBits = (uint32) (_blend) << MAX_TEXTURE_BITS;
-	uint32 textureBits = _baseTexture;
+	uint32 textureBits = (_baseTexture != nullptr) ? _baseTexture->getID() : 0;
 	return (uint64) ( blendBits | textureBits );
 }

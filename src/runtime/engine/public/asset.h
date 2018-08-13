@@ -60,6 +60,14 @@ protected:
 	virtual void setName(const CString& name) = 0;
 };
 
+class INativeLoadableAsset
+{
+public:
+	virtual bool loadNative() = 0;
+	virtual bool unloadNative() = 0;
+	virtual bool isNativeLoaded() const = 0;
+};
+
 template<EAssetType Type>
 class CAsset : public IAsset
 {
@@ -102,6 +110,58 @@ private:
 	CGUID _uniqueID;
 	CString _name;
 	bool _loaded;
+};
+
+template<EAssetType Type, typename T>
+class CNativeLoadableAsset : public CAsset<Type>, public INativeLoadableAsset
+{
+public:
+	CNativeLoadableAsset()
+		: CAsset<Type>()
+		, _nativeLoaded(false)
+		, _nativeData(nullptr)
+	{}
+
+	virtual bool loadNative()
+	{
+		if ( _nativeLoaded ) return true;
+		if ( !isLoaded() ) return false;
+		_nativeLoaded = handleLoadNative();
+		return _nativeLoaded;
+	}
+
+	virtual bool unloadNative()
+	{
+		if ( !_nativeLoaded ) return true;
+		if ( !handleUnloadNative() ) return false;
+		_nativeLoaded = false;
+		return true;
+	}
+
+	virtual void release()
+	{
+		unloadNative();
+	}
+
+	virtual bool isNativeLoaded() const
+	{
+		return _nativeLoaded;
+	}
+
+	T* getNativeData() const
+	{
+		return _nativeData;
+	}
+
+protected:
+
+	virtual bool handleLoadNative() = 0;
+	virtual bool handleUnloadNative() = 0;
+
+	T* _nativeData;
+
+private:
+	bool _nativeLoaded;
 };
 
 class METACADE_API CAssetRef

@@ -28,7 +28,7 @@ imageresource.h:
 namespace Arcade
 {
 
-class METACADE_API CImageAsset : public CAsset<ASSET_TEXTURE>, public IImage
+class METACADE_API CImageAsset : public CNativeLoadableAsset<ASSET_TEXTURE, ITexture>, public IImage
 {
 public:
 	CImageAsset();
@@ -61,6 +61,11 @@ private:
 	int32 _height;
 	uint32 _flags;
 	uint8* _pixels;
+protected:
+
+	virtual bool handleLoadNative() override;
+	virtual bool handleUnloadNative() override;
+
 };
 
 }

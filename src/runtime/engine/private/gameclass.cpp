@@ -83,6 +83,18 @@ bool CGameClass::init()
 		return false;
 	}
 
+	for (uint32 i = 0; i < locked->getNumAssets(); ++i)
+	{
+		CAssetRef ref = locked->getAsset(i);
+		IAsset* asset = ref.get();
+		
+		INativeLoadableAsset* nativeAsset = dynamic_cast<INativeLoadableAsset*>( asset );
+		if (nativeAsset != nullptr)
+		{
+			nativeAsset->loadNative();
+		}
+	}
+
 	uint32 language;
 	if ( !locked->getMetaData()->getValue("language").get(language) ) return false;
 	if ( language > LANG_NUM ) return false;

@@ -714,6 +714,11 @@ static int start(int argc, char *argv[])
 		loadedGameClass->deleteInstance( instance );
 	}
 
+	if ( loadedGameClass != nullptr && instance2 != nullptr )
+	{
+		loadedGameClass->deleteInstance( instance2 );
+	}
+
 	if ( demoFile != nullptr )
 	{
 		native->getFileSystem()->closeFile(demoFile);

@@ -40,6 +40,7 @@ enum EImageFlags
 class IImage
 {
 public:
+	virtual ~IImage() = 0;
 	virtual int32 getWidth() const = 0;
 	virtual int32 getHeight() const = 0;
 	virtual int32 getBytesPerPixel() const = 0;
@@ -47,7 +48,6 @@ public:
 	virtual uint8* getPixels() const = 0;
 	virtual uint32 getID() const = 0;
 	virtual uint32 getFlags() const = 0;
-	virtual ~IImage() = 0;
 };
 
 }

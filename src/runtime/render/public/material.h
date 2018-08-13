@@ -35,11 +35,11 @@ class METACADE_API CMaterial
 public:
 	CMaterial()
 		: _blend(BLEND_NORMAL)
-		, _baseTexture(0)
+		, _baseTexture(nullptr)
 	{}
 
 	EBlendMode _blend;
-	uint32 _baseTexture;
+	ITexture* _baseTexture;
 
 	uint64 getHash() const;
 };

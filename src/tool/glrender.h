@@ -54,6 +54,4 @@ public:
 private:
 	void renderBatch(const CRenderBatch* batch);
 	void updateRenderState(uint32 stateChangeFlags, const CRenderState& newState);
-
-	std::map<uint32, ITexture*> _textureRemap;
 };

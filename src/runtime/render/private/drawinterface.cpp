@@ -234,7 +234,7 @@ void CDrawInterface::drawRect(float x, float y, float w, float h, CImageAsset* t
 	else
 	{*/	
 
-	_renderState._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+	_renderState._material._baseTexture = texture != nullptr ? texture->getNativeData() : 0;
 
 	CRenderElement& el = _renderer->addRenderElement();
 	CRenderQuad* quad = &el.makeQuad2(_stack->clipTop(), _renderState, _layer);
@@ -271,7 +271,7 @@ void CDrawInterface::drawSprite(float x, float y, float w, float h, float r, CIm
 {
 	DI_RENDER_CHECK
 
-	_renderState._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+	_renderState._material._baseTexture = texture != nullptr ? texture->getNativeData() : 0;
 
 	CMatrix3 xform;
 	CMatrix3::identity(xform);
@@ -296,7 +296,7 @@ void CDrawInterface::drawQuad(const CRenderQuad& quad, CImageAsset* texture /*= 
 {
 	DI_RENDER_CHECK
 
-	_renderState._material._baseTexture = texture != nullptr ? texture->getID() : 0;
+	_renderState._material._baseTexture = texture != nullptr ? texture->getNativeData() : 0;
 
 	CRenderQuad transformedQuad = quad;
 	transformedQuad.transform( _stack->xformTop() );

@@ -71,13 +71,11 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 {
 	initializeParameters();
 	_vmInstance->setGameInstance(this);
-
-	initializeRenderer( gRuntime->getRenderer() );
 }
 
 CGameInstance::~CGameInstance()
 {
-	finishRenderer( gRuntime->getRenderer() );
+
 }
 
 class IGameClass* CGameInstance::getClass()
@@ -277,83 +275,4 @@ CMatrix3 CGameInstance::getAspectMatrixForViewport(const CVec2& viewport) const
 		return calculateAspectMatrix(viewport, _desiredResolution);
 	}
 	return CMatrix3();
-}
-
-void Arcade::CGameInstance::initializeTextures(class ITextureProvider* provider)
-{
-	ITexture* base = provider->loadTexture(nullptr, _defaultWhiteImage.get());
-	if ( base == nullptr ) return;
-	_mainLoadedTextures.push_back(base);
-
-	shared_ptr<CPackage> lockedpkg = getPackage();
-	if ( lockedpkg == nullptr ) return;
-	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
-	{
-		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
-		if ( image == nullptr ) continue;
-
-		ITexture* loaded = provider->loadTexture(nullptr, image);	
-		if ( loaded != nullptr )
-		{
-			log(LOG_MESSAGE, "Load Texture: %s[%i] (%ix%i)", *image->getName(), loaded->getID(), loaded->getWidth(), loaded->getHeight());
-			_mainLoadedTextures.push_back(loaded);
-		}
-	}
-}
-
-void Arcade::CGameInstance::finishTextures(class ITextureProvider* provider)
-{
-	for ( ITexture* texture : _mainLoadedTextures )
-	{
-		provider->freeTexture(nullptr, texture);
-	}
-
-	_mainLoadedTextures.clear();
-}
-
-void CGameInstance::initializeRenderer(IRenderer* renderer)
-{
-	ITextureProvider* provider = renderer->getTextureProvider();
-	if ( provider == nullptr ) return;
-
-	vector<ITexture* > *textureList = getTextureList(renderer, true);
-	if ( textureList == nullptr ) return;
-
-	ITexture* base = provider->loadTexture(renderer, _defaultWhiteImage.get());
-	if ( base == nullptr ) return;
-	textureList->push_back(base);
-
-	shared_ptr<CPackage> lockedpkg = getPackage();
-	if ( lockedpkg == nullptr ) return;
-	for ( uint32 i=0; i<lockedpkg->getNumAssets(); ++i )
-	{
-		CImageAsset* image = castAsset<CImageAsset>(lockedpkg->getAsset(i));
-		if ( image == nullptr ) continue;
-
-		ITexture* loaded = provider->loadTexture(renderer, image);	
-		if ( loaded != nullptr )
-		{
-			log(LOG_MESSAGE, "Load Texture: %s[%i] (%ix%i)", *image->getName(), loaded->getID(), loaded->getWidth(), loaded->getHeight());
-			textureList->push_back(loaded);
-		}
-	}
-}
-
-void CGameInstance::finishRenderer(IRenderer* renderer)
-{
-	ITextureProvider* provider = renderer->getTextureProvider();
-	if ( provider == nullptr ) return;
-
-	vector<ITexture* > *textureList = getTextureList(renderer);
-	if ( textureList == nullptr ) return;
-
-	for ( ITexture* tex : *textureList )
-	{
-		provider->freeTexture(renderer, tex);
-	}
-
-	destroy(textureList);
-	_loadedTextures.erase(_loadedTextures.find(renderer));
-
-	//_loadedTextures.clear();
 }

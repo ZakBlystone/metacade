@@ -151,17 +151,6 @@ CRendererGL::~CRendererGL()
 	glDeleteProgram(g_DefaultShaderProgram);
 	glDeleteShader(g_VertexShader);
 	glDeleteShader(g_FragmentShader);
-
-	//Ensure all textures are deleted
-	for ( auto entry : _textureRemap )
-	{
-		ITexture* tex = entry.second;
-		if ( tex != nullptr )
-		{
-			std::cout << "DELETED LINGERING TEXTURE ON GL RENDERER" << std::endl;
-			delete tex;
-		}
-	}
 }
 
 void CRendererGL::reshape(int32 width, int32 height)
@@ -242,7 +231,6 @@ public:
 		_width = imagesource->getWidth();
 		_height = imagesource->getHeight();
 		_id = imagesource->getID();
-		_refs = 0;
 
 		glGenTextures(1, &_nativeid);
 		glBindTexture(GL_TEXTURE_2D, _nativeid);
@@ -270,22 +258,7 @@ public:
 
 	virtual int32 getWidth() const override { return _width; }
 	virtual int32 getHeight() const override { return _height; }
-	virtual uint32 getID() const override { return _id; }
-
-	void addRef()
-	{
-		++_refs;
-	}
-
-	void decRef()
-	{
-		--_refs;
-	}
-
-	bool isDead()
-	{
-		return _refs == 0;
-	}
+	virtual int32 getID() const override { return _id; }
 
 	uint32 getNativeID()
 	{
@@ -297,24 +270,11 @@ private:
 	uint32 _nativeid;
 	int32 _width;
 	int32 _height;
-	uint32 _refs;
 };
 
 class ITexture* CRendererGL::loadTexture(class IRenderer*, class IImage* imagesource)
 {
-	auto found = _textureRemap.find(imagesource->getID());
-	if ( found != _textureRemap.end() ) 
-	{
-		CTextureGL* tex = (CTextureGL*) (*found).second;
-		tex->addRef();
-		return tex;
-	}
-
 	CTextureGL* newTexture = new CTextureGL(imagesource);
-	newTexture->addRef();
-
-	_textureRemap.insert(std::make_pair(imagesource->getID(), newTexture));
-
 	return newTexture;
 }
 
@@ -323,13 +283,7 @@ void CRendererGL::freeTexture(class IRenderer*, ITexture* texture)
 	if ( texture == nullptr ) return;
 
 	CTextureGL* tex = (CTextureGL*) texture;
-	tex->decRef();
-
-	if ( tex->isDead() )
-	{
-		_textureRemap.erase(_textureRemap.find(tex->getID()));
-		delete texture;
-	}
+	delete tex;
 }
 
 void CRendererGL::renderBatch(const CRenderBatch* batch)
@@ -362,15 +316,11 @@ void CRendererGL::updateRenderState(uint32 stateChangeFlags, const CRenderState&
 
 	if ( stateChangeFlags & ERenderStateChangeFlags::RSTATECHANGE_BASETEXTURE )
 	{
-		uint32 textureID = newState._material._baseTexture;
-		if ( textureID != 0 )
+		ITexture* texture = newState._material._baseTexture;
+		if ( texture != nullptr )
 		{
-			auto found = _textureRemap.find(textureID);
-			if ( found != _textureRemap.end() )
-			{
-				CTextureGL* tex = (CTextureGL*) (*found).second;
-				glBindTexture(GL_TEXTURE_2D, tex->getNativeID());
-			}
+			CTextureGL* tex = (CTextureGL*) texture;
+			glBindTexture(GL_TEXTURE_2D, tex->getNativeID());
 		}
 		else
 		{

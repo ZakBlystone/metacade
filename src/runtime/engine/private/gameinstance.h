@@ -81,12 +81,6 @@ private:
 
 	CMatrix3 calculateAspectMatrix(const CVec2& viewport, const CVec2& desired) const;
 	CMatrix3 getAspectMatrixForViewport(const CVec2& viewport) const;
-
-	void initializeTextures(class ITextureProvider* provider);
-	void finishTextures(class ITextureProvider* provider);
-
-	void initializeRenderer(IRenderer* renderer);
-	void finishRenderer(IRenderer* renderer);
 };
 
 }
