@@ -69,13 +69,14 @@ CGameInstance::CGameInstance(weak_ptr<CGameClass> klass, shared_ptr<IVMInstance>
 	, _callbacks(nullptr)
 	, _userdata(userdata)
 {
+	gRuntime->addTickableObject(this);
 	initializeParameters();
 	_vmInstance->setGameInstance(this);
 }
 
 CGameInstance::~CGameInstance()
 {
-
+	gRuntime->removeTickableObject(this);
 }
 
 class IGameClass* CGameInstance::getClass()
@@ -118,14 +119,10 @@ void Arcade::CGameInstance::init()
 	_vmInstance->init();
 }
 
-void CGameInstance::think(float time)
+void CGameInstance::tick(float deltatime)
 {
-	//time /= 2.f;
-	float DT = time - _lastTime;
-	if ( DT > 1.f ) DT = 1.f;
-	_lastTime = time;
-
-	_vmInstance->think(time, DT);
+	_lastTime += deltatime;
+	_vmInstance->think(_lastTime, deltatime);
 }
 
 void CGameInstance::render(CVec2 viewportSize)

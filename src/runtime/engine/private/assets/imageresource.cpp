@@ -76,7 +76,7 @@ bool CImageAsset::save(IFileObject* file)
 	return true;
 }
 
-bool CImageAsset::validate() const
+bool CImageAsset::isValidData() const
 {
 	return true;
 }
@@ -144,6 +144,8 @@ void CImageAsset::setImagePixels(EImagePixelFormat format, uint8 bpc, int32 widt
 
 	_pixels = (uint8*) zalloc(size);
 	memcpy(_pixels, pixels, size);
+
+	invalidate();
 }
 
 uint32 CImageAsset::getFlags() const
@@ -157,6 +159,8 @@ void Arcade::CImageAsset::setFlag(EImageFlags flag, bool enable /*= true*/)
 		_flags |= (uint32)(flag);
 	else
 		_flags &= !(uint32)(flag);
+
+	invalidate();
 }
 
 bool CImageAsset::handleLoadNative()
@@ -166,7 +170,7 @@ bool CImageAsset::handleLoadNative()
 
 	_nativeData = renderer->getTextureProvider()->loadTexture( renderer, this );
 
-	log(LOG_MESSAGE, "Load native texture for image: %s", *getName());
+	//log(LOG_MESSAGE, "Load native texture for image: %s", *getName());
 
 	return _nativeData != nullptr;
 }
@@ -177,8 +181,9 @@ bool CImageAsset::handleUnloadNative()
 	if ( renderer == nullptr ) return false;
 
 	renderer->getTextureProvider()->freeTexture(renderer, _nativeData);
+	_nativeData = nullptr;
 
-	log(LOG_MESSAGE, "Release native texture for image: %s", *getName());
+	//log(LOG_MESSAGE, "Release native texture for image: %s", *getName());
 
 	return true;
 }

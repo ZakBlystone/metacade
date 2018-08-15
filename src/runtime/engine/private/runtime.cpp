@@ -287,6 +287,28 @@ IGameClass* CRuntime::getGameClassForPackage(IPackage* package)
 	return newClass.get();
 }
 
+void CRuntime::tick(float deltatime)
+{
+	for (ITickable* tickable : _tickableObjects)
+	{
+		tickable->tick(deltatime);
+	}
+}
+
+void CRuntime::addTickableObject(ITickable* tickable)
+{
+	_tickableObjects.push_back( tickable );
+}
+
+void CRuntime::removeTickableObject(ITickable* tickable)
+{
+	auto it = std::find(_tickableObjects.begin(), _tickableObjects.end(),tickable);
+	if ( it != _tickableObjects.end() )
+	{
+		_tickableObjects.erase( it );
+	}
+}
+
 Arcade::IVMHost* Arcade::CRuntime::getCodeVM( ELanguage language )
 {
 	return _codeVM[language].get();

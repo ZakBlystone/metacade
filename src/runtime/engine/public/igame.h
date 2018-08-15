@@ -53,7 +53,6 @@ public:
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 	virtual void postInputState(const class CInputState& input) = 0;
 	virtual void init() = 0;
-	virtual void think(float time) = 0;
 	virtual void render(CVec2 viewportSize) = 0;
 	virtual bool callFunction(const CFunctionCall& call) = 0;
 

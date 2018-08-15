@@ -1490,7 +1490,6 @@ public:
 	virtual void postInputEvent(const class CInputEvent& input) = 0;
 	virtual void postInputState(const class CInputState& input) = 0;
 	virtual void init() = 0;
-	virtual void think(float time) = 0;
 	virtual void render(CVec2 viewportSize) = 0;
 	virtual bool callFunction(const CFunctionCall& call) = 0;
 	virtual void initSoundMixer(const CMixerSettings& settings) = 0;
@@ -1511,6 +1510,7 @@ public:
 	virtual class IPackageManager* getPackageManager() = 0;
 	virtual void makeCurrent() = 0;
 	virtual bool isCurrent() const = 0;
+	virtual void tick(float deltatime) = 0;
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;
 	virtual ISoundMixer* createSoundMixer(CMixerSettings settings) = 0;
@@ -1651,12 +1651,13 @@ class IAsset
 public:
 	virtual bool load(IFileObject* file) = 0;
 	virtual bool save(IFileObject* file) = 0;
-	virtual bool validate() const = 0;
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
+	virtual bool isValidData() const = 0;
 	virtual bool isLoaded() const = 0;
 	virtual bool isNamedAsset() const = 0;
+	virtual bool isInvalidated() const = 0;
 	virtual CString getName() const = 0;
 	virtual ~IAsset() = 0;
 protected:
@@ -1683,13 +1684,20 @@ public:
 	virtual bool isLoaded() const { return _loaded; }
 	virtual bool isNamedAsset() const { return !_name.empty(); }
 	virtual CString getName() const { return _name; }
+	virtual bool isInvalidated() const { return _invalidated; }
 	static EAssetType getAssetType() { return Type; }
+	void validate() { _invalidated = false; }
 protected:
 	friend class CPackageBuilder;
 	friend class CAssetMap;
 	CAsset() 
 		: _type(Type)
+		, _invalidated(false)
 	{}
+	void invalidate()
+	{
+		_invalidated = true;
+	}
 	void setUniqueID(const CGUID &id)
 	{
 		_uniqueID = id;
@@ -1707,6 +1715,7 @@ private:
 	CGUID _uniqueID;
 	CString _name;
 	bool _loaded;
+	bool _invalidated;
 };
 template<EAssetType Type, typename T>
 class CNativeLoadableAsset : public CAsset<Type>, public INativeLoadableAsset
@@ -1835,7 +1844,7 @@ public:
 	~CCodeAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
-	virtual bool validate() const override;
+	virtual bool isValidData() const override;
 	virtual void release() override;
 	const char* getCodeBuffer() const;
 	uint32 getCodeLength() const;
@@ -1855,7 +1864,7 @@ public:
 	virtual ~CImageAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
-	virtual bool validate() const override;
+	virtual bool isValidData() const override;
 	virtual void release() override;
 	virtual int32 getWidth() const override;
 	virtual int32 getHeight() const override;
@@ -1889,7 +1898,7 @@ public:
 	virtual ~CSoundAsset();
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
-	virtual bool validate() const override;
+	virtual bool isValidData() const override;
 	virtual void release() override;
 	void setWaveData(uint8* waveData, uint32 waveSize);
 	void setSampleInfo(const CSampleInfo& info);

@@ -39,6 +39,8 @@ public:
 	virtual void makeCurrent() = 0;
 	virtual bool isCurrent() const = 0;
 
+	virtual void tick(float deltatime) = 0;
+
 	virtual IMetaData* createMetaData() = 0;
 	virtual void deleteMetaData(IMetaData* data) = 0;
 

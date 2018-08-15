@@ -74,7 +74,7 @@ static bool buildImage(CImageAsset* asset, IMetaData* params)
 	asset->setImagePixels(PFM_RGBA8, 4, width, height, data);
 	ilDeleteImage(test);
 
-	return true;
+	return asset->isValidData();
 }
 
 static bool buildSound(CSoundAsset* sound, IMetaData* params)
@@ -165,7 +165,7 @@ static bool buildSound(CSoundAsset* sound, IMetaData* params)
 
 	SDL_FreeWAV(waveBuffer);
 
-	return true;
+	return sound->isValidData();
 }
 
 static bool buildCode(CCodeAsset* code, IMetaData* params)
@@ -183,7 +183,7 @@ static bool buildCode(CCodeAsset* code, IMetaData* params)
 	code->setCodeBuffer((const char*)buffer, size);
 	delete [] buffer;
 
-	return code->validate();
+	return code->isValidData();
 }
 
 CCompiler::CCompiler()

@@ -113,16 +113,41 @@ bool CGameClass::init()
 		log(LOG_ERROR, "Failed to create game VM");
 		return false;
 	}
+	
+	gRuntime->addTickableObject(this);
 
 	return true;
 }
 
 void CGameClass::release()
 {
+	gRuntime->removeTickableObject(this);
+
 	if ( _package.expired() ) return;
 	shared_ptr<CPackage> locked = _package.lock();
 
 	locked->releaseAssets();
+}
+
+void CGameClass::tick(float deltatime)
+{
+	if ( _package.expired() ) return;
+	shared_ptr<CPackage> locked = _package.lock();
+
+	for (uint32 i = 0; i < locked->getNumAssets(); ++i)
+	{
+		CAssetRef ref = locked->getAsset(i);
+		if (ref.getType() == ASSET_TEXTURE)
+		{
+			CImageAsset* image = castAsset<CImageAsset>(ref);
+			if (image != nullptr && image->isInvalidated())
+			{
+				image->unloadNative();
+				image->loadNative();
+				image->validate();
+			}
+		}
+	}
 }
 
 weak_ptr<CPackage> CGameClass::getPackage()

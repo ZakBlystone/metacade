@@ -513,6 +513,23 @@ static int start(int argc, char *argv[])
 
 	if ( initOpenGLAndWindow() || initSound() ) return 1;
 
+	/*CPackageBuilder* dynamics = packmanager->createPackageBuilder( targetProject->getProjectName() );
+	CImageAsset* static_image = dynamics->addNamedAsset<CImageAsset>("static");
+
+	static uint8 pixels[16];
+	for (int32 i = 0; i < 16; i += 4)
+	{
+		uint8* pix = pixels+i;
+		uint8 r = (rand() & 0xFF);
+		pix[0] = r;
+		pix[1] = r;
+		pix[2] = r;
+		pix[3] = r;
+	}
+	static_image->setImagePixels(PFM_RGBA8, 4, 2,2,pixels);
+
+	packmanager->deletePackageBuilder(dynamics);*/
+
 	shared_ptr<CRendererGL> renderer = make_shared<CRendererGL>();
 	renderer->reshape(1280, 720);
 
@@ -677,8 +694,7 @@ static int start(int argc, char *argv[])
 			events.clear();
 
 			fixedTime += 1.f / 60.f;
-			if ( instance != nullptr ) instance->think(fixedTime);
-			if ( instance2 != nullptr ) instance2->think(fixedTime);
+			runtime->tick( 1.f / 60.f );
 		}
 
 		if ( instance != nullptr ) 
@@ -705,6 +721,21 @@ static int start(int argc, char *argv[])
 		SDL_GL_SwapWindow(window);
 
 		Sleep(5);
+
+		CImageAsset* static_image = (CImageAsset*) loadedPackage->findAssetByName("static.tex").get();
+		if ( static_image != nullptr )
+		{
+			static uint8 pixels[64];
+			for (int32 i = 0; i < 64; i += 4)
+			{
+				uint8* pix = pixels+i;
+				pix[0] = (rand() & 0xFF);
+				pix[1] = (rand() & 0xFF);
+				pix[2] = (rand() & 0xFF);
+				pix[3] = 0xFF;
+			}
+			static_image->setImagePixels(PFM_RGBA8, 4, 4,4,pixels);
+		}
 	}
 
 	shudownSound();

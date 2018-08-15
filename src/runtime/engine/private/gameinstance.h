@@ -28,7 +28,7 @@ gameinstance.h:
 namespace Arcade
 {
 
-class CGameInstance : public IGameInstance
+class CGameInstance : public IGameInstance, public ITickable
 {
 public:
 	~CGameInstance();
@@ -41,7 +41,7 @@ public:
 	virtual void postInputState(const class CInputState& input) override;
 
 	virtual void init() override;
-	virtual void think(float time) override;
+	virtual void tick(float deltatime) override;
 	virtual void render(CVec2 viewportSize) override;
 	virtual bool callFunction(const CFunctionCall& call) override;
 

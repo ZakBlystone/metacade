@@ -56,7 +56,7 @@ bool CCodeAsset::save(IFileObject* file)
 	return true;
 }
 
-bool CCodeAsset::validate() const
+bool CCodeAsset::isValidData() const
 {
 	if ( _code == nullptr ) return false;
 	for ( uint32 i=0; i<_codeLength; ++i )
@@ -82,6 +82,7 @@ void CCodeAsset::setCodeBuffer(const char* buffer, uint32 size)
 	_codeLength = size;
 
 	memcpy(_code, buffer, size);
+	invalidate();
 }
 
 void CCodeAsset::setCodeBuffer(const char* buffer)

@@ -36,7 +36,7 @@ public:
 
 	virtual bool load(IFileObject* file) override;
 	virtual bool save(IFileObject* file) override;
-	virtual bool validate() const override;
+	virtual bool isValidData() const override;
 	virtual void release() override;
 
 	virtual int32 getWidth() const override;

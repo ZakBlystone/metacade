@@ -28,11 +28,13 @@ gameclass.h:
 namespace Arcade
 {
 
-class CGameClass : public IGameClass, public enable_shared_from_this<CGameClass>
+class CGameClass : public IGameClass, public ITickable, public enable_shared_from_this<CGameClass>
 {
 public:
 	virtual bool createInstance(IGameInstance** instance, void* userdata = nullptr) override;
 	virtual void deleteInstance(IGameInstance* instance) override;
+
+	virtual void tick(float deltatime);
 
 	weak_ptr<CPackage> getPackage();
 

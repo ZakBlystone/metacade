@@ -42,12 +42,13 @@ class IAsset
 public:
 	virtual bool load(IFileObject* file) = 0;
 	virtual bool save(IFileObject* file) = 0;
-	virtual bool validate() const = 0;
 	virtual void release() = 0;
 	virtual EAssetType getType() const = 0;
 	virtual CGUID getUniqueID() const = 0;
+	virtual bool isValidData() const = 0;
 	virtual bool isLoaded() const = 0;
 	virtual bool isNamedAsset() const = 0;
+	virtual bool isInvalidated() const = 0;
 	virtual CString getName() const = 0;
 	virtual ~IAsset() = 0;
 
@@ -79,8 +80,10 @@ public:
 	virtual bool isLoaded() const { return _loaded; }
 	virtual bool isNamedAsset() const { return !_name.empty(); }
 	virtual CString getName() const { return _name; }
+	virtual bool isInvalidated() const { return _invalidated; }
 
 	static EAssetType getAssetType() { return Type; }
+	void validate() { _invalidated = false; }
 
 protected:
 	friend class CPackageBuilder;
@@ -88,7 +91,13 @@ protected:
 
 	CAsset() 
 		: _type(Type)
+		, _invalidated(false)
 	{}
+
+	void invalidate()
+	{
+		_invalidated = true;
+	}
 
 	void setUniqueID(const CGUID &id)
 	{
@@ -110,6 +119,7 @@ private:
 	CGUID _uniqueID;
 	CString _name;
 	bool _loaded;
+	bool _invalidated;
 };
 
 template<EAssetType Type, typename T>

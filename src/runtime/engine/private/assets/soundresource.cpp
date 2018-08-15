@@ -64,7 +64,7 @@ bool Arcade::CSoundAsset::save(IFileObject* file)
 	return true;
 }
 
-bool Arcade::CSoundAsset::validate() const
+bool Arcade::CSoundAsset::isValidData() const
 {
 	return true;
 }
@@ -91,11 +91,13 @@ void Arcade::CSoundAsset::setWaveData(uint8* waveData, uint32 waveSize)
 	_waveData = (uint8*) zalloc(_waveSize);
 
 	memcpy(_waveData, waveData, waveSize * sizeof(uint8));
+	invalidate();
 }
 
 void Arcade::CSoundAsset::setSampleInfo(const CSampleInfo& info)
 {
 	_sampleInfo = info;
+	invalidate();
 }
 
 void Arcade::CSoundAsset::getSampleInfo(CSampleInfo& info)

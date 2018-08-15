@@ -30,6 +30,12 @@ runtime.h:
 namespace Arcade
 {
 
+class ITickable
+{
+public:
+	virtual void tick(float deltatime) = 0;
+};
+
 class CRuntime : public IRuntime
 {
 public:
@@ -42,6 +48,8 @@ public:
 	virtual void makeCurrent();
 	virtual bool isCurrent() const;
 
+	virtual void tick(float deltatime);
+
 	virtual IMetaData* createMetaData();
 	virtual void deleteMetaData(IMetaData* data);
 
@@ -49,6 +57,9 @@ public:
 	virtual void deleteSoundMixer(ISoundMixer* mixer);
 
 	virtual IGameClass* getGameClassForPackage(IPackage* package);
+
+	void addTickableObject(ITickable* tickable);
+	void removeTickableObject(ITickable* tickable);
 
 	IAllocator* getAllocator() const;
 	IFileSystem* getFilesystem() const;
@@ -66,6 +77,8 @@ private:
 	IRuntimeEnvironment* _runtimeEnvironment;
 	shared_ptr<CIndexAllocator> _textureIndices;
 	shared_ptr<class IVMHost> _codeVM[ ELanguage::LANG_NUM ];
+
+	vector<ITickable*> _tickableObjects;
 
 	map<CGUID, shared_ptr<class CGameClass>> _classes;
 };
